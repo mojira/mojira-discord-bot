@@ -3,7 +3,7 @@ import PrefixCommand from './PrefixCommand';
 import Command from './Command';
 import BotConfig from '../BotConfig';
 import { ReactionsUtil } from '../util/ReactionsUtil';
-import { PermissionRegistry } from '../permissions/PermissionRegistry';
+import PermissionRegistry from '../permissions/PermissionRegistry';
 import MojiraBot from '../MojiraBot';
 
 export default class RolesCommand extends PrefixCommand {
