@@ -3,13 +3,13 @@
 [![](https://img.shields.io/github/stars/mojira/mojira-discord-bot)](https://github.com/mojira/mojira-discord-bot/stargazers)
 [![](https://img.shields.io/github/license/mojira/mojira-discord-bot)](https://github.com/mojira/mojira-discord-bot/blob/master/LICENSE.md)
 
-# Arisa
+# Mojira Discord Bot
 
 <!-- PROJECT LOGO -->
 <br/>
 <p align="center">
   <a href="https://bugs.mojang.com/">
-    <img src="images/mojira-bot.png" alt="MojiraBot" width="80" height="80">
+    <img src="mojira-bot.png" alt="MojiraBot" width="80" height="80">
   </a>
 
   <h3 align="center">MojiraBot</h3>
