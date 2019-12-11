@@ -4,6 +4,7 @@
   "description": "A work-in-progress bot used to link to Mojira bug reports directly from Discord.",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint **/*.ts --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "violine1101",
