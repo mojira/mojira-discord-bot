@@ -1,0 +1,41 @@
+{
+	// This is an example file for hosting the bot. Copy it, rename it to `settings.json` and change the fields appropriately in order to run the bot.
+	// Don't add your it to the repository, as these settings can be used very easily to control your bot without your consent if made public!
+	// The lines with keys with two underscores as their first two characters are comments and don't need to be included.
+
+	// Whether or not the bot is in debug mode
+	"debug": false,
+
+	// Your bot token to login with the bot
+	"token": "<Discord bot token>",
+
+	// Your user ID for owner only commands
+	"owner": "<Owner Discord ID>",
+
+	// The channel ID of the bot's home channel
+	"home_channel": "<Home channel ID>",
+
+	// The channel ID of the bot's roles channel
+	"roles_channel": "<Roles channel ID>",
+
+	// The message ID of the bot's roles message",
+	"roles_message": "<Roles message ID>",
+
+	// The projects the bot should be able to find tickets for
+	"projects": ["MC", "MCCE", "MCL", "MCPE"],
+
+	// A list of roles that should be used for the roles message
+	"roles": [
+		{
+			// The role's id
+			"id": "<Role id>",
+
+			// Description of the role
+			"desc": "Example role",
+			
+			// This needs to be a custom emoji currently!
+			"emoji": "<Emoji id>"
+		}
+		// ... you can add more roles here
+	]
+}

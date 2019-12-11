@@ -1,0 +1,26 @@
+{
+  "name": "mojira-discord-bot",
+  "version": "0.0.1",
+  "description": "A work-in-progress bot used to link to Mojira bug reports directly from Discord.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^12.12.14",
+    "discord.js": "^11.5.1",
+    "jira-connector": "^2.16.1",
+    "log4js": "^6.1.0",
+    "moment": "^2.24.0",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.2"
+  },
+  "devDependencies": {
+    "@types/emoji-regex": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^2.9.0",
+    "@typescript-eslint/parser": "^2.9.0",
+    "eslint": "^6.6.0"
+  }
+}
