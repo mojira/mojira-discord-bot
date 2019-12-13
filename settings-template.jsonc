@@ -1,7 +1,7 @@
 {
-	// This is an example file for hosting the bot. Copy it, rename it to `settings.json` and change the fields appropriately in order to run the bot.
-	// Don't add your it to the repository, as these settings can be used very easily to control your bot without your consent if made public!
-	// The lines with keys with two underscores as their first two characters are comments and don't need to be included.
+	// This is an example settings file for hosting the bot. Copy it, rename it to `settings.json` and change the fields appropriately in order to run the bot.
+	// Don't add your `settings.json` to the repository, as these settings can be used very easily to control your bot without your consent if made public!
+	// The lines beginning with two slashes are comments and don't need to be included.
 
 	// Whether or not the bot is in debug mode
 	"debug": false,

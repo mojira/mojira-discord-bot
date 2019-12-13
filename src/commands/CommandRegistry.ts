@@ -2,7 +2,7 @@ import BugCommand from './BugCommand';
 import HelpCommand from './HelpCommand';
 import PingCommand from './PingCommand';
 import MentionCommand from './MentionCommand';
-import { PollCommand } from './PollCommand';
+import PollCommand from './PollCommand';
 import RolesCommand from './RolesCommand';
 import ShutdownCommand from './ShutdownCommand';
 

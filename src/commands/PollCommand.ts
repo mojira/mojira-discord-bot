@@ -2,7 +2,7 @@ import PrefixCommand from './PrefixCommand';
 import { Message, TextChannel, DMChannel, GroupDMChannel, RichEmbed } from 'discord.js';
 import Command from './Command';
 import emojiRegex = require( 'emoji-regex/text.js' );
-import ModeratorPermission from '../permissions/ModeratorPermission';
+import PermissionRegistry from '../permissions/PermissionRegistry';
 import { ReactionsUtil } from '../util/ReactionsUtil';
 
 interface PollOption {
@@ -12,8 +12,8 @@ interface PollOption {
 	text: string;
 }
 
-export class PollCommand extends PrefixCommand {
-	public readonly permissionLevel = new ModeratorPermission();
+export default class PollCommand extends PrefixCommand {
+	public readonly permissionLevel = PermissionRegistry.MODERATOR_PERMISSION;
 
 	public readonly aliases = ['poll', 'vote'];
 

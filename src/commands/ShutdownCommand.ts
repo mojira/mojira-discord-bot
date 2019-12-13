@@ -1,18 +1,13 @@
 import { Message } from 'discord.js';
 import MojiraBot from '../MojiraBot';
 import PrefixCommand from './PrefixCommand';
-import OwnerPermission from '../permissions/OwnerPermission';
+import PermissionRegistry from '../permissions/PermissionRegistry';
 import Command from './Command';
 
 export default class ShutdownCommand extends PrefixCommand {
-	public readonly permissionLevel: OwnerPermission;
+	public readonly permissionLevel = PermissionRegistry.OWNER_PERMISSION;
 
 	public readonly aliases = ['shutdown', 'stop'];
-
-	constructor() {
-		super();
-		this.permissionLevel = new OwnerPermission();
-	}
 
 	public async run( message: Message, args: string ): Promise<boolean> {
 		if ( args.length ) {

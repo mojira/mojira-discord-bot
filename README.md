@@ -55,7 +55,7 @@ This project depends on the following projects, thanks to every developer who ma
 
 ## Contributing
 
-You're very welcome to contribute to this project! Please note that this project uses [TypeScript ESLint](https://github.com/typescript-eslint/typescript-eslint/) to ensure consistent code.
+You're very welcome to contribute to this project! Please note that this project uses [TypeScript ESLint](https://github.com/typescript-eslint/typescript-eslint/) to ensure consistent code, you can execute `npm run lint` to fix lint warnings and errors automatically.
 
 ## Found a bug in Minecraft?
 
