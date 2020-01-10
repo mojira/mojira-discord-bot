@@ -37,5 +37,23 @@
 			"emoji": "<Emoji id>"
 		}
 		// ... you can add more roles here
+	],
+
+	// The interval of the check for filter feeds, in milliseconds
+	"filter_feed_interval": 900000,
+
+	// A list of feeds that should be sent when there are unknown tickets in a specific filter
+	"filter_feeds": [
+		{
+			// The filter's JQL
+			"jql": "<JQL>",
+
+			// The channel in which the feed should be sent
+			"channel": "<Feed channel ID>",
+
+			// The title for this feed embed. {{num}} will be replaced as the number of ticket(s)
+			"title": "{{num}} ticket(s) blabla in the last 15 minutes!"
+		}
+		// ... you can add more feeds here
 	]
 }

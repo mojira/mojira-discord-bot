@@ -1,6 +1,8 @@
 import { Client, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from './BotConfig';
+import FilterFeedTask from './tasks/FilterFeedTask';
+import TaskScheduler from './tasks/TaskScheduler';
 import EventRegistry from './events/EventRegistry';
 import ErrorEventHandler from './events/ErrorEventHandler';
 import MessageEventHandler from './events/MessageEventHandler';
@@ -36,6 +38,7 @@ export default class MojiraBot {
 				this.logger.info( 'Debug mode is activated' );
 			}
 
+			// Register events.
 			EventRegistry.setClient( this.client );
 			EventRegistry.add( new ErrorEventHandler() );
 			EventRegistry.add( new MessageEventHandler( this.client.user.id ) );
@@ -51,6 +54,9 @@ export default class MojiraBot {
 					this.logger.error( err );
 				}
 			}
+
+			// Schedule tasks.
+			BotConfig.feeds.forEach( feed => TaskScheduler.add( new FilterFeedTask( feed ), BotConfig.feedInterval ) );
 
 			// TODO Change to custom status when discord.js#3552 is merged into current version of package
 			this.client.user.setActivity( '!jira help' );
