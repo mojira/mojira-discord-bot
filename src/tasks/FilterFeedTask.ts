@@ -14,7 +14,7 @@ export default class FilterFeedTask extends Task {
 	private jql: string;
 	private title: string;
 
-	private knownTickets: string[];
+	private knownTickets: Set<string>;
 
 	constructor( { channel, jql, title }: FilterFeedConfig, client: Client ) {
 		super();
@@ -52,15 +52,17 @@ export default class FilterFeedTask extends Task {
 		}
 
 		if ( this.knownTickets ) {
-			const unknownTickets = upcomingTickets.filter( key => !this.knownTickets.includes( key ) );
+			const unknownTickets = upcomingTickets.filter( key => !this.knownTickets.has( key ) );
 
 			if ( unknownTickets.length > 0 ) {
 				try {
 					const embed = await MentionRegistry.getMention( unknownTickets ).getEmbed();
-					embed.setTitle(
-						this.title
-							.replace( /\{\{num\}\}/g, unknownTickets.length.toString() )
-					);
+					embed
+						.setTitle(
+							this.title
+								.replace( /\{\{num\}\}/g, unknownTickets.length.toString() )
+						)
+						.setTimestamp( new Date() );
 
 					const channel = this.client.channels.get( this.channel );
 					if ( channel instanceof TextChannel ) {
@@ -76,6 +78,6 @@ export default class FilterFeedTask extends Task {
 				}
 			}
 		}
-		this.knownTickets = upcomingTickets;
+		upcomingTickets.forEach( key => this.knownTickets.add( key ) );
 	}
 }
