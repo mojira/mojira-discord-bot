@@ -76,7 +76,7 @@ export default class FilterFeedTask extends Task {
 				}
 			}
 		}
-		for (const ticket of upcomingTickets) {
+		for ( const ticket of upcomingTickets ) {
 			this.knownTickets.add( ticket );
 		}
 	}

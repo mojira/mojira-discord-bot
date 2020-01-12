@@ -55,15 +55,15 @@ export default class MojiraBot {
 				}
 			}
 
-			//#region Schedule tasks.
+			// #region Schedule tasks.
 			// Filter feed tasks.
-			for (const config of BotConfig.filterFeeds) {
+			for ( const config of BotConfig.filterFeeds ) {
 				TaskScheduler.add(
 					new FilterFeedTask( config, this.client.channels.get( config.channel ) ),
 					BotConfig.filterFeedInterval
-				)
+				);
 			}
-			//#endregion
+			// #endregion
 
 			// TODO Change to custom status when discord.js#3552 is merged into current version of package
 			this.client.user.setActivity( '!jira help' );
