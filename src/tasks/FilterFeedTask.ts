@@ -1,6 +1,6 @@
 import { MentionRegistry } from '../mentions/MentionRegistry';
 import { FilterFeedConfig } from '../BotConfig';
-import { Client, TextChannel } from 'discord.js';
+import { Client, TextChannel, Channel } from 'discord.js';
 import * as log4js from 'log4js';
 import Task from './Task';
 import JiraClient = require( 'jira-connector' );
@@ -10,19 +10,18 @@ export default class FilterFeedTask extends Task {
 
 	private client: Client;
 	private jira: JiraClient;
-	private channel: string;
+	private channel: Channel;
 	private jql: string;
 	private title: string;
 
 	private knownTickets: Set<string>;
 
-	constructor( { channel, jql, title }: FilterFeedConfig, client: Client ) {
+	constructor( { jql, title }: FilterFeedConfig, channel: Channel ) {
 		super();
 
 		this.channel = channel;
 		this.jql = jql;
 		this.title = title;
-		this.client = client;
 
 		this.jira = new JiraClient( {
 			host: 'bugs.mojang.com',
@@ -64,9 +63,8 @@ export default class FilterFeedTask extends Task {
 						)
 						.setTimestamp( new Date() );
 
-					const channel = this.client.channels.get( this.channel );
-					if ( channel instanceof TextChannel ) {
-						channel.send( embed );
+					if ( this.channel instanceof TextChannel ) {
+						this.channel.send( embed );
 					}
 					else {
 						throw `Expected ${this.channel} to be a TextChannel`;
@@ -78,6 +76,8 @@ export default class FilterFeedTask extends Task {
 				}
 			}
 		}
-		upcomingTickets.forEach( key => this.knownTickets.add( key ) );
+		for (const ticket of upcomingTickets) {
+			this.knownTickets.add( ticket );
+		}
 	}
 }
