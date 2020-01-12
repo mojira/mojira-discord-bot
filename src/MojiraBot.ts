@@ -56,7 +56,7 @@ export default class MojiraBot {
 			}
 
 			// Schedule tasks.
-			BotConfig.feeds.forEach( feed => TaskScheduler.add( new FilterFeedTask( feed ), BotConfig.feedInterval ) );
+			BotConfig.filterFeeds.forEach( feed => TaskScheduler.add( new FilterFeedTask( feed, this.client ), BotConfig.filterFeedInterval ) );
 
 			// TODO Change to custom status when discord.js#3552 is merged into current version of package
 			this.client.user.setActivity( '!jira help' );
