@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint **/*.ts --fix",
+    "bot": "ts-node .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "violine1101",

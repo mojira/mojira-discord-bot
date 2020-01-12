@@ -38,9 +38,9 @@ git clone https://github.com/mojira/mojira-discord-bot.git
 npm install
 ```
 
-To run the bot, you need to use `ts-node`:
+To run the bot, you need to run the following command:
 ```
-ts-node .
+npm run bot
 ```
 
 ## Built with
