@@ -8,13 +8,13 @@ export default class MentionCommand extends Command {
 		const ticketRegex = RegExp( `(?:^|[^!])((?:${ BotConfig.projects.join( '|' ) })-\\d+)`, 'g' );
 
 		let ticketMatch: RegExpExecArray;
-		const ticketMatches: string[] = [];
+		const ticketMatches: Set<string> = new Set();
 
 		while ( ( ticketMatch = ticketRegex.exec( messageText ) ) !== null ) {
-			ticketMatches.push( ticketMatch[1] );
+			ticketMatches.add( ticketMatch[1] );
 		}
 
-		return ticketMatches.length ? ticketMatches : false;
+		return ticketMatches.size ? Array.from( ticketMatches ) : false;
 	}
 
 	public async run( message: Message, args: string[] ): Promise<boolean> {
