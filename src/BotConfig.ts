@@ -75,8 +75,7 @@ export default class BotConfig {
 	public static async login( client: Client ): Promise<boolean> {
 		try {
 			await client.login( this.token );
-		}
-		catch ( err ) {
+		} catch ( err ) {
 			MojiraBot.logger.error( err );
 			return false;
 		}

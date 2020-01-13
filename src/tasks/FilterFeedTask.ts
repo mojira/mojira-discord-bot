@@ -17,13 +17,13 @@ export default class FilterFeedTask extends Task {
 
 	private knownTickets = new Set<string>();
 
-	constructor( { jql, title, title_single }: FilterFeedConfig, channel: Channel ) {
+	constructor( { jql, title, title_single: titleSingle }: FilterFeedConfig, channel: Channel ) {
 		super();
 
 		this.channel = channel;
 		this.jql = jql;
 		this.title = title;
-		this.titleSingle = title_single || title.replace( /\{\{num\}\}/g, '1' );
+		this.titleSingle = titleSingle || title.replace( /\{\{num\}\}/g, '1' );
 
 		this.jira = new JiraClient( {
 			host: 'bugs.mojang.com',
@@ -46,8 +46,7 @@ export default class FilterFeedTask extends Task {
 			}
 
 			upcomingTickets = searchResults.issues.map( ( { key } ) => key );
-		}
-		catch ( err ) {
+		} catch ( err ) {
 			FilterFeedTask.logger.error( err );
 			return;
 		}
@@ -58,7 +57,7 @@ export default class FilterFeedTask extends Task {
 			if ( unknownTickets.length > 0 ) {
 				try {
 					const embed = await MentionRegistry.getMention( unknownTickets ).getEmbed();
-					
+
 					let message = '';
 
 					if ( unknownTickets.length > 1 ) {
@@ -74,8 +73,7 @@ export default class FilterFeedTask extends Task {
 					} else {
 						throw `Expected ${ this.channel } to be a TextChannel`;
 					}
-				}
-				catch ( err ) {
+				} catch ( err ) {
 					FilterFeedTask.logger.error( err );
 					return;
 				}

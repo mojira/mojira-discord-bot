@@ -49,8 +49,7 @@ export default class MojiraBot {
 					await rolesChannel.fetchMessage( BotConfig.rolesMessage );
 					EventRegistry.add( new AddReactionEventHandler( this.client.user.id ) );
 					EventRegistry.add( new RemoveReactionEventHandler( this.client.user.id ) );
-				}
-				catch ( err ) {
+				} catch ( err ) {
 					this.logger.error( err );
 				}
 			}
@@ -80,8 +79,7 @@ export default class MojiraBot {
 					this.client.destroy();
 				}
 			} );
-		}
-		catch ( err ) {
+		} catch ( err ) {
 			this.logger.error( `MojiraBot could not be started: ${ err }` );
 		}
 	}
@@ -97,8 +95,7 @@ export default class MojiraBot {
 			await this.client.destroy();
 			this.running = false;
 			this.logger.info( 'MojiraBot has been successfully shut down.' );
-		}
-		catch ( err ) {
+		} catch ( err ) {
 			this.logger.error( `MojiraBot could not be shut down: ${ err }` );
 		}
 	}

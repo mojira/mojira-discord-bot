@@ -21,8 +21,7 @@ export default class PollCommand extends PrefixCommand {
 		try {
 			if ( additionalInfo != undefined ) {
 				additionalInfo += '\n';
-			}
-			else {
+			} else {
 				additionalInfo = '';
 			}
 
@@ -35,8 +34,7 @@ export default class PollCommand extends PrefixCommand {
 				...
 				\`\`\``.replace( /\t/g, '' )
 			);
-		}
-		catch ( err ) {
+		} catch ( err ) {
 			Command.logger.error( err );
 		}
 	}
@@ -128,8 +126,7 @@ export default class PollCommand extends PrefixCommand {
 					rawEmoji: rawEmoji,
 					text: optionArgs[2],
 				} );
-			}
-			else {
+			} else {
 				await this.sendSyntaxMessage( message.channel, `**Error:** ${ emoji } is not a valid emoji.` );
 				return false;
 			}
@@ -138,8 +135,7 @@ export default class PollCommand extends PrefixCommand {
 		if ( message.deletable ) {
 			try {
 				await message.delete();
-			}
-			catch ( err ) {
+			} catch ( err ) {
 				Command.logger.error( err );
 			}
 		}

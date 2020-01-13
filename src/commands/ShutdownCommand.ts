@@ -17,16 +17,14 @@ export default class ShutdownCommand extends PrefixCommand {
 		if ( message.deletable ) {
 			try {
 				await message.delete();
-			}
-			catch ( err ) {
+			} catch ( err ) {
 				Command.logger.error( err );
 			}
 		}
 
 		try {
 			await MojiraBot.shutdown();
-		}
-		catch {
+		} catch {
 			return false;
 		}
 

@@ -9,8 +9,7 @@ export class ReactionsUtil {
 
 		try {
 			await message.react( reactions.shift() );
-		}
-		catch ( err ) {
+		} catch ( err ) {
 			this.logger.error( err );
 		}
 		this.reactToMessage( message, reactions );
