@@ -13,6 +13,7 @@ import MessageDeleteEventHandler from './events/MessageDeleteEventHandler';
 import MessageUpdateEventHandler from './events/MessageUpdateEventHandler';
 import VersionFeedTask from './tasks/VersionFeedTask';
 import NewRequestEventHandler from './events/requests/NewRequestEventHandler';
+import DisconnectEventHandler from './events/DisconnectEventHandler';
 
 /**
  * Core class of MojiraBot
@@ -42,7 +43,7 @@ export default class MojiraBot {
 			// Register events.
 			EventRegistry.setClient( this.client );
 			EventRegistry.add( new ErrorEventHandler() );
-			EventRegistry.add( new RemoveReactionEventHandler( this.client.user.id ) );
+			EventRegistry.add( new DisconnectEventHandler() );
 
 			const rolesChannel = this.client.channels.get( BotConfig.rolesChannel );
 			if ( rolesChannel && rolesChannel instanceof TextChannel ) {
@@ -113,6 +114,7 @@ export default class MojiraBot {
 				}
 			}
 			EventRegistry.add( new AddReactionEventHandler( this.client.user.id, internalChannels ) );
+			EventRegistry.add( new RemoveReactionEventHandler( this.client.user.id ) );
 			EventRegistry.add( new MessageEventHandler( this.client.user.id, internalChannels ) );
 			EventRegistry.add( new MessageUpdateEventHandler( this.client.user.id, internalChannels ) );
 			EventRegistry.add( new MessageDeleteEventHandler( this.client.user.id, internalChannels ) );
@@ -152,6 +154,13 @@ export default class MojiraBot {
 			} );
 		} catch ( err ) {
 			this.logger.error( `MojiraBot could not be started: ${ err }` );
+		}
+	}
+
+	public static async reconnect(): Promise<void> {
+		const loginResult = await BotConfig.login( this.client );
+		if ( !loginResult ) {
+			MojiraBot.logger.error( 'MojiraBot was unable to reconnect' );
 		}
 	}
 
