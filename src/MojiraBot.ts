@@ -1,6 +1,8 @@
 import { Client, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from './BotConfig';
+import FilterFeedTask from './tasks/FilterFeedTask';
+import TaskScheduler from './tasks/TaskScheduler';
 import EventRegistry from './events/EventRegistry';
 import ErrorEventHandler from './events/ErrorEventHandler';
 import MessageEventHandler from './events/MessageEventHandler';
@@ -36,6 +38,7 @@ export default class MojiraBot {
 				this.logger.info( 'Debug mode is activated' );
 			}
 
+			// Register events.
 			EventRegistry.setClient( this.client );
 			EventRegistry.add( new ErrorEventHandler() );
 			EventRegistry.add( new MessageEventHandler( this.client.user.id ) );
@@ -46,11 +49,20 @@ export default class MojiraBot {
 					await rolesChannel.fetchMessage( BotConfig.rolesMessage );
 					EventRegistry.add( new AddReactionEventHandler( this.client.user.id ) );
 					EventRegistry.add( new RemoveReactionEventHandler( this.client.user.id ) );
-				}
-				catch ( err ) {
+				} catch ( err ) {
 					this.logger.error( err );
 				}
 			}
+
+			// #region Schedule tasks.
+			// Filter feed tasks.
+			for ( const config of BotConfig.filterFeeds ) {
+				TaskScheduler.add(
+					new FilterFeedTask( config, this.client.channels.get( config.channel ) ),
+					BotConfig.filterFeedInterval
+				);
+			}
+			// #endregion
 
 			// TODO Change to custom status when discord.js#3552 is merged into current version of package
 			this.client.user.setActivity( '!jira help' );
@@ -67,8 +79,7 @@ export default class MojiraBot {
 					this.client.destroy();
 				}
 			} );
-		}
-		catch ( err ) {
+		} catch ( err ) {
 			this.logger.error( `MojiraBot could not be started: ${ err }` );
 		}
 	}
@@ -80,11 +91,11 @@ export default class MojiraBot {
 		}
 
 		try {
+			TaskScheduler.clearAll();
 			await this.client.destroy();
 			this.running = false;
 			this.logger.info( 'MojiraBot has been successfully shut down.' );
-		}
-		catch ( err ) {
+		} catch ( err ) {
 			this.logger.error( `MojiraBot could not be shut down: ${ err }` );
 		}
 	}

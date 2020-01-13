@@ -11,15 +11,13 @@ export default class PingCommand extends PrefixCommand {
 
 		try {
 			await message.channel.send( 'Pong!' );
-		}
-		catch {
+		} catch {
 			return false;
 		}
 
 		try {
 			await message.react( '🏓' );
-		}
-		catch {
+		} catch {
 			return false;
 		}
 

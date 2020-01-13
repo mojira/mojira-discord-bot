@@ -16,8 +16,7 @@ export default class BugCommand extends PrefixCommand {
 			if ( !ticketRegex.test( ticket ) ) {
 				try {
 					message.channel.send( `'${ ticket }' is not a valid ticket ID.` );
-				}
-				catch ( err ) {
+				} catch ( err ) {
 					Command.logger.log( err );
 				}
 				return false;
@@ -29,12 +28,10 @@ export default class BugCommand extends PrefixCommand {
 		let embed: RichEmbed;
 		try {
 			embed = await mention.getEmbed();
-		}
-		catch ( err ) {
+		} catch ( err ) {
 			try {
 				message.channel.send( err );
-			}
-			catch ( err ) {
+			} catch ( err ) {
 				Command.logger.log( err );
 			}
 			return false;
@@ -47,8 +44,7 @@ export default class BugCommand extends PrefixCommand {
 
 		try {
 			await message.channel.send( embed );
-		}
-		catch ( err ) {
+		} catch ( err ) {
 			Command.logger.error( err );
 			return false;
 		}
@@ -56,12 +52,10 @@ export default class BugCommand extends PrefixCommand {
 		if ( message.deletable ) {
 			try {
 				await message.delete();
-			}
-			catch ( err ) {
+			} catch ( err ) {
 				Command.logger.error( err );
 			}
-		}
-		else {
+		} else {
 			console.log( 'message not deletable' );
 		}
 

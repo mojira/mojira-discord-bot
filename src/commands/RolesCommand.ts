@@ -26,8 +26,7 @@ export default class RolesCommand extends PrefixCommand {
 		let sentMessage: Message | Message[];
 		try {
 			sentMessage = await channel.send( embed );
-		}
-		catch ( err ) {
+		} catch ( err ) {
 			Command.logger.error( err );
 			return false;
 		}
@@ -36,8 +35,7 @@ export default class RolesCommand extends PrefixCommand {
 			if ( sentMessage.length !== 1 ) {
 				Command.logger.error( 'Result of send command was not exactly one message' );
 				return false;
-			}
-			else {
+			} else {
 				sentMessage = sentMessage[0];
 			}
 		}
@@ -57,8 +55,7 @@ export default class RolesCommand extends PrefixCommand {
 		if ( message.deletable ) {
 			try {
 				await message.delete();
-			}
-			catch ( err ) {
+			} catch ( err ) {
 				Command.logger.error( err );
 			}
 		}

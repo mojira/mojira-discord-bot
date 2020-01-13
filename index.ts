@@ -17,7 +17,6 @@ log4js.configure( {
 try {
 	BotConfig.init( settingsJson );
 	MojiraBot.start();
-}
-catch ( err ) {
+} catch ( err ) {
 	MojiraBot.logger.error( err );
 }

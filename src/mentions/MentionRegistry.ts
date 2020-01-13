@@ -6,8 +6,7 @@ export class MentionRegistry {
 	public static getMention( tickets: string[] ): Mention {
 		if ( tickets.length == 1 ) {
 			return new SingleMention( tickets[0] );
-		}
-		else {
+		} else {
 			return new MultipleMention( tickets );
 		}
 	}

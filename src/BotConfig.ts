@@ -7,6 +7,13 @@ export interface RoleConfig {
 	id: string;
 }
 
+export interface FilterFeedConfig {
+	jql: string;
+	channel: string;
+	title: string;
+	title_single?: string;
+}
+
 export default class BotConfig {
 	public static debug: boolean;
 
@@ -22,6 +29,9 @@ export default class BotConfig {
 	public static projects: Array<string>;
 
 	public static roles: RoleConfig[];
+
+	public static filterFeedInterval: number;
+	public static filterFeeds: FilterFeedConfig[];
 
 	// projects etc
 	// wrapper class for settings.json
@@ -54,13 +64,18 @@ export default class BotConfig {
 
 		if ( !settings.roles ) throw 'Roles are not set';
 		this.roles = settings.roles;
+
+		if ( !settings.filter_feed_interval ) throw 'Filter feed interval is not set';
+		this.filterFeedInterval = settings.filter_feed_interval;
+
+		if ( !settings.filter_feeds ) throw 'Filter feeds are not set';
+		this.filterFeeds = settings.filter_feeds;
 	}
 
 	public static async login( client: Client ): Promise<boolean> {
 		try {
 			await client.login( this.token );
-		}
-		catch ( err ) {
+		} catch ( err ) {
 			MojiraBot.logger.error( err );
 			return false;
 		}

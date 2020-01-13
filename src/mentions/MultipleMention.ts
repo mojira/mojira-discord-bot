@@ -31,8 +31,7 @@ export class MultipleMention extends Mention {
 				maxResults: 10,
 				fields: [ 'key', 'summary' ],
 			} );
-		}
-		catch ( err ) {
+		} catch ( err ) {
 			const exception = JSON.parse( err );
 			if ( !exception ) {
 				Mention.logger.error( err );
@@ -46,8 +45,7 @@ export class MultipleMention extends Mention {
 
 			if ( exception.statusCode === 404 ) {
 				errorMessage = 'This ticket doesn\'t seem to exist.';
-			}
-			else if ( exception.statusCode === 401 ) {
+			} else if ( exception.statusCode === 401 ) {
 				errorMessage = 'This ticket is private or has been deleted.';
 			}
 

@@ -18,16 +18,14 @@ export default class HelpCommand extends PrefixCommand {
 				It is not possible to invite this bot to other servers yet.
 				If you have any issues, feel free to ping violine1101.`.replace( /\t/g, '' )
 			);
-		}
-		catch {
+		} catch {
 			return false;
 		}
 
 		if ( message.deletable ) {
 			try {
 				await message.delete();
-			}
-			catch {
+			} catch {
 				return true;
 			}
 		}

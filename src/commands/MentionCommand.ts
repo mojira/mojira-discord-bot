@@ -23,12 +23,10 @@ export default class MentionCommand extends Command {
 		let embed: RichEmbed;
 		try {
 			embed = await mention.getEmbed();
-		}
-		catch ( err ) {
+		} catch ( err ) {
 			try {
 				message.channel.send( err );
-			}
-			catch ( err ) {
+			} catch ( err ) {
 				Command.logger.log( err );
 			}
 			return false;
@@ -41,8 +39,7 @@ export default class MentionCommand extends Command {
 
 		try {
 			await message.channel.send( embed );
-		}
-		catch ( err ) {
+		} catch ( err ) {
 			Command.logger.error( err );
 			return false;
 		}
@@ -50,8 +47,7 @@ export default class MentionCommand extends Command {
 		if ( message.deletable && message.content.match( new RegExp( `^\\s*(?:^|[^!])((?:${ BotConfig.projects.join( '|' ) })-\\d+)\\s*$` ) ) ) {
 			try {
 				message.delete();
-			}
-			catch ( err ) {
+			} catch ( err ) {
 				Command.logger.error( err );
 			}
 		}
