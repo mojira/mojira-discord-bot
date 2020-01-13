@@ -55,8 +55,15 @@ export default class MojiraBot {
 				}
 			}
 
-			// Schedule tasks.
-			BotConfig.filterFeeds.forEach( feed => TaskScheduler.add( new FilterFeedTask( feed, this.client ), BotConfig.filterFeedInterval ) );
+			// #region Schedule tasks.
+			// Filter feed tasks.
+			for ( const config of BotConfig.filterFeeds ) {
+				TaskScheduler.add(
+					new FilterFeedTask( config, this.client.channels.get( config.channel ) ),
+					BotConfig.filterFeedInterval
+				);
+			}
+			// #endregion
 
 			// TODO Change to custom status when discord.js#3552 is merged into current version of package
 			this.client.user.setActivity( '!jira help' );
@@ -86,6 +93,7 @@ export default class MojiraBot {
 		}
 
 		try {
+			TaskScheduler.clearAll();
 			await this.client.destroy();
 			this.running = false;
 			this.logger.info( 'MojiraBot has been successfully shut down.' );
