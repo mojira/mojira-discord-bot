@@ -18,7 +18,7 @@
 	// The channel ID of the bot's roles channel
 	"roles_channel": "<Roles channel ID>",
 
-	// The message ID of the bot's roles message",
+	// The message ID of the bot's roles message"
 	"roles_message": "<Roles message ID>",
 
 	// The projects the bot should be able to find tickets for
@@ -52,7 +52,10 @@
 			"channel": "<Feed channel ID>",
 
 			// The title for this feed embed. {{num}} will be replaced as the number of ticket(s)
-			"title": "{{num}} ticket(s) blabla in the last 15 minutes!"
+			"title": "{{num}} tickets blabla in the last 15 minutes!",
+			
+			// Optional. The message accompanying this feed embed, in case there's only one ticket. If this is not set, `title` will be used instead.
+			"title_single": "One ticket blabla in the last 15 minutes!"
 		}
 		// ... you can add more feeds here
 	]

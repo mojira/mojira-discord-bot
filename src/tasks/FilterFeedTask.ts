@@ -13,15 +13,17 @@ export default class FilterFeedTask extends Task {
 	private channel: Channel;
 	private jql: string;
 	private title: string;
+	private titleSingle: string;
 
 	private knownTickets = new Set<string>();
 
-	constructor( { jql, title }: FilterFeedConfig, channel: Channel ) {
+	constructor( { jql, title, title_single }: FilterFeedConfig, channel: Channel ) {
 		super();
 
 		this.channel = channel;
 		this.jql = jql;
 		this.title = title;
+		this.titleSingle = title_single || title.replace( /\{\{num\}\}/g, '1' );
 
 		this.jira = new JiraClient( {
 			host: 'bugs.mojang.com',
@@ -56,18 +58,21 @@ export default class FilterFeedTask extends Task {
 			if ( unknownTickets.length > 0 ) {
 				try {
 					const embed = await MentionRegistry.getMention( unknownTickets ).getEmbed();
-					embed
-						.setTitle(
-							this.title
-								.replace( /\{\{num\}\}/g, unknownTickets.length.toString() )
-						)
-						.setTimestamp( new Date() );
+					
+					let message = '';
+
+					if ( unknownTickets.length > 1 ) {
+						embed.setTitle(
+							this.title.replace( /\{\{num\}\}/g, unknownTickets.length.toString() )
+						);
+					} else {
+						message = this.titleSingle;
+					}
 
 					if ( this.channel instanceof TextChannel ) {
-						this.channel.send( embed );
-					}
-					else {
-						throw `Expected ${this.channel} to be a TextChannel`;
+						this.channel.send( message, embed );
+					} else {
+						throw `Expected ${ this.channel } to be a TextChannel`;
 					}
 				}
 				catch ( err ) {

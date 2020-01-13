@@ -11,6 +11,7 @@ export interface FilterFeedConfig {
 	jql: string;
 	channel: string;
 	title: string;
+	title_single?: string;
 }
 
 export default class BotConfig {
