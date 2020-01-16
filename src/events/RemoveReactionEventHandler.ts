@@ -14,7 +14,7 @@ export default class RemoveReactionEventHandler implements EventHandler {
 		this.botUserId = botUserId;
 	}
 
-	// This syntax is used to ensure that `this` refers to the `MessageEventHandler` object
+	// This syntax is used to ensure that `this` refers to the `RemoveReactionEventHandler` object
 	public onEvent = ( messageReaction: MessageReaction, user: User ): void => {
 		if ( messageReaction.message.id !== BotConfig.rolesMessage || user.id === this.botUserId ) return;
 

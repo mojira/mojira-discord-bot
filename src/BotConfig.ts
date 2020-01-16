@@ -25,6 +25,7 @@ export default class BotConfig {
 	public static homeChannel: string;
 	public static rolesChannel: string;
 	public static rolesMessage: string;
+	public static requestChannels: string[];
 
 	public static projects: Array<string>;
 
@@ -58,6 +59,9 @@ export default class BotConfig {
 
 		if ( !settings.roles_message ) throw 'Roles message is not set';
 		this.rolesMessage = settings.roles_message;
+
+		if ( !settings.request_channels ) throw 'Request channels are not set';
+		this.requestChannels = settings.request_channels;
 
 		if ( !settings.projects ) throw 'Projects are not set';
 		this.projects = settings.projects;

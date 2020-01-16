@@ -18,8 +18,11 @@
 	// The channel ID of the bot's roles channel
 	"roles_channel": "<Roles channel ID>",
 
-	// The message ID of the bot's roles message"
+	// The message ID of the bot's roles message
 	"roles_message": "<Roles message ID>",
+
+	// The channel IDs of the bot's request channels
+	"request_channels": ["<Channel 1 ID>", "<Channel 2 ID>"],
 
 	// The projects the bot should be able to find tickets for
 	"projects": ["MC", "MCCE", "MCL", "MCPE"],

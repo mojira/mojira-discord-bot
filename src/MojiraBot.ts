@@ -1,9 +1,9 @@
 import { Client, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from './BotConfig';
-import FilterFeedTask from './tasks/FilterFeedTask';
 import TaskScheduler from './tasks/TaskScheduler';
 import EventRegistry from './events/EventRegistry';
+import FilterFeedTask from './tasks/FilterFeedTask';
 import ErrorEventHandler from './events/ErrorEventHandler';
 import MessageEventHandler from './events/MessageEventHandler';
 import AddReactionEventHandler from './events/AddReactionEventHandler';
