@@ -47,6 +47,12 @@ export default class MojiraBot {
 			if ( rolesChannel && rolesChannel instanceof TextChannel ) {
 				try {
 					await rolesChannel.fetchMessage( BotConfig.rolesMessage );
+					for ( const channel of BotConfig.requestChannels ) {
+						const requestChannel = this.client.channels.get( channel );
+						if ( requestChannel && requestChannel instanceof TextChannel ) {
+							await requestChannel.fetchPinnedMessages();
+						}
+					}
 					EventRegistry.add( new AddReactionEventHandler( this.client.user.id ) );
 					EventRegistry.add( new RemoveReactionEventHandler( this.client.user.id ) );
 				} catch ( err ) {
