@@ -1,7 +1,7 @@
 import { User, MessageReaction } from 'discord.js';
 import * as log4js from 'log4js';
-import BotConfig from '../BotConfig';
-import EventHandler from './EventHandler';
+import BotConfig from '../../BotConfig';
+import EventHandler from '../EventHandler';
 
 export default class SelectRoleEventHandler implements EventHandler {
 	public readonly eventName = '';

@@ -1,8 +1,8 @@
 import { User, MessageReaction } from 'discord.js';
 import BotConfig from '../BotConfig';
 import EventHandler from './EventHandler';
-import SelectRoleEventHandler from './SelectRoleEventHandler';
-import ResolveRequstEventHandler from './ResolveRequestEventHandler';
+import SelectRoleEventHandler from './roles/SelectRoleEventHandler';
+import ResolveRequstEventHandler from './requests/ResolveRequestEventHandler';
 
 export default class AddReactionEventHandler implements EventHandler {
 	public readonly eventName = 'messageReactionAdd';
@@ -18,13 +18,15 @@ export default class AddReactionEventHandler implements EventHandler {
 
 	// This syntax is used to ensure that `this` refers to the `AddReactionEventHandler` object
 	public onEvent = ( messageReaction: MessageReaction, user: User ): void => {
-		if ( messageReaction.message.id === BotConfig.rolesMessage && user.id !== this.botUserId ) {
-			// Handle with selecting role
-			return this.selectRoleHandler.onEvent( messageReaction, user );
+		// Do not react to own reactions
+		if ( user.id === this.botUserId ) return;
+
+		if ( messageReaction.message.id === BotConfig.rolesMessage ) {
+			// Handle role selection
+			this.selectRoleHandler.onEvent( messageReaction, user );
 		} else if ( BotConfig.requestChannels.includes( messageReaction.message.channel.id ) ) {
-			// Handle with resolving user request. Please make sure that only helpers and moderators
-			// can add reactions to messages in request channels
-			return this.resolveRequestHandler.onEvent( messageReaction, user );
+			// Handle resolved user request
+			this.resolveRequestHandler.onEvent( messageReaction, user );
 		}
 	};
 }
