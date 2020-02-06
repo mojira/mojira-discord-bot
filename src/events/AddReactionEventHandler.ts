@@ -1,35 +1,32 @@
-import EventHandler from './EventHandler';
 import { User, MessageReaction } from 'discord.js';
 import BotConfig from '../BotConfig';
-import * as log4js from 'log4js';
+import EventHandler from './EventHandler';
+import SelectRoleEventHandler from './roles/SelectRoleEventHandler';
+import ResolveRequstEventHandler from './requests/ResolveRequestEventHandler';
 
 export default class AddReactionEventHandler implements EventHandler {
 	public readonly eventName = 'messageReactionAdd';
 
 	private readonly botUserId: string;
 
-	private logger = log4js.getLogger( 'RoleDistributor' );
+	private readonly selectRoleHandler = new SelectRoleEventHandler();
+	private readonly resolveRequestHandler = new ResolveRequstEventHandler();
 
 	constructor( botUserId: string ) {
 		this.botUserId = botUserId;
 	}
 
-	// This syntax is used to ensure that `this` refers to the `MessageEventHandler` object
+	// This syntax is used to ensure that `this` refers to the `AddReactionEventHandler` object
 	public onEvent = ( messageReaction: MessageReaction, user: User ): void => {
-		if ( messageReaction.message.id !== BotConfig.rolesMessage || user.id === this.botUserId ) return;
+		// Do not react to own reactions
+		if ( user.id === this.botUserId ) return;
 
-		this.logger.info( `User ${ user.tag } added '${ messageReaction.emoji.name }' reaction to role message` );
-
-		const role = BotConfig.roles.find( searchedRole => searchedRole.emoji === messageReaction.emoji.id );
-
-		if ( !role ) {
-			messageReaction.remove( user );
-			return;
-		}
-
-		const member = messageReaction.message.guild.members.get( user.id );
-		if ( member ) {
-			member.addRole( role.id );
+		if ( messageReaction.message.id === BotConfig.rolesMessage ) {
+			// Handle role selection
+			this.selectRoleHandler.onEvent( messageReaction, user );
+		} else if ( BotConfig.requestChannels.includes( messageReaction.message.channel.id ) ) {
+			// Handle resolved user request
+			this.resolveRequestHandler.onEvent( messageReaction, user );
 		}
 	};
 }

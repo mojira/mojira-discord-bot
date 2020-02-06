@@ -1,9 +1,9 @@
 import { Client, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from './BotConfig';
-import FilterFeedTask from './tasks/FilterFeedTask';
 import TaskScheduler from './tasks/TaskScheduler';
 import EventRegistry from './events/EventRegistry';
+import FilterFeedTask from './tasks/FilterFeedTask';
 import ErrorEventHandler from './events/ErrorEventHandler';
 import MessageEventHandler from './events/MessageEventHandler';
 import AddReactionEventHandler from './events/AddReactionEventHandler';
@@ -47,6 +47,12 @@ export default class MojiraBot {
 			if ( rolesChannel && rolesChannel instanceof TextChannel ) {
 				try {
 					await rolesChannel.fetchMessage( BotConfig.rolesMessage );
+					for ( const channel of BotConfig.requestChannels ) {
+						const requestChannel = this.client.channels.get( channel );
+						if ( requestChannel && requestChannel instanceof TextChannel ) {
+							await requestChannel.fetchPinnedMessages();
+						}
+					}
 					EventRegistry.add( new AddReactionEventHandler( this.client.user.id ) );
 					EventRegistry.add( new RemoveReactionEventHandler( this.client.user.id ) );
 				} catch ( err ) {
