@@ -5,7 +5,11 @@ import BotConfig from '../BotConfig';
 
 export default class MentionCommand extends Command {
 	public test( messageText: string ): boolean | string[] {
-		const ticketRegex = RegExp( `(?:^|[^!])((?:${ BotConfig.projects.join( '|' ) })-\\d+)`, 'g' );
+		const ticketPattern = `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;
+		const ticketRegex = RegExp( `(?:^|[^!])(${ticketPattern})`, 'g' );
+
+		//remove all issues posted in the form of a link from the search
+		messageText = messageText.replace(new RegExp(`https?://bugs.mojang.com/browse/${ticketPattern}`, 'g'), '');
 
 		let ticketMatch: RegExpExecArray;
 		const ticketMatches: Set<string> = new Set();
