@@ -5,11 +5,14 @@ import BotConfig from '../BotConfig';
 
 export default class MentionCommand extends Command {
 	public test( messageText: string ): boolean | string[] {
-		const ticketPattern = `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;
-		const ticketRegex = RegExp( `(?:^|[^!])(${ticketPattern})`, 'g' );
+		const ticketRegex = RegExp( `(?:^|[^${ BotConfig.forbiddenTicketPrefix }])${ BotConfig.requiredTicketPrefix }(${ this.getTicketPattern() })`, 'g' );
 
 		//remove all issues posted in the form of a link from the search
-		messageText = messageText.replace(new RegExp(`https?://bugs.mojang.com/browse/${ticketPattern}`, 'g'), '');
+
+		if(!BotConfig.ticketUrlsCauseEmbed || BotConfig.requiredTicketPrefix)
+			messageText = messageText.replace(
+				new RegExp(`https?://bugs.mojang.com/browse/(${this.getTicketPattern()})`, 'g'), //search pattern
+				BotConfig.ticketUrlsCauseEmbed ? `${BotConfig.requiredTicketPrefix}$1` : ''); //replace with prefix, if enabled, or nothing if disabled
 
 		let ticketMatch: RegExpExecArray;
 		const ticketMatches: Set<string> = new Set();
@@ -48,7 +51,9 @@ export default class MentionCommand extends Command {
 			return false;
 		}
 
-		if ( message.deletable && message.content.match( new RegExp( `^\\s*(?:^|[^!])((?:${ BotConfig.projects.join( '|' ) })-\\d+)\\s*$` ) ) ) {
+		if ( message.deletable
+			&& ( message.content.match( new RegExp(`^\\s*${BotConfig.requiredTicketPrefix}${this.getTicketPattern()}\\s*$`))
+			|| ( BotConfig.ticketUrlsCauseEmbed && message.content.match(new RegExp(`^\\s*https?://bugs.mojang.com/browse/${this.getTicketPattern()}\\s*$`))))) {
 			try {
 				message.delete();
 			} catch ( err ) {
@@ -61,5 +66,9 @@ export default class MentionCommand extends Command {
 
 	public asString( args: string[] ): string {
 		return '[mention] ' + args.join( ', ' );
+	}
+
+	private getTicketPattern(): string {
+		return `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;
 	}
 }

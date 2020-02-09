@@ -27,6 +27,11 @@ export default class BotConfig {
 	public static rolesMessage: string;
 	public static requestChannels: string[];
 
+	//settings for mention command
+	public static ticketUrlsCauseEmbed: boolean;
+	public static requiredTicketPrefix: string;
+	public static forbiddenTicketPrefix: string;
+
 	public static projects: Array<string>;
 
 	public static roles: RoleConfig[];
@@ -62,6 +67,15 @@ export default class BotConfig {
 
 		if ( !settings.request_channels ) throw 'Request channels are not set';
 		this.requestChannels = settings.request_channels;
+
+		//no check, beacause it's a boolean.
+		this.ticketUrlsCauseEmbed = settings.ticketUrlsCauseEmbed;
+
+		if ( !settings.forbiddenTicketPrefix ) this.forbiddenTicketPrefix = '';
+		else this.forbiddenTicketPrefix = settings.forbiddenTicketPrefix;
+
+		if ( !settings.requiredTicketPrefix ) this.requiredTicketPrefix = '';
+		else this.requiredTicketPrefix = settings.requiredTicketPrefix;
 
 		if ( !settings.projects ) throw 'Projects are not set';
 		this.projects = settings.projects;
