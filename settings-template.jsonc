@@ -21,7 +21,8 @@
 	// The message ID of the bot's roles message
 	"roles_message": "<Roles message ID>",
 
-	// Whether the bot should send an embed when a full URL to a ticket gets posted
+	// Whether the bot should send an embed when a full URL to a ticket gets posted.
+	// Optional, false by default
 	"ticketUrlsCauseEmbed": false,
 
 	// A prefix that prevents the bot from posting an embed for a mentioned ticket.

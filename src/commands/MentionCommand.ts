@@ -7,12 +7,13 @@ export default class MentionCommand extends Command {
 	public test( messageText: string ): boolean | string[] {
 		const ticketRegex = RegExp( `(?:^|[^${ BotConfig.forbiddenTicketPrefix }])${ BotConfig.requiredTicketPrefix }(${ this.getTicketPattern() })`, 'g' );
 
-		//remove all issues posted in the form of a link from the search
-
-		if(!BotConfig.ticketUrlsCauseEmbed || BotConfig.requiredTicketPrefix)
+		// replace all issues posted in the form of a link from the search either with a mention or remove them
+		if ( !BotConfig.ticketUrlsCauseEmbed || BotConfig.requiredTicketPrefix ) {
 			messageText = messageText.replace(
-				new RegExp(`https?://bugs.mojang.com/browse/(${this.getTicketPattern()})`, 'g'), //search pattern
-				BotConfig.ticketUrlsCauseEmbed ? `${BotConfig.requiredTicketPrefix}$1` : ''); //replace with prefix, if enabled, or nothing if disabled
+				new RegExp( `https?://bugs.mojang.com/browse/(${ this.getTicketPattern() })`, 'g' ),
+				BotConfig.ticketUrlsCauseEmbed ? `${ BotConfig.requiredTicketPrefix }$1` : ''
+			);
+		}
 
 		let ticketMatch: RegExpExecArray;
 		const ticketMatches: Set<string> = new Set();
@@ -51,13 +52,16 @@ export default class MentionCommand extends Command {
 			return false;
 		}
 
-		if ( message.deletable
-			&& ( message.content.match( new RegExp(`^\\s*${BotConfig.requiredTicketPrefix}${this.getTicketPattern()}\\s*$`))
-			|| ( BotConfig.ticketUrlsCauseEmbed && message.content.match(new RegExp(`^\\s*https?://bugs.mojang.com/browse/${this.getTicketPattern()}\\s*$`))))) {
-			try {
-				message.delete();
-			} catch ( err ) {
-				Command.logger.error( err );
+		if ( message.deletable ) {
+			const matchesTicketId = message.content.match( new RegExp( `^\\s*${ BotConfig.requiredTicketPrefix }${ this.getTicketPattern() }\\s*$` ) );
+			const matchesTicketUrl = message.content.match( new RegExp( `^\\s*https?://bugs.mojang.com/browse/${ this.getTicketPattern() }\\s*$` ) );
+
+			if ( matchesTicketId || ( BotConfig.ticketUrlsCauseEmbed && matchesTicketUrl ) ) {
+				try {
+					message.delete();
+				} catch ( err ) {
+					Command.logger.error( err );
+				}
 			}
 		}
 
