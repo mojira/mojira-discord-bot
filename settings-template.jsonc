@@ -21,6 +21,20 @@
 	// The message ID of the bot's roles message
 	"roles_message": "<Roles message ID>",
 
+	// Whether the bot should send an embed when a full URL to a ticket gets posted.
+	// Optional, false by default
+	"ticketUrlsCauseEmbed": false,
+
+	// A prefix that prevents the bot from posting an embed for a mentioned ticket.
+	// If this prefix is longer than 1, none of the characters can be used.
+	// When omitted or empty, no prefix prevents embeds.
+	"forbiddenTicketPrefix": "<Prefix>",
+
+	// Prefix that needs to preceed any mentioned ticket in order for the bot to post an embed
+	// If this prefix is longer than 1, the entire string needs to prefix any mentioned ticket.
+	// When omitted or empty, no prefix is required for posting embeds.
+	"requiredTicketPrefix": "<Prefix>",
+
 	// The channel IDs of the bot's request channels
 	"request_channels": ["<Channel 1 ID>", "<Channel 2 ID>"],
 

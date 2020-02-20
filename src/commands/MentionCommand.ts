@@ -5,7 +5,15 @@ import BotConfig from '../BotConfig';
 
 export default class MentionCommand extends Command {
 	public test( messageText: string ): boolean | string[] {
-		const ticketRegex = RegExp( `(?:^|[^!])((?:${ BotConfig.projects.join( '|' ) })-\\d+)`, 'g' );
+		const ticketRegex = RegExp( `(?:^|[^${ BotConfig.forbiddenTicketPrefix }])${ BotConfig.requiredTicketPrefix }(${ this.getTicketPattern() })`, 'g' );
+
+		// replace all issues posted in the form of a link from the search either with a mention or remove them
+		if ( !BotConfig.ticketUrlsCauseEmbed || BotConfig.requiredTicketPrefix ) {
+			messageText = messageText.replace(
+				new RegExp( `https?://bugs.mojang.com/browse/(${ this.getTicketPattern() })`, 'g' ),
+				BotConfig.ticketUrlsCauseEmbed ? `${ BotConfig.requiredTicketPrefix }$1` : ''
+			);
+		}
 
 		let ticketMatch: RegExpExecArray;
 		const ticketMatches: Set<string> = new Set();
@@ -44,11 +52,16 @@ export default class MentionCommand extends Command {
 			return false;
 		}
 
-		if ( message.deletable && message.content.match( new RegExp( `^\\s*(?:^|[^!])((?:${ BotConfig.projects.join( '|' ) })-\\d+)\\s*$` ) ) ) {
-			try {
-				message.delete();
-			} catch ( err ) {
-				Command.logger.error( err );
+		if ( message.deletable ) {
+			const matchesTicketId = message.content.match( new RegExp( `^\\s*${ BotConfig.requiredTicketPrefix }${ this.getTicketPattern() }\\s*$` ) );
+			const matchesTicketUrl = message.content.match( new RegExp( `^\\s*https?://bugs.mojang.com/browse/${ this.getTicketPattern() }\\s*$` ) );
+
+			if ( matchesTicketId || ( BotConfig.ticketUrlsCauseEmbed && matchesTicketUrl ) ) {
+				try {
+					message.delete();
+				} catch ( err ) {
+					Command.logger.error( err );
+				}
 			}
 		}
 
@@ -57,5 +70,9 @@ export default class MentionCommand extends Command {
 
 	public asString( args: string[] ): string {
 		return '[mention] ' + args.join( ', ' );
+	}
+
+	private getTicketPattern(): string {
+		return `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;
 	}
 }
