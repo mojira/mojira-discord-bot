@@ -41,8 +41,8 @@
 		"channels": ["<Channel 1 ID>", "<Channel 2 ID>", "<Channel 3 ID>"],
 
 		// The corresponding internal channels of the request channels. All the messages sent
-		// sent in a request channel by users will be forwarded to the respective internal 
-		// channel by the bot.
+		// in a request channel by users will be forwarded to the respective internal channel
+		// by the bot.
 		// The length of this array MUST be the same as the length of `channels`.
 		// You MAY use the same internal channel for multiple times.
 		"internal_channels": ["<Internal Channel 1 ID>", "<Internal Channel 2 ID>", "<Internal Channel 3 ID>"],
