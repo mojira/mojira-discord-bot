@@ -41,20 +41,27 @@ export default class MojiraBot {
 			// Register events.
 			EventRegistry.setClient( this.client );
 			EventRegistry.add( new ErrorEventHandler() );
-			EventRegistry.add( new MessageEventHandler( this.client.user.id ) );
+			EventRegistry.add( new RemoveReactionEventHandler( this.client.user.id ) );
 
 			const rolesChannel = this.client.channels.get( BotConfig.rolesChannel );
 			if ( rolesChannel && rolesChannel instanceof TextChannel ) {
 				try {
 					await rolesChannel.fetchMessage( BotConfig.rolesMessage );
-					for ( const channel of BotConfig.requestChannels ) {
-						const requestChannel = this.client.channels.get( channel );
-						if ( requestChannel && requestChannel instanceof TextChannel ) {
-							await requestChannel.fetchPinnedMessages();
+
+					const internalChannels = new Map<string, TextChannel>();
+					if ( BotConfig.request.channels ) {
+						for ( let i = 0; i < BotConfig.request.channels.length; i++ ) {
+							const channelID = BotConfig.request.channels[i];
+							const internalChannelID = BotConfig.request.internal_channels[i];
+							const internalChannel = this.client.channels.get( internalChannelID );
+							if ( internalChannel && internalChannel instanceof TextChannel ) {
+								internalChannels.set( channelID, internalChannel );
+								await internalChannel.fetchMessages();
+							}
 						}
 					}
 					EventRegistry.add( new AddReactionEventHandler( this.client.user.id ) );
-					EventRegistry.add( new RemoveReactionEventHandler( this.client.user.id ) );
+					EventRegistry.add( new MessageEventHandler( this.client.user.id, internalChannels ) );
 				} catch ( err ) {
 					this.logger.error( err );
 				}
@@ -63,7 +70,7 @@ export default class MojiraBot {
 			// #region Schedule tasks.
 			// Filter feed tasks.
 			for ( const config of BotConfig.filterFeeds ) {
-				TaskScheduler.add(
+				TaskScheduler.addTask(
 					new FilterFeedTask( config, this.client.channels.get( config.channel ) ),
 					BotConfig.filterFeedInterval
 				);

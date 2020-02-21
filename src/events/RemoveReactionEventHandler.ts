@@ -23,8 +23,8 @@ export default class RemoveReactionEventHandler implements EventHandler {
 		if ( messageReaction.message.id === BotConfig.rolesMessage ) {
 			// Handle role removal
 			this.removeRoleHandler.onEvent( messageReaction, user );
-		} else if ( BotConfig.requestChannels.includes( messageReaction.message.channel.id ) ) {
-			// Handle resolved user request
+		} else if ( BotConfig.request.internal_channels.includes( messageReaction.message.channel.id ) ) {
+			// Handle unresolving user request
 			this.reopenRequestHandler.onEvent( messageReaction, user );
 		}
 	};

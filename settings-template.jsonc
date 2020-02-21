@@ -35,8 +35,34 @@
 	// When omitted or empty, no prefix is required for posting embeds.
 	"requiredTicketPrefix": "<Prefix>",
 
-	// The channel IDs of the bot's request channels
-	"request_channels": ["<Channel 1 ID>", "<Channel 2 ID>"],
+	// Settings about channels that handle user requests.
+	"request": {
+		// The server's request channels.
+		"channels": ["<Channel 1 ID>", "<Channel 2 ID>", "<Channel 3 ID>"],
+
+		// The corresponding internal channels of the request channels. All the messages sent
+		// sent in a request channel by users will be forwarded to the respective internal 
+		// channel by the bot.
+		// The length of this array MUST be the same as the length of `channels`.
+		// You MAY use the same internal channel for multiple times.
+		"internal_channels": ["<Internal Channel 1 ID>", "<Internal Channel 2 ID>", "<Internal Channel 3 ID>"],
+
+		// A channel which stores logs like `<volunteer> resolved <original message ID> as <emoji>.`
+		"log_channel": "<Channel ID>",
+
+		// An emoji which means that the request is waiting to be handled. The bot will reacts
+		// to every user's request with this emoji.
+		"waiting_emoji": "⌛",
+
+		// An array of emoji that smart volunteers may be interested in. Note: volunteers are 
+		// free to use emoji which aren't in the array. This array is only used to make work
+		// more efficient.
+		"suggested_emoji": ["✅", "☑️", "❌"],
+		
+		// The milliseconds between a volunteer reacts to the message and the bot deletes its
+		// message.
+		"resolve_delay": 5000
+	},
 
 	// The projects the bot should be able to find tickets for
 	"projects": ["MC", "MCCE", "MCL", "MCPE"],
