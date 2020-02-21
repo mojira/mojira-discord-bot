@@ -1,18 +1,18 @@
 import { Client, TextChannel, ChannelLogsQueryOptions, Message } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from './BotConfig';
-import TaskScheduler from './tasks/TaskScheduler';
-import EventRegistry from './events/EventRegistry';
-import FilterFeedTask from './tasks/FilterFeedTask';
-import ErrorEventHandler from './events/ErrorEventHandler';
-import MessageEventHandler from './events/MessageEventHandler';
 import AddReactionEventHandler from './events/AddReactionEventHandler';
+import ErrorEventHandler from './events/ErrorEventHandler';
+import EventRegistry from './events/EventRegistry';
+import MessageEventHandler from './events/MessageEventHandler';
 import RemoveReactionEventHandler from './events/RemoveReactionEventHandler';
 import ResolveRequestEventHandler from './events/requests/ResolveRequestEventHandler';
 import MessageDeleteEventHandler from './events/MessageDeleteEventHandler';
 import MessageUpdateEventHandler from './events/MessageUpdateEventHandler';
 import VersionFeedTask from './tasks/VersionFeedTask';
 import NewRequestEventHandler from './events/requests/NewRequestEventHandler';
+import FilterFeedTask from './tasks/FilterFeedTask';
+import TaskScheduler from './tasks/TaskScheduler';
 
 /**
  * Core class of MojiraBot
@@ -138,10 +138,10 @@ export default class MojiraBot {
 			// TODO Change to custom status when discord.js#3552 is merged into current version of package
 			this.client.user.setActivity( '!jira help' );
 
-			const homeChannel = this.client.channels.find( channel => channel.id === BotConfig.homeChannel );
+			const debugChannel = this.client.channels.find( channel => channel.id === BotConfig.homeChannel );
 
-			if ( homeChannel instanceof TextChannel ) {
-				await ( homeChannel as TextChannel ).send( 'Hey, I have been restarted!' );
+			if ( debugChannel instanceof TextChannel ) {
+				await ( debugChannel as TextChannel ).send( 'Hey, I have been restarted!' );
 			}
 
 			process.on( 'beforeExit', exitCode => {

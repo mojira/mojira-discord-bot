@@ -1,5 +1,6 @@
-import Command from './Command';
 import { Message } from 'discord.js';
+import BotConfig from '../BotConfig';
+import Command from './Command';
 import CommandRegistry from './CommandRegistry';
 
 export default class CommandExecutor {
@@ -8,14 +9,15 @@ export default class CommandExecutor {
 			const command = CommandRegistry[commandName] as Command;
 
 			if ( command.checkPermission( message.member ) ) {
-				const commandTestResult = command.test( message.content );
+				const config = BotConfig.getGuildConfig( message.guild );
 
+				const commandTestResult = command.test( message.content, config );
 				if ( commandTestResult === false ) continue;
 
 				const args = commandTestResult === true ? '' : commandTestResult;
 
 				Command.logger.info( `User ${ message.author.tag } ran command ${ command.asString( args ) }` );
-				return await command.run( message, args );
+				return await command.run( message, args, config );
 			}
 		}
 

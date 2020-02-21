@@ -1,7 +1,9 @@
-import { Client } from 'discord.js';
+import { Client, Guild } from 'discord.js';
 import config from 'config';
 import MojiraBot from './MojiraBot';
 import { VersionChangeType } from './tasks/VersionFeedTask';
+import GuildConfig from './GuildConfig';
+import Sqlite3 from 'better-sqlite3';
 
 function getOrDefault<T>( configPath: string, defaultValue: T ): T {
 	if ( !config.has( configPath ) ) MojiraBot.logger.debug( `config ${ configPath } not set, assuming default` );
@@ -99,6 +101,10 @@ export default class BotConfig {
 	public static versionFeedInterval: number;
 	public static versionFeeds: VersionFeedConfig[];
 
+	public static guildConfigs = new Map<string, GuildConfig>();
+
+	public static database: Sqlite3.Database;
+
 	public static init(): void {
 		this.debug = getOrDefault( 'debug', false );
 		this.logDirectory = getOrDefault( 'logDirectory', false );
@@ -125,6 +131,18 @@ export default class BotConfig {
 
 		this.versionFeedInterval = config.get( 'versionFeedInterval' );
 		this.versionFeeds = config.get( 'versionFeeds' );
+
+		this.database = new Sqlite3( './db.sqlite' );
+		GuildConfig.setup();
+	}
+
+	public static getGuildConfig( guild: Guild ): GuildConfig {
+		if ( !this.guildConfigs.has( guild.id ) ) {
+			console.log( `Creating new config for guild ${ guild.name } (${ guild.id })` );
+			this.guildConfigs.set( guild.id, GuildConfig.create( guild ) );
+		}
+
+		return this.guildConfigs.get( guild.id );
 	}
 
 	public static async login( client: Client ): Promise<boolean> {

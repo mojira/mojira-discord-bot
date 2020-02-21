@@ -1,7 +1,8 @@
 import { Message, RichEmbed } from 'discord.js';
-import Command from './Command';
-import { MentionRegistry } from '../mentions/MentionRegistry';
 import BotConfig from '../BotConfig';
+import GuildConfig from '../GuildConfig';
+import { MentionRegistry } from '../mentions/MentionRegistry';
+import Command from './Command';
 
 export default class MentionCommand extends Command {
 	public static get ticketPattern(): string {
@@ -16,13 +17,12 @@ export default class MentionCommand extends Command {
 		return new RegExp( `https?://bugs\\.mojang\\.com/(?:browse|projects/\\w+/issues)/(${ MentionCommand.ticketPattern })`, 'g' );
 	}
 
-	public test( messageText: string ): boolean | string[] {
-
+	public test( messageText: string, config: GuildConfig ): boolean | string[] {
 		// replace all issues posted in the form of a link from the search either with a mention or remove them
-		if ( !BotConfig.ticketUrlsCauseEmbed || BotConfig.requiredTicketPrefix ) {
+		if ( config.ignoreUrls || config.mentionPrefix ) {
 			messageText = messageText.replace(
 				MentionCommand.ticketLinkRegex,
-				BotConfig.ticketUrlsCauseEmbed ? `${ BotConfig.requiredTicketPrefix }$1` : ''
+				config.ignoreUrls ? '' : `${ config.mentionPrefix }$1`
 			);
 		}
 
@@ -37,7 +37,7 @@ export default class MentionCommand extends Command {
 		return ticketMatches.size ? Array.from( ticketMatches ) : false;
 	}
 
-	public async run( message: Message, args: string[] ): Promise<boolean> {
+	public async run( message: Message, args: string[], config: GuildConfig ): Promise<boolean> {
 		const mention = MentionRegistry.getMention( args );
 
 		let embed: RichEmbed;
@@ -65,10 +65,10 @@ export default class MentionCommand extends Command {
 		}
 
 		if ( message.deletable ) {
-			const matchesTicketId = message.content.match( new RegExp( `^\\s*${ BotConfig.requiredTicketPrefix }${ MentionCommand.ticketPattern }\\s*$` ) );
+			const matchesTicketId = message.content.match( new RegExp( `^\\s*${ config.mentionPrefix }${ MentionCommand.ticketPattern }\\s*$` ) );
 			const matchesTicketUrl = message.content.match( new RegExp( `^\\s*https?://bugs.mojang.com/browse/${ MentionCommand.ticketPattern }\\s*$` ) );
 
-			if ( matchesTicketId || ( BotConfig.ticketUrlsCauseEmbed && matchesTicketUrl ) ) {
+			if ( matchesTicketId || ( !config.ignoreUrls && matchesTicketUrl ) ) {
 				try {
 					message.delete();
 				} catch ( err ) {

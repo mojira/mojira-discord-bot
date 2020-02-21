@@ -1,7 +1,8 @@
-import { Message, GuildMember } from 'discord.js';
+import { GuildMember, Message } from 'discord.js';
+import * as log4js from 'log4js';
+import GuildConfig from '../GuildConfig';
 import Permission from '../permissions/Permission';
 import PermissionRegistry from '../permissions/PermissionRegistry';
-import * as log4js from 'log4js';
 
 /**
  * Interface for bot commands
@@ -25,8 +26,8 @@ export default abstract class Command {
 	 *
 	 * @param messageText The text that came with the message
 	 */
-	public abstract test( messageText: string ): boolean | string | string[];
-	public abstract async run( message: Message, args: string | string[] ): Promise<boolean>;
+	public abstract test( messageText: string, config?: GuildConfig ): boolean | string | string[];
+	public abstract async run( message: Message, args: string | string[], config: GuildConfig ): Promise<boolean>;
 
 	public abstract asString( args: string | string[] ): string;
 }
