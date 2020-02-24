@@ -43,8 +43,7 @@ export default class ResolveRequestMessageTask extends MessageTask {
 				const log = new RichEmbed()
 					.setColor( '#F7C6C9' )
 					.setAuthor( this.user.tag, this.user.avatarURL )
-					.setDescription( `**${this.user.tag}** resolved an request as ${this.emoji}.` )
-					.addField( 'Channel', `${origin.channel}<br>[Go To Request](${origin.url})` );
+					.setDescription( `**${this.user.tag}** resolved [this request](${origin.url}) in ${origin.channel} as ${this.emoji}.` )
 				logChannel.send( log );
 			}
 		}
