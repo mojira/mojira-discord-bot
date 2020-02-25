@@ -28,7 +28,8 @@ export default class NewRequestEventHandler implements EventHandler {
 			const embed = new RichEmbed()
 				.setColor( '#F7C6C9' )
 				.setAuthor( origin.author.tag, origin.author.avatarURL )
-				.addField( 'Content', this.replaceTicketReferenesWithRichLinks( origin.content ) )
+				.setDescription( this.replaceTicketReferenesWithRichLinks( origin.content ) )
+				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
 				.addField( 'Channel', origin.channel.id, true )
 				.addField( 'Message', origin.id, true )
 				.setTimestamp( new Date() );
