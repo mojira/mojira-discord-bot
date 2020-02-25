@@ -4,13 +4,24 @@ import { MentionRegistry } from '../mentions/MentionRegistry';
 import BotConfig from '../BotConfig';
 
 export default class MentionCommand extends Command {
+	private static get ticketPattern(): string {
+		return `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;
+	}
+
+	public static get ticketIdRegex(): RegExp {
+		return new RegExp( `(?<=^|[^${ BotConfig.forbiddenTicketPrefix }])(?<=${ BotConfig.requiredTicketPrefix })(${ MentionCommand.ticketPattern })`, 'g' );
+	}
+
+	public static get ticketLinkRegex(): RegExp {
+		return new RegExp( `https?://bugs.mojang.com/browse/(${ MentionCommand.ticketPattern })`, 'g' );
+	}
+
 	public test( messageText: string ): boolean | string[] {
-		const ticketRegex = RegExp( `(?:^|[^${ BotConfig.forbiddenTicketPrefix }])${ BotConfig.requiredTicketPrefix }(${ this.getTicketPattern() })`, 'g' );
 
 		// replace all issues posted in the form of a link from the search either with a mention or remove them
 		if ( !BotConfig.ticketUrlsCauseEmbed || BotConfig.requiredTicketPrefix ) {
 			messageText = messageText.replace(
-				new RegExp( `https?://bugs.mojang.com/browse/(${ this.getTicketPattern() })`, 'g' ),
+				MentionCommand.ticketLinkRegex,
 				BotConfig.ticketUrlsCauseEmbed ? `${ BotConfig.requiredTicketPrefix }$1` : ''
 			);
 		}
@@ -18,7 +29,7 @@ export default class MentionCommand extends Command {
 		let ticketMatch: RegExpExecArray;
 		const ticketMatches: Set<string> = new Set();
 
-		while ( ( ticketMatch = ticketRegex.exec( messageText ) ) !== null ) {
+		while ( ( ticketMatch = MentionCommand.ticketIdRegex.exec( messageText ) ) !== null ) {
 			ticketMatches.add( ticketMatch[1] );
 		}
 
@@ -53,8 +64,8 @@ export default class MentionCommand extends Command {
 		}
 
 		if ( message.deletable ) {
-			const matchesTicketId = message.content.match( new RegExp( `^\\s*${ BotConfig.requiredTicketPrefix }${ this.getTicketPattern() }\\s*$` ) );
-			const matchesTicketUrl = message.content.match( new RegExp( `^\\s*https?://bugs.mojang.com/browse/${ this.getTicketPattern() }\\s*$` ) );
+			const matchesTicketId = message.content.match( new RegExp( `^\\s*${ BotConfig.requiredTicketPrefix }${ MentionCommand.ticketPattern }\\s*$` ) );
+			const matchesTicketUrl = message.content.match( new RegExp( `^\\s*https?://bugs.mojang.com/browse/${ MentionCommand.ticketPattern }\\s*$` ) );
 
 			if ( matchesTicketId || ( BotConfig.ticketUrlsCauseEmbed && matchesTicketUrl ) ) {
 				try {
@@ -70,9 +81,5 @@ export default class MentionCommand extends Command {
 
 	public asString( args: string[] ): string {
 		return '[mention] ' + args.join( ', ' );
-	}
-
-	private getTicketPattern(): string {
-		return `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;
 	}
 }

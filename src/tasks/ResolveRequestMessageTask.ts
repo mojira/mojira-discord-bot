@@ -44,6 +44,7 @@ export default class ResolveRequestMessageTask extends MessageTask {
 					.setColor( '#F7C6C9' )
 					.setAuthor( this.user.tag, this.user.avatarURL )
 					.setDescription( `**${this.user.tag}** resolved [this request](${origin.url}) in ${origin.channel} as ${this.emoji}.` )
+					.setTimestamp( new Date() );
 				logChannel.send( log );
 			}
 		}

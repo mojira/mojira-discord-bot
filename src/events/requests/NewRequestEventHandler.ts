@@ -3,6 +3,7 @@ import * as log4js from 'log4js';
 import EventHandler from '../EventHandler';
 import BotConfig from '../../BotConfig';
 import { ReactionsUtil } from '../../util/ReactionsUtil';
+import MentionCommand from '../../commands/MentionCommand';
 
 export default class NewRequestEventHandler implements EventHandler {
 	public readonly eventName = '';
@@ -29,11 +30,19 @@ export default class NewRequestEventHandler implements EventHandler {
 				.setAuthor( origin.author.tag, origin.author.avatarURL )
 				.addField( 'Channel', origin.channel.id, true )
 				.addField( 'Message', origin.id, true )
-				.addField( 'Content', origin.content );
+				.addField( 'Content', this.replaceTicketReferenesWithRichLinks( origin.content ) )
+				.setTimestamp( new Date() );
 			const copy = await internalChannel.send( embed ) as Message;
 			if ( BotConfig.request.suggested_emoji ) {
 				ReactionsUtil.reactToMessage( copy, BotConfig.request.suggested_emoji );
 			}
 		}
 	};
+
+	private replaceTicketReferenesWithRichLinks( content: string ): string {
+		const regex = new RegExp( `(?:${MentionCommand.ticketLinkRegex}|${MentionCommand.ticketIdRegex.source})`, 'g' );
+		// Only one of the two capture groups ($1 and $2) can catch an ID at the same time.
+		// `$1$2` is used to get the ID from either of the two groups.
+		return content.replace( regex, '[$1$2](https://bugs.mojang.com/browse/$1$2)' );
+	}
 }
