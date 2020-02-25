@@ -28,19 +28,19 @@ export default class NewRequestEventHandler implements EventHandler {
 			const embed = new RichEmbed()
 				.setColor( '#F7C6C9' )
 				.setAuthor( origin.author.tag, origin.author.avatarURL )
+				.addField( 'Content', this.replaceTicketReferenesWithRichLinks( origin.content ) )
 				.addField( 'Channel', origin.channel.id, true )
 				.addField( 'Message', origin.id, true )
-				.addField( 'Content', this.replaceTicketReferenesWithRichLinks( origin.content ) )
 				.setTimestamp( new Date() );
 			const copy = await internalChannel.send( embed ) as Message;
 			if ( BotConfig.request.suggested_emoji ) {
-				ReactionsUtil.reactToMessage( copy, BotConfig.request.suggested_emoji );
+				ReactionsUtil.reactToMessage( copy, [...BotConfig.request.suggested_emoji] );
 			}
 		}
 	};
 
 	private replaceTicketReferenesWithRichLinks( content: string ): string {
-		const regex = new RegExp( `(?:${MentionCommand.ticketLinkRegex}|${MentionCommand.ticketIdRegex.source})`, 'g' );
+		const regex = new RegExp( `(?:${MentionCommand.ticketLinkRegex.source}|${MentionCommand.ticketIdRegex.source})`, 'g' );
 		// Only one of the two capture groups ($1 and $2) can catch an ID at the same time.
 		// `$1$2` is used to get the ID from either of the two groups.
 		return content.replace( regex, '[$1$2](https://bugs.mojang.com/browse/$1$2)' );

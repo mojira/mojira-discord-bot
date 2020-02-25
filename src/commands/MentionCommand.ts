@@ -27,9 +27,10 @@ export default class MentionCommand extends Command {
 		}
 
 		let ticketMatch: RegExpExecArray;
+		const ticketIdRegex = MentionCommand.ticketIdRegex;
 		const ticketMatches: Set<string> = new Set();
 
-		while ( ( ticketMatch = MentionCommand.ticketIdRegex.exec( messageText ) ) !== null ) {
+		while ( ( ticketMatch = ticketIdRegex.exec( messageText ) ) !== null ) {
 			ticketMatches.add( ticketMatch[1] );
 		}
 

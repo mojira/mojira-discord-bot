@@ -28,7 +28,8 @@ export default class ResolveRequestMessageTask extends MessageTask {
 			return;
 		}
 
-		const origin = ( MojiraBot.client.channels.get( channelID ) as TextChannel ).messages.get( messageID );
+		const originalChannel = MojiraBot.client.channels.get( channelID ) as TextChannel;
+		const origin = await originalChannel.fetchMessage( messageID );
 
 		await origin.clearReactions();
 		origin.react( this.emoji );

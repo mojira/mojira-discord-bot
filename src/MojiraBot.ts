@@ -51,11 +51,11 @@ export default class MojiraBot {
 					const internalChannels = new Map<string, TextChannel>();
 					if ( BotConfig.request.channels ) {
 						for ( let i = 0; i < BotConfig.request.channels.length; i++ ) {
-							const channelID = BotConfig.request.channels[i];
-							const internalChannelID = BotConfig.request.internal_channels[i];
-							const internalChannel = this.client.channels.get( internalChannelID );
+							const channelId = BotConfig.request.channels[i];
+							const internalChannelId = BotConfig.request.internal_channels[i];
+							const internalChannel = this.client.channels.get( internalChannelId );
 							if ( internalChannel && internalChannel instanceof TextChannel ) {
-								internalChannels.set( channelID, internalChannel );
+								internalChannels.set( channelId, internalChannel );
 								await internalChannel.fetchMessages();
 							}
 						}
