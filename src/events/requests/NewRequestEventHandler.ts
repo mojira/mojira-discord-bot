@@ -31,6 +31,7 @@ export default class NewRequestEventHandler implements EventHandler {
 		this.logger.info( `User ${ origin.author.tag } posted a new request to requests channel ${ origin.channel.id }` );
 
 		if ( BotConfig.request.waiting_emoji ) {
+			await origin.clearReactions();
 			origin.react( BotConfig.request.waiting_emoji );
 		}
 

@@ -9,6 +9,7 @@ import MessageEventHandler from './events/MessageEventHandler';
 import AddReactionEventHandler from './events/AddReactionEventHandler';
 import RemoveReactionEventHandler from './events/RemoveReactionEventHandler';
 import MessageDeleteEventHandler from './events/MessageDeleteEventHandler';
+import MessageUpdateEventHandler from './events/MessageUpdateEventHandler';
 
 /**
  * Core class of MojiraBot
@@ -63,6 +64,7 @@ export default class MojiraBot {
 					}
 					EventRegistry.add( new AddReactionEventHandler( this.client.user.id ) );
 					EventRegistry.add( new MessageEventHandler( this.client.user.id, internalChannels ) );
+					EventRegistry.add( new MessageUpdateEventHandler( this.client.user.id, internalChannels ) );
 					EventRegistry.add( new MessageDeleteEventHandler( this.client.user.id, internalChannels ) );
 				} catch ( err ) {
 					this.logger.error( err );
