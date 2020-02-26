@@ -39,7 +39,7 @@ export default class NewRequestEventHandler implements EventHandler {
 			const embed = new RichEmbed()
 				.setColor( '#F7C6C9' )
 				.setAuthor( origin.author.tag, origin.author.avatarURL )
-				.setDescription( `Your [request](${ origin.url }) contains neither a valid ticket ID nor a ticket link.` )
+				.setDescription( `Your [request](${ origin.url }) doesn't not contain any valid ticket reference.` )
 				.setTimestamp( new Date() );
 			const warning = await origin.channel.send( embed ) as Message;
 			warning.delete( BotConfig.request.no_link_warning_lifetime || 0 );
