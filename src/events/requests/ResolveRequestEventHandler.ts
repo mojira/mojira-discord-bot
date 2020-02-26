@@ -14,6 +14,7 @@ export default class ResolveRequestEventHandler implements EventHandler {
 	public onEvent = ( reaction: MessageReaction, user: User ): void => {
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ reaction.message.id }'` );
 
+		TaskScheduler.clearMessageTasks( reaction.message );
 		TaskScheduler.addOneTimeMessageTask(
 			reaction.message,
 			new ResolveRequestMessageTask( reaction.emoji, user ),

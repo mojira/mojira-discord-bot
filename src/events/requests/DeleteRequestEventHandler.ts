@@ -2,6 +2,7 @@ import { Message, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import EventHandler from '../EventHandler';
 import { RequestsUtil } from '../../util/RequestsUtil';
+import TaskScheduler from '../../tasks/TaskScheduler';
 
 export default class DeleteRequestEventHandler implements EventHandler {
 	public readonly eventName = '';
@@ -29,6 +30,7 @@ export default class DeleteRequestEventHandler implements EventHandler {
 					continue;
 				}
 				if ( result.channelId === origin.channel.id && result.messageId === origin.id ) {
+					TaskScheduler.clearMessageTasks( internalMessage );
 					if ( internalMessage.deletable ) {
 						internalMessage.delete();
 					}
