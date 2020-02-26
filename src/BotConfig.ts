@@ -18,6 +18,8 @@ export interface RequestConfig {
 	channels?: string[];
 	internal_channels?: string[];
 	log_channel?: string;
+	no_link_emoji?: string;
+	no_link_warning_lifetime?: number;
 	waiting_emoji?: string;
 	suggested_emoji?: string[];
 	resolve_delay?: number;

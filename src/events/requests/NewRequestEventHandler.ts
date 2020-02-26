@@ -30,8 +30,23 @@ export default class NewRequestEventHandler implements EventHandler {
 
 		this.logger.info( `User ${ origin.author.tag } posted a new request to requests channel ${ origin.channel.id }` );
 
+		await origin.clearReactions();
+
+		const regex = new RegExp( `(?:${MentionCommand.ticketLinkRegex.source}|${MentionCommand.ticketIdRegex.source})`, 'g' );
+
+		if ( BotConfig.request.no_link_emoji && !origin.content.match( regex ) ) {
+			origin.react( BotConfig.request.no_link_emoji );
+			const embed = new RichEmbed()
+				.setColor( '#F7C6C9' )
+				.setAuthor( origin.author.tag, origin.author.avatarURL )
+				.setDescription( `Your [request](${ origin.url }) contains neither a valid ticket ID nor a ticket link.` )
+				.setTimestamp( new Date() );
+			const warning = await origin.channel.send( embed ) as Message;
+			warning.delete( BotConfig.request.no_link_warning_lifetime || 0 );
+			return;
+		}
+
 		if ( BotConfig.request.waiting_emoji ) {
-			await origin.clearReactions();
 			origin.react( BotConfig.request.waiting_emoji );
 		}
 
@@ -40,7 +55,7 @@ export default class NewRequestEventHandler implements EventHandler {
 			const embed = new RichEmbed()
 				.setColor( '#F7C6C9' )
 				.setAuthor( origin.author.tag, origin.author.avatarURL )
-				.setDescription( this.replaceTicketReferenesWithRichLinks( origin.content ) )
+				.setDescription( this.replaceTicketReferenesWithRichLinks( origin.content, regex ) )
 				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
 				.addField( 'Channel', origin.channel.id, true )
 				.addField( 'Message', origin.id, true )
@@ -52,8 +67,7 @@ export default class NewRequestEventHandler implements EventHandler {
 		}
 	};
 
-	private replaceTicketReferenesWithRichLinks( content: string ): string {
-		const regex = new RegExp( `(?:${MentionCommand.ticketLinkRegex.source}|${MentionCommand.ticketIdRegex.source})`, 'g' );
+	private replaceTicketReferenesWithRichLinks( content: string, regex: RegExp ): string {
 		// Only one of the two capture groups ($1 and $2) can catch an ID at the same time.
 		// `$1$2` is used to get the ID from either of the two groups.
 		return content.replace( regex, '[$1$2](https://bugs.mojang.com/browse/$1$2)' );

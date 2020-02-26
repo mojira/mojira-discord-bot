@@ -38,6 +38,7 @@
 	// Settings about channels that handle user requests.
 	"request": {
 		// The server's request channels.
+		// Optional.
 		"channels": ["<Channel 1 ID>", "<Channel 2 ID>", "<Channel 3 ID>"],
 
 		// The corresponding internal channels of the request channels. All the messages sent
@@ -45,23 +46,36 @@
 		// by the bot.
 		// The length of this array MUST be the same as the length of `channels`.
 		// You MAY use the same internal channel for multiple times.
+		// Optional if `channels` is omitted.
 		"internal_channels": ["<Internal Channel 1 ID>", "<Internal Channel 2 ID>", "<Internal Channel 3 ID>"],
 
 		// A channel which stores logs like `<volunteer> resolved <original message ID> as <emoji>.`
+		// Optional.
 		"log_channel": "<Channel ID>",
+
+		// An emoji which means that the request doesn't contain any valid ticket ID or ticket link.
+		// Optional.
+		"no_link_emoji": "⛔",
+		
+		// The lifetime of a not-containing-link warning, in milliseconds.
+		// Optional. Defaults to 0.
+		"no_link_warning_lifetime": 5000,
 
 		// An emoji which means that the request is waiting to be handled. The bot will reacts
 		// to every user's request with this emoji.
+		// Optional.
 		"waiting_emoji": "⌛",
 
 		// An array of emoji that smart volunteers may be interested in. Note: volunteers are 
 		// free to use emoji which aren't in the array. This array is only used to make work
 		// more efficient.
+		// Optional.
 		"suggested_emoji": ["✅", "☑️", "❌"],
 		
 		// The milliseconds between a volunteer reacts to the message and the bot deletes its
 		// message.
-		"resolve_delay": 5000
+		// Optional. Defaults to 0.
+		"resolve_delay": 3000
 	},
 
 	// The projects the bot should be able to find tickets for
