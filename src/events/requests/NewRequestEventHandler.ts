@@ -17,6 +17,13 @@ export default class NewRequestEventHandler implements EventHandler {
 
 	// This syntax is used to ensure that `this` refers to the `NewRequestEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
+		if ( origin.type !== 'DEFAULT' ) {
+			if ( origin.deletable ) {
+				origin.delete();
+				return;
+			}
+		}
+
 		this.logger.info( `User ${ origin.author.tag } posted a new request to requests channel ${ origin.channel.id }` );
 
 		if ( BotConfig.request.waiting_emoji ) {
