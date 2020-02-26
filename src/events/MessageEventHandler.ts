@@ -19,6 +19,14 @@ export default class MessageEventHandler implements EventHandler {
 
 	// This syntax is used to ensure that `this` refers to the `MessageEventHandler` object
 	public onEvent = ( message: Message ): void => {
+		if (
+			// Don't reply to webhooks
+			message.webhookID
+
+			// Don't reply to own messages
+			|| message.author.id === this.botUserId
+		) return;
+
 		if ( BotConfig.request.channels && BotConfig.request.channels.includes( message.channel.id ) ) {
 			// This message is in a request channel
 			this.newRequestEventHandler.onEvent( message );
@@ -30,12 +38,6 @@ export default class MessageEventHandler implements EventHandler {
 		if (
 			// Don't reply to non-default messages
 			message.type !== 'DEFAULT'
-
-			// Don't reply to webhooks
-			|| message.webhookID
-
-			// Don't reply to own messages
-			|| message.author.id === this.botUserId
 		) return;
 
 		CommandExecutor.checkCommands( message );

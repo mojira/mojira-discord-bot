@@ -9,6 +9,10 @@ export default class NewRequestEventHandler implements EventHandler {
 	public readonly eventName = '';
 
 	private logger = log4js.getLogger( 'NewRequestEventHandler' );
+
+	/**
+	 * A map from request channel IDs to internal channel objects.
+	 */
 	private readonly internalChannels: Map<string, TextChannel>;
 
 	constructor( internalChannels: Map<string, TextChannel> ) {

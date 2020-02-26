@@ -2,6 +2,7 @@ import MessageTask from './MessageTask';
 import { Message, Emoji, ReactionEmoji, TextChannel, RichEmbed, User } from 'discord.js';
 import MojiraBot from '../MojiraBot';
 import BotConfig from '../BotConfig';
+import { RequestsUtil } from '../util/RequestsUtil';
 
 export default class ResolveRequestMessageTask extends MessageTask {
 	private readonly emoji: Emoji | ReactionEmoji;
@@ -14,22 +15,13 @@ export default class ResolveRequestMessageTask extends MessageTask {
 	}
 
 	public async run( copy: Message ): Promise<void> {
-		let channelID: string;
-		let messageID: string;
-		for ( const field of copy.embeds[0].fields ) {
-			if ( field.name === 'Channel' ) {
-				channelID = field.value;
-			} else if ( field.name === 'Message' ) {
-				messageID = field.value;
-			}
-		}
-
-		if ( !channelID || !messageID ) {
+		const result = RequestsUtil.getOriginIds( copy );
+		if ( !result ) {
 			return;
 		}
 
-		const originalChannel = MojiraBot.client.channels.get( channelID ) as TextChannel;
-		const origin = await originalChannel.fetchMessage( messageID );
+		const originChannel = MojiraBot.client.channels.get( result.channelId ) as TextChannel;
+		const origin = await originChannel.fetchMessage( result.messageId );
 
 		await origin.clearReactions();
 		origin.react( this.emoji );
