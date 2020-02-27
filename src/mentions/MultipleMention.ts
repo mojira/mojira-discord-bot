@@ -26,7 +26,7 @@ export class MultipleMention extends Mention {
 		embed.setTitle( 'Mentioned tickets' )
 			.setColor( 'RED' );
 
-		let searchResults: any;
+		let searchResults;
 
 		try {
 			searchResults = await this.jira.search.search( {

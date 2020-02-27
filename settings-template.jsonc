@@ -125,7 +125,7 @@
 
 	// Number of ungrouped mentions that will produce an individual embed.
 	// If this number is exceeded, a single embed including all ticket keys and summaries will be generated instead.
-	// Default: no limit.
+	// A number smaller than 1 means no limit.
 	"max_ungrouped_mentions": 1,
 
 	// Maximum number of mentions that will appear in a grouped embed (see max_ungrouped_mentions).
@@ -177,6 +177,7 @@
 
 			// Optional. Number of ungrouped mentions that will produce an individual embed for this feed.
 			// If this number is exceeded, a single embed including all ticket keys and summaries will be generated instead.
+			// A number smaller than 1 means no limit.
 			// Default: Same as max_ungrouped_mentions from root.
 			"max_ungrouped_mentions": 1,
 

@@ -4,7 +4,6 @@ import BotConfig from '../BotConfig';
 import { Mention } from '../mentions/Mention';
 import { MultipleMention } from '../mentions/MultipleMention';
 import MentionConfig from '../MentionConfig';
-import { MentionRegistry } from '../mentions/MentionRegistry';
 import { CustomMention } from '../mentions/CustomMention';
 
 export default class MentionCommand extends Command<MentionResult> {
@@ -22,7 +21,7 @@ export default class MentionCommand extends Command<MentionResult> {
 			return false;
 		}
 
-		if( BotConfig.maxUngroupedMentions !== undefined && mentions.length > BotConfig.maxUngroupedMentions ) {
+		if( BotConfig.maxUngroupedMentions > 0 && mentions.length > BotConfig.maxUngroupedMentions ) {
 			const tickets = mentions.map( v => v.getTicket() );
 			mentions = [ new MultipleMention( tickets ) ];
 		}

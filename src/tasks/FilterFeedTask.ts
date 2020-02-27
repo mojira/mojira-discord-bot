@@ -29,7 +29,7 @@ export default class FilterFeedTask extends Task {
 		this.jql = jql;
 		this.title = title;
 		this.embed = embed;
-		this.maxUngroupedMentions = maxUngroupedMentions || BotConfig.maxUngroupedMentions;
+		this.maxUngroupedMentions = maxUngroupedMentions !== undefined ? maxUngroupedMentions : BotConfig.maxUngroupedMentions;
 		this.maxGroupedMentions = maxGroupedMentions || BotConfig.maxGroupedMentions;
 		this.titleSingle = titleSingle || title.replace( /\{\{num\}\}/g, '1' );
 
@@ -70,7 +70,7 @@ export default class FilterFeedTask extends Task {
 					if ( unknownTickets.length > 1 ) {
 						const getTitle = (): string => this.title.replace( /\{\{num\}\}/g, unknownTickets.length.toString() );
 
-						if ( unknownTickets.length > this.maxUngroupedMentions ) {
+						if ( this.maxUngroupedMentions > 0 && unknownTickets.length > this.maxUngroupedMentions ) {
 							const embed = await new MultipleMention( unknownTickets, this.maxGroupedMentions ).getEmbed();
 							embed.setTitle( getTitle() );
 							embeds.push( embed );
@@ -88,7 +88,7 @@ export default class FilterFeedTask extends Task {
 					if ( this.channel instanceof TextChannel ) {
 						this.channel.send( message, embeds [ 0 ] );
 						if ( embeds.length > 1 ) {
-							for ( const embed of embeds.splice( 0, embeds.length ) ) {
+							for ( const embed of embeds.splice( 1, embeds.length ) ) {
 								this.channel.send( embed );
 							}
 						}

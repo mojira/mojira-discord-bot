@@ -85,6 +85,7 @@ export default class BotConfig {
 			this.mentionTypes.push( new MentionConfig( mentionType, this.embedTypes ) );
 		}
 
+		if( settings.max_grouped_mentions === undefined ) throw 'Max ungrouped mentions are not defined!';
 		this.maxUngroupedMentions = settings.max_ungrouped_mentions as number;
 
 		if( settings.max_grouped_mentions === undefined ) throw 'Max grouped mentions are not defined!';

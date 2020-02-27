@@ -128,8 +128,8 @@ export class CustomMention extends Mention {
 							if ( field.innerPath ) {
 								array = array.map( v => this.resolvePath( v, field.innerPath ) );
 							}
+							if( array !== undefined && array.length > 0 ) embed.addField( field.label, array.join( ', ' ), field.inline );
 						}
-						if( array.length > 0 ) embed.addField( field.label, array.join( ', ' ), field.inline );
 
 						break;
 					}
@@ -141,8 +141,8 @@ export class CustomMention extends Mention {
 							if ( field.innerPath ) {
 								array = array.map( v => this.resolvePath( v, field.innerPath ) );
 							}
+							if( array ) embed.addField( field.label, array.length, field.inline );
 						}
-						if( array ) embed.addField( field.label, array.length, field.inline );
 
 						break;
 					}
