@@ -12,7 +12,10 @@ export interface FilterFeedConfig {
 	jql: string;
 	channel: string;
 	title: string;
-	title_single?: string;
+	embed: EmbedConfig;
+	maxUngroupedMentions?: number;
+	maxGroupedMentions?: number;
+	titleSingle?: string;
 }
 
 export default class BotConfig {
@@ -97,7 +100,23 @@ export default class BotConfig {
 		this.filterFeedInterval = settings.filter_feed_interval;
 
 		if ( !settings.filter_feeds ) throw 'Filter feeds are not set';
-		this.filterFeeds = settings.filter_feeds;
+		this.filterFeeds = new Array<FilterFeedConfig>();
+
+		for( const filterFeed of settings.filter_feeds ) {
+			if( !filterFeed.embed ) throw 'A filter feed has no embed.';
+			const feed = {};
+
+			Object.keys( filterFeed ).forEach( key => {
+				const camelCaseKey = key.replace( /_./g, match => match.substring( 1, 2 ).toUpperCase() );
+				feed[ camelCaseKey ] = filterFeed[ key ];
+
+			} );
+
+			feed[ 'embed' ] = this.embedTypes.get( filterFeed.embed );
+			if( !feed[ 'embed' ] ) throw `A filter feed has an undefined embed: ${ filterFeed.embed }`;
+
+			this.filterFeeds.push( feed as FilterFeedConfig );
+		}
 	}
 
 	public static async login( client: Client ): Promise<boolean> {

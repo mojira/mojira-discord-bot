@@ -7,11 +7,13 @@ export class MultipleMention extends Mention {
 	private jira: JiraClient;
 
 	private tickets: string[];
+	private maxGroupedMentions: number;
 
-	constructor( tickets: string[] ) {
+	constructor( tickets: string[], maxGroupedMentions?: number ) {
 		super();
 
 		this.tickets = tickets;
+		this.maxGroupedMentions = maxGroupedMentions || BotConfig.maxGroupedMentions;
 
 		this.jira = new JiraClient( {
 			host: 'bugs.mojang.com',
@@ -29,7 +31,7 @@ export class MultipleMention extends Mention {
 		try {
 			searchResults = await this.jira.search.search( {
 				jql: `id IN (${ this.tickets.join( ',' ) }) ORDER BY key ASC`,
-				maxResults: BotConfig.maxGroupedMentions,
+				maxResults: this.maxGroupedMentions,
 				fields: [ 'key', 'summary' ],
 			} );
 		} catch ( err ) {
