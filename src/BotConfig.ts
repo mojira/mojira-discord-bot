@@ -23,6 +23,7 @@ export interface RequestConfig {
 	waiting_emoji?: string;
 	suggested_emoji?: string[];
 	resolve_delay?: number;
+	prepend_response_message?: boolean;
 }
 
 export default class BotConfig {

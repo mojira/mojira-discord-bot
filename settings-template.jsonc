@@ -75,7 +75,15 @@
 		// The milliseconds between a volunteer reacts to the message and the bot deletes its
 		// message.
 		// Optional. Defaults to 0.
-		"resolve_delay": 3000
+		"resolve_delay": 3000,
+
+		// Whether or not to prepend an internal request with the corresponding response message of it.
+		// A response message is something like this:
+		// @UserWhoSentTheRequest#1234 https://link-to-request
+		// > Request Text
+		//
+		// Optional. Defaults to false.
+		"prepend_response_message": true
 	},
 
 	// The projects the bot should be able to find tickets for

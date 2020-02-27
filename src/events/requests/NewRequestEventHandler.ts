@@ -60,7 +60,9 @@ export default class NewRequestEventHandler implements EventHandler {
 				.addField( 'Channel', origin.channel.id, true )
 				.addField( 'Message', origin.id, true )
 				.setTimestamp( new Date() );
-			const copy = await internalChannel.send( embed ) as Message;
+			const response = BotConfig.request.prepend_response_message ?
+				`\`\`\`\n${ origin.author } ${ origin.url }\n> ${ origin.content }\nxxx\`\`\`` : '';
+			const copy = await internalChannel.send( response, embed ) as Message;
 			if ( BotConfig.request.suggested_emoji ) {
 				ReactionsUtil.reactToMessage( copy, [...BotConfig.request.suggested_emoji] );
 			}
