@@ -21,19 +21,113 @@
 	// The message ID of the bot's roles message
 	"roles_message": "<Roles message ID>",
 
-	// Whether the bot should send an embed when a full URL to a ticket gets posted.
-	// Optional, false by default
-	"ticketUrlsCauseEmbed": false,
+	// Map of custom embed types
+	"embed_types": {
+		"<name of an embed type>": {
 
-	// A prefix that prevents the bot from posting an embed for a mentioned ticket.
-	// If this prefix is longer than 1, none of the characters can be used.
-	// When omitted or empty, no prefix prevents embeds.
-	"forbiddenTicketPrefix": "<Prefix>",
+			// Whether to include the embed title
+			// Default: false
+			"title": "<bool>",
 
-	// Prefix that needs to preceed any mentioned ticket in order for the bot to post an embed
-	// If this prefix is longer than 1, the entire string needs to prefix any mentioned ticket.
-	// When omitted or empty, no prefix is required for posting embeds.
-	"requiredTicketPrefix": "<Prefix>",
+			// Settings for the description. Either below's object or false for no description.
+			// Default: false
+			"description": {
+				// If set, the description cannot be longer than n characters.
+				"max_characters": "<num>",
+				// If set, the description cannot include more than n line breaks.
+				"max_line_breaks": 3,
+				// If set, everything from the description that matches any of the given regex strings will be stripped.
+				"exclude": [ "<a regex string>" ]
+			},
+
+			// Whether the author should be included.
+			// Default: false
+			"author": "<bool>",
+			
+			// Whether the embed should link to the ticket included.
+			// Default: false
+			"url": "<bool>",
+			
+			// Whether the embed should include the first image attachment as Image.
+			// Default: false
+			"thumbnail": "<bool>",
+
+			// The color the embed should have
+			"color": "DiscordColorResolvable",
+
+			// A list of additional fields that should be added. Can be set to false for no fields.
+			// Default: false
+			"fields": [
+				{
+					// Type of the field.
+					// Currently available: status, large_status, field, user, joined_array, array_count, duplicate_count, date, from_now
+					"type": "<type>",
+
+					// Label the field should appear with.
+					"label": "<label>",
+
+					// Path to the field in the jira json response. See jira api documentaion for more details.
+					// Path members are seperated with dots (.) And the path starts at ticketResponse.fields
+					// Not needed for status, large_status and duplicate_count
+					"path": "<path-to-field>",
+
+					// Whether the field should be inline. A maximum of 3 fields will appear next to each other when set.
+					// Default: true
+					"inline": "<bool>",
+
+					// Currently only for joined_array.
+					// Path for object in the array that should be used for display.
+					// Default: Print entire object. 
+					"inner_path": "<inner path>"
+				}
+			]
+		}
+	},
+
+	// Rules for invoking different embeds when mentioning a ticket.
+	// In case multiple types match, the one defined first will be used.
+	"mention_types": [
+		{
+			// If set to true, this mention type will only trigger if the mentioned ticket was provided as URL.
+			// Default: false
+			"require_url": "<bool>",
+
+			// If set to true, this mention type will not trigger if the mentioned ticket was provided as URL.
+			// Default: false
+			"forbid_url": "<bool>",
+
+			// If set, this mention type will only trigger if the mentioned ticket was prefixed with the given string.
+			// This will be ignored if require_url is set to true.
+			// Default: no required prefix.
+			"required_prefix": "<prefix>",
+
+			// If set, this mention type will not trigger if the mentioned ticket was prefixed with one of the given characters.
+			// This will be ignored if require_url is set to true.
+			// Default: no forbidden prefix.
+			"forbidden_prefix": "<prefix>",
+
+			// If set, this mention type will only trigger if the message includes a keyword somewhere in the message.
+			// Default: no required keyword.
+			"required_keyword": "<keyword>",
+
+			// If set, this mention type will not trigger if the message includes a keyword somewhere in the message.
+			// Default: no forbidden keyword.
+			"forbidden_keyword": "<keyword>",
+
+			// An embed name defined in embed_types.
+			// This embed will be used to display the mention.
+			"embed": "<embed name>"
+		}
+	],
+
+	// Number of ungrouped mentions that will produce an individual embed.
+	// If this number is exceeded, a single embed including all ticket keys and summaries will be generated instead.
+	// Default: no limit.
+	"max_ungrouped_mentions": "<num>",
+
+	// Maximum number of mentions that will appear in a grouped embed (see max_ungrouped_mentions).
+	// If this number is exceeded, a jira search query link will be provided at the end, allowing to view a list of all tickets on jira.
+	"max_grouped_mentions": "<num>",
 
 	// The channel IDs of the bot's request channels
 	"request_channels": ["<Channel 1 ID>", "<Channel 2 ID>"],

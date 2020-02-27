@@ -1,5 +1,6 @@
 import { Client } from 'discord.js';
 import MojiraBot from './MojiraBot';
+import MentionConfig, { EmbedConfig } from './MentionConfig';
 
 export interface RoleConfig {
 	emoji: string;
@@ -27,10 +28,10 @@ export default class BotConfig {
 	public static rolesMessage: string;
 	public static requestChannels: string[];
 
-	// settings for mention command
-	public static ticketUrlsCauseEmbed: boolean;
-	public static requiredTicketPrefix: string;
-	public static forbiddenTicketPrefix: string;
+	private static embedTypes: Map<string, EmbedConfig>;
+	public static mentionTypes: MentionConfig[];
+	public static maxUngroupedMentions?: number;
+	public static maxGroupedMentions?: number;
 
 	public static projects: Array<string>;
 
@@ -68,13 +69,23 @@ export default class BotConfig {
 		if ( !settings.request_channels ) throw 'Request channels are not set';
 		this.requestChannels = settings.request_channels;
 
-		this.ticketUrlsCauseEmbed = !!settings.ticketUrlsCauseEmbed;
+		if ( !settings.embed_types ) throw 'Embed Types are not defined!';
+		this.embedTypes = new Map<string, EmbedConfig>();
+		Object.keys( settings.embed_types ).forEach( ( key: string ) => {
+			this.embedTypes.set( key, new EmbedConfig( settings.embed_types[key] ) );
+		} );
 
-		if ( !settings.forbiddenTicketPrefix ) this.forbiddenTicketPrefix = '';
-		else this.forbiddenTicketPrefix = settings.forbiddenTicketPrefix;
+		if ( !( settings.mention_types instanceof Array ) ) throw 'Mention Types are not defined!';
+		this.mentionTypes = new Array<MentionConfig>();
 
-		if ( !settings.requiredTicketPrefix ) this.requiredTicketPrefix = '';
-		else this.requiredTicketPrefix = settings.requiredTicketPrefix;
+		for ( const mentionType of settings.mention_types ) {
+			this.mentionTypes.push( new MentionConfig( mentionType, this.embedTypes ) );
+		}
+
+		this.maxUngroupedMentions = settings.max_ungrouped_mentions as number;
+
+		if( settings.max_grouped_mentions === undefined ) throw 'Max grouped mentions are not defined!';
+		this.maxGroupedMentions = settings.max_grouped_mentions as number;
 
 		if ( !settings.projects ) throw 'Projects are not set';
 		this.projects = settings.projects;

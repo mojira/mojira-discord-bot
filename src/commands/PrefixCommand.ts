@@ -1,7 +1,7 @@
 import Command from './Command';
 import escapeRegex = require( 'escape-string-regexp' );
 
-export default abstract class PrefixCommand extends Command {
+export default abstract class PrefixCommand extends Command<string> {
 	abstract readonly aliases: string[];
 
 	public static prefix = '!jira';

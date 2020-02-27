@@ -9,7 +9,7 @@ import * as log4js from 'log4js';
  * @author violine1101
  * @since 2019-12-04
  */
-export default abstract class Command {
+export default abstract class Command<T> {
 	public static logger = log4js.getLogger( 'CommandExecutor' );
 
 	public readonly permissionLevel: Permission = PermissionRegistry.ANY_PERMISSION;
@@ -25,8 +25,8 @@ export default abstract class Command {
 	 *
 	 * @param messageText The text that came with the message
 	 */
-	public abstract test( messageText: string ): boolean | string | string[];
-	public abstract async run( message: Message, args: string | string[] ): Promise<boolean>;
+	public abstract test( messageText: string ): boolean | T;
+	public abstract async run( message: Message, args: T ): Promise<boolean>;
 
-	public abstract asString( args: string | string[] ): string;
+	public abstract asString( args: string | T ): string;
 }

@@ -129,4 +129,8 @@ export class SingleMention extends Mention {
 
 		return embed;
 	}
+
+	getTicket(): string {
+		return this.ticket;
+	}
 }

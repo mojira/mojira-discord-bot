@@ -1,6 +1,7 @@
 import { RichEmbed } from 'discord.js';
 import { Mention } from './Mention';
 import JiraClient = require( 'jira-connector' );
+import BotConfig from '../BotConfig';
 
 export class MultipleMention extends Mention {
 	private jira: JiraClient;
@@ -28,7 +29,7 @@ export class MultipleMention extends Mention {
 		try {
 			searchResults = await this.jira.search.search( {
 				jql: `id IN (${ this.tickets.join( ',' ) }) ORDER BY key ASC`,
-				maxResults: 10,
+				maxResults: BotConfig.maxGroupedMentions,
 				fields: [ 'key', 'summary' ],
 			} );
 		} catch ( err ) {
@@ -57,10 +58,7 @@ export class MultipleMention extends Mention {
 
 			throw 'An error occurred while retrieving this ticket: No issues were returned by the JIRA API.';
 		}
-
-		for ( const issue of searchResults.issues ) {
-			embed.addField( issue.key, `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })` );
-		}
+		embed.setDescription( searchResults.issues.map( v => `\`${ v.key }\` - [${ v.fields.summary }](https://bugs.mojang.com/browse/${ v.key })` ).join( '\n' ) );
 
 		if ( this.tickets.length !== searchResults.issues.length ) {
 			embed.addField(
@@ -70,5 +68,9 @@ export class MultipleMention extends Mention {
 		}
 
 		return embed;
+	}
+
+	getTicket(): string {
+		return this.tickets.join( ', ' );
 	}
 }

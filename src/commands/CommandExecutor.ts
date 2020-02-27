@@ -5,7 +5,7 @@ import CommandRegistry from './CommandRegistry';
 export default class CommandExecutor {
 	public static async checkCommands( message: Message ): Promise<boolean> {
 		for ( const commandName in CommandRegistry ) {
-			const command = CommandRegistry[commandName] as Command;
+			const command = CommandRegistry[commandName] as Command<any>;
 
 			if ( command.checkPermission( message.member ) ) {
 				const commandTestResult = command.test( message.content );
