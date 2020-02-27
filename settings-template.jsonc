@@ -25,37 +25,37 @@
 	"embed_types": {
 		"<name of an embed type>": {
 
-			// Whether to include the embed title
+			// Optional. Whether to include the embed title
 			// Default: false
-			"title": "<bool>",
+			"title": false,
 
-			// Settings for the description. Either below's object or false for no description.
+			// Optional. Settings for the description. Either below's object or false for no description.
 			// Default: false
 			"description": {
 				// If set, the description cannot be longer than n characters.
-				"max_characters": "<num>",
+				"max_characters": 1234,
 				// If set, the description cannot include more than n line breaks.
-				"max_line_breaks": 3,
+				"max_line_breaks": 2,
 				// If set, everything from the description that matches any of the given regex strings will be stripped.
 				"exclude": [ "<a regex string>" ]
 			},
 
-			// Whether the author should be included.
+			// Optional. Whether the author should be included.
 			// Default: false
-			"author": "<bool>",
+			"author": false,
 			
-			// Whether the embed should link to the ticket included.
+			// Optional. Whether the embed should link to the ticket included.
 			// Default: false
-			"url": "<bool>",
+			"url": false,
 			
-			// Whether the embed should include the first image attachment as Image.
+			// Optional. Whether the embed should include the first image attachment as Image.
 			// Default: false
-			"thumbnail": "<bool>",
+			"thumbnail": false,
 
 			// The color the embed should have
 			"color": "DiscordColorResolvable",
 
-			// A list of additional fields that should be added. Can be set to false for no fields.
+			// Optional. A list of additional fields that should be added. Can be set to false for no fields.
 			// Default: false
 			"fields": [
 				{
@@ -71,46 +71,48 @@
 					// Not needed for status, large_status and duplicate_count
 					"path": "<path-to-field>",
 
-					// Whether the field should be inline. A maximum of 3 fields will appear next to each other when set.
+					// Optional. Whether the field should be inline. A maximum of 3 fields will appear next to each other when set.
 					// Default: true
-					"inline": "<bool>",
+					"inline": false,
 
-					// Currently only for joined_array.
+					// Optional. Currently only for joined_array.
 					// Path for object in the array that should be used for display.
 					// Default: Print entire object. 
 					"inner_path": "<inner path>"
 				}
+				// ... You can add more fields here
 			]
 		}
+		// ... You can define moore embed types here
 	},
 
 	// Rules for invoking different embeds when mentioning a ticket.
 	// In case multiple types match, the one defined first will be used.
 	"mention_types": [
 		{
-			// If set to true, this mention type will only trigger if the mentioned ticket was provided as URL.
+			// Optional. If set to true, this mention type will only trigger if the mentioned ticket was provided as URL.
 			// Default: false
-			"require_url": "<bool>",
+			"require_url": false,
 
-			// If set to true, this mention type will not trigger if the mentioned ticket was provided as URL.
+			// Optional. If set to true, this mention type will not trigger if the mentioned ticket was provided as URL.
 			// Default: false
-			"forbid_url": "<bool>",
+			"forbid_url": false,
 
-			// If set, this mention type will only trigger if the mentioned ticket was prefixed with the given string.
+			// Optional. If set, this mention type will only trigger if the mentioned ticket was prefixed with the given string.
 			// This will be ignored if require_url is set to true.
 			// Default: no required prefix.
 			"required_prefix": "<prefix>",
 
-			// If set, this mention type will not trigger if the mentioned ticket was prefixed with one of the given characters.
+			// Optional. If set, this mention type will not trigger if the mentioned ticket was prefixed with one of the given characters.
 			// This will be ignored if require_url is set to true.
 			// Default: no forbidden prefix.
 			"forbidden_prefix": "<prefix>",
 
-			// If set, this mention type will only trigger if the message includes a keyword somewhere in the message.
+			// Optional. If set, this mention type will only trigger if the message includes a keyword somewhere in the message.
 			// Default: no required keyword.
 			"required_keyword": "<keyword>",
 
-			// If set, this mention type will not trigger if the message includes a keyword somewhere in the message.
+			// Optional. If set, this mention type will not trigger if the message includes a keyword somewhere in the message.
 			// Default: no forbidden keyword.
 			"forbidden_keyword": "<keyword>",
 
@@ -118,16 +120,17 @@
 			// This embed will be used to display the mention.
 			"embed": "<embed name>"
 		}
+		// ... You can add more mention types here
 	],
 
 	// Number of ungrouped mentions that will produce an individual embed.
 	// If this number is exceeded, a single embed including all ticket keys and summaries will be generated instead.
 	// Default: no limit.
-	"max_ungrouped_mentions": "<num>",
+	"max_ungrouped_mentions": 1,
 
 	// Maximum number of mentions that will appear in a grouped embed (see max_ungrouped_mentions).
 	// If this number is exceeded, a jira search query link will be provided at the end, allowing to view a list of all tickets on jira.
-	"max_grouped_mentions": "<num>",
+	"max_grouped_mentions": 10,
 
 	// The channel IDs of the bot's request channels
 	"request_channels": ["<Channel 1 ID>", "<Channel 2 ID>"],
@@ -166,7 +169,21 @@
 			"title": "{{num}} tickets blabla in the last 15 minutes!",
 			
 			// Optional. The message accompanying this feed embed, in case there's only one ticket. If this is not set, `title` will be used instead.
-			"title_single": "One ticket blabla in the last 15 minutes!"
+			"title_single": "One ticket blabla in the last 15 minutes!",
+
+			// An embed name defined in embed_types.
+			// This embed will be used to display issues from the feed.
+			"embed": "<embed name>",
+
+			// Optional. Number of ungrouped mentions that will produce an individual embed for this feed.
+			// If this number is exceeded, a single embed including all ticket keys and summaries will be generated instead.
+			// Default: Same as max_ungrouped_mentions from root.
+			"max_ungrouped_mentions": 1,
+
+			// Optional. Maximum number of mentions that will appear in a grouped embed (see max_ungrouped_mentions).
+			// If this number is exceeded, a jira search query link will be provided at the end, allowing to view a list of all tickets on jira.
+			// Default: Same as max_grouped_mentions from root.
+			"max_grouped_mentions": 10
 		}
 		// ... you can add more feeds here
 	]
