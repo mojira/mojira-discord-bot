@@ -83,7 +83,7 @@
 				// ... You can add more fields here
 			]
 		}
-		// ... You can define moore embed types here
+		// ... You can define more embed types here
 	},
 
 	// Rules for invoking different embeds when mentioning a ticket.

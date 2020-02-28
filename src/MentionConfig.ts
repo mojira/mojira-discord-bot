@@ -68,7 +68,7 @@ export class EmbedConfig {
 				type = type.replace( /(?:^|_)./g, match => match.substring( match.length - 1, match.length ).toUpperCase() );
 
 				const fieldType = FieldType[type];
-				if( !fieldType ) throw `An embed type contains field "${ field.label }" with invalid type "${ type }".`;
+				if( fieldType === undefined ) throw `An embed type contains field "${ field.label }" with invalid type "${ type }".`;
 
 				if( ![ FieldType.Status, FieldType.LargeStatus, FieldType.DuplicateCount ].includes( fieldType ) && !field.path ) throw `An embed type contains field "${ field.label }" without any path.`;
 

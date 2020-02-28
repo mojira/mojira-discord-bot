@@ -92,10 +92,6 @@ export default class MentionCommand extends Command<MentionResult> {
 			return { mentions: [], unmatchedMessage: message };
 		}
 
-		if( mentionType.requiredKeyword ) {
-			message = message.replace( mentionType.requiredKeyword, '' );
-		}
-
 		const ticketPatern = `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;
 		let ticketRegex: RegExp;
 

@@ -84,9 +84,12 @@ export class CustomMention extends Mention {
 		if ( this.config.fields ) {
 			for ( const field of this.config.fields ) {
 				switch ( +field.type ) {
-					case FieldType.Status:
-						if ( ticketResult.status.name ) embed.addField( field.label, ticketResult.status.name, field.inline );
+					case FieldType.Status: {
+						let status = ticketResult.fields.status.name;
+						if ( ticketResult.fields.resolution ) status = `Resolved (${ ticketResult.fields.resolution.name })`;
+						embed.addField( field.label, status, field.inline );
 						break;
+					}
 
 					case FieldType.LargeStatus: {
 						let status = ticketResult.fields.status.name;
