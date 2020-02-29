@@ -47,7 +47,7 @@ export default class NewRequestEventHandler implements EventHandler {
 			const embed = new RichEmbed()
 				.setColor( '#F7C6C9' )
 				.setAuthor( origin.author.tag, origin.author.avatarURL )
-				.setDescription( this.replaceTicketReferenesWithRichLinks( origin.content, regex ) )
+				.setDescription( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) )
 				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
 				.addField( 'Channel', origin.channel.id, true )
 				.addField( 'Message', origin.id, true )
@@ -61,7 +61,7 @@ export default class NewRequestEventHandler implements EventHandler {
 		}
 	};
 
-	private replaceTicketReferenesWithRichLinks( content: string, regex: RegExp ): string {
+	private replaceTicketReferencesWithRichLinks( content: string, regex: RegExp ): string {
 		// Only one of the two capture groups ($1 and $2) can catch an ID at the same time.
 		// `$1$2` is used to get the ID from either of the two groups.
 		return content.replace( regex, '[$1$2](https://bugs.mojang.com/browse/$1$2)' );
