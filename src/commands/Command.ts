@@ -5,6 +5,7 @@ import * as log4js from 'log4js';
 
 /**
  * Interface for bot commands
+ * @template T The type command arguments use.
  *
  * @author violine1101
  * @since 2019-12-04
@@ -21,12 +22,12 @@ export default abstract class Command<T> {
 	/**
 	 * @returns `false` if this is not a valid command
 	 * @returns `true` if it is a valid command but doesn't have any arguments
-	 * @returns string (or list) of arguments if it is a valid command
+	 * @returns A `T` repesenting the provided command arguments, which will be passed to the `run()` method
 	 *
 	 * @param messageText The text that came with the message
 	 */
 	public abstract test( messageText: string ): boolean | T;
 	public abstract async run( message: Message, args: T ): Promise<boolean>;
 
-	public abstract asString( args: string | T ): string;
+	public abstract asString( args: T ): string;
 }

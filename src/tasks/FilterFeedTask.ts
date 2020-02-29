@@ -61,6 +61,9 @@ export default class FilterFeedTask extends Task {
 
 		if ( this.knownTickets ) {
 			const unknownTickets = upcomingTickets.filter( key => !this.knownTickets.has( key ) );
+			for ( const ticket of upcomingTickets ) {
+				this.knownTickets.add( ticket );
+			}
 
 			if ( unknownTickets.length > 0 ) {
 				try {
@@ -100,9 +103,6 @@ export default class FilterFeedTask extends Task {
 					return;
 				}
 			}
-		}
-		for ( const ticket of upcomingTickets ) {
-			this.knownTickets.add( ticket );
 		}
 	}
 }

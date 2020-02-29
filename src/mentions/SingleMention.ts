@@ -4,9 +4,9 @@ import JiraClient = require( 'jira-connector' );
 import * as moment from 'moment';
 
 export class SingleMention extends Mention {
-	private jira: JiraClient;
+	protected jira: JiraClient;
 
-	private ticket: string;
+	protected ticket: string;
 
 	constructor( ticket: string ) {
 		super();
@@ -82,21 +82,9 @@ export class SingleMention extends Mention {
 			.addField( 'Status', status, !largeStatus )
 			.setColor( 'RED' );
 
-		function findThumbnail( attachments ): string {
-			const allowedMimes = [
-				'image/png', 'image/jpeg',
-			];
-
-			for ( const attachment of attachments ) {
-				if ( allowedMimes.includes( attachment.mimeType ) ) return attachment.content;
-			}
-
-			return undefined;
-		}
-
 		// Assigned to, Reported by, Created on, Category, Resolution, Resolved on, Since version, (Latest) affected version, Fixed version(s)
 
-		const thumbnail = findThumbnail( ticketResult.fields.attachment );
+		const thumbnail = this.findThumbnail( ticketResult.fields.attachment );
 		if ( thumbnail !== undefined ) embed.setImage( thumbnail );
 
 		if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
@@ -130,7 +118,19 @@ export class SingleMention extends Mention {
 		return embed;
 	}
 
-	getTicket(): string {
+	protected findThumbnail( attachments ): string {
+		const allowedMimes = [
+			'image/png', 'image/jpeg',
+		];
+
+		for ( const attachment of attachments ) {
+			if ( allowedMimes.includes( attachment.mimeType ) ) return attachment.content;
+		}
+
+		return undefined;
+	}
+
+	public getTicket(): string {
 		return this.ticket;
 	}
 }

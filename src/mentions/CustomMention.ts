@@ -1,24 +1,15 @@
 import { Mention } from './Mention';
-import JiraClient = require( 'jira-connector' );
 import { RichEmbed } from 'discord.js';
 import { EmbedConfig, FieldType } from '../MentionConfig';
 import moment = require( 'moment' );
+import { SingleMention } from './SingleMention';
 
-export class CustomMention extends Mention {
-	private jira: JiraClient;
-	private ticket: string;
+export class CustomMention extends SingleMention {
 	private config: EmbedConfig;
 
 	constructor( ticket: string, config: EmbedConfig ) {
-		super();
-
-		this.ticket = ticket;
+		super( ticket );
 		this.config = config;
-
-		this.jira = new JiraClient( {
-			host: 'bugs.mojang.com',
-			strictSSL: true,
-		} );
 	}
 
 	public async getEmbed(): Promise<RichEmbed> {
@@ -174,18 +165,6 @@ export class CustomMention extends Mention {
 		return embed;
 	}
 
-	private findThumbnail( attachments ): string {
-		const allowedMimes = [
-			'image/png', 'image/jpeg',
-		];
-
-		for ( const attachment of attachments ) {
-			if ( allowedMimes.includes( attachment.mimeType ) ) return attachment.content;
-		}
-
-		return undefined;
-	}
-
 	// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 	private resolvePath( fields, path: string ) {
 		let cur = fields;
@@ -196,7 +175,7 @@ export class CustomMention extends Mention {
 		return cur;
 	}
 
-	getTicket(): string {
+	public getTicket(): string {
 		return this.ticket;
 	}
 }

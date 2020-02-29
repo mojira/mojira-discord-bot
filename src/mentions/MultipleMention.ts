@@ -72,7 +72,7 @@ export class MultipleMention extends Mention {
 		return embed;
 	}
 
-	getTicket(): string {
+	public getTicket(): string {
 		return this.tickets.join( ', ' );
 	}
 }
