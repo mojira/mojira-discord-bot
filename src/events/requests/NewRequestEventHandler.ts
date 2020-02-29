@@ -33,7 +33,7 @@ export default class NewRequestEventHandler implements EventHandler {
 
 		if ( BotConfig.request.no_link_emoji && !origin.content.match( regex ) ) {
 			origin.react( BotConfig.request.no_link_emoji );
-			const warning = await origin.channel.send( `${ origin.author }, your request doesn't not contain any valid ticket reference. If you'd like to add it you can edit your message.` ) as Message;
+			const warning = await origin.channel.send( `${ origin.author }, your request doesn't contain any valid ticket reference. If you'd like to add it you can edit your message.` ) as Message;
 			warning.delete( BotConfig.request.no_link_warning_lifetime || 0 );
 			return;
 		}
