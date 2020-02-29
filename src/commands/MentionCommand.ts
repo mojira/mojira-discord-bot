@@ -4,7 +4,7 @@ import { MentionRegistry } from '../mentions/MentionRegistry';
 import BotConfig from '../BotConfig';
 
 export default class MentionCommand extends Command {
-	private static get ticketPattern(): string {
+	public static get ticketPattern(): string {
 		return `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;
 	}
 
