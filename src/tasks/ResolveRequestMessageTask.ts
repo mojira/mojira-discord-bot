@@ -35,12 +35,14 @@ export default class ResolveRequestMessageTask extends MessageTask {
 			if ( logChannel && logChannel instanceof TextChannel ) {
 				const log = new RichEmbed()
 					.setColor( '#F7C6C9' )
-					.setAuthor( this.user.tag, this.user.avatarURL )
-					.setDescription( `**${this.user.tag}** resolved [this request](${origin.url}) in ${origin.channel} as ${this.emoji}.` )
+					.setAuthor( origin.author.tag, origin.author.avatarURL )
+					.setDescription( origin.content )
+					.addField( 'Channel', origin.channel.toString(), true )
+					.addField( 'Message', `[Here](${origin.url})`, true )
+					.setFooter( `${this.user.tag} resolved as ${this.emoji}`, this.user.avatarURL )
 					.setTimestamp( new Date() );
 				logChannel.send( log );
 			}
 		}
-
 	}
 }
