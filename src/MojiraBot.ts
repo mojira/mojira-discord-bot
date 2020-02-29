@@ -8,6 +8,8 @@ import ErrorEventHandler from './events/ErrorEventHandler';
 import MessageEventHandler from './events/MessageEventHandler';
 import AddReactionEventHandler from './events/AddReactionEventHandler';
 import RemoveReactionEventHandler from './events/RemoveReactionEventHandler';
+import MessageDeleteEventHandler from './events/MessageDeleteEventHandler';
+import MessageUpdateEventHandler from './events/MessageUpdateEventHandler';
 
 /**
  * Core class of MojiraBot
@@ -41,29 +43,42 @@ export default class MojiraBot {
 			// Register events.
 			EventRegistry.setClient( this.client );
 			EventRegistry.add( new ErrorEventHandler() );
-			EventRegistry.add( new MessageEventHandler( this.client.user.id ) );
+			EventRegistry.add( new RemoveReactionEventHandler( this.client.user.id ) );
 
 			const rolesChannel = this.client.channels.get( BotConfig.rolesChannel );
 			if ( rolesChannel && rolesChannel instanceof TextChannel ) {
 				try {
 					await rolesChannel.fetchMessage( BotConfig.rolesMessage );
-					for ( const channel of BotConfig.requestChannels ) {
-						const requestChannel = this.client.channels.get( channel );
-						if ( requestChannel && requestChannel instanceof TextChannel ) {
-							await requestChannel.fetchPinnedMessages();
-						}
-					}
-					EventRegistry.add( new AddReactionEventHandler( this.client.user.id ) );
-					EventRegistry.add( new RemoveReactionEventHandler( this.client.user.id ) );
 				} catch ( err ) {
 					this.logger.error( err );
 				}
 			}
 
+			const internalChannels = new Map<string, TextChannel>();
+			if ( BotConfig.request.channels ) {
+				for ( let i = 0; i < BotConfig.request.channels.length; i++ ) {
+					const channelId = BotConfig.request.channels[i];
+					const internalChannelId = BotConfig.request.internal_channels[i];
+					try {
+						const internalChannel = this.client.channels.get( internalChannelId );
+						if ( internalChannel && internalChannel instanceof TextChannel ) {
+							internalChannels.set( channelId, internalChannel );
+							await internalChannel.fetchMessages();
+						}
+					} catch ( err ) {
+						this.logger.error( err );
+					}
+				}
+			}
+			EventRegistry.add( new AddReactionEventHandler( this.client.user.id ) );
+			EventRegistry.add( new MessageEventHandler( this.client.user.id, internalChannels ) );
+			EventRegistry.add( new MessageUpdateEventHandler( this.client.user.id, internalChannels ) );
+			EventRegistry.add( new MessageDeleteEventHandler( this.client.user.id, internalChannels ) );
+
 			// #region Schedule tasks.
 			// Filter feed tasks.
 			for ( const config of BotConfig.filterFeeds ) {
-				TaskScheduler.add(
+				TaskScheduler.addTask(
 					new FilterFeedTask( config, this.client.channels.get( config.channel ) ),
 					BotConfig.filterFeedInterval
 				);

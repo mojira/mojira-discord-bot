@@ -14,6 +14,18 @@ export interface FilterFeedConfig {
 	title_single?: string;
 }
 
+export interface RequestConfig {
+	channels?: string[];
+	internal_channels?: string[];
+	log_channel?: string;
+	no_link_emoji?: string;
+	no_link_warning_lifetime?: number;
+	waiting_emoji?: string;
+	suggested_emoji?: string[];
+	resolve_delay?: number;
+	prepend_response_message?: boolean;
+}
+
 export default class BotConfig {
 	public static debug: boolean;
 
@@ -25,14 +37,15 @@ export default class BotConfig {
 	public static homeChannel: string;
 	public static rolesChannel: string;
 	public static rolesMessage: string;
-	public static requestChannels: string[];
 
 	// settings for mention command
 	public static ticketUrlsCauseEmbed: boolean;
 	public static requiredTicketPrefix: string;
 	public static forbiddenTicketPrefix: string;
 
-	public static projects: Array<string>;
+	public static projects: string[];
+
+	public static request: RequestConfig;
 
 	public static roles: RoleConfig[];
 
@@ -65,9 +78,6 @@ export default class BotConfig {
 		if ( !settings.roles_message ) throw 'Roles message is not set';
 		this.rolesMessage = settings.roles_message;
 
-		if ( !settings.request_channels ) throw 'Request channels are not set';
-		this.requestChannels = settings.request_channels;
-
 		this.ticketUrlsCauseEmbed = !!settings.ticketUrlsCauseEmbed;
 
 		if ( !settings.forbiddenTicketPrefix ) this.forbiddenTicketPrefix = '';
@@ -78,6 +88,8 @@ export default class BotConfig {
 
 		if ( !settings.projects ) throw 'Projects are not set';
 		this.projects = settings.projects;
+
+		this.request = settings.request || {};
 
 		if ( !settings.roles ) throw 'Roles are not set';
 		this.roles = settings.roles;

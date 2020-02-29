@@ -24,8 +24,8 @@ export default class AddReactionEventHandler implements EventHandler {
 		if ( messageReaction.message.id === BotConfig.rolesMessage ) {
 			// Handle role selection
 			this.selectRoleHandler.onEvent( messageReaction, user );
-		} else if ( BotConfig.requestChannels.includes( messageReaction.message.channel.id ) ) {
-			// Handle resolved user request
+		} else if ( BotConfig.request.internal_channels.includes( messageReaction.message.channel.id ) ) {
+			// Handle resolving user request
 			this.resolveRequestHandler.onEvent( messageReaction, user );
 		}
 	};
