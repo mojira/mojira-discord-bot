@@ -1,6 +1,9 @@
 import { User, MessageReaction } from 'discord.js';
 import * as log4js from 'log4js';
 import EventHandler from '../EventHandler';
+import TaskScheduler from '../../tasks/TaskScheduler';
+import BotConfig from '../../BotConfig';
+import ResolveRequestMessageTask from '../../tasks/ResolveRequestMessageTask';
 
 export default class ResolveRequestEventHandler implements EventHandler {
 	public readonly eventName = '';
@@ -11,10 +14,11 @@ export default class ResolveRequestEventHandler implements EventHandler {
 	public onEvent = ( reaction: MessageReaction, user: User ): void => {
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ reaction.message.id }'` );
 
-		if ( !reaction.message.guild.member( user ).permissionsIn( reaction.message.channel ).has( 'ADD_REACTIONS' ) ) {
-			reaction.remove( user );
-		} else if ( reaction.message.pinned ) {
-			reaction.message.unpin();
-		}
+		TaskScheduler.clearMessageTasks( reaction.message );
+		TaskScheduler.addOneTimeMessageTask(
+			reaction.message,
+			new ResolveRequestMessageTask( reaction.emoji, user ),
+			BotConfig.request.resolve_delay || 0
+		);
 	};
 }

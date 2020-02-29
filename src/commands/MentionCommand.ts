@@ -7,6 +7,14 @@ import MentionConfig from '../MentionConfig';
 import { CustomMention } from '../mentions/CustomMention';
 
 export default class MentionCommand extends Command<MentionResult> {
+	public static get ticketPattern(): string {
+		return `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;
+	}
+
+	public static get ticketLinkRegex(): RegExp {
+		return new RegExp( `https?://bugs.mojang.com/browse/(${ MentionCommand.ticketPattern })`, 'g' );
+	}
+
 	public test( messageText: string ): boolean | MentionResult {
 		let unmatchedMessage = messageText;
 		let mentions = new Array<Mention>();
@@ -92,22 +100,21 @@ export default class MentionCommand extends Command<MentionResult> {
 			return { mentions: [], unmatchedMessage: message };
 		}
 
-		const ticketPatern = `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;
 		let ticketRegex: RegExp;
 
 		if ( mentionType.requireUrl ) {
-			ticketRegex = RegExp( `https?://bugs.mojang.com/browse/(${ ticketPatern })`, 'g' );
+			ticketRegex = MentionCommand.ticketLinkRegex;
 		} else {
 			const getPref = ( pref: string ): string => {
 				return pref ? pref : '';
 			};
 
-			ticketRegex = RegExp( `(?:^|[^${ getPref( mentionType.forbiddenPrefix ) }])${ getPref( mentionType.requiredPrefix ) }(${ ticketPatern })`, 'g' );
+			ticketRegex = RegExp( `(?:^|[^${ getPref( mentionType.forbiddenPrefix ) }])${ getPref( mentionType.requiredPrefix ) }(${ MentionCommand.ticketPattern })`, 'g' );
 
 			// replace all issues posted in the form of a link from the search either with a mention or remove them
 			if ( !mentionType.forbidUrl || mentionType.requiredPrefix ) {
 				message = message.replace(
-					new RegExp( `https?://bugs.mojang.com/browse/(${ ticketPatern })`, 'g' ),
+					MentionCommand.ticketLinkRegex,
 					mentionType.forbidUrl ? `${ mentionType.requiredPrefix }$1` : ''
 				);
 			}
