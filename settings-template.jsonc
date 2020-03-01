@@ -82,7 +82,7 @@
 		// Optional. Defaults to `never`.
 		"prepend_response_message": "<behavior>",
 
-		// If the in `respone_message` defined message should be added to an entry in log channel
+		// Whether the in `respone_message` defined message should be added to an entry in log channel
 		// Optional. Defaults to `false`.
 		"prepend_response_message_in_log": false,
 

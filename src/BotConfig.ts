@@ -31,7 +31,7 @@ export interface RequestConfig {
 	resolve_delay?: number;
 	prepend_response_message?: PrependResonseMessage;
 	prepend_response_message_in_log?: boolean;
-	respone_message: string;
+	respone_message?: string;
 }
 
 export default class BotConfig {
