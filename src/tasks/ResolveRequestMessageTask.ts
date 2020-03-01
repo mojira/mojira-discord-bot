@@ -15,33 +15,32 @@ export default class ResolveRequestMessageTask extends MessageTask {
 	}
 
 	public async run( copy: Message ): Promise<void> {
-		const result = RequestsUtil.getOriginIds( copy );
-		if ( !result ) {
-			return;
-		}
+		const origin = await RequestsUtil.getOriginMessage( copy );
 
-		const originChannel = MojiraBot.client.channels.get( result.channelId ) as TextChannel;
-		const origin = await originChannel.fetchMessage( result.messageId );
+		if ( origin ) {
+			await origin.clearReactions();
+			origin.react( this.emoji );
 
-		await origin.clearReactions();
-		origin.react( this.emoji );
+			if ( copy.deletable ) {
+				copy.delete();
+			}
 
-		if ( copy.deletable ) {
-			copy.delete();
-		}
+			if ( BotConfig.request.log_channel ) {
+				const logChannel = MojiraBot.client.channels.get( BotConfig.request.log_channel );
+				if ( logChannel && logChannel instanceof TextChannel ) {
+					const response = BotConfig.request.prepend_response_message_in_log ?
+						RequestsUtil.getResponseMessage( origin ) : '';
 
-		if ( BotConfig.request.log_channel ) {
-			const logChannel = MojiraBot.client.channels.get( BotConfig.request.log_channel );
-			if ( logChannel && logChannel instanceof TextChannel ) {
-				const log = new RichEmbed()
-					.setColor( '#F7C6C9' )
-					.setAuthor( origin.author.tag, origin.author.avatarURL )
-					.setDescription( origin.content )
-					.addField( 'Channel', origin.channel.toString(), true )
-					.addField( 'Message', `[Here](${origin.url})`, true )
-					.setFooter( `${this.user.tag} resolved as ${this.emoji}`, this.user.avatarURL )
-					.setTimestamp( new Date() );
-				logChannel.send( log );
+					const log = new RichEmbed()
+						.setColor( '#F7C6C9' )
+						.setAuthor( origin.author.tag, origin.author.avatarURL )
+						.setDescription( origin.content )
+						.addField( 'Channel', origin.channel.toString(), true )
+						.addField( 'Message', `[Here](${origin.url})`, true )
+						.setFooter( `${this.user.tag} resolved as ${this.emoji}`, this.user.avatarURL )
+						.setTimestamp( new Date() );
+					logChannel.send( response, log );
+				}
 			}
 		}
 	}
