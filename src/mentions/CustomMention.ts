@@ -53,7 +53,7 @@ export class CustomMention extends SingleMention {
 		if ( this.config.thumbnail ) embed.setImage( this.findThumbnail( ticketResult.fields.attachment ) );
 
 		if ( this.config.description ) {
-			let description = ticketResult.fields.description;
+			let description = ticketResult.fields.description || '';
 			description = description.replace( /^\s*[\r\n]/gm, '\n' );
 
 			if ( typeof this.config.description === 'object' ) {

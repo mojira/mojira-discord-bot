@@ -69,7 +69,7 @@ export class SingleMention extends Mention {
 			}
 		}
 
-		let description = ticketResult.fields.description;
+		let description = ticketResult.fields.description || '';
 		description = description.replace( /\s*\{panel[^}]+\}(?:.|\s)*?\{panel\}\s*/gi, '' );
 		description = description.replace( /^\s*[\r\n]/gm, '\n' );
 		description = description.split( '\n' ).slice( 0, 2 ).join( '\n' );
