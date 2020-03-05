@@ -1,19 +1,13 @@
-import { Message, RichEmbed } from 'discord.js';
+import { Message } from 'discord.js';
 import Command from './Command';
 import BotConfig from '../BotConfig';
 import { Mention } from '../mentions/Mention';
 import { MultipleMention } from '../mentions/MultipleMention';
 import MentionConfig from '../MentionConfig';
 import { CustomMention } from '../mentions/CustomMention';
+import MentionUtil from '../util/MentionUtil';
 
 export default class MentionCommand extends Command<MentionResult> {
-	public static get ticketPattern(): string {
-		return `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;
-	}
-
-	public static get ticketLinkRegex(): RegExp {
-		return new RegExp( `https?://bugs.mojang.com/browse/(${ MentionCommand.ticketPattern })`, 'g' );
-	}
 
 	public test( messageText: string ): boolean | MentionResult {
 		let unmatchedMessage = messageText;
@@ -41,41 +35,9 @@ export default class MentionCommand extends Command<MentionResult> {
 	}
 
 	public async run( message: Message, args: MentionResult ): Promise<boolean> {
-		const embeds = new Array<RichEmbed>();
+		const success = await MentionUtil.sendMentions( args.mentions, message.channel, { text: message.author.tag, icon: message.author.avatarURL, timestamp: message.createdAt } );
 
-		for( const mention of args.mentions ) {
-			let embed: RichEmbed;
-
-			try {
-				embed = await mention.getEmbed();
-			} catch ( err ) {
-				try {
-					message.channel.send( err );
-				} catch ( err ) {
-					Command.logger.log( err );
-				}
-				return false;
-			}
-
-			if( embed === undefined ) return false;
-
-			embed.setFooter( message.author.tag, message.author.avatarURL )
-				.setTimestamp( message.createdAt );
-
-			embeds.push( embed );
-		}
-
-		let error = false;
-		for( const embed of embeds ) {
-			try {
-				await message.channel.send( embed );
-			} catch ( err ) {
-				Command.logger.error( err );
-				error = true;
-			}
-		}
-
-		if( error ) return false;
+		if( !success ) return false;
 
 		if ( message.deletable && args.unmatchedMessage !== undefined && args.unmatchedMessage.match( /^\s*$/g ) ) {
 			try {
@@ -103,34 +65,34 @@ export default class MentionCommand extends Command<MentionResult> {
 		let ticketRegex: RegExp;
 
 		if ( mentionType.requireUrl ) {
-			ticketRegex = MentionCommand.ticketLinkRegex;
+			ticketRegex = MentionUtil.ticketLinkRegex;
 		} else {
 			const getPref = ( pref: string ): string => {
 				return pref ? pref : '';
 			};
 
-			ticketRegex = RegExp( `(?:^|[^${ getPref( mentionType.forbiddenPrefix ) }])${ getPref( mentionType.requiredPrefix ) }(${ MentionCommand.ticketPattern })`, 'g' );
+			ticketRegex = RegExp( `(?:^|[^${ getPref( mentionType.forbiddenPrefix ) }])${ getPref( mentionType.requiredPrefix ) }(${ MentionUtil.ticketPattern })`, 'g' );
 
 			// replace all issues posted in the form of a link from the search either with a mention or remove them
 			if ( !mentionType.forbidUrl || mentionType.requiredPrefix ) {
 				message = message.replace(
-					MentionCommand.ticketLinkRegex,
+					MentionUtil.ticketLinkRegex,
 					mentionType.forbidUrl ? `${ mentionType.requiredPrefix }$1` : ''
 				);
 			}
 		}
 
 		let ticketMatch: RegExpExecArray;
-		const ticketMatches = new Array<Mention>();
+		const ticketMatches = new Set<Mention>();
 		let unmatchedMessage = message;
 
 		while ( ( ticketMatch = ticketRegex.exec( message ) ) !== null ) {
 			unmatchedMessage = unmatchedMessage.replace( ticketMatch[0], '' );
-			ticketMatches.push( new CustomMention( ticketMatch[1], mentionType.embed ) );
+			ticketMatches.add( new CustomMention( ticketMatch[1], mentionType.embed ) );
 		}
 
 		return {
-			mentions: ticketMatches,
+			mentions: Array.from( ticketMatches ),
 			unmatchedMessage: unmatchedMessage,
 		};
 	}

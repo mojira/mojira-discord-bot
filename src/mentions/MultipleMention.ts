@@ -60,9 +60,18 @@ export class MultipleMention extends Mention {
 
 			throw 'An error occurred while retrieving this ticket: No issues were returned by the JIRA API.';
 		}
-		embed.setDescription( searchResults.issues.map( v => `\`${ v.key }\` - [${ v.fields.summary }](https://bugs.mojang.com/browse/${ v.key })` ).join( '\n' ) );
+		let description = ( searchResults.issues as Array<any> ).map( v => `\`${ v.key }\` - [${ v.fields.summary }](https://bugs.mojang.com/browse/${ v.key })` ).join( '\n' );
 
-		if ( this.tickets.length !== searchResults.issues.length ) {
+		// Max length defined by Discord api
+		let shortened = false;
+		while ( description.length > 2048 ) {
+			description = description.substring( 0, description.lastIndexOf( '\n' ) );
+			shortened = true;
+		}
+
+		embed.setDescription( description );
+
+		if ( shortened || this.tickets.length !== searchResults.issues.length ) {
 			embed.addField(
 				'More results',
 				`[View all ${ this.tickets.length } tickets](https://bugs.mojang.com/issues/?jql=` + `id IN %28${ this.tickets.join( ',' ) }%29 ORDER BY key ASC`.replace( /\s+/ig, '%20' ) + ')'

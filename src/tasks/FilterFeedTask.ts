@@ -1,18 +1,17 @@
 import BotConfig, { FilterFeedConfig } from '../BotConfig';
-import { Client, TextChannel, Channel, RichEmbed } from 'discord.js';
+import { Client, TextChannel, DMChannel, GroupDMChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import Task from './Task';
 import JiraClient = require( 'jira-connector' );
 import { EmbedConfig } from '../MentionConfig';
-import { CustomMention } from '../mentions/CustomMention';
-import { MultipleMention } from '../mentions/MultipleMention';
+import MentionUtil from '../util/MentionUtil';
 
 export default class FilterFeedTask extends Task {
 	public static logger = log4js.getLogger( 'FilterFeed' );
 
 	private client: Client;
 	private jira: JiraClient;
-	private channel: Channel;
+	private channel: TextChannel | DMChannel | GroupDMChannel;
 	private jql: string;
 	private title: string;
 	private embed: EmbedConfig;
@@ -22,7 +21,7 @@ export default class FilterFeedTask extends Task {
 
 	private knownTickets = new Set<string>();
 
-	constructor( { jql, title, embed, maxUngroupedMentions: maxUngroupedMentions, maxGroupedMentions: maxGroupedMentions, titleSingle: titleSingle }: FilterFeedConfig, channel: Channel ) {
+	constructor( { jql, title, embed, maxUngroupedMentions, maxGroupedMentions, titleSingle }: FilterFeedConfig, channel: TextChannel | DMChannel | GroupDMChannel ) {
 		super();
 
 		this.channel = channel;
@@ -61,48 +60,20 @@ export default class FilterFeedTask extends Task {
 
 		if ( this.knownTickets ) {
 			const unknownTickets = upcomingTickets.filter( key => !this.knownTickets.has( key ) );
-			for ( const ticket of upcomingTickets ) {
-				this.knownTickets.add( ticket );
-			}
 
 			if ( unknownTickets.length > 0 ) {
 				try {
-					let message = '';
-					const embeds = new Array<RichEmbed>();
+					const mentions = MentionUtil.getMentions( unknownTickets, this.embed, this.maxUngroupedMentions, this.maxGroupedMentions );
+					MentionUtil.sendMentions( mentions, this.channel, undefined, unknownTickets.length == 1 ? this.titleSingle : this.title.replace( '{{num}}', unknownTickets.length.toString() ) );
 
-					if ( unknownTickets.length > 1 ) {
-						const getTitle = (): string => this.title.replace( /\{\{num\}\}/g, unknownTickets.length.toString() );
-
-						if ( this.maxUngroupedMentions > 0 && unknownTickets.length > this.maxUngroupedMentions ) {
-							const embed = await new MultipleMention( unknownTickets, this.maxGroupedMentions ).getEmbed();
-							embed.setTitle( getTitle() );
-							embeds.push( embed );
-						} else {
-							message = getTitle();
-							for( const ticket of unknownTickets ) {
-								embeds.push( await new CustomMention ( ticket, this.embed ).getEmbed() );
-							}
-						}
-					} else {
-						message = this.titleSingle;
-						embeds.push( await new CustomMention ( unknownTickets[ 0 ], this.embed ).getEmbed() );
-					}
-
-					if ( this.channel instanceof TextChannel ) {
-						this.channel.send( message, embeds [ 0 ] );
-						if ( embeds.length > 1 ) {
-							for ( const embed of embeds.splice( 1, embeds.length ) ) {
-								this.channel.send( embed );
-							}
-						}
-					} else {
-						throw `Expected ${ this.channel } to be a TextChannel`;
-					}
 				} catch ( err ) {
 					FilterFeedTask.logger.error( err );
 					return;
 				}
 			}
+		}
+		for ( const ticket of upcomingTickets ) {
+			this.knownTickets.add( ticket );
 		}
 	}
 }

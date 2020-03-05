@@ -1,4 +1,4 @@
-import { Client, TextChannel } from 'discord.js';
+import { Client, TextChannel, DMChannel, GroupDMChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from './BotConfig';
 import TaskScheduler from './tasks/TaskScheduler';
@@ -78,8 +78,11 @@ export default class MojiraBot {
 			// #region Schedule tasks.
 			// Filter feed tasks.
 			for ( const config of BotConfig.filterFeeds ) {
+				const channel = this.client.channels.get( config.channel ) as TextChannel | DMChannel | GroupDMChannel;
+				if ( !channel ) throw `The channel "${ config.channel }" defined in a filter feed is not a valid text channel!`;
+
 				TaskScheduler.addTask(
-					new FilterFeedTask( config, this.client.channels.get( config.channel ) ),
+					new FilterFeedTask( config, channel ),
 					BotConfig.filterFeedInterval
 				);
 			}

@@ -1,4 +1,5 @@
 import { ColorResolvable } from 'discord.js';
+import BotConfig from './BotConfig';
 
 export interface FieldConfig {
 	type: FieldType;
@@ -13,7 +14,7 @@ export enum FieldType {
 }
 
 export interface Description {
-	maxCharacters?: number;
+	maxCharacters: number;
 	maxLineBreaks?: number;
 	exclude?: RegExp[];
 }
@@ -30,8 +31,12 @@ export class EmbedConfig {
 	constructor( json ) {
 		this.title = !!json.title;
 		if ( typeof json.description === 'object' ) {
-			this.description = {};
+			this.description = { maxCharacters: 2048 };
 			if( json.description.max_characters ) {
+				if ( json.description.max_characters < 1 || json.description.max_characters > 2048 ) {
+					throw `An embed type has a character limit of ${ json.description.max_characters } for the description, but value must be between 1 and 2048!`;
+				}
+
 				this.description.maxCharacters = json.description.max_characters;
 			}
 			if( json.description.max_line_breaks ) {
@@ -96,9 +101,12 @@ export default class MentionConfig {
 	public embed: EmbedConfig;
 
 	constructor( json, embedTypes: Map<string, EmbedConfig> ) {
-		if( !json.embed ) throw 'Added mention type without an embed.';
-		this.embed = embedTypes.get( json.embed );
-		if( !this.embed ) throw `Added mention type with unkown embed ${ json.embed }.`;
+		if( !json.embed ) {
+			this.embed = BotConfig.defaultEmbed;
+		} else {
+			this.embed = embedTypes.get( json.embed );
+			if( !this.embed ) throw `Added mention type with unkown embed ${ json.embed }.`;
+		}
 
 		this.requireUrl = json.require_url;
 		this.forbidUrl = json.forbid_url;

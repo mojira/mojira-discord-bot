@@ -44,6 +44,7 @@ export default class BotConfig {
 
 	private static embedTypes: Map<string, EmbedConfig>;
 	public static mentionTypes: MentionConfig[];
+	public static defaultEmbed: EmbedConfig;
 	public static maxUngroupedMentions?: number;
 	public static maxGroupedMentions?: number;
 
@@ -88,6 +89,10 @@ export default class BotConfig {
 			this.embedTypes.set( key, new EmbedConfig( settings.embed_types[key] ) );
 		} );
 
+		if( !settings.default_embed ) throw 'Default embed is not defined!';
+		this.defaultEmbed = this.embedTypes.get( settings.default_embed );
+		if( !this.defaultEmbed ) throw `Default embed is set to an undefined embed type "${ settings.default_embed }"!`;
+
 		if ( !( settings.mention_types instanceof Array ) ) throw 'Mention Types are not defined!';
 		this.mentionTypes = new Array<MentionConfig>();
 
@@ -116,8 +121,7 @@ export default class BotConfig {
 		this.filterFeeds = new Array<FilterFeedConfig>();
 
 		for( const filterFeed of settings.filter_feeds ) {
-			if( !filterFeed.embed ) throw 'A filter feed has no embed.';
-			const feed = {};
+			const feed: any = { embed: this.defaultEmbed };
 
 			Object.keys( filterFeed ).forEach( key => {
 				const camelCaseKey = key.replace( /_./g, match => match.substring( 1, 2 ).toUpperCase() );
@@ -125,8 +129,10 @@ export default class BotConfig {
 
 			} );
 
-			feed[ 'embed' ] = this.embedTypes.get( filterFeed.embed );
-			if( !feed[ 'embed' ] ) throw `A filter feed has an undefined embed: ${ filterFeed.embed }`;
+			if ( filterFeed.embed ) {
+				feed.embed = this.embedTypes.get( filterFeed.embed );
+				if( !feed.embed ) throw `A filter feed uses an undefined embed type "${ filterFeed.embed }"!`;
+			}
 
 			this.filterFeeds.push( feed as FilterFeedConfig );
 		}

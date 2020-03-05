@@ -2,7 +2,7 @@ import { Mention } from './Mention';
 import { RichEmbed } from 'discord.js';
 import { EmbedConfig, FieldType } from '../MentionConfig';
 import moment = require( 'moment' );
-import { SingleMention } from './SingleMention';
+import SingleMention from './SingleMention';
 
 export class CustomMention extends SingleMention {
 	private config: EmbedConfig;
@@ -63,8 +63,11 @@ export class CustomMention extends SingleMention {
 					}
 				}
 
+				if ( description.length > this.config.description.maxCharacters ) {
+					description = description.substring( 0, this.config.description.maxCharacters - 1 ) + '…';
+				}
+
 				if ( this.config.description.maxLineBreaks !== undefined ) description = description.split( '\n' ).slice( 0, this.config.description.maxLineBreaks ).join( '\n' );
-				if ( this.config.description.maxCharacters !== undefined ) description = description.substring( 0, this.config.description.maxCharacters );
 			}
 
 			embed.setDescription( description );

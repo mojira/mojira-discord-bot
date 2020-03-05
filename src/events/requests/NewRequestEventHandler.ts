@@ -3,7 +3,7 @@ import * as log4js from 'log4js';
 import EventHandler from '../EventHandler';
 import BotConfig from '../../BotConfig';
 import { ReactionsUtil } from '../../util/ReactionsUtil';
-import MentionCommand from '../../commands/MentionCommand';
+import MentionUtil from '../../util/MentionUtil';
 
 export default class NewRequestEventHandler implements EventHandler {
 	public readonly eventName = '';
@@ -29,7 +29,7 @@ export default class NewRequestEventHandler implements EventHandler {
 
 		await origin.clearReactions();
 
-		const regex = new RegExp( `(?:${MentionCommand.ticketLinkRegex.source}|(${MentionCommand.ticketPattern}))`, 'g' );
+		const regex = new RegExp( `(?:${ MentionUtil.ticketLinkRegex.source }|(${ MentionUtil.ticketPattern }))`, 'g' );
 
 		if ( BotConfig.request.no_link_emoji && !origin.content.match( regex ) ) {
 			origin.react( BotConfig.request.no_link_emoji );

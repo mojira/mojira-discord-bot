@@ -1,8 +1,8 @@
-import { Message, RichEmbed } from 'discord.js';
+import { Message } from 'discord.js';
 import Command from './Command';
 import PrefixCommand from './PrefixCommand';
-import { MentionRegistry } from '../mentions/MentionRegistry';
 import BotConfig from '../BotConfig';
+import MentionUtil from '../util/MentionUtil';
 
 export default class BugCommand extends PrefixCommand {
 	public readonly aliases = ['bug', 'bugs', 'mention'];
@@ -10,7 +10,7 @@ export default class BugCommand extends PrefixCommand {
 	public async run( message: Message, args: string ): Promise<boolean> {
 		const tickets = args.split( /\s+/ig );
 
-		const ticketRegex = new RegExp( `\\s*((?:${ BotConfig.projects.join( '|' ) })-\\d+)\\s*` );
+		const ticketRegex = new RegExp( `\\s*(${ MentionUtil.ticketPattern })\\s*` );
 
 		for ( const ticket of tickets ) {
 			if ( !ticketRegex.test( ticket ) ) {
@@ -23,31 +23,10 @@ export default class BugCommand extends PrefixCommand {
 			}
 		}
 
-		const mention = MentionRegistry.getMention( tickets );
+		const mentions = MentionUtil.getMentions( tickets, BotConfig.defaultEmbed );
+		const success = await MentionUtil.sendMentions( mentions, message.channel, { text: message.author.tag, icon: message.author.avatarURL, timestamp: message.createdAt } );
 
-		let embed: RichEmbed;
-		try {
-			embed = await mention.getEmbed();
-		} catch ( err ) {
-			try {
-				message.channel.send( err );
-			} catch ( err ) {
-				Command.logger.log( err );
-			}
-			return false;
-		}
-
-		if ( embed === undefined ) return false;
-
-		embed.setFooter( message.author.tag, message.author.avatarURL )
-			.setTimestamp( message.createdAt );
-
-		try {
-			await message.channel.send( embed );
-		} catch ( err ) {
-			Command.logger.error( err );
-			return false;
-		}
+		if( !success ) return false;
 
 		if ( message.deletable ) {
 			try {
@@ -55,8 +34,6 @@ export default class BugCommand extends PrefixCommand {
 			} catch ( err ) {
 				Command.logger.error( err );
 			}
-		} else {
-			console.log( 'message not deletable' );
 		}
 
 		return true;
