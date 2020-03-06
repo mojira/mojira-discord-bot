@@ -1,10 +1,10 @@
 import { Message } from 'discord.js';
 import Command from './Command';
 import BotConfig from '../BotConfig';
-import { Mention } from '../mentions/Mention';
-import { MultipleMention } from '../mentions/MultipleMention';
+import Mention from '../mentions/Mention';
+import MultipleMention from '../mentions/MultipleMention';
 import MentionConfig from '../MentionConfig';
-import { CustomMention } from '../mentions/CustomMention';
+import CustomMention from '../mentions/CustomMention';
 import MentionUtil from '../util/MentionUtil';
 import SingleMention from '../mentions/SingleMention';
 
@@ -98,7 +98,7 @@ export default class MentionCommand extends Command<MentionArguments> {
 		return '[mention] ' + matches.join( ', ' );
 	}
 
-	private matchEmbeds( message: string, mentionType: MentionConfig ): { mentions: Array<SingleMention>; matches: string[] } {
+	private matchEmbeds( message: string, mentionType: MentionConfig ): { mentions: SingleMention[]; matches: string[] } {
 		if ( ( mentionType.forbiddenKeyword && message.includes( mentionType.forbiddenKeyword ) )
 			|| ( mentionType.requiredKeyword && !message.includes( mentionType.requiredKeyword ) ) ) {
 			return { mentions: [], matches: [] };
@@ -109,11 +109,7 @@ export default class MentionCommand extends Command<MentionArguments> {
 			matches[ 'keyword' ] = mentionType.requiredKeyword;
 		}
 
-		const getDefinedStr = ( str: string ): string => {
-			return str ? str : '';
-		};
-
-		let prefixPattern = `(?<=^|[^${ getDefinedStr( mentionType.forbiddenPrefix ) }])${ getDefinedStr( mentionType.requiredPrefix ) }`;
+		let prefixPattern = `(?<=^|[^${ mentionType.forbiddenPrefix || '' }])${ mentionType.requiredPrefix || '' }`;
 
 		if ( mentionType.forbidUrl ) {
 			prefixPattern += `(?<!${ MentionUtil.linkPattern })`;

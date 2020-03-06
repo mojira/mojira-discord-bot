@@ -29,7 +29,8 @@
 			// Default: false
 			"title": false,
 
-			// Optional. Settings for the description. Either below's object or false for no description.
+			// Optional. Settings for the description. Either below's object or boolean.
+			// When true, defaults apply, when false no description is set.
 			// Default: false
 			"description": {
 
@@ -48,11 +49,11 @@
 			// Default: false
 			"author": false,
 			
-			// Optional. Whether the embed should link to the ticket included.
+			// Optional. Whether the embed should link to the mentioned ticket.
 			// Default: false
 			"url": false,
 			
-			// Optional. Whether the embed should include the first image attachment as Image.
+			// Optional. Whether the embed should include the first image.
 			// Default: false
 			"thumbnail": false,
 

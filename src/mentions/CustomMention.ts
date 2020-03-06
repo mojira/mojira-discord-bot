@@ -1,11 +1,11 @@
-import { Mention } from './Mention';
+import Mention from './Mention';
 import { RichEmbed } from 'discord.js';
 import { EmbedConfig, FieldType } from '../MentionConfig';
 import moment = require( 'moment' );
 import SingleMention from './SingleMention';
 import BotConfig from '../BotConfig';
 
-export class CustomMention extends SingleMention {
+export default class CustomMention extends SingleMention {
 	private config: EmbedConfig;
 	private _maxUngroupedMentions: number;
 
@@ -59,27 +59,24 @@ export class CustomMention extends SingleMention {
 		if ( this.config.url ) embed.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` );
 		if ( this.config.thumbnail ) embed.setImage( this.findThumbnail( ticketResult.fields.attachment ) );
 
-		if ( this.config.description ) {
-			let description = ticketResult.fields.description || '';
-			description = description.replace( /^\s*[\r\n]/gm, '\n' );
+		let description = ticketResult.fields.description || '';
+		description = description.replace( /^\s*[\r\n]/gm, '\n' );
 
-			if ( typeof this.config.description === 'object' ) {
-				if ( this.config.description !== undefined ) {
-					for ( const regex of this.config.description.exclude ) {
-						description = description.replace( regex, '' );
-					}
+		if ( typeof this.config.description === 'object' ) {
+			if ( this.config.description !== undefined ) {
+				for ( const regex of this.config.description.exclude ) {
+					description = description.replace( regex, '' );
 				}
-
-				if ( description.length > this.config.description.maxCharacters ) {
-					description = description.substring( 0, this.config.description.maxCharacters - 1 ) + '…';
-				}
-
-				if ( this.config.description.maxLineBreaks !== undefined ) description = description.split( '\n' ).slice( 0, this.config.description.maxLineBreaks ).join( '\n' );
 			}
 
-			embed.setDescription( description );
+			if ( description.length > this.config.description.maxCharacters ) {
+				description = description.substring( 0, this.config.description.maxCharacters - 1 ) + '…';
+			}
+
+			if ( this.config.description.maxLineBreaks !== undefined ) description = description.split( '\n' ).slice( 0, this.config.description.maxLineBreaks ).join( '\n' );
 		}
 
+		embed.setDescription( description );
 		embed.setColor( this.config.color );
 
 		if ( this.config.fields ) {
@@ -132,7 +129,7 @@ export class CustomMention extends SingleMention {
 							if ( field.innerPath ) {
 								array = array.map( v => this.resolvePath( v, field.innerPath ) );
 							}
-							if( array !== undefined && array.length > 0 ) embed.addField( field.label, array.join( ', ' ), field.inline );
+							if( array && array.length > 0 ) embed.addField( field.label, array.join( ', ' ), field.inline );
 						}
 
 						break;

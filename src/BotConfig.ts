@@ -121,6 +121,7 @@ export default class BotConfig {
 		this.filterFeeds = new Array<FilterFeedConfig>();
 
 		for( const filterFeed of settings.filter_feeds ) {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const feed: any = { embed: this.defaultEmbed };
 
 			Object.keys( filterFeed ).forEach( key => {

@@ -50,7 +50,7 @@ export class EmbedConfig {
 				} );
 			}
 		} else {
-			this.description = false;
+			this.description = !!json.description;
 		}
 
 		this.author = !!json.author;

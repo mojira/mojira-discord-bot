@@ -1,13 +1,13 @@
 import BotConfig from '../BotConfig';
-import { Mention } from '../mentions/Mention';
 import { EmbedConfig } from '../MentionConfig';
-import { MultipleMention } from '../mentions/MultipleMention';
-import { CustomMention } from '../mentions/CustomMention';
+import Mention from '../mentions/Mention';
+import MultipleMention from '../mentions/MultipleMention';
+import CustomMention from '../mentions/CustomMention';
 import { RichEmbed, TextChannel, DMChannel, GroupDMChannel } from 'discord.js';
 import * as log4js from 'log4js';
 
 export default class MentionUtil {
-	public static logger = log4js.getLogger( 'CommandExecutor' );
+	public static logger = log4js.getLogger( 'Mention' );
 
 	public static get ticketPattern(): string {
 		return `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;

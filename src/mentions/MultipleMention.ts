@@ -1,9 +1,9 @@
 import { RichEmbed } from 'discord.js';
-import { Mention } from './Mention';
+import Mention from './Mention';
 import JiraClient = require( 'jira-connector' );
 import BotConfig from '../BotConfig';
 
-export class MultipleMention extends Mention {
+export default class MultipleMention extends Mention {
 	private jira: JiraClient;
 
 	private tickets: string[];
@@ -60,13 +60,18 @@ export class MultipleMention extends Mention {
 
 			throw 'An error occurred while retrieving this ticket: No issues were returned by the JIRA API.';
 		}
-		let description = ( searchResults.issues as Array<any> ).map( v => `\`${ v.key }\` - [${ v.fields.summary }](https://bugs.mojang.com/browse/${ v.key })` ).join( '\n' );
-
-		// Max length defined by Discord api
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		let description = '';
 		let shortened = false;
-		while ( description.length > 2048 ) {
-			description = description.substring( 0, description.lastIndexOf( '\n' ) );
-			shortened = true;
+		for ( const issue of searchResults.issues ) {
+			const value = `${ description ? '\n' : '' }\`${ issue.key }\` - [${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })`;
+
+			// Max length defined by Discord api
+			if ( description.length + value.length > 2048 ) {
+				shortened = true;
+				break;
+			}
+			description += value;
 		}
 
 		embed.setDescription( description );

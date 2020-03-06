@@ -1,4 +1,4 @@
-import { Mention } from './Mention';
+import Mention from './Mention';
 import JiraClient = require( 'jira-connector' );
 import BotConfig from '../BotConfig';
 
