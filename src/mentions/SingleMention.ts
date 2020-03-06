@@ -1,9 +1,14 @@
 import { Mention } from './Mention';
 import JiraClient = require( 'jira-connector' );
+import BotConfig from '../BotConfig';
 
 export default abstract class SingleMention extends Mention {
 	protected jira: JiraClient;
 	protected ticket: string;
+
+	public get maxUngroupedMentions(): number {
+		return BotConfig.maxUngroupedMentions;
+	}
 
 	constructor( ticket: string ) {
 		super();

@@ -6,26 +6,56 @@ import { MultipleMention } from '../mentions/MultipleMention';
 import MentionConfig from '../MentionConfig';
 import { CustomMention } from '../mentions/CustomMention';
 import MentionUtil from '../util/MentionUtil';
+import SingleMention from '../mentions/SingleMention';
 
-export default class MentionCommand extends Command<MentionResult> {
+export default class MentionCommand extends Command<MentionArguments> {
 
-	public test( messageText: string ): boolean | MentionResult {
+	public test( messageText: string ): boolean | MentionArguments {
 		let unmatchedMessage = messageText;
-		let mentions = new Array<Mention>();
+		const foundMentions = new Map<string, SingleMention[]>();
 
 		for ( const mentionType of BotConfig.mentionTypes ) {
-			const result = this.matchEmbeds( unmatchedMessage, mentionType );
-			result.mentions.forEach( v => mentions.push( v ) );
+			const result = this.matchEmbeds( messageText, unmatchedMessage, mentionType );
+			result.mentions.forEach( v => {
+				let ticketMentions: SingleMention[];
+
+				if( foundMentions.has( v.getTicket() ) ) {
+					ticketMentions = foundMentions.get( v.getTicket() );
+				} else {
+					ticketMentions = new Array<SingleMention>();
+					foundMentions.set( v.getTicket(), ticketMentions );
+				}
+
+				ticketMentions.push( v );
+			} );
 			unmatchedMessage = result.unmatchedMessage;
 		}
 
-		if ( mentions.length == 0 ) {
+		if ( foundMentions.size == 0 ) {
 			return false;
 		}
 
-		if( BotConfig.maxUngroupedMentions > 0 && mentions.length > BotConfig.maxUngroupedMentions ) {
-			const tickets = mentions.map( v => v.getTicket() );
-			mentions = [ new MultipleMention( tickets ) ];
+		let mentions = new Array<Mention>();
+		let group = false;
+
+		for( const ticketMentions of foundMentions.values() ) {
+			let found = false;
+
+			for( const mention of ticketMentions ) {
+				if ( !mention.maxUngroupedMentions || foundMentions.size <= mention.maxUngroupedMentions ) {
+					mentions.push( mention );
+					found = true;
+					break;
+				}
+			}
+			if( !found ) {
+				group = true;
+				break;
+			}
+		}
+
+		if( group ) {
+			mentions = [ new MultipleMention( Array.from( foundMentions.keys() ) ) ];
 		}
 
 		return {
@@ -34,7 +64,7 @@ export default class MentionCommand extends Command<MentionResult> {
 		};
 	}
 
-	public async run( message: Message, args: MentionResult ): Promise<boolean> {
+	public async run( message: Message, args: MentionArguments ): Promise<boolean> {
 		const success = await MentionUtil.sendMentions( args.mentions, message.channel, { text: message.author.tag, icon: message.author.avatarURL, timestamp: message.createdAt } );
 
 		if( !success ) return false;
@@ -50,55 +80,55 @@ export default class MentionCommand extends Command<MentionResult> {
 		return true;
 	}
 
-	public asString( args: MentionResult ): string {
+	public asString( args: MentionArguments ): string {
 		const tickets = args.mentions.map( v => v.getTicket() );
 
 		return '[mention] ' + tickets.join( ', ' );
 	}
 
-	private matchEmbeds( message: string, mentionType: MentionConfig ): { mentions: Array<Mention>; unmatchedMessage: string } {
+	private matchEmbeds( message: string, unmatchedMessage: string, mentionType: MentionConfig ): { mentions: Array<SingleMention>; unmatchedMessage: string } {
 		if ( ( mentionType.forbiddenKeyword && message.includes( mentionType.forbiddenKeyword ) )
 			|| ( mentionType.requiredKeyword && !message.includes( mentionType.requiredKeyword ) ) ) {
-			return { mentions: [], unmatchedMessage: message };
+			return { mentions: [], unmatchedMessage };
 		}
 
-		let ticketRegex: RegExp;
+		if( mentionType.requiredKeyword ) {
+			unmatchedMessage = unmatchedMessage.replace( mentionType.requiredKeyword, '' );
+		}
 
-		if ( mentionType.requireUrl ) {
-			ticketRegex = MentionUtil.ticketLinkRegex;
+		const getDefinedStr = ( str: string ): string => {
+			return str ? str : '';
+		};
+
+		let prefixPattern = `(?<=^|[^${ getDefinedStr( mentionType.forbiddenPrefix ) }])${ getDefinedStr( mentionType.requiredPrefix ) }`;
+
+		if ( mentionType.forbidUrl ) {
+			prefixPattern += `(?<!${ MentionUtil.linkPattern })`;
+		} else if ( mentionType.requireUrl ) {
+			prefixPattern += MentionUtil.linkPattern;
 		} else {
-			const getPref = ( pref: string ): string => {
-				return pref ? pref : '';
-			};
-
-			ticketRegex = RegExp( `(?:^|[^${ getPref( mentionType.forbiddenPrefix ) }])${ getPref( mentionType.requiredPrefix ) }(${ MentionUtil.ticketPattern })`, 'g' );
-
-			// replace all issues posted in the form of a link from the search either with a mention or remove them
-			if ( !mentionType.forbidUrl || mentionType.requiredPrefix ) {
-				message = message.replace(
-					MentionUtil.ticketLinkRegex,
-					mentionType.forbidUrl ? `${ mentionType.requiredPrefix }$1` : ''
-				);
-			}
+			// This is needed to include urls in the entire match when they are optional so that they get removed from the unmatchedMessage
+			prefixPattern += `(?:${ MentionUtil.linkPattern }|)`;
 		}
+
+		const ticketRegex = RegExp( `${ prefixPattern }(${ MentionUtil.ticketPattern })`, 'gi' );
 
 		let ticketMatch: RegExpExecArray;
-		const ticketMatches = new Set<Mention>();
-		let unmatchedMessage = message;
+		const ticketMatches = new Set<SingleMention>();
 
 		while ( ( ticketMatch = ticketRegex.exec( message ) ) !== null ) {
 			unmatchedMessage = unmatchedMessage.replace( ticketMatch[0], '' );
-			ticketMatches.add( new CustomMention( ticketMatch[1], mentionType.embed ) );
+			ticketMatches.add( new CustomMention( ticketMatch[1].toUpperCase(), mentionType.embed, mentionType.maxUngroupedMentions ) );
 		}
 
 		return {
 			mentions: Array.from( ticketMatches ),
-			unmatchedMessage: unmatchedMessage,
+			unmatchedMessage,
 		};
 	}
 }
 
-interface MentionResult {
+interface MentionArguments {
 	mentions: Array<Mention>;
 	unmatchedMessage: string;
 }

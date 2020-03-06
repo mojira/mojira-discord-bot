@@ -89,6 +89,12 @@ export default class BotConfig {
 			this.embedTypes.set( key, new EmbedConfig( settings.embed_types[key] ) );
 		} );
 
+		if( settings.max_grouped_mentions === undefined ) throw 'Max ungrouped mentions are not defined!';
+		this.maxUngroupedMentions = settings.max_ungrouped_mentions as number;
+
+		if( settings.max_grouped_mentions === undefined ) throw 'Max grouped mentions are not defined!';
+		this.maxGroupedMentions = settings.max_grouped_mentions as number;
+
 		if( !settings.default_embed ) throw 'Default embed is not defined!';
 		this.defaultEmbed = this.embedTypes.get( settings.default_embed );
 		if( !this.defaultEmbed ) throw `Default embed is set to an undefined embed type "${ settings.default_embed }"!`;
@@ -99,12 +105,6 @@ export default class BotConfig {
 		for ( const mentionType of settings.mention_types ) {
 			this.mentionTypes.push( new MentionConfig( mentionType, this.embedTypes ) );
 		}
-
-		if( settings.max_grouped_mentions === undefined ) throw 'Max ungrouped mentions are not defined!';
-		this.maxUngroupedMentions = settings.max_ungrouped_mentions as number;
-
-		if( settings.max_grouped_mentions === undefined ) throw 'Max grouped mentions are not defined!';
-		this.maxGroupedMentions = settings.max_grouped_mentions as number;
 
 		if ( !settings.projects ) throw 'Projects are not set';
 		this.projects = settings.projects;

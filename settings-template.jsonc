@@ -103,12 +103,12 @@
 			"forbid_url": false,
 
 			// Optional. If set, this mention type will only trigger if the mentioned ticket was prefixed with the given string.
-			// This will be ignored if require_url is set to true.
+			// If require_url is set to true, the prefix applies to the entire url.
 			// Default: no required prefix.
 			"required_prefix": "<prefix>",
 
 			// Optional. If set, this mention type will not trigger if the mentioned ticket was prefixed with one of the given characters.
-			// This will be ignored if require_url is set to true.
+			// If require_url is set to true, the prefix applies to the entire url.
 			// Default: no forbidden prefix.
 			"forbidden_prefix": "<prefix>",
 
@@ -120,6 +120,12 @@
 			// Default: no forbidden keyword.
 			"forbidden_keyword": "<keyword>",
 
+			// Optional. Number of ungrouped mentions that will produce an individual embed for this mention type.
+			// If this number is exceeded, a single embed including all ticket keys and summaries will be generated instead.
+			// A number smaller than 1 means no limit.
+			// Default: Same as max_ungrouped_mentions from root.
+			"max_ungrouped_mentions": 1,
+
 			// Optional. An embed name defined in embed_types.
 			// This embed will be used to display the mention.
 			// Default: the embed defined in `default_embed`
@@ -128,6 +134,7 @@
 		// ... You can add more mention types here
 	],
 
+	// An embed name defined in embed_types.
 	// The embed type to be used as default.
 	// Currently, this embed is also used for `BugCommand` (!jira mention <tickets>)
 	"default_embed": "<embed name>",
@@ -138,7 +145,7 @@
 	"max_ungrouped_mentions": 1,
 
 	// Maximum number of mentions that will appear in a grouped embed (see max_ungrouped_mentions).
-	// The number of tickets will automatically be shoretened if the text exceeds Discord's charater limit as well..
+	// The number of tickets will automatically be shoretened if the text exceeds Discord's charater limit as well.
 	// If this number is exceeded, a jira search query link will be provided at the end, allowing to view a list of all tickets on jira.
 	"max_grouped_mentions": 10,
 
@@ -241,6 +248,7 @@
 			"max_ungrouped_mentions": 1,
 
 			// Optional. Maximum number of mentions that will appear in a grouped embed (see max_ungrouped_mentions).
+			// The number of tickets will automatically be shoretened if the text exceeds Discord's charater limit as well.
 			// If this number is exceeded, a jira search query link will be provided at the end, allowing to view a list of all tickets on jira.
 			// Default: Same as max_grouped_mentions from root.
 			"max_grouped_mentions": 10

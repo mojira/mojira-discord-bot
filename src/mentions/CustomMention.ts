@@ -3,12 +3,19 @@ import { RichEmbed } from 'discord.js';
 import { EmbedConfig, FieldType } from '../MentionConfig';
 import moment = require( 'moment' );
 import SingleMention from './SingleMention';
+import BotConfig from '../BotConfig';
 
 export class CustomMention extends SingleMention {
 	private config: EmbedConfig;
+	private _maxUngroupedMentions: number;
 
-	constructor( ticket: string, config: EmbedConfig ) {
+	public get maxUngroupedMentions(): number {
+		return this._maxUngroupedMentions !== undefined ? this._maxUngroupedMentions : BotConfig.maxUngroupedMentions;
+	}
+
+	constructor( ticket: string, config: EmbedConfig, maxUngroupedMentions?: number ) {
 		super( ticket );
+		this._maxUngroupedMentions = maxUngroupedMentions;
 		this.config = config;
 	}
 

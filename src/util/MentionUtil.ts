@@ -13,8 +13,12 @@ export default class MentionUtil {
 		return `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;
 	}
 
-	public static get ticketLinkRegex(): RegExp {
-		return new RegExp( `https?://bugs.mojang.com/browse/(${ this.ticketPattern })`, 'g' );
+	public static get linkPattern(): string {
+		return 'https?:\\/\\/bugs.mojang.com\\/browse\\/';
+	}
+
+	public static get ticketLinkPattern(): string {
+		return `${ this.linkPattern }(${ this.ticketPattern })`;
 	}
 
 	public static getMentions( tickets: string[], embedType: EmbedConfig, maxUngroupedEmbeds?: number, maxGroupedEmbeds?: number ): Mention[] {

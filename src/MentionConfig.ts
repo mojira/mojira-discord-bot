@@ -98,6 +98,7 @@ export default class MentionConfig {
 	public forbiddenPrefix?: string;
 	public requiredKeyword?: string;
 	public forbiddenKeyword?: string;
+	public maxUngroupedMentions: number;
 	public embed: EmbedConfig;
 
 	constructor( json, embedTypes: Map<string, EmbedConfig> ) {
@@ -114,5 +115,6 @@ export default class MentionConfig {
 		this.forbiddenPrefix = json.forbidden_prefix;
 		this.requiredKeyword = json.required_keyword;
 		this.forbiddenKeyword = json.forbidden_keyword;
+		this.maxUngroupedMentions = json.max_ungrouped_mentions !== undefined ? json.max_ungrouped_mentions : BotConfig.maxUngroupedMentions;
 	}
 }
