@@ -11,38 +11,46 @@ import SingleMention from '../mentions/SingleMention';
 export default class MentionCommand extends Command<MentionArguments> {
 
 	public test( messageText: string ): boolean | MentionArguments {
-		let unmatchedMessage = messageText;
-		const foundMentions = new Map<string, SingleMention[]>();
+		const matches = new Array<string[]>();
+		const mentions = new Map<string, SingleMention[]>();
 
 		for ( const mentionType of BotConfig.mentionTypes ) {
-			const result = this.matchEmbeds( messageText, unmatchedMessage, mentionType );
-			result.mentions.forEach( v => {
-				let ticketMentions: SingleMention[];
+			const result = this.matchEmbeds( messageText, mentionType );
 
-				if( foundMentions.has( v.getTicket() ) ) {
-					ticketMentions = foundMentions.get( v.getTicket() );
-				} else {
-					ticketMentions = new Array<SingleMention>();
-					foundMentions.set( v.getTicket(), ticketMentions );
-				}
+			if ( result.mentions.length ) {
+				result.mentions.forEach( v => {
+					let ticketMentions: SingleMention[];
 
-				ticketMentions.push( v );
-			} );
-			unmatchedMessage = result.unmatchedMessage;
+					if( mentions.has( v.getTicket() ) ) {
+						ticketMentions = mentions.get( v.getTicket() );
+					} else {
+						ticketMentions = new Array<SingleMention>();
+						mentions.set( v.getTicket(), ticketMentions );
+					}
+
+					ticketMentions.push( v );
+				} );
+				matches.push( result.matches );
+			}
 		}
 
-		if ( foundMentions.size == 0 ) {
+		if ( mentions.size == 0 ) {
 			return false;
 		}
+
+		return { mentions, matches };
+	}
+
+	public async run( message: Message, args: MentionArguments ): Promise<boolean> {
 
 		let mentions = new Array<Mention>();
 		let group = false;
 
-		for( const ticketMentions of foundMentions.values() ) {
+		for( const ticketMentions of args.mentions.values() ) {
 			let found = false;
 
 			for( const mention of ticketMentions ) {
-				if ( !mention.maxUngroupedMentions || foundMentions.size <= mention.maxUngroupedMentions ) {
+				if ( !mention.maxUngroupedMentions || args.mentions.size <= mention.maxUngroupedMentions ) {
 					mentions.push( mention );
 					found = true;
 					break;
@@ -55,21 +63,25 @@ export default class MentionCommand extends Command<MentionArguments> {
 		}
 
 		if( group ) {
-			mentions = [ new MultipleMention( Array.from( foundMentions.keys() ) ) ];
+			mentions = [ new MultipleMention( Array.from( args.mentions.keys() ) ) ];
 		}
 
-		return {
-			mentions: mentions,
-			unmatchedMessage: unmatchedMessage,
-		};
-	}
-
-	public async run( message: Message, args: MentionArguments ): Promise<boolean> {
-		const success = await MentionUtil.sendMentions( args.mentions, message.channel, { text: message.author.tag, icon: message.author.avatarURL, timestamp: message.createdAt } );
+		const success = await MentionUtil.sendMentions( mentions, message.channel, { text: message.author.tag, icon: message.author.avatarURL, timestamp: message.createdAt } );
 
 		if( !success ) return false;
 
-		if ( message.deletable && args.unmatchedMessage !== undefined && args.unmatchedMessage.match( /^\s*$/g ) ) {
+		let unmatchedMessage = message.content;
+		for ( const match of args.matches ) {
+			if( match[ 'keyword' ] ) {
+				unmatchedMessage = unmatchedMessage.replace( match[ 'keyword' ], '' );
+			}
+
+			for( const m of match ) {
+				unmatchedMessage = unmatchedMessage.replace( m, '' );
+			}
+		}
+
+		if ( message.deletable && unmatchedMessage.match( /^\s*$/g ) ) {
 			try {
 				message.delete();
 			} catch ( err ) {
@@ -81,19 +93,20 @@ export default class MentionCommand extends Command<MentionArguments> {
 	}
 
 	public asString( args: MentionArguments ): string {
-		const tickets = args.mentions.map( v => v.getTicket() );
+		const matches = args.matches.map( match => `${ match[ 'keyword' ] ? match[ 'keyword' ] : '' } (${ match.join( ', ' ) })` );
 
-		return '[mention] ' + tickets.join( ', ' );
+		return '[mention] ' + matches.join( ', ' );
 	}
 
-	private matchEmbeds( message: string, unmatchedMessage: string, mentionType: MentionConfig ): { mentions: Array<SingleMention>; unmatchedMessage: string } {
+	private matchEmbeds( message: string, mentionType: MentionConfig ): { mentions: Array<SingleMention>; matches: string[] } {
 		if ( ( mentionType.forbiddenKeyword && message.includes( mentionType.forbiddenKeyword ) )
 			|| ( mentionType.requiredKeyword && !message.includes( mentionType.requiredKeyword ) ) ) {
-			return { mentions: [], unmatchedMessage };
+			return { mentions: [], matches: [] };
 		}
 
+		const matches = new Array<string>();
 		if( mentionType.requiredKeyword ) {
-			unmatchedMessage = unmatchedMessage.replace( mentionType.requiredKeyword, '' );
+			matches[ 'keyword' ] = mentionType.requiredKeyword;
 		}
 
 		const getDefinedStr = ( str: string ): string => {
@@ -117,18 +130,18 @@ export default class MentionCommand extends Command<MentionArguments> {
 		const ticketMatches = new Set<SingleMention>();
 
 		while ( ( ticketMatch = ticketRegex.exec( message ) ) !== null ) {
-			unmatchedMessage = unmatchedMessage.replace( ticketMatch[0], '' );
-			ticketMatches.add( new CustomMention( ticketMatch[1].toUpperCase(), mentionType.embed, mentionType.maxUngroupedMentions ) );
+			matches.push( ticketMatch[ 0 ] );
+			ticketMatches.add( new CustomMention( ticketMatch[ 1 ].toUpperCase(), mentionType.embed, mentionType.maxUngroupedMentions ) );
 		}
 
 		return {
 			mentions: Array.from( ticketMatches ),
-			unmatchedMessage,
+			matches,
 		};
 	}
 }
 
 interface MentionArguments {
-	mentions: Array<Mention>;
-	unmatchedMessage: string;
+	mentions: Map<string, SingleMention[]>;
+	matches: string[][];
 }
