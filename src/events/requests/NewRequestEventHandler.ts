@@ -1,10 +1,13 @@
-import { Message, TextChannel, RichEmbed } from 'discord.js';
+import {Message, TextChannel, RichEmbed, MessageReaction, User} from 'discord.js';
 import * as log4js from 'log4js';
 import EventHandler from '../EventHandler';
 import BotConfig, { PrependResonseMessage } from '../../BotConfig';
 import { ReactionsUtil } from '../../util/ReactionsUtil';
 import MentionCommand from '../../commands/MentionCommand';
 import { RequestsUtil } from '../../util/RequestsUtil';
+import ResolveRequestMessageTask from "../../tasks/ResolveRequestMessageTask";
+import { inspect } from 'util';
+import MojiraBot from "../../MojiraBot";
 
 export default class NewRequestEventHandler implements EventHandler {
 	public readonly eventName = '';
@@ -29,6 +32,49 @@ export default class NewRequestEventHandler implements EventHandler {
 		this.logger.info( `User ${ origin.author.tag } posted a new request to requests channel ${ origin.channel.id }` );
 
 		this.handleNewRequest( origin );
+	};
+
+	// This syntax is used to ensure that `this` refers to the `NewRequestEventHandler` object
+	public onReopen = async ( reaction: MessageReaction, user: User ): Promise<void> => {
+		this.logger.info( `User ${user.tag} is reopening the request message '${reaction.message.id}'` );
+
+		const logMessage = reaction.message;
+		const embeds = logMessage.embeds;
+		if( embeds.length == 0 ) {
+			const warning = await logMessage.channel.send( `${ logMessage.author }, this is not a valid log message.` ) as Message;
+			warning.delete( BotConfig.request.no_link_warning_lifetime || 0 );
+		}
+
+		// Assume first embed is the log message
+		const logEmbed = embeds[0];
+		const url: string = logEmbed.fields[logEmbed.fields.length - 1].value;
+		const messageUrl = url.match( /\((.*)\)/ )[1];
+		const parts = messageUrl.split( '/' );
+
+		const originalChannel = logMessage.client.channels.get( parts[parts.length - 2] );
+		if( originalChannel instanceof TextChannel ) {
+			originalChannel.fetchMessages( { around: parts[parts.length - 1], limit: 1 } )
+				.then( async messages => {
+					const requestMessage = messages.first();
+
+					await requestMessage.clearReactions();
+					await this.handleNewRequest( requestMessage );
+
+					const logChannel = MojiraBot.client.channels.get( BotConfig.request.log_channel );
+					if ( logChannel && logChannel instanceof TextChannel ) {
+
+						const log = new RichEmbed()
+							.setColor( '#F7C6C9' )
+							.setAuthor( requestMessage.author.tag, requestMessage.author.avatarURL )
+							.setDescription( requestMessage.content )
+							.addField( 'Channel', requestMessage.channel.toString(), true )
+							.addField( ResolveRequestMessageTask.MESSAGE_FIELD, `[Here](${requestMessage.url})`, true )
+							.setFooter( `${user.tag} reopened this request`, user.avatarURL )
+							.setTimestamp( new Date() );
+						logChannel.send( log );
+					}
+				} );
+		}
 	};
 
 	public handleNewRequest = async ( origin: Message ): Promise<void> => {

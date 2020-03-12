@@ -32,7 +32,7 @@ export default class AddReactionEventHandler implements EventHandler {
 			this.resolveRequestHandler.onEvent( messageReaction, user );
 		} else if ( BotConfig.request.log_channel.includes( messageReaction.message.channel.id ) ) {
 			// Handle reopening a user request
-			this.resolveRequestHandler.onReopen( messageReaction, user, this.newRequestEventHandler );
+			this.newRequestEventHandler.onReopen( messageReaction, user );
 		}
 	};
 }

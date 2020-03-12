@@ -29,33 +29,4 @@ export default class ResolveRequestEventHandler implements EventHandler {
 			BotConfig.request.resolve_delay || 0
 		);
 	};
-
-	// This syntax is used to ensure that `this` refers to the `ResolveRequestEventHandler` object
-	public onReopen = async ( reaction: MessageReaction, user: User, newRequestHandler: NewRequestEventHandler ): Promise<void> => {
-		this.logger.info( `User ${user.tag} is reopening the request message '${reaction.message.id}'` );
-
-		const logMessage = reaction.message;
-		const embeds = logMessage.embeds;
-		if( embeds.length == 0 ) {
-			const warning = await logMessage.channel.send( `${ logMessage.author }, this is not a valid log message.` ) as Message;
-			warning.delete( BotConfig.request.no_link_warning_lifetime || 0 );
-		}
-
-		// Assume first embed is the log message
-		const logEmbed = embeds[0];
-		const url: string = logEmbed.fields[ResolveRequestMessageTask.MESSAGE_FIELD].value;
-		const messageUrl = url.match( /\((.*)\)/ )[1];
-		const parts = messageUrl.split( '/' );
-
-		const originalChannel = logMessage.client.channels.get( parts[parts.length - 2] );
-		if( originalChannel instanceof TextChannel ) {
-			originalChannel.fetchMessages( { around: parts[parts.length - 1], limit: 1 } )
-				.then( async messages => {
-					const requestMessage = messages.first();
-
-					await requestMessage.clearReactions();
-					await newRequestHandler.handleNewRequest( requestMessage );
-				} );
-		}
-	};
 }
