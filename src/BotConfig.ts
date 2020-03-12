@@ -14,6 +14,12 @@ export interface FilterFeedConfig {
 	title_single?: string;
 }
 
+export enum PrependResonseMessage {
+	Never = 'never',
+	WhenResolved = 'when_resolved',
+	Always = 'always'
+}
+
 export interface RequestConfig {
 	channels?: string[];
 	internal_channels?: string[];
@@ -23,7 +29,9 @@ export interface RequestConfig {
 	waiting_emoji?: string;
 	suggested_emoji?: string[];
 	resolve_delay?: number;
-	prepend_response_message?: boolean;
+	prepend_response_message?: PrependResonseMessage;
+	prepend_response_message_in_log?: boolean;
+	respone_message?: string;
 }
 
 export default class BotConfig {
