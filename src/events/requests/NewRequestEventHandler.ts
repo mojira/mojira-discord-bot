@@ -5,9 +5,7 @@ import BotConfig, { PrependResonseMessage } from '../../BotConfig';
 import { ReactionsUtil } from '../../util/ReactionsUtil';
 import MentionCommand from '../../commands/MentionCommand';
 import { RequestsUtil } from '../../util/RequestsUtil';
-import ResolveRequestMessageTask from "../../tasks/ResolveRequestMessageTask";
-import { inspect } from 'util';
-import MojiraBot from "../../MojiraBot";
+import MojiraBot from '../../MojiraBot';
 
 export default class NewRequestEventHandler implements EventHandler {
 	public readonly eventName = '';
@@ -68,7 +66,7 @@ export default class NewRequestEventHandler implements EventHandler {
 							.setAuthor( requestMessage.author.tag, requestMessage.author.avatarURL )
 							.setDescription( requestMessage.content )
 							.addField( 'Channel', requestMessage.channel.toString(), true )
-							.addField( ResolveRequestMessageTask.MESSAGE_FIELD, `[Here](${requestMessage.url})`, true )
+							.addField( 'Message', `[Here](${requestMessage.url})`, true )
 							.setFooter( `${user.tag} reopened this request`, user.avatarURL )
 							.setTimestamp( new Date() );
 						logChannel.send( log );
