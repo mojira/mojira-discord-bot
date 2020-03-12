@@ -3,8 +3,13 @@
 	// Don't add your `settings.json` to the repository, as these settings can be used very easily to control your bot without your consent if made public!
 	// The lines beginning with two slashes are comments and don't need to be included.
 
-	// Whether or not the bot is in debug mode
+	// Optional. Whether or not the bot is in debug mode
+	// Default: false 
 	"debug": false,
+	
+	// Optional. The directory to save logs to; or false to disable saving log files.
+	// Default: false 
+	"log_dir": "<dir>",
 
 	// Your bot token to login with the bot
 	"token": "<Discord bot token>",
@@ -192,13 +197,23 @@
 		// Optional. Defaults to 0.
 		"resolve_delay": 3000,
 
-		// Whether or not to prepend an internal request with the corresponding response message of it.
-		// A response message is something like this:
-		// @UserWhoSentTheRequest#1234 https://link-to-request
-		// > Request Text
+		// If and when the in `respone_message` defined message should be added to an entry in the internal requests channel
+		// Possible values are `never`, `when_resolved` and `always`
+		// Optional. Defaults to `never`.
+		"prepend_response_message": "<behavior>",
+
+		// Whether the in `respone_message` defined message should be added to an entry in log channel
+		// Optional. Defaults to `false`.
+		"prepend_response_message_in_log": false,
+
+		// The response message to be send for easy copying a message to respond to a request.
+		// Parameters are {{autor}}, {{url}} and {{message}}.
+		// {{author}} will be replaced by "@DiscordUser#1234"
+		// {{url}} will be replaced by  the link to the message https://discordapp.com/channels/.../.../...
+		// {{message}} will be replaced by the contents of the message.
 		//
-		// Optional. Defaults to false.
-		"prepend_response_message": true
+		// Optional. Defaults to an empty message.
+		"respone_message": "```\n{{author}} {{url}}\n> {{message}}\n \n```"
 	},
 
 	// The projects the bot should be able to find tickets for

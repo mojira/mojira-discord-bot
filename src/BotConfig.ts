@@ -18,6 +18,12 @@ export interface FilterFeedConfig {
 	titleSingle?: string;
 }
 
+export enum PrependResonseMessage {
+	Never = 'never',
+	WhenResolved = 'when_resolved',
+	Always = 'always'
+}
+
 export interface RequestConfig {
 	channels?: string[];
 	internal_channels?: string[];
@@ -27,11 +33,14 @@ export interface RequestConfig {
 	waiting_emoji?: string;
 	suggested_emoji?: string[];
 	resolve_delay?: number;
-	prepend_response_message?: boolean;
+	prepend_response_message?: PrependResonseMessage;
+	prepend_response_message_in_log?: boolean;
+	respone_message?: string;
 }
 
 export default class BotConfig {
 	public static debug: boolean;
+	public static logDirectory: false | string;
 
 	private static token: string;
 	public static owner: string;
@@ -67,6 +76,9 @@ export default class BotConfig {
 
 		if ( !settings.debug ) this.debug = false;
 		else this.debug = settings.debug;
+
+		if ( !settings.log_dir ) this.logDirectory = false;
+		else this.logDirectory = settings.log_dir;
 
 		if ( !settings.token ) throw 'Token is not set';
 		this.token = settings.token;
