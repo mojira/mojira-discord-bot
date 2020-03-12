@@ -1,4 +1,4 @@
-import {Message, TextChannel, RichEmbed, MessageReaction, User} from 'discord.js';
+import { Message, TextChannel, RichEmbed, MessageReaction, User } from 'discord.js';
 import * as log4js from 'log4js';
 import EventHandler from '../EventHandler';
 import BotConfig, { PrependResonseMessage } from '../../BotConfig';
@@ -67,7 +67,7 @@ export default class NewRequestEventHandler implements EventHandler {
 							.setDescription( requestMessage.content )
 							.addField( 'Channel', requestMessage.channel.toString(), true )
 							.addField( 'Message', `[Here](${requestMessage.url})`, true )
-							.setFooter( `${user.tag} reopened this request`, user.avatarURL )
+							.setFooter( `${ user.tag } reopened this request`, user.avatarURL )
 							.setTimestamp( new Date() );
 						logChannel.send( log );
 					}
