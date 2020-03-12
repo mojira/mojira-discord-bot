@@ -29,7 +29,7 @@ export default class MojiraBot {
 				out: { type: 'stdout' },
 			},
 			categories: {
-				default: { appenders: [ 'out' ], level: BotConfig.debug ? 'debug' : 'warn' },
+				default: { appenders: [ 'out' ], level: BotConfig.debug ? 'debug' : 'info' },
 			},
 		};
 
@@ -60,7 +60,7 @@ export default class MojiraBot {
 			}
 
 			if ( BotConfig.logDirectory ) {
-				this.logger.debug( `Writing log to ${ logConfig.appenders.log[ 'filename' ] }` );
+				this.logger.info( `Writing log to ${ logConfig.appenders.log[ 'filename' ] }` );
 			}
 
 			// Register events.
