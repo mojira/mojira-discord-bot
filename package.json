@@ -2,16 +2,19 @@
   "name": "mojira-discord-bot",
   "version": "0.0.1",
   "description": "A work-in-progress bot used to link to Mojira bug reports directly from Discord.",
-  "main": "index.js",
+  "license": "GPL-3.0",
+  "author": "violine1101",
+  "contributors": [
+    "NeunEinser",
+    "SPGoding"
+  ],
+  "repository": "https://github.com/mojira/mojira-discord-bot",
   "scripts": {
     "lint": "eslint **/*.ts --fix",
     "bot": "ts-node .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "violine1101",
-  "license": "GPL-3.0",
   "dependencies": {
-    "@types/node": "^12.12.14",
     "discord.js": "^11.5.1",
     "jira-connector": "^2.16.1",
     "log4js": "^6.1.0",
@@ -21,6 +24,7 @@
   },
   "devDependencies": {
     "@types/emoji-regex": "^8.0.0",
+    "@types/node": "^12.12.14",
     "@typescript-eslint/eslint-plugin": "^2.9.0",
     "@typescript-eslint/parser": "^2.9.0",
     "eslint": "^6.6.0"
