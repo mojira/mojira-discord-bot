@@ -14,7 +14,7 @@ export default class MentionUtil {
 	}
 
 	public static get linkPattern(): string {
-		return 'https?:\\/\\/bugs.mojang.com\\/browse\\/';
+		return 'https?:\\/\\/bugs.mojang.com\\/(?:browse|projects\\/\\w+\\/issues)\\/';
 	}
 
 	public static get ticketLinkPattern(): string {
