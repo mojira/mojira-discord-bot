@@ -4,7 +4,6 @@ import MojiraBot from '../MojiraBot';
 import BotConfig from '../BotConfig';
 import { RequestsUtil } from '../util/RequestsUtil';
 
-
 export default class ResolveRequestMessageTask extends MessageTask {
 	private readonly emoji: Emoji | ReactionEmoji;
 	private readonly user: User;
