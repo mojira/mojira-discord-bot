@@ -1,9 +1,9 @@
-import {User, MessageReaction, TextChannel} from 'discord.js';
+import { User, MessageReaction, TextChannel } from 'discord.js';
 import BotConfig from '../BotConfig';
 import EventHandler from './EventHandler';
 import SelectRoleEventHandler from './roles/SelectRoleEventHandler';
-import ResolveRequstEventHandler from './requests/ResolveRequestEventHandler';
-import NewRequestEventHandler from "./requests/NewRequestEventHandler";
+import ResolveRequestEventHandler from './requests/ResolveRequestEventHandler';
+import NewRequestEventHandler from './requests/NewRequestEventHandler';
 
 export default class AddReactionEventHandler implements EventHandler {
 	public readonly eventName = 'messageReactionAdd';
@@ -11,7 +11,7 @@ export default class AddReactionEventHandler implements EventHandler {
 	private readonly botUserId: string;
 
 	private readonly selectRoleHandler = new SelectRoleEventHandler();
-	private readonly resolveRequestHandler = new ResolveRequstEventHandler();
+	private readonly resolveRequestHandler = new ResolveRequestEventHandler();
 	private readonly newRequestEventHandler: NewRequestEventHandler;
 
 	constructor( botUserId: string, internalChannels: Map<string, TextChannel> ) {
