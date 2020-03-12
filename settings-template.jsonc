@@ -3,8 +3,13 @@
 	// Don't add your `settings.json` to the repository, as these settings can be used very easily to control your bot without your consent if made public!
 	// The lines beginning with two slashes are comments and don't need to be included.
 
-	// Whether or not the bot is in debug mode
+	// Optional. Whether or not the bot is in debug mode
+	// Default: false 
 	"debug": false,
+	
+	// Optional. The directory to save logs to; or false to disable saving log files.
+	// Default: false 
+	"log_dir": "<dir>",
 
 	// Your bot token to login with the bot
 	"token": "<Discord bot token>",

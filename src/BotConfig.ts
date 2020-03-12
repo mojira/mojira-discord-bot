@@ -36,6 +36,7 @@ export interface RequestConfig {
 
 export default class BotConfig {
 	public static debug: boolean;
+	public static logDirectory: false | string;
 
 	private static token: string;
 	public static owner: string;
@@ -70,6 +71,9 @@ export default class BotConfig {
 
 		if ( !settings.debug ) this.debug = false;
 		else this.debug = settings.debug;
+
+		if ( !settings.log_dir ) this.logDirectory = false;
+		else this.logDirectory = settings.log_dir;
 
 		if ( !settings.token ) throw 'Token is not set';
 		this.token = settings.token;
