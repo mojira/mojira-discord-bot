@@ -10,8 +10,10 @@
   ],
   "repository": "https://github.com/mojira/mojira-discord-bot",
   "scripts": {
-    "lint": "eslint **/*.ts --fix",
     "bot": "ts-node .",
+    "compile": "tsc --noEmit",
+    "lint": "eslint **/*.ts",
+    "lintfix": "eslint **/*.ts --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
