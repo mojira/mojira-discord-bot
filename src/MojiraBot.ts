@@ -70,7 +70,7 @@ export default class MojiraBot {
 					}
 				}
 			}
-			EventRegistry.add( new AddReactionEventHandler( this.client.user.id ) );
+			EventRegistry.add( new AddReactionEventHandler( this.client.user.id, internalChannels ) );
 			EventRegistry.add( new MessageEventHandler( this.client.user.id, internalChannels ) );
 			EventRegistry.add( new MessageUpdateEventHandler( this.client.user.id, internalChannels ) );
 			EventRegistry.add( new MessageDeleteEventHandler( this.client.user.id, internalChannels ) );

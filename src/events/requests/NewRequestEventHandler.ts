@@ -28,6 +28,10 @@ export default class NewRequestEventHandler implements EventHandler {
 
 		this.logger.info( `User ${ origin.author.tag } posted a new request to requests channel ${ origin.channel.id }` );
 
+		this.handleNewRequest( origin );
+	};
+
+	public handleNewRequest = async ( origin: Message ): Promise<void> => {
 		await origin.clearReactions();
 
 		const regex = new RegExp( `(?:${MentionCommand.ticketLinkRegex.source}|(${MentionCommand.ticketPattern}))`, 'g' );
