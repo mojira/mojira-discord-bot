@@ -62,7 +62,7 @@ export default class NewRequestEventHandler implements EventHandler {
 					if ( logChannel && logChannel instanceof TextChannel ) {
 
 						const log = new RichEmbed()
-							.setColor( '#F7C6C9' )
+							.setColor( '#C9F7C6' )
 							.setAuthor( requestMessage.author.tag, requestMessage.author.avatarURL )
 							.setDescription( requestMessage.content )
 							.addField( 'Channel', requestMessage.channel.toString(), true )
@@ -94,7 +94,7 @@ export default class NewRequestEventHandler implements EventHandler {
 		const internalChannel = this.internalChannels.get( origin.channel.id );
 		if ( internalChannel ) {
 			const embed = new RichEmbed()
-				.setColor( '#C9F7C6' )
+				.setColor( '#F7C6C9' )
 				.setAuthor( origin.author.tag, origin.author.avatarURL )
 				.setDescription( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) )
 				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
