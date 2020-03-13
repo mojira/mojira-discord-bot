@@ -94,7 +94,7 @@ export default class NewRequestEventHandler implements EventHandler {
 		const internalChannel = this.internalChannels.get( origin.channel.id );
 		if ( internalChannel ) {
 			const embed = new RichEmbed()
-				.setColor( '#F7C6C9' )
+				.setColor( '#C9F7C6' )
 				.setAuthor( origin.author.tag, origin.author.avatarURL )
 				.setDescription( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) )
 				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
