@@ -10,18 +10,17 @@
   ],
   "repository": "https://github.com/mojira/mojira-discord-bot",
   "scripts": {
-    "bot": "ts-node .",
-    "compile": "tsc --noEmit",
+    "bot": "tsc && node bin",
+    "build": "tsc",
+    "validate": "tsc --noEmit",
     "lint": "eslint **/*.ts",
-    "lintfix": "eslint **/*.ts --fix",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lintfix": "eslint **/*.ts --fix"
   },
   "dependencies": {
     "discord.js": "^11.5.1",
     "jira-connector": "^2.16.1",
     "log4js": "^6.1.0",
     "moment": "^2.24.0",
-    "ts-node": "^8.5.4",
     "typescript": "^3.7.2"
   },
   "devDependencies": {
