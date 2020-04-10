@@ -22,6 +22,6 @@ jobs:
     - name: Check code style
       run: npm run lint --if-present
     - name: Compile to JavaScript
-      run: npm run compile --if-present
+      run: npm run validate --if-present
       env:
         CI: true
