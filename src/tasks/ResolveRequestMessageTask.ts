@@ -32,7 +32,7 @@ export default class ResolveRequestMessageTask extends MessageTask {
 						RequestsUtil.getResponseMessage( origin ) : '';
 
 					const log = new RichEmbed()
-						.setColor( '#F7C6C9' )
+						.setColor( 'GREEN' )
 						.setAuthor( origin.author.tag, origin.author.avatarURL )
 						.setDescription( origin.content )
 						.addField( 'Channel', origin.channel.toString(), true )
