@@ -1,5 +1,8 @@
-dist/
-node_modules/
-settings.json
+bin
+node_modules
+
 .vscode/*
 .history
+
+**/*.log
+settings.json

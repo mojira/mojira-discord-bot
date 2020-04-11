@@ -1,7 +1,7 @@
 import { Message, TextChannel, RichEmbed, MessageReaction, User } from 'discord.js';
 import * as log4js from 'log4js';
 import EventHandler from '../EventHandler';
-import BotConfig, { PrependResonseMessage } from '../../BotConfig';
+import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
 import { ReactionsUtil } from '../../util/ReactionsUtil';
 import MentionCommand from '../../commands/MentionCommand';
 import { RequestsUtil } from '../../util/RequestsUtil';
@@ -101,7 +101,7 @@ export default class NewRequestEventHandler implements EventHandler {
 				.addField( 'Channel', origin.channel.id, true )
 				.addField( 'Message', origin.id, true )
 				.setTimestamp( new Date() );
-			const response = BotConfig.request.prepend_response_message == PrependResonseMessage.Always ?
+			const response = BotConfig.request.prepend_response_message == PrependResponseMessageType.Always ?
 				RequestsUtil.getResponseMessage( origin ) : '';
 			const copy = await internalChannel.send( response, embed ) as Message;
 			if ( BotConfig.request.suggested_emoji ) {

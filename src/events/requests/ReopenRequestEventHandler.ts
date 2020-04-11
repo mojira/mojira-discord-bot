@@ -2,7 +2,7 @@ import { User, MessageReaction } from 'discord.js';
 import * as log4js from 'log4js';
 import EventHandler from '../EventHandler';
 import TaskScheduler from '../../tasks/TaskScheduler';
-import BotConfig, { PrependResonseMessage } from '../../BotConfig';
+import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
 
 export default class ReopenRequestEventHandler implements EventHandler {
 	public readonly eventName = '';
@@ -13,7 +13,7 @@ export default class ReopenRequestEventHandler implements EventHandler {
 	public onEvent = ( { emoji, message }: MessageReaction, user: User ): void => {
 		this.logger.info( `User ${ user.tag } removed '${ emoji.name }' reaction from request message '${ message.id }'` );
 
-		if ( BotConfig.request.prepend_response_message == PrependResonseMessage.WhenResolved ) {
+		if ( BotConfig.request.prepend_response_message == PrependResponseMessageType.WhenResolved ) {
 			message.edit( '' );
 		}
 

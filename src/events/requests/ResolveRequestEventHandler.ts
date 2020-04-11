@@ -2,7 +2,7 @@ import { User, MessageReaction } from 'discord.js';
 import * as log4js from 'log4js';
 import EventHandler from '../EventHandler';
 import TaskScheduler from '../../tasks/TaskScheduler';
-import BotConfig, { PrependResonseMessage } from '../../BotConfig';
+import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
 import ResolveRequestMessageTask from '../../tasks/ResolveRequestMessageTask';
 import { RequestsUtil } from '../../util/RequestsUtil';
 
@@ -17,7 +17,7 @@ export default class ResolveRequestEventHandler implements EventHandler {
 
 		TaskScheduler.clearMessageTasks( reaction.message );
 
-		if ( BotConfig.request.prepend_response_message == PrependResonseMessage.WhenResolved ) {
+		if ( BotConfig.request.prepend_response_message == PrependResponseMessageType.WhenResolved ) {
 			const origin = await RequestsUtil.getOriginMessage( reaction.message );
 			reaction.message.edit( RequestsUtil.getResponseMessage( origin ) );
 		}
