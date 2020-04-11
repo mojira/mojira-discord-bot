@@ -34,11 +34,11 @@ export default class NewRequestEventHandler implements EventHandler {
 
 	// This syntax is used to ensure that `this` refers to the `NewRequestEventHandler` object
 	public onReopen = async ( reaction: MessageReaction, user: User ): Promise<void> => {
-		this.logger.info( `User ${user.tag} is reopening the request message '${reaction.message.id}'` );
+		this.logger.info( `User ${ user.tag } is reopening the request message '${ reaction.message.id }'` );
 
 		const logMessage = reaction.message;
 		const embeds = logMessage.embeds;
-		if( embeds.length == 0 ) {
+		if ( embeds.length == 0 ) {
 			const warning = await logMessage.channel.send( `${ logMessage.author }, this is not a valid log message.` ) as Message;
 			warning.delete( BotConfig.request.no_link_warning_lifetime || 0 );
 		}
@@ -50,7 +50,7 @@ export default class NewRequestEventHandler implements EventHandler {
 		const parts = messageUrl.split( '/' );
 
 		const originalChannel = logMessage.client.channels.get( parts[parts.length - 2] );
-		if( originalChannel instanceof TextChannel ) {
+		if ( originalChannel instanceof TextChannel ) {
 			originalChannel.fetchMessages( { around: parts[parts.length - 1], limit: 1 } )
 				.then( async messages => {
 					const requestMessage = messages.first();
@@ -66,7 +66,7 @@ export default class NewRequestEventHandler implements EventHandler {
 							.setAuthor( requestMessage.author.tag, requestMessage.author.avatarURL )
 							.setDescription( requestMessage.content )
 							.addField( 'Channel', requestMessage.channel.toString(), true )
-							.addField( 'Message', `[Here](${requestMessage.url})`, true )
+							.addField( 'Message', `[Here](${ requestMessage.url })`, true )
 							.setFooter( `${ user.tag } reopened this request`, user.avatarURL )
 							.setTimestamp( new Date() );
 						logChannel.send( log );
@@ -78,7 +78,7 @@ export default class NewRequestEventHandler implements EventHandler {
 	public handleNewRequest = async ( origin: Message ): Promise<void> => {
 		await origin.clearReactions();
 
-		const regex = new RegExp( `(?:${MentionCommand.ticketLinkRegex.source}|(${MentionCommand.ticketPattern}))`, 'g' );
+		const regex = new RegExp( `(?:${ MentionCommand.ticketLinkRegex.source }|(${ MentionCommand.ticketPattern }))`, 'g' );
 
 		if ( BotConfig.request.no_link_emoji && !origin.content.match( regex ) ) {
 			origin.react( BotConfig.request.no_link_emoji );

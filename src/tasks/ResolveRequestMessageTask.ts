@@ -36,8 +36,8 @@ export default class ResolveRequestMessageTask extends MessageTask {
 						.setAuthor( origin.author.tag, origin.author.avatarURL )
 						.setDescription( origin.content )
 						.addField( 'Channel', origin.channel.toString(), true )
-						.addField( 'Message', `[Here](${origin.url})`, true )
-						.setFooter( `${this.user.tag} resolved as ${this.emoji}`, this.user.avatarURL )
+						.addField( 'Message', `[Here](${ origin.url })`, true )
+						.setFooter( `${ this.user.tag } resolved as ${ this.emoji }`, this.user.avatarURL )
 						.setTimestamp( new Date() );
 					logChannel.send( response, log );
 				}
