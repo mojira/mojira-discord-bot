@@ -82,12 +82,12 @@
 		// Optional. Defaults to 0.
 		"resolve_delay": 3000,
 
-		// If and when the in `respone_message` defined message should be added to an entry in the internal requests channel
+		// If and when the in `response_message` defined message should be added to an entry in the internal requests channel
 		// Possible values are `never`, `when_resolved` and `always`
 		// Optional. Defaults to `never`.
 		"prepend_response_message": "<behavior>",
 
-		// Whether the in `respone_message` defined message should be added to an entry in log channel
+		// Whether the in `response_message` defined message should be added to an entry in log channel
 		// Optional. Defaults to `false`.
 		"prepend_response_message_in_log": false,
 
@@ -98,7 +98,7 @@
 		// {{message}} will be replaced by the contents of the message.
 		//
 		// Optional. Defaults to an empty message.
-		"respone_message": "```\n{{author}} {{url}}\n> {{message}}\n \n```"
+		"response_message": "```\n{{author}} {{url}}\n> {{message}}\n \n```"
 	},
 
 	// The projects the bot should be able to find tickets for
