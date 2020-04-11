@@ -37,7 +37,7 @@ jobs:
         ARGS: "-avh --delete"
         SERVER_IP: ${{ secrets.REMOTE_HOST }}
         USERNAME: ${{ secrets.REMOTE_USER }}
-        SERVER_DESTINATION: /home/mojira-discord-bot/mojira-discord-bot
+        SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
 
     - name: Update package.json
       uses: urielsalis/rsync-deploy@v1.1
@@ -48,7 +48,7 @@ jobs:
         ARGS: "-avh --delete"
         SERVER_IP: ${{ secrets.REMOTE_HOST }}
         USERNAME: ${{ secrets.REMOTE_USER }}
-        SERVER_DESTINATION: /home/mojira-discord-bot/mojira-discord-bot
+        SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
 
     - name: Run internal deploy script
       uses: fifsky/ssh-action@master
