@@ -23,7 +23,7 @@ export default class RolesCommand extends PrefixCommand {
 			embed.addField( textEmoji, role.desc );
 		}
 
-		let sentMessage: Message;
+		let sentMessage: Message | Message[];
 		try {
 			sentMessage = await channel.send( embed );
 		} catch ( err ) {
@@ -31,7 +31,16 @@ export default class RolesCommand extends PrefixCommand {
 			return false;
 		}
 
-		ReactionsUtil.reactToMessage( sentMessage, BotConfig.roles.map( role => role.emoji ) );
+		if ( sentMessage instanceof Array ) {
+			if ( sentMessage.length !== 1 ) {
+				Command.logger.error( 'Result of send command was not exactly one message' );
+				return false;
+			} else {
+				sentMessage = sentMessage[0];
+			}
+		}
+
+		ReactionsUtil.reactToMessage( sentMessage as Message, BotConfig.roles.map( role => role.emoji ) );
 
 		return true;
 	}
