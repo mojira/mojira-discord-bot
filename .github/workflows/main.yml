@@ -60,6 +60,6 @@ jobs:
           /usr/bin/screen -ls | /bin/grep Detached | /usr/bin/cut -d. -f1 | /usr/bin/awk '{print $1}' | /usr/bin/xargs /bin/kill
           sleep 1
           cd mojira-discord-bot
-          /usr/bin/screen -d -m bash -c 'npm install && npm run bot; exec sh'
+          /usr/bin/screen -d -m bash -c 'npm install && node bin; exec sh'
           
         args: "-tt"
