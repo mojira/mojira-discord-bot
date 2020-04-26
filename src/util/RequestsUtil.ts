@@ -39,6 +39,6 @@ export class RequestsUtil {
 		return ( BotConfig.request.response_message || '' )
 			.replace( '{{author}}', `@${ message.author.tag }` )
 			.replace( '{{url}}', message.url )
-			.replace( '{{message}}', message.content );
+			.replace( '{{message}}', message.content.replace( /(^|\n)/g, '$1> ' ) );
 	}
 }
