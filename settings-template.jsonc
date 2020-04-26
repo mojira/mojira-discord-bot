@@ -95,10 +95,10 @@
 		// Parameters are {{autor}}, {{url}} and {{message}}.
 		// {{author}} will be replaced by "@DiscordUser#1234"
 		// {{url}} will be replaced by  the link to the message https://discordapp.com/channels/.../.../...
-		// {{message}} will be replaced by a qoute of the contents of the message.
+		// {{message}} will be replaced by a quote of the contents of the message.
 		//
 		// Optional. Defaults to an empty message.
-		"response_message": "```\n{{author}} {{url}}\n{{message}}\n \n```"
+		"response_message": "```\n{{author}} {{url}}\n{{message}}\n\n```"
 	},
 
 	// The projects the bot should be able to find tickets for
