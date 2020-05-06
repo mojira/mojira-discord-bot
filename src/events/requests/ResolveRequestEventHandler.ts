@@ -18,7 +18,7 @@ export default class ResolveRequestEventHandler implements EventHandler {
 		TaskScheduler.clearMessageTasks( reaction.message );
 
 		if ( BotConfig.request.prepend_response_message == PrependResponseMessageType.WhenResolved
-		   && BotConfig.ignore_prepend_response_message_emoji !== reaction.emoji.name ) {
+		   && BotConfig.request.ignore_prepend_response_message_emoji !== reaction.emoji.name ) {
 			const origin = await RequestsUtil.getOriginMessage( reaction.message );
 			reaction.message.edit( RequestsUtil.getResponseMessage( origin ) );
 		}
