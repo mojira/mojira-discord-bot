@@ -28,6 +28,7 @@ export interface RequestConfig {
 	no_link_warning_lifetime?: number;
 	waiting_emoji?: string;
 	suggested_emoji?: string[];
+	ignore_prepend_response_message_emoji: string;
 	resolve_delay?: number;
 	prepend_response_message?: PrependResponseMessageType;
 	prepend_response_message_in_log?: boolean;

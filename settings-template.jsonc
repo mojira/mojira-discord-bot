@@ -76,6 +76,8 @@
 		// more efficient.
 		// Optional.
 		"suggested_emoji": ["✅", "☑️", "❌"],
+			
+		"ignore_prepend_response_message_emoji": "✅",
 		
 		// The milliseconds between a volunteer reacts to the message and the bot deletes its
 		// message.
