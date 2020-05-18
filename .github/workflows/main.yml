@@ -41,7 +41,7 @@ jobs:
         SERVER_PORT: 22
         FOLDER: "bin"
         ARGS: "-avh --delete"
-        SERVER_IP: ${{ secrets.REMOTE_HOST }}
+        SERVER_IP: ssh.urielsalis.me
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
 
@@ -52,14 +52,14 @@ jobs:
         SERVER_PORT: 22
         FOLDER: "package.json"
         ARGS: "-avh --delete"
-        SERVER_IP: ${{ secrets.REMOTE_HOST }}
+        SERVER_IP: ssh.urielsalis.me
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
 
     - name: Run internal deploy script
       uses: fifsky/ssh-action@master
       with:
-        host: ${{ secrets.REMOTE_HOST }}
+        host: ssh.urielsalis.me
         user: ${{ secrets.REMOTE_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         command: |
