@@ -8,7 +8,7 @@ export default class HelpCommand extends PrefixCommand {
 	public async run( message: Message ): Promise<boolean> {
 		try {
 			await message.channel.send(
-				`<:mojira:648521745367695370> MojiraBot help <:mojira:648521745367695370>
+				`<:mojira:716988575304122370> MojiraBot help <:mojira:716988575304122370>
 
 				This is a bot that links to a Mojira ticket when its ticket number is mentioned.
 				Currently, the following projects are supported: ${ BotConfig.projects.join( ', ' ) }
