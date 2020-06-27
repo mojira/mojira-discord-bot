@@ -1,4 +1,4 @@
-import { Client, TextChannel } from 'discord.js';
+import { Client, TextChannel, ChannelLogsQueryOptions } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from './BotConfig';
 import TaskScheduler from './tasks/TaskScheduler';
@@ -86,7 +86,20 @@ export default class MojiraBot {
 						const internalChannel = this.client.channels.get( internalChannelId );
 						if ( internalChannel && internalChannel instanceof TextChannel ) {
 							internalChannels.set( channelId, internalChannel );
-							await internalChannel.fetchMessages();
+							// https://stackoverflow.com/questions/55153125/fetch-more-than-100-messages
+							let lastId: string | undefined;
+							// eslint-disable-next-line no-constant-condition
+							while ( true ) {
+								const options: ChannelLogsQueryOptions = { limit: 50 };
+								if ( lastId ) {
+									options.before = lastId;
+								}
+								const messages = await internalChannel.fetchMessages( options );
+								lastId = messages.last()?.id;
+								if ( messages.size !== 50 || !lastId ) {
+									break;
+								}
+							}
 						}
 					} catch ( err ) {
 						this.logger.error( err );
