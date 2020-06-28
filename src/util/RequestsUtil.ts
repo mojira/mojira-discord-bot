@@ -33,8 +33,7 @@ export class RequestsUtil {
 
 		try {
 			const originChannel = MojiraBot.client.channels.get( ids.channelId ) as TextChannel;
-			const originMessage = await originChannel.fetchMessage( ids.messageId );
-			return originMessage;
+			return await originChannel.fetchMessage( ids.messageId );
 		} catch ( ignored ) {
 			// The channel and/or the message don't exist.
 			return undefined;
