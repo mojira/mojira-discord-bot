@@ -1,4 +1,4 @@
-import { Client, TextChannel, ChannelLogsQueryOptions } from 'discord.js';
+import { Client, TextChannel, ChannelLogsQueryOptions, Message } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from './BotConfig';
 import TaskScheduler from './tasks/TaskScheduler';
@@ -10,6 +10,7 @@ import AddReactionEventHandler from './events/AddReactionEventHandler';
 import RemoveReactionEventHandler from './events/RemoveReactionEventHandler';
 import MessageDeleteEventHandler from './events/MessageDeleteEventHandler';
 import MessageUpdateEventHandler from './events/MessageUpdateEventHandler';
+import ResolveRequestEventHandler from './events/requests/ResolveRequestEventHandler'
 
 /**
  * Core class of MojiraBot
@@ -87,6 +88,7 @@ export default class MojiraBot {
 						if ( internalChannel && internalChannel instanceof TextChannel ) {
 							internalChannels.set( channelId, internalChannel );
 							// https://stackoverflow.com/questions/55153125/fetch-more-than-100-messages
+							const allMessages: Message[] = [];
 							let lastId: string | undefined;
 							// eslint-disable-next-line no-constant-condition
 							while ( true ) {
@@ -95,10 +97,21 @@ export default class MojiraBot {
 									options.before = lastId;
 								}
 								const messages = await internalChannel.fetchMessages( options );
+								allMessages.push( ...messages.array() );
 								lastId = messages.last()?.id;
 								if ( messages.size !== 50 || !lastId ) {
 									break;
 								}
+							}
+							const handler = new ResolveRequestEventHandler();
+							for ( const message of allMessages ) {
+								message.reactions.forEach( async reaction => {
+									const users = await reaction.fetchUsers();
+									const user = users.array().find( v => v.id !== this.client.user.id );
+									if ( user ) {
+										handler.onEvent( reaction, user );
+									}
+								} );
 							}
 						}
 					} catch ( err ) {
