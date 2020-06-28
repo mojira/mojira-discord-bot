@@ -8,9 +8,9 @@ import ErrorEventHandler from './events/ErrorEventHandler';
 import MessageEventHandler from './events/MessageEventHandler';
 import AddReactionEventHandler from './events/AddReactionEventHandler';
 import RemoveReactionEventHandler from './events/RemoveReactionEventHandler';
+import ResolveRequestEventHandler from './events/requests/ResolveRequestEventHandler';
 import MessageDeleteEventHandler from './events/MessageDeleteEventHandler';
 import MessageUpdateEventHandler from './events/MessageUpdateEventHandler';
-import ResolveRequestEventHandler from './events/requests/ResolveRequestEventHandler'
 
 /**
  * Core class of MojiraBot
