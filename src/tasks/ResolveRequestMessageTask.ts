@@ -17,13 +17,13 @@ export default class ResolveRequestMessageTask extends MessageTask {
 	public async run( copy: Message ): Promise<void> {
 		const origin = await RequestsUtil.getOriginMessage( copy );
 
+		if ( copy.deletable ) {
+			copy.delete();
+		}
+
 		if ( origin ) {
 			await origin.clearReactions();
 			origin.react( this.emoji );
-
-			if ( copy.deletable ) {
-				copy.delete();
-			}
 
 			if ( BotConfig.request.log_channel ) {
 				const logChannel = MojiraBot.client.channels.get( BotConfig.request.log_channel );
