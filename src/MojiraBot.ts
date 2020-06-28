@@ -1,4 +1,4 @@
-import { Client, TextChannel } from 'discord.js';
+import { Client, TextChannel, ChannelLogsQueryOptions } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from './BotConfig';
 import TaskScheduler from './tasks/TaskScheduler';
@@ -10,6 +10,7 @@ import AddReactionEventHandler from './events/AddReactionEventHandler';
 import RemoveReactionEventHandler from './events/RemoveReactionEventHandler';
 import MessageDeleteEventHandler from './events/MessageDeleteEventHandler';
 import MessageUpdateEventHandler from './events/MessageUpdateEventHandler';
+import NewRequestEventHandler from './events/requests/NewRequestEventHandler';
 
 /**
  * Core class of MojiraBot
@@ -77,19 +78,38 @@ export default class MojiraBot {
 				}
 			}
 
+			const requestChannels: TextChannel[] = [];
 			const internalChannels = new Map<string, TextChannel>();
 			if ( BotConfig.request.channels ) {
 				for ( let i = 0; i < BotConfig.request.channels.length; i++ ) {
-					const channelId = BotConfig.request.channels[i];
+					const requestChannelId = BotConfig.request.channels[i];
 					const internalChannelId = BotConfig.request.internal_channels[i];
 					try {
+						const requestChannel = this.client.channels.get( requestChannelId );
 						const internalChannel = this.client.channels.get( internalChannelId );
-						if ( internalChannel && internalChannel instanceof TextChannel ) {
-							internalChannels.set( channelId, internalChannel );
+						if ( requestChannel && requestChannel instanceof TextChannel &&
+							internalChannel && internalChannel instanceof TextChannel ) {
+							requestChannels.push( requestChannel );
+							internalChannels.set( requestChannelId, internalChannel );
 							await internalChannel.fetchMessages();
 						}
 					} catch ( err ) {
 						this.logger.error( err );
+					}
+				}
+				const newRequestHandler = new NewRequestEventHandler( internalChannels );
+				for ( const requestChannel of requestChannels ) {
+					let lastId: string | undefined = undefined;
+					// eslint-disable-next-line no-constant-condition
+					while ( true ) {
+						const options: ChannelLogsQueryOptions = { limit: 1, before: lastId };
+						const message = ( await requestChannel.fetchMessages( options ) ).first();
+						if ( message?.reactions?.size === 0 ) {
+							newRequestHandler.onEvent( message );
+							lastId = message.id;
+						} else {
+							break;
+						}
 					}
 				}
 			}
