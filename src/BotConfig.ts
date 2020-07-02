@@ -64,7 +64,7 @@ export default class BotConfig {
 	public static request: RequestConfig;
 
 	public static roles: RoleConfig[];
-	
+
 	public static filterFeedInterval: number;
 	public static filterFeeds: FilterFeedConfig[];
 
@@ -115,10 +115,10 @@ export default class BotConfig {
 
 		if ( !settings.roles ) throw 'Roles are not set';
 		this.roles = settings.roles;
-		
+
 		if ( !settings.filter_feed_interval ) throw 'Filter feed interval is not set';
 		this.filterFeedInterval = settings.filter_feed_interval;
-		
+
 		if ( !settings.filter_feeds ) throw 'Filter feeds are not set';
 		this.filterFeeds = settings.filter_feeds;
 

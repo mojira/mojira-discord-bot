@@ -5,172 +5,175 @@ import { VersionFeedConfig } from '../BotConfig';
 import JiraClient from 'jira-connector';
 
 interface JiraVersion {
-    id: string;
-    name: string;
-    archived: boolean;
-    released: boolean;
-    releaseDate?: string;
+	id: string;
+	name: string;
+	archived: boolean;
+	released: boolean;
+	releaseDate?: string;
 }
 
 interface JiraVersionChange {
-    message: string;
-    embed?: RichEmbed;
+	message: string;
+	embed?: RichEmbed;
 }
 
 export default class VersionFeedTask extends Task {
-    public static logger = log4js.getLogger( 'Version' );
+	public static logger = log4js.getLogger( 'Version' );
 
-    private jira: JiraClient;
+	private jira: JiraClient;
 
-    private channel: Channel;
-    private project: string;
-    private scope: number;
+	private channel: Channel;
+	private project: string;
+	private scope: number;
 
-    private cachedVersions: JiraVersion[] = [];
+	private cachedVersions: JiraVersion[] = [];
 
-    private initialized = false;
+	private initialized = false;
 
-    constructor( { project, scope }: VersionFeedConfig, channel: Channel ) {
-        super();
+	constructor( { project, scope }: VersionFeedConfig, channel: Channel ) {
+		super();
 
-        this.channel = channel;
-        this.project = project;
-        this.scope = scope;
+		this.channel = channel;
+		this.project = project;
+		this.scope = scope;
 
-        this.jira = new JiraClient( {
-            host: 'bugs.mojang.com',
-            strictSSL: true
-        } );
+		this.jira = new JiraClient( {
+			host: 'bugs.mojang.com',
+			strictSSL: true,
+		} );
 
-        this.getVersions().then(
-            versions => {
-                this.cachedVersions = versions;
-                this.initialized = true;
-            }
-        ).catch(
-            error => {
-                VersionFeedTask.logger.error(error);
-                this.initialized = true;
-            }
-        );
-    }
+		this.getVersions().then(
+			versions => {
+				this.cachedVersions = versions;
+				this.initialized = true;
+			}
+		).catch(
+			error => {
+				VersionFeedTask.logger.error( error );
+				this.initialized = true;
+			}
+		);
+	}
 
-    public async run(): Promise<void> {
-        if ( !this.initialized ) return;
+	public async run(): Promise<void> {
+		if ( !this.initialized ) return;
 
-        if ( !( this.channel instanceof TextChannel ) ) {
-            VersionFeedTask.logger.error( `Expected ${ this.channel } to be a TextChannel` );
-            return;
-        }
+		if ( !( this.channel instanceof TextChannel ) ) {
+			VersionFeedTask.logger.error( `Expected ${ this.channel } to be a TextChannel` );
+			return;
+		}
 
-        const currentVersions = await this.getVersions();
-        const changes = await this.getVersionChanges(this.cachedVersions, currentVersions);
+		const currentVersions = await this.getVersions();
+		const changes = await this.getVersionChanges( this.cachedVersions, currentVersions );
 
-        for (const change of changes) {
-            await this.channel.send( change.message, change.embed );
-        }
+		for ( const change of changes ) {
+			await this.channel.send( change.message, change.embed );
+		}
 
-        this.cachedVersions = currentVersions;
-    }
+		this.cachedVersions = currentVersions;
+	}
 
-    private async getVersions(): Promise<JiraVersion[]> {
-        const results = await this.jira.project.getVersionsPaginated( {
-            projectIdOrKey: this.project,
-            maxResults: this.scope,
-            orderBy: '-sequence'
-        } );
+	private async getVersions(): Promise<JiraVersion[]> {
+		const results = await this.jira.project.getVersionsPaginated( {
+			projectIdOrKey: this.project,
+			maxResults: this.scope,
+			orderBy: '-sequence',
+		} );
 
-        const versions: JiraVersion[] = [...this.cachedVersions];
+		const versions: JiraVersion[] = [...this.cachedVersions];
 
-        for ( const value of results.values ) {
-            const version: JiraVersion = {
-                id: value.id,
-                name: value.name,
-                archived: value.archived,
-                released: value.released,
-                releaseDate: value.releaseDate
-            };
+		for ( const value of results.values ) {
+			const version: JiraVersion = {
+				id: value.id,
+				name: value.name,
+				archived: value.archived,
+				released: value.released,
+				releaseDate: value.releaseDate,
+			};
 
-            const replaceId = versions.findIndex(it => value.id === it.id);
+			const replaceId = versions.findIndex( it => value.id === it.id );
 
-            if (replaceId < 0) {
-                versions.push(version);
-            } else {
-                versions[replaceId] = version;
-            }
-        }
+			if ( replaceId < 0 ) {
+				versions.push( version );
+			} else {
+				versions[replaceId] = version;
+			}
+		}
 
-        return versions;
-    }
+		return versions;
+	}
 
-    private async getVersionChanges(previous: JiraVersion[], current: JiraVersion[]): Promise<JiraVersionChange[]> {
-        const changes: JiraVersionChange[] = [];
+	private async getVersionChanges( previous: JiraVersion[], current: JiraVersion[] ): Promise<JiraVersionChange[]> {
+		const changes: JiraVersionChange[] = [];
 
-        for (const version of current) {
-            const previousVersion = previous.find(it => it.id === version.id);
+		for ( const version of current ) {
+			const previousVersion = previous.find( it => it.id === version.id );
 
-            if (previousVersion !== undefined) {
-                if (previousVersion.name !== version.name) {
-                    changes.push({
-                        message: `Version **${ previousVersion.name }** has been renamed to **${ version.name }**.`,
-                        embed: await this.getVersionEmbed(version)
-                    });
-                }
-                if (previousVersion.archived !== version.archived) {
-                    changes.push({
-                        message: `Version **${ version.name }** has been ${ version.archived ? '' : 'un' }archived.`,
-                        embed: await this.getVersionEmbed(version)
-                    });
-                }
-                if (previousVersion.released !== version.released) {
-                    changes.push({
-                        message: `Version **${ version.name }** has been ${ version.released ? '' : 'un' }released.`,
-                        embed: await this.getVersionEmbed(version)
-                    });
-                }
-            }
-        }
+			if ( previousVersion !== undefined ) {
+				if ( previousVersion.name !== version.name ) {
+					changes.push( {
+						message: `Version **${ previousVersion.name }** has been renamed to **${ version.name }**.`,
+						embed: await this.getVersionEmbed( version ),
+					} );
+				}
+				if ( previousVersion.archived !== version.archived ) {
+					changes.push( {
+						message: `Version **${ version.name }** has been ${ version.archived ? '' : 'un' }archived.`,
+						embed: await this.getVersionEmbed( version ),
+					} );
+				}
+				if ( previousVersion.released !== version.released ) {
+					changes.push( {
+						message: `Version **${ version.name }** has been ${ version.released ? '' : 'un' }released.`,
+						embed: await this.getVersionEmbed( version ),
+					} );
+				}
+			}
+		}
 
-        return changes;
-    }
+		return changes;
+	}
 
-    private async getVersionEmbed(version: JiraVersion): Promise<RichEmbed> {
-        const embed = new RichEmbed()
-            .setTitle( version.name )
-            .setColor( 'PURPLE' );
-        
-        let versionIssueCounts: any;
+	private async getVersionEmbed( version: JiraVersion ): Promise<RichEmbed> {
+		const embed = new RichEmbed()
+			.setTitle( version.name )
+			.setColor( 'PURPLE' );
 
-        try {
-            versionIssueCounts = await this.jira.version.getRelatedIssueCounts({
-                versionId: version.id
-            });
-        } catch (error) {
-            VersionFeedTask.logger.error(error);
-            return undefined;
-        }
-        
-        const affectedIssues = versionIssueCounts.issuesAffectedCount;
-        const fixedIssues = versionIssueCounts.issuesFixedCount;
+		let versionIssueCounts: {
+			issuesAffectedCount: number;
+			issuesFixedCount: number;
+		};
 
-        if (affectedIssues > 0) {
-            const affectedSearchQuery = `affectedVersion = ${ version.id } ORDER BY created ASC`;
-            embed.addField('Affected', `[${ affectedIssues } issue${ affectedIssues > 1 ? 's' : '' }](https://bugs.mojang.com/issues/?jql=${ affectedSearchQuery.replace( /\s+/ig, '%20' ) })`, true)
-        }
-        
-        if (fixedIssues > 0) {
-            const fixedSearchQuery = `fixVersion = ${ version.id } ORDER BY key ASC`;
-            embed.addField('Fixed', `[${ fixedIssues } issue${ fixedIssues > 1 ? 's' : '' }](https://bugs.mojang.com/issues/?jql=${ fixedSearchQuery.replace( /\s+/ig, '%20' ) })`, true)
-        }
+		try {
+			versionIssueCounts = await this.jira.version.getRelatedIssueCounts( {
+				versionId: version.id,
+			} );
+		} catch ( error ) {
+			VersionFeedTask.logger.error( error );
+			return undefined;
+		}
 
-        if (version.releaseDate !== undefined) {
-            embed.addField('Released', version.releaseDate, true);
-        }
+		const affectedIssues = versionIssueCounts.issuesAffectedCount;
+		const fixedIssues = versionIssueCounts.issuesFixedCount;
 
-        if (!embed.fields?.length) {
-            return undefined;
-        }
+		if ( affectedIssues > 0 ) {
+			const affectedSearchQuery = `affectedVersion = ${ version.id } ORDER BY created ASC`;
+			embed.addField( 'Affected', `[${ affectedIssues } issue${ affectedIssues > 1 ? 's' : '' }](https://bugs.mojang.com/issues/?jql=${ affectedSearchQuery.replace( /\s+/ig, '%20' ) })`, true );
+		}
 
-        return embed;
-    }
+		if ( fixedIssues > 0 ) {
+			const fixedSearchQuery = `fixVersion = ${ version.id } ORDER BY key ASC`;
+			embed.addField( 'Fixed', `[${ fixedIssues } issue${ fixedIssues > 1 ? 's' : '' }](https://bugs.mojang.com/issues/?jql=${ fixedSearchQuery.replace( /\s+/ig, '%20' ) })`, true );
+		}
+
+		if ( version.releaseDate !== undefined ) {
+			embed.addField( 'Released', version.releaseDate, true );
+		}
+
+		if ( !embed.fields?.length ) {
+			return undefined;
+		}
+
+		return embed;
+	}
 }

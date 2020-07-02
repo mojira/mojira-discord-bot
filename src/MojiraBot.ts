@@ -135,11 +135,11 @@ export default class MojiraBot {
 			}
 
 			// Version feed tasks.
-			for (const config of BotConfig.versionFeeds) {
+			for ( const config of BotConfig.versionFeeds ) {
 				TaskScheduler.addTask(
-					new VersionFeedTask( config, this.client.channels.get( config.channel )),
+					new VersionFeedTask( config, this.client.channels.get( config.channel ) ),
 					BotConfig.versionFeedInterval
-				)
+				);
 			}
 			// #endregion
 
