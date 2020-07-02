@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "discord.js": "^11.6.4",
-    "jira-connector": "^2.16.1",
+    "jira-connector": "^3.1.0",
     "log4js": "^6.1.2",
     "moment": "^2.24.0",
     "typescript": "^3.8.3"

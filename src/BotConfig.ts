@@ -14,6 +14,12 @@ export interface FilterFeedConfig {
 	title_single?: string;
 }
 
+export interface VersionFeedConfig {
+	project: string;
+	channel: string;
+	scope: number;
+}
+
 export enum PrependResponseMessageType {
 	Never = 'never',
 	WhenResolved = 'when_resolved',
@@ -58,9 +64,12 @@ export default class BotConfig {
 	public static request: RequestConfig;
 
 	public static roles: RoleConfig[];
-
+	
 	public static filterFeedInterval: number;
 	public static filterFeeds: FilterFeedConfig[];
+
+	public static versionFeedInterval: number;
+	public static versionFeeds: VersionFeedConfig[];
 
 	// projects etc
 	// wrapper class for settings.json
@@ -106,12 +115,18 @@ export default class BotConfig {
 
 		if ( !settings.roles ) throw 'Roles are not set';
 		this.roles = settings.roles;
-
+		
 		if ( !settings.filter_feed_interval ) throw 'Filter feed interval is not set';
 		this.filterFeedInterval = settings.filter_feed_interval;
-
+		
 		if ( !settings.filter_feeds ) throw 'Filter feeds are not set';
 		this.filterFeeds = settings.filter_feeds;
+
+		if ( !settings.version_feed_interval ) throw 'Version monitor interval is not set';
+		this.versionFeedInterval = settings.version_feed_interval;
+
+		if ( !settings.version_feeds ) throw 'Filter feeds are not set';
+		this.versionFeeds = settings.version_feeds;
 	}
 
 	public static async login( client: Client ): Promise<boolean> {

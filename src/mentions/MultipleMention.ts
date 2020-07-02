@@ -1,6 +1,6 @@
 import { RichEmbed } from 'discord.js';
 import { Mention } from './Mention';
-import JiraClient = require( 'jira-connector' );
+import JiraClient from 'jira-connector';
 
 export class MultipleMention extends Mention {
 	private jira: JiraClient;
