@@ -88,10 +88,9 @@ export default class MojiraBot {
 					try {
 						const requestChannel = this.client.channels.get( requestChannelId );
 						const internalChannel = this.client.channels.get( internalChannelId );
-						if ( internalChannel && internalChannel instanceof TextChannel &&
-							internalChannel && internalChannel instanceof TextChannel ) {
+						if ( requestChannel instanceof TextChannel && internalChannel instanceof TextChannel ) {
 							requestChannels.push( requestChannel );
-							internalChannels.set( channelId, internalChannel );
+							internalChannels.set( internalChannelId, internalChannel );
 							// https://stackoverflow.com/questions/55153125/fetch-more-than-100-messages
 							const allMessages: Message[] = [];
 							let lastId: string | undefined;
