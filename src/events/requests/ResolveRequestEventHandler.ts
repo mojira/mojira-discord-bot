@@ -9,6 +9,15 @@ import { RequestsUtil } from '../../util/RequestsUtil';
 export default class ResolveRequestEventHandler implements EventHandler {
 	public readonly eventName = '';
 
+	private readonly instance: this;
+
+	constructor() {
+		if ( this.instance ) {
+			return this.instance;
+		}
+		this.instance = this;
+	}
+
 	private logger = log4js.getLogger( 'ResolveRequestEventHandler' );
 
 	// This syntax is used to ensure that `this` refers to the `ResolveRequestEventHandler` object
@@ -18,7 +27,7 @@ export default class ResolveRequestEventHandler implements EventHandler {
 		TaskScheduler.clearMessageTasks( reaction.message );
 
 		if ( BotConfig.request.prepend_response_message == PrependResponseMessageType.WhenResolved
-		   && BotConfig.request.ignore_prepend_response_message_emoji !== reaction.emoji.name ) {
+			&& BotConfig.request.ignore_prepend_response_message_emoji !== reaction.emoji.name ) {
 			const origin = await RequestsUtil.getOriginMessage( reaction.message );
 			reaction.message.edit( RequestsUtil.getResponseMessage( origin ) );
 		}
