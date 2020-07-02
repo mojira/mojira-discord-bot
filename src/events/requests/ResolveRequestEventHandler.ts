@@ -9,6 +9,15 @@ import { RequestsUtil } from '../../util/RequestsUtil';
 export default class ResolveRequestEventHandler implements EventHandler {
 	public readonly eventName = '';
 
+	private readonly instance: this;
+
+	constructor() {
+		if ( this.instance ) {
+			return this.instance;
+		}
+		this.instance = this;
+	}
+
 	private logger = log4js.getLogger( 'ResolveRequestEventHandler' );
 
 	// This syntax is used to ensure that `this` refers to the `ResolveRequestEventHandler` object
