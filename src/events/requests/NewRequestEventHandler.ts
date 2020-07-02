@@ -78,7 +78,7 @@ export default class NewRequestEventHandler implements EventHandler {
 	public handleNewRequest = async ( origin: Message ): Promise<void> => {
 		await origin.clearReactions();
 
-		const regex = new RegExp( `(?:${ MentionCommand.ticketLinkRegex.source }|(${ MentionCommand.ticketPattern }))`, 'g' );
+		const regex = new RegExp( `(?:${ MentionCommand.ticketLinkRegex.source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
 
 		if ( BotConfig.request.no_link_emoji && !origin.content.match( regex ) ) {
 			origin.react( BotConfig.request.no_link_emoji );
@@ -113,6 +113,6 @@ export default class NewRequestEventHandler implements EventHandler {
 	private replaceTicketReferencesWithRichLinks( content: string, regex: RegExp ): string {
 		// Only one of the two capture groups ($1 and $2) can catch an ID at the same time.
 		// `$1$2` is used to get the ID from either of the two groups.
-		return content.replace( regex, '[$1$2](https://bugs.mojang.com/browse/$1$2)' );
+		return content.replace( regex, '[$1$2](https://bugs.mojang.com/browse/$1$2$3)' );
 	}
 }

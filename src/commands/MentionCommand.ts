@@ -13,7 +13,7 @@ export default class MentionCommand extends Command {
 	}
 
 	public static get ticketLinkRegex(): RegExp {
-		return new RegExp( `https?://bugs.mojang.com/(?:browse|projects/\\w+/issues)/(${ MentionCommand.ticketPattern })`, 'g' );
+		return new RegExp( `https?://bugs\\.mojang\\.com/(?:browse|projects/\\w+/issues)/(${ MentionCommand.ticketPattern })`, 'g' );
 	}
 
 	public test( messageText: string ): boolean | string[] {
