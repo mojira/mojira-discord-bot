@@ -109,11 +109,7 @@ export default class VersionFeedTask extends Task {
         for (const version of current) {
             const previousVersion = previous.find(it => it.id === version.id);
 
-            if (previousVersion === undefined) {
-                changes.push({
-                    message: `Version ${ version.name } has been added!`
-                });
-            } else {
+            if (previousVersion !== undefined) {
                 if (previousVersion.name !== version.name) {
                     changes.push({
                         message: `Version **${ previousVersion.name }** has been renamed to **${ version.name }**.`,
