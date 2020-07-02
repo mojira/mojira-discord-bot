@@ -29,7 +29,9 @@ export default class ResolveRequestEventHandler implements EventHandler {
 		if ( BotConfig.request.prepend_response_message == PrependResponseMessageType.WhenResolved
 			&& BotConfig.request.ignore_prepend_response_message_emoji !== reaction.emoji.name ) {
 			const origin = await RequestsUtil.getOriginMessage( reaction.message );
-			reaction.message.edit( RequestsUtil.getResponseMessage( origin ) );
+			if ( origin ) {
+				reaction.message.edit( RequestsUtil.getResponseMessage( origin ) );
+			}
 		}
 
 		TaskScheduler.addOneTimeMessageTask(
