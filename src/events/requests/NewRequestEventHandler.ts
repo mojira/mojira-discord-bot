@@ -12,13 +12,19 @@ export default class NewRequestEventHandler implements EventHandler {
 
 	private logger = log4js.getLogger( 'NewRequestEventHandler' );
 
+	private readonly instance: this;
+
 	/**
 	 * A map from request channel IDs to internal channel objects.
 	 */
 	private readonly internalChannels: Map<string, TextChannel>;
 
 	constructor( internalChannels: Map<string, TextChannel> ) {
+		if ( this.instance ) {
+			return this.instance;
+		}
 		this.internalChannels = internalChannels;
+		this.instance = this;
 	}
 
 	// This syntax is used to ensure that `this` refers to the `NewRequestEventHandler` object
