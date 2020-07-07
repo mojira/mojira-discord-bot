@@ -3,7 +3,9 @@
         "target": "ES2016",
         "module": "commonjs",
         "lib": ["es2016"],
-        "outDir": "./bin"
+        "outDir": "./bin",
+        "sourceMap": true,
+        "esModuleInterop": true
     },
     "exclude": [
         "node_modules"

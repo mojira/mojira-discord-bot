@@ -11,6 +11,7 @@ import RemoveReactionEventHandler from './events/RemoveReactionEventHandler';
 import ResolveRequestEventHandler from './events/requests/ResolveRequestEventHandler';
 import MessageDeleteEventHandler from './events/MessageDeleteEventHandler';
 import MessageUpdateEventHandler from './events/MessageUpdateEventHandler';
+import VersionFeedTask from './tasks/VersionFeedTask';
 import NewRequestEventHandler from './events/requests/NewRequestEventHandler';
 
 /**
@@ -149,6 +150,14 @@ export default class MojiraBot {
 				TaskScheduler.addTask(
 					new FilterFeedTask( config, this.client.channels.get( config.channel ) ),
 					BotConfig.filterFeedInterval
+				);
+			}
+
+			// Version feed tasks.
+			for ( const config of BotConfig.versionFeeds ) {
+				TaskScheduler.addTask(
+					new VersionFeedTask( config, this.client.channels.get( config.channel ) ),
+					BotConfig.versionFeedInterval
 				);
 			}
 			// #endregion

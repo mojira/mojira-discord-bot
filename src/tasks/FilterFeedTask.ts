@@ -3,7 +3,7 @@ import { FilterFeedConfig } from '../BotConfig';
 import { Client, TextChannel, Channel } from 'discord.js';
 import * as log4js from 'log4js';
 import Task from './Task';
-import JiraClient = require( 'jira-connector' );
+import JiraClient from 'jira-connector';
 
 export default class FilterFeedTask extends Task {
 	public static logger = log4js.getLogger( 'FilterFeed' );

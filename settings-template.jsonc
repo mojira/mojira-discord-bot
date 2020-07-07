@@ -140,5 +140,20 @@
 			"title_single": "One ticket blabla in the last 15 minutes!"
 		}
 		// ... you can add more feeds here
+	],
+
+	"version_feed_interval": 900000,
+
+	"version_feeds": [
+		{
+			// The project whose versions should be monitored
+			"project": "<Project key>",
+
+			// The channel in which the feed should be sent
+			"channel": "<Feed channel ID>",
+
+			// How many versions should be monitored; only the x latest versions are monitored
+			"scope": 5
+		}
 	]
 }
