@@ -4,6 +4,7 @@ import { Client, TextChannel, Channel } from 'discord.js';
 import * as log4js from 'log4js';
 import Task from './Task';
 import JiraClient from 'jira-connector';
+import { NewsUtil } from '../util/NewsUtil';
 
 export default class FilterFeedTask extends Task {
 	public static logger = log4js.getLogger( 'FilterFeed' );
@@ -69,7 +70,8 @@ export default class FilterFeedTask extends Task {
 					}
 
 					if ( this.channel instanceof TextChannel ) {
-						this.channel.send( message, embed );
+						const filterFeedMessage = await this.channel.send( message, embed );
+						NewsUtil.publishMessage( filterFeedMessage );
 					} else {
 						throw `Expected ${ this.channel } to be a TextChannel`;
 					}

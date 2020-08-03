@@ -45,7 +45,8 @@ export default class BotConfig {
 	public static debug: boolean;
 	public static logDirectory: false | string;
 
-	private static token: string;
+	// TODO: make private again when /crosspost api endpoint is implemented into discord.js
+	public static token: string;
 	public static owner: string;
 
 	// Add map of id => GuildConfiguration here later
