@@ -3,6 +3,7 @@ import Task from './Task';
 import { Channel, TextChannel, RichEmbed } from 'discord.js';
 import { VersionFeedConfig } from '../BotConfig';
 import JiraClient from 'jira-connector';
+import { NewsUtil } from '../util/NewsUtil';
 
 interface JiraVersion {
 	id: string;
@@ -67,7 +68,8 @@ export default class VersionFeedTask extends Task {
 		const changes = await this.getVersionChanges( this.cachedVersions, currentVersions );
 
 		for ( const change of changes ) {
-			await this.channel.send( change.message, change.embed );
+			const versionFeedMessage = await this.channel.send( change.message, change.embed );
+			NewsUtil.publishMessage( versionFeedMessage );
 		}
 
 		this.cachedVersions = currentVersions;
