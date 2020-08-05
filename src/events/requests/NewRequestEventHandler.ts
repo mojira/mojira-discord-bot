@@ -46,7 +46,7 @@ export default class NewRequestEventHandler implements EventHandler {
 		const embeds = logMessage.embeds;
 		if ( embeds.length == 0 ) {
 			const warning = await logMessage.channel.send( `${ logMessage.author }, this is not a valid log message.` ) as Message;
-			warning.delete( BotConfig.request.no_link_warning_lifetime || 0 );
+			warning.delete( BotConfig.request.noLinkWarningLifetime || 0 );
 		}
 
 		// Assume first embed is the log message
@@ -64,7 +64,7 @@ export default class NewRequestEventHandler implements EventHandler {
 					await requestMessage.clearReactions();
 					await this.handleNewRequest( requestMessage );
 
-					const logChannel = MojiraBot.client.channels.get( BotConfig.request.log_channel );
+					const logChannel = MojiraBot.client.channels.get( BotConfig.request.logChannel );
 					if ( logChannel && logChannel instanceof TextChannel ) {
 
 						const log = new RichEmbed()
@@ -86,15 +86,15 @@ export default class NewRequestEventHandler implements EventHandler {
 
 		const regex = new RegExp( `(?:${ MentionCommand.ticketLinkRegex.source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
 
-		if ( BotConfig.request.no_link_emoji && !origin.content.match( regex ) ) {
-			origin.react( BotConfig.request.no_link_emoji );
+		if ( BotConfig.request.noLinkEmoji && !origin.content.match( regex ) ) {
+			origin.react( BotConfig.request.noLinkEmoji );
 			const warning = await origin.channel.send( `${ origin.author }, your request doesn't contain any valid ticket reference. If you'd like to add it you can edit your message.` ) as Message;
-			warning.delete( BotConfig.request.no_link_warning_lifetime || 0 );
+			warning.delete( BotConfig.request.noLinkWarningLifetime || 0 );
 			return;
 		}
 
-		if ( BotConfig.request.waiting_emoji ) {
-			origin.react( BotConfig.request.waiting_emoji );
+		if ( BotConfig.request.waitingEmoji ) {
+			origin.react( BotConfig.request.waitingEmoji );
 		}
 
 		const internalChannel = this.internalChannels.get( origin.channel.id );
@@ -107,11 +107,11 @@ export default class NewRequestEventHandler implements EventHandler {
 				.addField( 'Channel', origin.channel.id, true )
 				.addField( 'Message', origin.id, true )
 				.setTimestamp( new Date() );
-			const response = BotConfig.request.prepend_response_message == PrependResponseMessageType.Always ?
+			const response = BotConfig.request.prependResponseMessage == PrependResponseMessageType.Always ?
 				RequestsUtil.getResponseMessage( origin ) : '';
 			const copy = await internalChannel.send( response, embed ) as Message;
-			if ( BotConfig.request.suggested_emoji ) {
-				ReactionsUtil.reactToMessage( copy, [...BotConfig.request.suggested_emoji] );
+			if ( BotConfig.request.suggestedEmoji ) {
+				ReactionsUtil.reactToMessage( copy, [...BotConfig.request.suggestedEmoji] );
 			}
 		}
 	};

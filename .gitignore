@@ -6,3 +6,5 @@ node_modules
 
 **/*.log
 settings.json
+config/local.yml
+config/local-*.yml

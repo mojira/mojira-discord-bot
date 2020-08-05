@@ -1,5 +1,54 @@
 import { Client } from 'discord.js';
+import config from 'config';
 import MojiraBot from './MojiraBot';
+
+function getOrDefault<T>( configPath: string, defaultValue: T ): T {
+	if ( !config.has( configPath ) ) MojiraBot.logger.debug( `config ${ configPath } not set, assuming default` );
+	return config.has( configPath ) ? config.get( configPath ) : defaultValue;
+}
+
+export enum PrependResponseMessageType {
+	Never = 'never',
+	WhenResolved = 'whenResolved',
+	Always = 'always'
+}
+
+export class RequestConfig {
+	public channels: string[];
+	public internalChannels: string[];
+	public logChannel: string;
+
+	public noLinkEmoji: string;
+	public noLinkWarningLifetime: number;
+	public waitingEmoji: string;
+	public suggestedEmoji: string[];
+	public ignorePrependResponseMessageEmoji: string;
+	public resolveDelay: number;
+	public prependResponseMessage: PrependResponseMessageType;
+	public prependResponseMessageInLog: boolean;
+	public responseMessage: string;
+
+	constructor() {
+		this.channels = getOrDefault( 'request.channels', [] );
+		this.internalChannels = this.channels.length ? config.get( 'request.internalChannels' ) : getOrDefault( 'request.internalChannels', [] );
+		this.logChannel = config.get( 'request.logChannel' );
+
+		if ( this.channels.length !== this.internalChannels.length ) {
+			throw new Error( 'There are not exactly as many Request channels and ' );
+		}
+
+		this.noLinkEmoji = config.get( 'request.noLinkEmoji' );
+		this.noLinkWarningLifetime = config.get( 'request.noLinkWarningLifetime' );
+		this.waitingEmoji = config.get( 'request.waitingEmoji' );
+		this.suggestedEmoji = getOrDefault( 'request.suggestedEmoji', [] );
+		this.ignorePrependResponseMessageEmoji = config.get( 'request.ignorePrependResponseMessageEmoji' );
+
+		this.resolveDelay = config.get( 'request.resolveDelay' );
+		this.prependResponseMessage = getOrDefault( 'request.prependResponseMessage', PrependResponseMessageType.Never );
+		this.prependResponseMessageInLog = getOrDefault( 'request.prependResponseMessageInLog', false );
+		this.responseMessage = getOrDefault( 'request.responseMessage', '' );
+	}
+}
 
 export interface RoleConfig {
 	emoji: string;
@@ -20,27 +69,6 @@ export interface VersionFeedConfig {
 	scope: number;
 }
 
-export enum PrependResponseMessageType {
-	Never = 'never',
-	WhenResolved = 'when_resolved',
-	Always = 'always'
-}
-
-export interface RequestConfig {
-	channels?: string[];
-	internal_channels?: string[];
-	log_channel?: string;
-	no_link_emoji?: string;
-	no_link_warning_lifetime?: number;
-	waiting_emoji?: string;
-	suggested_emoji?: string[];
-	ignore_prepend_response_message_emoji: string;
-	resolve_delay?: number;
-	prepend_response_message?: PrependResponseMessageType;
-	prepend_response_message_in_log?: boolean;
-	response_message?: string;
-}
-
 export default class BotConfig {
 	public static debug: boolean;
 	public static logDirectory: false | string;
@@ -49,13 +77,10 @@ export default class BotConfig {
 	public static token: string;
 	public static owner: string;
 
-	// Add map of id => GuildConfiguration here later
-	// These three settings will be moved over to `GuildConfiguration` later
 	public static homeChannel: string;
 	public static rolesChannel: string;
 	public static rolesMessage: string;
 
-	// settings for mention command
 	public static ticketUrlsCauseEmbed: boolean;
 	public static requiredTicketPrefix: string;
 	public static forbiddenTicketPrefix: string;
@@ -72,62 +97,32 @@ export default class BotConfig {
 	public static versionFeedInterval: number;
 	public static versionFeeds: VersionFeedConfig[];
 
-	// projects etc
-	// wrapper class for settings.json
+	public static init(): void {
+		this.debug = getOrDefault( 'debug', false );
+		this.logDirectory = getOrDefault( 'logDirectory', false );
 
-	public static init( settingsJson: string ): void {
-		const settings = JSON.parse( settingsJson );
+		this.token = config.get( 'token' );
+		this.owner = config.get( 'owner' );
 
-		if ( !settings ) throw 'Settings could not be parsed';
+		this.homeChannel = config.get( 'homeChannel' );
+		this.rolesChannel = config.get( 'rolesChannel' );
+		this.rolesMessage = config.get( 'rolesMessage' );
+		this.ticketUrlsCauseEmbed = getOrDefault( 'ticketUrlsCauseEmbed', false );
 
-		if ( !settings.debug ) this.debug = false;
-		else this.debug = settings.debug;
+		this.forbiddenTicketPrefix = getOrDefault( 'forbiddenTicketPrefix', '' );
+		this.requiredTicketPrefix = getOrDefault( 'forbiddenTicketPrefix', '' );
 
-		if ( !settings.log_dir ) this.logDirectory = false;
-		else this.logDirectory = settings.log_dir;
+		this.projects = config.get( 'projects' );
 
-		if ( !settings.token ) throw 'Token is not set';
-		this.token = settings.token;
+		this.request = new RequestConfig();
 
-		if ( !settings.owner ) throw 'Owner is not set';
-		this.owner = settings.owner;
+		this.roles = getOrDefault( 'roles', [] );
 
-		if ( !settings.home_channel ) throw 'Home channel is not set';
-		this.homeChannel = settings.home_channel;
+		this.filterFeedInterval = config.get( 'filterFeedInterval' );
+		this.filterFeeds = config.get( 'filterFeeds' );
 
-		if ( !settings.roles_channel ) throw 'Roles channel is not set';
-		this.rolesChannel = settings.roles_channel;
-
-		if ( !settings.roles_message ) throw 'Roles message is not set';
-		this.rolesMessage = settings.roles_message;
-
-		this.ticketUrlsCauseEmbed = !!settings.ticketUrlsCauseEmbed;
-
-		if ( !settings.forbiddenTicketPrefix ) this.forbiddenTicketPrefix = '';
-		else this.forbiddenTicketPrefix = settings.forbiddenTicketPrefix;
-
-		if ( !settings.requiredTicketPrefix ) this.requiredTicketPrefix = '';
-		else this.requiredTicketPrefix = settings.requiredTicketPrefix;
-
-		if ( !settings.projects ) throw 'Projects are not set';
-		this.projects = settings.projects;
-
-		this.request = settings.request || {};
-
-		if ( !settings.roles ) throw 'Roles are not set';
-		this.roles = settings.roles;
-
-		if ( !settings.filter_feed_interval ) throw 'Filter feed interval is not set';
-		this.filterFeedInterval = settings.filter_feed_interval;
-
-		if ( !settings.filter_feeds ) throw 'Filter feeds are not set';
-		this.filterFeeds = settings.filter_feeds;
-
-		if ( !settings.version_feed_interval ) throw 'Version monitor interval is not set';
-		this.versionFeedInterval = settings.version_feed_interval;
-
-		if ( !settings.version_feeds ) throw 'Filter feeds are not set';
-		this.versionFeeds = settings.version_feeds;
+		this.versionFeedInterval = config.get( 'versionFeedInterval' );
+		this.versionFeeds = config.get( 'versionFeeds' );
 	}
 
 	public static async login( client: Client ): Promise<boolean> {

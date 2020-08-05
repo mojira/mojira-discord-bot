@@ -13,11 +13,11 @@ export default class ReopenRequestEventHandler implements EventHandler {
 	public onEvent = ( { emoji, message }: MessageReaction, user: User ): void => {
 		this.logger.info( `User ${ user.tag } removed '${ emoji.name }' reaction from request message '${ message.id }'` );
 
-		if ( BotConfig.request.prepend_response_message == PrependResponseMessageType.WhenResolved ) {
+		if ( BotConfig.request.prependResponseMessage == PrependResponseMessageType.WhenResolved ) {
 			message.edit( '' );
 		}
 
-		if ( message.reactions.size <= BotConfig.request.suggested_emoji.length ) {
+		if ( message.reactions.size <= BotConfig.request.suggestedEmoji.length ) {
 			this.logger.info( `Cleared message task for request message '${ message.id }'` );
 			TaskScheduler.clearMessageTasks( message );
 		}
