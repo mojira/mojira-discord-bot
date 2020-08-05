@@ -41,7 +41,7 @@ export class RequestsUtil {
 	}
 
 	public static getResponseMessage( message: Message ): string {
-		return ( BotConfig.request.response_message || '' )
+		return ( BotConfig.request.responseMessage || '' )
 			.replace( '{{author}}', `@${ message.author.tag }` )
 			.replace( '{{url}}', message.url )
 			.replace( '{{message}}', message.content.replace( /(^|\n)/g, '$1> ' ) );

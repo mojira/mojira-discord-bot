@@ -85,7 +85,7 @@ export default class MojiraBot {
 			if ( BotConfig.request.channels ) {
 				for ( let i = 0; i < BotConfig.request.channels.length; i++ ) {
 					const requestChannelId = BotConfig.request.channels[i];
-					const internalChannelId = BotConfig.request.internal_channels[i];
+					const internalChannelId = BotConfig.request.internalChannels[i];
 					try {
 						const requestChannel = this.client.channels.get( requestChannelId );
 						const internalChannel = this.client.channels.get( internalChannelId );

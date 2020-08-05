@@ -1,9 +1,6 @@
 import * as log4js from 'log4js';
-import fs = require( 'fs' );
 import BotConfig from './src/BotConfig';
 import MojiraBot from './src/MojiraBot';
-
-const settingsJson = fs.readFileSync( 'settings.json', 'utf8' );
 
 log4js.configure( {
 	appenders: {
@@ -15,7 +12,7 @@ log4js.configure( {
 } );
 
 try {
-	BotConfig.init( settingsJson );
+	BotConfig.init();
 	MojiraBot.start();
 } catch ( err ) {
 	MojiraBot.logger.error( err );

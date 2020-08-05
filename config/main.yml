@@ -1,0 +1,54 @@
+# Settings for the offical Mojira Discord bot
+
+owner: '417403221863301130'
+
+homeChannel: '649027251010142228'
+rolesChannel: '653602305417150475'
+rolesMessage: '654300040239775784'
+
+request:
+  channels:
+    - '648555618994618378'
+    - '648555751438155776'
+    - '648555873836335124'
+    - '651161365091844116'
+    - '692382286103969843'
+  internalChannels:
+    - '683038862024638474'
+    - '683038914306506841'
+    - '683039615837536380'
+    - '683040112191340560'
+    - '692382871578607767'
+  logChannel: '683039388825026562'
+
+roles:
+  - id: '648536573675044865'
+    desc: |-
+      Java Edition
+      _PC, Mac and Linux_
+    emoji: '648525192414494730'
+  - id: '648536590481752074'
+    desc: |-
+      Bedrock Edition
+      _Android, iOS, Windows 10, Xbox One, Nintendo Switch and Playstation 4_
+    emoji: '648474430158405642'
+  - id: '648536605094707201'
+    desc: 'Minecraft: Earth'
+    emoji: '648524067359686678'
+  - id: '692398773762261023'
+    desc: 'Minecraft: Dungeons'
+    emoji: '692399397232836758'
+  - id: '648536618113826847'
+    desc: Other projects
+    emoji: '648521149390520320'
+
+filterFeeds:
+  - jql: project = MC AND resolved > -1m AND resolution = Fixed AND fixVersion = earliestUnreleasedVersion()
+    channel: '666349583227682819'
+    title: '{{num}} tickets have just been resolved as Fixed!'
+    titleSingle: This ticket has just been resolved as Fixed!
+
+versionFeeds:
+  - project: MC
+    channel: '666349583227682819'
+    scope: 5

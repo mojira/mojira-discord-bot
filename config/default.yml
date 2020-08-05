@@ -1,0 +1,47 @@
+# General settings
+
+debug: false
+
+logDirectory: logs
+
+ticketUrlsCauseEmbed: false
+
+forbiddenTicketPrefix: '!'
+
+requiredTicketPrefix: ''
+
+projects:
+  - BDS
+  - MC
+  - MCAPI
+  - MCCE
+  - MCE
+  - MCL
+  - MCPE
+  - WEB
+
+request:
+  noLinkEmoji: ⛔
+  noLinkWarningLifetime: 5000
+  waitingEmoji: ⌛
+
+  suggestedEmoji:
+    - ✅
+    - ☑️
+    - ❌
+  
+  ignorePrependResponseMessageEmoji: ✅
+
+  resolveDelay: 10000
+  prependResponseMessage: whenResolved
+  prependResponseMessageInLog: false
+
+  responseMessage: |-
+    ```
+    {{author}} {{url}}
+    > {{message}}
+    
+    ```
+
+filterFeedInterval: 30000
+versionFeedInterval: 30000

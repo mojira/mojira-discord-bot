@@ -25,10 +25,10 @@ export default class ResolveRequestMessageTask extends MessageTask {
 			await origin.clearReactions();
 			origin.react( this.emoji );
 
-			if ( BotConfig.request.log_channel ) {
-				const logChannel = MojiraBot.client.channels.get( BotConfig.request.log_channel );
+			if ( BotConfig.request.logChannel ) {
+				const logChannel = MojiraBot.client.channels.get( BotConfig.request.logChannel );
 				if ( logChannel && logChannel instanceof TextChannel ) {
-					const response = BotConfig.request.prepend_response_message_in_log ?
+					const response = BotConfig.request.prependResponseMessageInLog ?
 						RequestsUtil.getResponseMessage( origin ) : '';
 
 					const log = new RichEmbed()

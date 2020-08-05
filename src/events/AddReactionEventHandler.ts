@@ -27,10 +27,10 @@ export default class AddReactionEventHandler implements EventHandler {
 		if ( messageReaction.message.id === BotConfig.rolesMessage ) {
 			// Handle role selection
 			this.selectRoleHandler.onEvent( messageReaction, user );
-		} else if ( BotConfig.request.internal_channels.includes( messageReaction.message.channel.id ) ) {
+		} else if ( BotConfig.request.internalChannels.includes( messageReaction.message.channel.id ) ) {
 			// Handle resolving user request
 			this.resolveRequestHandler.onEvent( messageReaction, user );
-		} else if ( BotConfig.request.log_channel.includes( messageReaction.message.channel.id ) ) {
+		} else if ( BotConfig.request.logChannel.includes( messageReaction.message.channel.id ) ) {
 			// Handle reopening a user request
 			this.newRequestEventHandler.onReopen( messageReaction, user );
 		}
