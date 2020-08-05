@@ -110,7 +110,7 @@ export default class BotConfig {
 		this.ticketUrlsCauseEmbed = getOrDefault( 'ticketUrlsCauseEmbed', false );
 
 		this.forbiddenTicketPrefix = getOrDefault( 'forbiddenTicketPrefix', '' );
-		this.requiredTicketPrefix = getOrDefault( 'forbiddenTicketPrefix', '' );
+		this.requiredTicketPrefix = getOrDefault( 'requiredTicketPrefix', '' );
 
 		this.projects = config.get( 'projects' );
 

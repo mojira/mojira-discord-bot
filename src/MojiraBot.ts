@@ -27,25 +27,6 @@ export default class MojiraBot {
 	private static running = false;
 
 	public static async start(): Promise<void> {
-		const logConfig: log4js.Configuration = {
-			appenders: {
-				out: { type: 'stdout' },
-			},
-			categories: {
-				default: { appenders: [ 'out' ], level: BotConfig.debug ? 'debug' : 'info' },
-			},
-		};
-
-		if ( BotConfig.logDirectory ) {
-			logConfig.appenders.log = {
-				type: 'file',
-				filename: `${ BotConfig.logDirectory }/${ new Date().toJSON().replace( /[:.]/g, '_' ) }.log`,
-			};
-			logConfig.categories.default.appenders.push( 'log' );
-		}
-
-		log4js.configure( logConfig );
-
 		if ( this.running ) {
 			this.logger.error( 'MojiraBot is still running. You can only start a bot that is not currently running.' );
 			return;
@@ -57,14 +38,6 @@ export default class MojiraBot {
 
 			this.running = true;
 			this.logger.info( `MojiraBot has been started successfully. Logged in as ${ this.client.user.tag }` );
-
-			if ( BotConfig.debug ) {
-				this.logger.info( 'Debug mode is activated' );
-			}
-
-			if ( BotConfig.logDirectory ) {
-				this.logger.info( `Writing log to ${ logConfig.appenders.log[ 'filename' ] }` );
-			}
 
 			// Register events.
 			EventRegistry.setClient( this.client );
