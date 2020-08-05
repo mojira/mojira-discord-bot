@@ -57,7 +57,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         command: |
           cd mojira-discord-bot
-          find ./config -type f -not -name 'local.yml' -a -not -name 'local-a.yml' -print0 | xar
+          find ./config -type f -not -name 'local.yml' -a -not -name 'local-*.yml' -print0 | xargs -0 rm
         args: "-tt"
 
     - name: Update config
