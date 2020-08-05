@@ -4,30 +4,34 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [8.x]
+        node-version: [12.x]
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+
     - uses: actions/cache@v1
       with:
         path: ~/.npm
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
+
     - name: Install dependencies
       run: npm install
+
     - name: Check code style
       run: npm run lint --if-present
-    - name: Compile to JavaScript
+
+    - name: Validate code
       run: npm run validate --if-present
       env:
         CI: true
