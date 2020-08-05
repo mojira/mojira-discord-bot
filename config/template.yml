@@ -53,7 +53,7 @@ request:
   
   # The IDs of the corresponding internal channels of the request channels.
   # All the messages sent in a request channel by users will be forwarded to the respective internal channel by the bot.
-	# The length of this array MUST be the same as the length of `channels`.
+  # The length of this array MUST be the same as the length of `channels`.
   # You MAY use the same internal channel for multiple times.
   # Optional; empty by default.
   internalChannels:
@@ -78,7 +78,7 @@ request:
   # Note: volunteers are free to use emoji which aren't in the array.
   # This feature is only used to make work more efficient.
   # Optional; empty by default.
-	suggestedEmoji:
+  suggestedEmoji:
     - <string>
     - <string>
     - ...
@@ -98,10 +98,10 @@ request:
   prependResponseMessageInLog: <boolean>
 
   # The response message to be send for easy copying a message to respond to a request.
-	# Parameters are {{autor}}, {{url}} and {{message}}.
-	# {{author}} will be replaced by "@DiscordUser#1234".
-	# {{url}} will be replaced by the link to the message.
-	# {{message}} will be replaced by a quote of the contents of the message.
+  # Parameters are {{autor}}, {{url}} and {{message}}.
+  # {{author}} will be replaced by "@DiscordUser#1234".
+  # {{url}} will be replaced by the link to the message.
+  # {{message}} will be replaced by a quote of the contents of the message.
   # Optional; empty string by default
   responseMessage: <string>
 
