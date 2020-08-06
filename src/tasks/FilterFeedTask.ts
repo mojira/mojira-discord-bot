@@ -18,7 +18,7 @@ export default class FilterFeedTask extends Task {
 
 	private knownTickets = new Set<string>();
 
-	constructor( { jql, title, title_single: titleSingle }: FilterFeedConfig, channel: Channel ) {
+	constructor( { jql, title, titleSingle }: FilterFeedConfig, channel: Channel ) {
 		super();
 
 		this.channel = channel;
