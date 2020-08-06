@@ -52,3 +52,6 @@ versionFeeds:
   - project: MC
     channel: '666349583227682819'
     scope: 5
+    actions:
+      - released
+      - renamed

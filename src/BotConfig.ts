@@ -1,6 +1,7 @@
 import { Client } from 'discord.js';
 import config from 'config';
 import MojiraBot from './MojiraBot';
+import { VersionChangeType } from './tasks/VersionFeedTask';
 
 function getOrDefault<T>( configPath: string, defaultValue: T ): T {
 	if ( !config.has( configPath ) ) MojiraBot.logger.debug( `config ${ configPath } not set, assuming default` );
@@ -67,6 +68,7 @@ export interface VersionFeedConfig {
 	project: string;
 	channel: string;
 	scope: number;
+	actions: VersionChangeType[];
 }
 
 export default class BotConfig {

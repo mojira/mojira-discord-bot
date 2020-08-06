@@ -155,6 +155,11 @@ filterFeeds:
 
     # How many versions should be monitored; only the x latest versions are monitored.
     scope: <version>
+
+    # A list of actions that should be included in the version feed
+    actions:
+      - <'created' | 'released' | 'unreleased' | 'archived' | 'unarchived' | 'renamed'>
+      - ...
   
   - <see above>
   - ...
