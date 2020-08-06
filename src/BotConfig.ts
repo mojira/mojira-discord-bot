@@ -60,7 +60,7 @@ export interface FilterFeedConfig {
 	jql: string;
 	channel: string;
 	title: string;
-	title_single?: string;
+	titleSingle?: string;
 }
 
 export interface VersionFeedConfig {
