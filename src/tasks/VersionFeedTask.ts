@@ -39,13 +39,6 @@ export default class VersionFeedTask extends Task {
 		this.getVersions().then(
 			versions => {
 				this.cachedVersions = versions;
-				this.cachedVersions = [
-					{ id: '19578', name: 'Future Version - 1.16', archived: false, released: false, releaseDate: undefined },
-					{ id: '19576', name: '1.16.2 Pre-release -2', archived: false, released: false, releaseDate: '2020-08-05' },
-					{ id: '19574', name: '1.16.2 Pre-release -999', archived: false, released: true, releaseDate: '2020-07-29' },
-					{ id: '19570', name: '20w30a', archived: true, released: true, releaseDate: '2020-07-22' },
-					{ id: '19559', name: '20w29a', archived: true, released: true, releaseDate: '2020-07-15' },
-				];
 				this.initialized = true;
 			}
 		).catch(
@@ -57,9 +50,7 @@ export default class VersionFeedTask extends Task {
 	}
 
 	public async run(): Promise<void> {
-		VersionFeedTask.logger.debug( 'run versionfeedtask' );
 		if ( !this.initialized ) return;
-		VersionFeedTask.logger.debug( 'run versionfeedtask 2' );
 
 		if ( !( this.channel instanceof TextChannel ) ) {
 			VersionFeedTask.logger.error( `Expected ${ this.channel } to be a TextChannel` );
@@ -109,8 +100,6 @@ export default class VersionFeedTask extends Task {
 
 	private async getVersionChanges( previous: JiraVersion[], current: JiraVersion[] ): Promise<JiraVersionChange[]> {
 		const changes: JiraVersionChange[] = [];
-
-		VersionFeedTask.logger.debug( 'Getting version changes' );
 
 		for ( const version of current ) {
 			const previousVersion = previous.find( it => it.id === version.id );
