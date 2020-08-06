@@ -54,4 +54,5 @@ versionFeeds:
     scope: 5
     actions:
       - released
+      - unreleased
       - renamed
