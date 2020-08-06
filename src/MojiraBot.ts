@@ -1,5 +1,6 @@
 import { Client, TextChannel, ChannelLogsQueryOptions, Message } from 'discord.js';
 import * as log4js from 'log4js';
+import { Client as JiraClient } from 'jira.js';
 import BotConfig from './BotConfig';
 import TaskScheduler from './tasks/TaskScheduler';
 import EventRegistry from './events/EventRegistry';
@@ -25,6 +26,10 @@ export default class MojiraBot {
 
 	public static client: Client = new Client();
 	private static running = false;
+
+	public static jira = new JiraClient( {
+		host: 'https://bugs.mojang.com',
+	} );
 
 	public static async start(): Promise<void> {
 		if ( this.running ) {

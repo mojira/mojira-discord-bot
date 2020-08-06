@@ -3,8 +3,9 @@ import { FilterFeedConfig } from '../BotConfig';
 import { Client, TextChannel, Channel } from 'discord.js';
 import * as log4js from 'log4js';
 import Task from './Task';
-import JiraClient from 'jira-connector';
+import { Client as JiraClient } from 'jira.js';
 import { NewsUtil } from '../util/NewsUtil';
+import MojiraBot from '../MojiraBot';
 
 export default class FilterFeedTask extends Task {
 	public static logger = log4js.getLogger( 'FilterFeed' );
@@ -25,18 +26,13 @@ export default class FilterFeedTask extends Task {
 		this.jql = jql;
 		this.title = title;
 		this.titleSingle = titleSingle || title.replace( /\{\{num\}\}/g, '1' );
-
-		this.jira = new JiraClient( {
-			host: 'bugs.mojang.com',
-			strictSSL: true,
-		} );
 	}
 
 	public async run(): Promise<void> {
 		let upcomingTickets: string[];
 
 		try {
-			const searchResults = await this.jira.search.search( {
+			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
 				jql: this.jql,
 				fields: ['key'],
 			} );

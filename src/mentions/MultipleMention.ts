@@ -1,21 +1,14 @@
 import { RichEmbed } from 'discord.js';
 import { Mention } from './Mention';
-import JiraClient from 'jira-connector';
+import MojiraBot from '../MojiraBot';
 
 export class MultipleMention extends Mention {
-	private jira: JiraClient;
-
 	private tickets: string[];
 
 	constructor( tickets: string[] ) {
 		super();
 
 		this.tickets = tickets;
-
-		this.jira = new JiraClient( {
-			host: 'bugs.mojang.com',
-			strictSSL: true,
-		} );
 	}
 
 	public async getEmbed(): Promise<RichEmbed> {
@@ -26,7 +19,7 @@ export class MultipleMention extends Mention {
 		let searchResults: any;
 
 		try {
-			searchResults = await this.jira.search.search( {
+			searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
 				jql: `id IN (${ this.tickets.join( ',' ) }) ORDER BY key ASC`,
 				maxResults: 10,
 				fields: [ 'key', 'summary' ],

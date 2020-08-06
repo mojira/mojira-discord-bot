@@ -1,50 +1,40 @@
 import { RichEmbed } from 'discord.js';
 import { Mention } from './Mention';
-import JiraClient from 'jira-connector';
 import moment from 'moment';
+import MojiraBot from '../MojiraBot';
 
 export class SingleMention extends Mention {
-	private jira: JiraClient;
-
 	private ticket: string;
 
 	constructor( ticket: string ) {
 		super();
 
 		this.ticket = ticket;
-
-		this.jira = new JiraClient( {
-			host: 'bugs.mojang.com',
-			strictSSL: true,
-		} );
 	}
 
 	public async getEmbed(): Promise<RichEmbed> {
 		let ticketResult: any;
 
 		try {
-			ticketResult = await this.jira.issue.getIssue( {
-				issueId: this.ticket,
+			ticketResult = await MojiraBot.jira.issues.getIssue( {
+				issueIdOrKey: this.ticket,
 			} );
 		} catch ( err ) {
-			const exception = JSON.parse( err );
-			if ( !exception ) {
-				Mention.logger.error( err );
-				return;
+			let errorMessage = `An error occurred while retrieving ticket ${ this.ticket }: ${ err.message }`;
+
+			if ( err.response ) {
+				const exception = err.response;
+
+				if ( exception.status === 404 ) {
+					errorMessage = `${ this.ticket } doesn't seem to exist. (error code ${ exception.status })`;
+				} else if ( exception.status === 401 ) {
+					errorMessage = `${ this.ticket } is private or has been deleted. (error code ${ exception.status })`;
+				} else {
+					errorMessage += ` (error code ${ exception.status })`;
+				}
 			}
 
-			Mention.logger.error( 'Error: status code ' + exception.statusCode );
-
-			// TODO clean up
-			let errorMessage = `An error occurred while retrieving this ticket: ${ exception.body.errorMessages[0] }`;
-
-			if ( exception.statusCode === 404 ) {
-				errorMessage = 'This ticket doesn\'t seem to exist.';
-			} else if ( exception.statusCode === 401 ) {
-				errorMessage = 'This ticket is private or has been deleted.';
-			}
-
-			throw errorMessage;
+			throw new Error( errorMessage );
 		}
 
 		if ( !ticketResult.fields ) {

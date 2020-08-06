@@ -4,6 +4,7 @@
         "module": "commonjs",
         "lib": ["es2016"],
         "outDir": "./bin",
+        "sourceMap": true,
         "esModuleInterop": true
     },
     "exclude": [
