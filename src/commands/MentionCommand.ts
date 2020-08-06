@@ -45,7 +45,7 @@ export default class MentionCommand extends Command {
 			embed = await mention.getEmbed();
 		} catch ( jiraError ) {
 			try {
-				Command.logger.error( jiraError );
+				Command.logger.warn( jiraError.message );
 				await message.channel.send( '❌ ' + jiraError.message );
 			} catch ( discordError ) {
 				Command.logger.error( discordError );
