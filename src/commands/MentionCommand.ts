@@ -46,7 +46,7 @@ export default class MentionCommand extends Command {
 		} catch ( jiraError ) {
 			try {
 				Command.logger.error( jiraError );
-				await message.channel.send( jiraError.message );
+				await message.channel.send( '❌ ' + jiraError.message );
 			} catch ( discordError ) {
 				Command.logger.error( discordError );
 			}

@@ -25,30 +25,23 @@ export class MultipleMention extends Mention {
 				fields: [ 'key', 'summary' ],
 			} );
 		} catch ( err ) {
-			const exception = JSON.parse( err );
-			if ( !exception ) {
-				Mention.logger.error( err );
-				return;
+			let ticketList = this.tickets.join( ', ' );
+			const lastSeparatorPos = ticketList.lastIndexOf( ', ' );
+			ticketList = `${ ticketList.substring( 0, lastSeparatorPos ) } and ${ ticketList.substring( lastSeparatorPos + 2, ticketList.length ) }`;
+
+			let errorMessage = `An error occurred while retrieving tickets ${ ticketList }: ${ err.message }`;
+
+			if ( err.response?.data?.errorMessages ) {
+				for ( const msg of err.response.data.errorMessages ) {
+					errorMessage += `\n${ msg }`;
+				}
 			}
 
-			Mention.logger.error( 'Error: status code ' + exception.statusCode );
-
-			// TODO clean up
-			let errorMessage = `An error occurred while retrieving this ticket: ${ exception.body.errorMessages[0] }`;
-
-			if ( exception.statusCode === 404 ) {
-				errorMessage = 'This ticket doesn\'t seem to exist.';
-			} else if ( exception.statusCode === 401 ) {
-				errorMessage = 'This ticket is private or has been deleted.';
-			}
-
-			throw errorMessage;
+			throw new Error( errorMessage );
 		}
 
 		if ( !searchResults.issues ) {
-			Mention.logger.error( 'Error: no issues returned by JIRA' );
-
-			throw 'An error occurred while retrieving this ticket: No issues were returned by the JIRA API.';
+			throw new Error( 'No issues were returned by the JIRA API.' );
 		}
 
 		for ( const issue of searchResults.issues ) {

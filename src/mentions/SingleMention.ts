@@ -26,11 +26,13 @@ export class SingleMention extends Mention {
 				const exception = err.response;
 
 				if ( exception.status === 404 ) {
-					errorMessage = `${ this.ticket } doesn't seem to exist. (error code ${ exception.status })`;
+					errorMessage = `${ this.ticket } doesn't seem to exist.`;
 				} else if ( exception.status === 401 ) {
-					errorMessage = `${ this.ticket } is private or has been deleted. (error code ${ exception.status })`;
-				} else {
-					errorMessage += ` (error code ${ exception.status })`;
+					errorMessage = `${ this.ticket } is private or has been deleted.`;
+				} else if ( exception?.data?.errorMessages ) {
+					for ( const msg of exception.data.errorMessages ) {
+						errorMessage += `\n${ msg }`;
+					}
 				}
 			}
 
@@ -38,9 +40,7 @@ export class SingleMention extends Mention {
 		}
 
 		if ( !ticketResult.fields ) {
-			Mention.logger.error( 'Error: no fields returned by JIRA' );
-
-			throw 'An error occurred while retrieving this ticket: No fields were returned by the JIRA API.';
+			throw new Error( 'No fields were returned by the JIRA API.' );
 		}
 
 		let status = ticketResult.fields.status.name;
