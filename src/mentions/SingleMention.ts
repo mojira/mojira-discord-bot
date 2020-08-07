@@ -2,6 +2,7 @@ import { RichEmbed } from 'discord.js';
 import { Mention } from './Mention';
 import JiraClient from 'jira-connector';
 import moment from 'moment';
+import { MarkdownUtil } from '../util/MarkdownUtil';
 
 export class SingleMention extends Mention {
 	private jira: JiraClient;
@@ -71,33 +72,20 @@ export class SingleMention extends Mention {
 
 		let description = ticketResult.fields.description || '';
 
-		// remove panels
-		description = description.replace( /\s*\{panel[^}]+\}(?:.|\s)*?\{panel\}\s*/gi, '' );
-
 		// unify line breaks
 		description = description.replace( /^\s*[\r\n]/gm, '\n' );
 
+		// convert to Discord markdown
+		description = MarkdownUtil.jira2md( description );
+
 		// remove headings
-		description = description.replace( /^\s*h\d.*$/mi, '' );
-		description = description.replace( /^\*.+\*$/gm, '' );
+		description = description.replace( /^#.*$/mi, '' );
 
 		// remove empty lines
-		description = description.replace( /^\s*$/gm, '' );
+		description = description.replace( /(^|\n)\s*(\n|$)/g, '\n' );
 
 		// remove all sections except for the first
-		description = description.replace( /\nh\d[\s\S]*$/i, '' );
-
-		// replace code block format
-		description = description.replace( /\{\{(.+?)\}\}/gm, '`$1`' );
-
-		// replace bold format
-		description = description.replace( /\*(.+?)\*/gm, '**$1**' );
-
-		// replace strikethrough format
-		description = description.replace( /-(.+?)\*/gm, '~~$1~~' );
-
-		// replace link format
-		description = description.replace( /\[(.+?)\|(\S+?)\]/gm, '[$1]($2)' );
+		description = description.replace( /\n#[\s\S]*$/i, '' );
 
 		// only show first two lines
 		description = description.split( '\n' ).slice( 0, 2 ).join( '\n' );
