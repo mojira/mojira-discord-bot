@@ -22,18 +22,18 @@
     "discord.js": "^11.6.4",
     "jira.js": "^1.6.0",
     "js-yaml": "^3.14.0",
-    "log4js": "^6.1.2",
-    "moment": "^2.24.0",
+    "log4js": "^6.3.0",
+    "moment": "^2.27.0",
     "node-fetch": "^2.6.0",
-    "typescript": "^3.8.3"
+    "typescript": "^3.9.7"
   },
   "devDependencies": {
     "@types/config": "0.0.36",
     "@types/emoji-regex": "^8.0.0",
-    "@types/node": "^12.12.35",
+    "@types/node": "^12.12.54",
     "@types/node-fetch": "^2.5.7",
-    "@typescript-eslint/eslint-plugin": "^2.27.0",
-    "@typescript-eslint/parser": "^2.27.0",
+    "@typescript-eslint/eslint-plugin": "^2.34.0",
+    "@typescript-eslint/parser": "^2.34.0",
     "eslint": "^6.8.0"
   }
 }
