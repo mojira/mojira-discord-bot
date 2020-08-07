@@ -39,3 +39,10 @@ versionFeeds:
   - project: MC
     channel: '665904688616701953'
     scope: 5
+    actions:
+      - created
+      - archived
+      - unarchived
+      - released
+      - unreleased
+      - renamed

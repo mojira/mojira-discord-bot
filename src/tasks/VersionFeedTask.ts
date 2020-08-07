@@ -18,6 +18,8 @@ interface JiraVersionChange {
 	embed?: RichEmbed;
 }
 
+export type VersionChangeType = 'created' | 'released' | 'unreleased' | 'archived' | 'unarchived' | 'renamed';
+
 export default class VersionFeedTask extends Task {
 	public static logger = log4js.getLogger( 'Version' );
 
@@ -26,17 +28,19 @@ export default class VersionFeedTask extends Task {
 	private channel: Channel;
 	private project: string;
 	private scope: number;
+	private actions: VersionChangeType[];
 
 	private cachedVersions: JiraVersion[] = [];
 
 	private initialized = false;
 
-	constructor( { project, scope }: VersionFeedConfig, channel: Channel ) {
+	constructor( { project, scope, actions }: VersionFeedConfig, channel: Channel ) {
 		super();
 
 		this.channel = channel;
 		this.project = project;
 		this.scope = scope;
+		this.actions = actions;
 
 		this.jira = new JiraClient( {
 			host: 'bugs.mojang.com',
@@ -111,20 +115,37 @@ export default class VersionFeedTask extends Task {
 		for ( const version of current ) {
 			const previousVersion = previous.find( it => it.id === version.id );
 
-			if ( previousVersion !== undefined ) {
+			if ( previousVersion === undefined ) {
+				if ( !this.actions.includes( 'created' ) ) break;
+
+				changes.push( {
+					message: `Version **${ version.name }** has been created.`,
+					embed: await this.getVersionEmbed( version ),
+				} );
+			} else {
 				if ( previousVersion.name !== version.name ) {
+					if ( !this.actions.includes( 'renamed' ) ) break;
+
 					changes.push( {
 						message: `Version **${ previousVersion.name }** has been renamed to **${ version.name }**.`,
 						embed: await this.getVersionEmbed( version ),
 					} );
 				}
+
 				if ( previousVersion.archived !== version.archived ) {
+					if ( version.archived === true && !this.actions.includes( 'archived' ) ) break;
+					if ( version.archived === false && !this.actions.includes( 'unarchived' ) ) break;
+
 					changes.push( {
 						message: `Version **${ version.name }** has been ${ version.archived ? '' : 'un' }archived.`,
 						embed: await this.getVersionEmbed( version ),
 					} );
 				}
+
 				if ( previousVersion.released !== version.released ) {
+					if ( version.released === true && !this.actions.includes( 'released' ) ) break;
+					if ( version.released === false && !this.actions.includes( 'unreleased' ) ) break;
+
 					changes.push( {
 						message: `Version **${ version.name }** has been ${ version.released ? '' : 'un' }released.`,
 						embed: await this.getVersionEmbed( version ),
