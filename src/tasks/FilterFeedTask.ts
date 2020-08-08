@@ -1,7 +1,6 @@
 import { MentionRegistry } from '../mentions/MentionRegistry';
 import { FilterFeedConfig } from '../BotConfig';
 import { Client, TextChannel, Channel } from 'discord.js';
-import BotConfig, from '../../BotConfig';
 import * as log4js from 'log4js';
 import Task from './Task';
 import JiraClient from 'jira-connector';
@@ -73,7 +72,7 @@ export default class FilterFeedTask extends Task {
 					if ( this.channel instanceof TextChannel ) {
 						const filterFeedMessage = await this.channel.send( message, embed );
 						NewsUtil.publishMessage( filterFeedMessage );
-						filterFeedMessage.react( BotConfig.feed.feedEmoji );
+						filterFeedMessage.react( this.filterFeedEmoji );
 					} else {
 						throw `Expected ${ this.channel } to be a TextChannel`;
 					}
