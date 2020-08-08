@@ -9,13 +9,13 @@ export default class PingCommand extends PrefixCommand {
 		if ( args.length ) {
 			return false;
 		}
-		
+
 		try {
 			new SingleMention("MC-772");
 		} catch {
 			return false;
 		}
-		
+
 		try {
 			await message.react( '🐄' );
 		} catch {
@@ -27,8 +27,6 @@ export default class PingCommand extends PrefixCommand {
 		} catch {
 			return false;
 		}
-
-		
 
 		return true;
 	}
