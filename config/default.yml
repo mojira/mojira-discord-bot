@@ -42,6 +42,8 @@ request:
     > {{message}}
     
     ```
+feed:
+  feedEmoji: 🎉
 
 filterFeedInterval: 30000
 versionFeedInterval: 30000
