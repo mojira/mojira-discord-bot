@@ -157,10 +157,18 @@ export default class MojiraBot {
 		}
 	}
 
-	public static async reconnect(): Promise<void> {
+	public static async reconnect( tries = 0 ): Promise<void> {
 		const loginResult = await BotConfig.login( this.client );
 		if ( !loginResult ) {
-			MojiraBot.logger.error( 'MojiraBot was unable to reconnect' );
+			MojiraBot.logger.error( 'MojiraBot was unable to reconnect.' );
+
+			// Try reconnecting for 10 minutes
+			if ( tries <= 60 ) {
+				setTimeout( () => MojiraBot.reconnect( tries + 1 ), 10000 );
+			} else {
+				MojiraBot.logger.error( 'MojiraBot is shutting down.' );
+				MojiraBot.shutdown();
+			}
 		}
 	}
 
