@@ -10,7 +10,7 @@ export default class PingCommand extends PrefixCommand {
 		}
 
 		try {
-			await message.channel.send( `${message.author.toString()} Pong!` );
+			await message.channel.send( `${ message.author.toString() } Pong!` );
 		} catch {
 			return false;
 		}

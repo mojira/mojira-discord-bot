@@ -13,8 +13,8 @@
     "bot": "tsc && node bin",
     "build": "tsc",
     "validate": "tsc --noEmit",
-    "lint": "eslint **/*.ts",
-    "lintfix": "eslint **/*.ts --fix"
+    "lint": "eslint src/**/*.ts",
+    "lintfix": "eslint src/**/*.ts --fix"
   },
   "dependencies": {
     "config": "^3.3.1",

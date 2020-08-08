@@ -23,6 +23,7 @@ export class MultipleMention extends Mention {
 		embed.setTitle( 'Mentioned tickets' )
 			.setColor( 'RED' );
 
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		let searchResults: any;
 
 		try {
