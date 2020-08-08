@@ -1,9 +1,9 @@
-import * as log4js from 'log4js';
-import Task from './Task';
-import { Channel, TextChannel, RichEmbed } from 'discord.js';
-import { VersionFeedConfig } from '../BotConfig';
+import { Channel, MessageEmbed, TextChannel } from 'discord.js';
 import JiraClient from 'jira-connector';
+import * as log4js from 'log4js';
+import { VersionFeedConfig } from '../BotConfig';
 import { NewsUtil } from '../util/NewsUtil';
+import Task from './Task';
 
 interface JiraVersion {
 	id: string;
@@ -15,7 +15,7 @@ interface JiraVersion {
 
 interface JiraVersionChange {
 	message: string;
-	embed?: RichEmbed;
+	embed?: MessageEmbed;
 }
 
 export type VersionChangeType = 'created' | 'released' | 'unreleased' | 'archived' | 'unarchived' | 'renamed';
@@ -157,8 +157,8 @@ export default class VersionFeedTask extends Task {
 		return changes;
 	}
 
-	private async getVersionEmbed( version: JiraVersion ): Promise<RichEmbed> {
-		const embed = new RichEmbed()
+	private async getVersionEmbed( version: JiraVersion ): Promise<MessageEmbed> {
+		const embed = new MessageEmbed()
 			.setTitle( version.name )
 			.setColor( 'PURPLE' );
 

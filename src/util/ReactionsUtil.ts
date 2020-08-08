@@ -5,7 +5,7 @@ export class ReactionsUtil {
 	private static logger = log4js.getLogger( 'ReactionsUtil' );
 
 	public static async reactToMessage( message: Message, reactions: string[] ): Promise<void> {
-		if ( !reactions.length ) return;
+		if ( !reactions.length || message.deleted ) return;
 
 		try {
 			await message.react( reactions.shift() );
