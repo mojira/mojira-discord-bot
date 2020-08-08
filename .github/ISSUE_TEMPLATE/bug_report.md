@@ -9,6 +9,6 @@ assignees: ''
 
 ## The Bug
 
-## Example Ticket
+## Example
 
 ## Expected behavior
