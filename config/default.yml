@@ -19,8 +19,8 @@ projects:
   - MCE
   - MCL
   - MCPE
-  - WEB
   - REALMS
+  - WEB
 
 request:
   noLinkEmoji: ⛔
@@ -41,8 +41,9 @@ request:
   responseMessage: |-
     ```
     {{author}} {{url}}
-    > {{message}}
+    {{message}}
     
+    <Enter your response here>
     ```
 
 filterFeedInterval: 30000
