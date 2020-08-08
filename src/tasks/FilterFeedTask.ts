@@ -15,15 +15,17 @@ export default class FilterFeedTask extends Task {
 	private jql: string;
 	private title: string;
 	private titleSingle: string;
+	private filterFeedEmoji: string;
 
 	private knownTickets = new Set<string>();
 
-	constructor( { jql, title, titleSingle }: FilterFeedConfig, channel: Channel ) {
+	constructor( { jql, title, titleSingle, filterFeedEmoji }: FilterFeedConfig, channel: Channel ) {
 		super();
 
 		this.channel = channel;
 		this.jql = jql;
 		this.title = title;
+		this.filterFeedEmoji = filterFeedEmoji;
 		this.titleSingle = titleSingle || title.replace( /\{\{num\}\}/g, '1' );
 
 		this.jira = new JiraClient( {
