@@ -72,6 +72,7 @@ export default class FilterFeedTask extends Task {
 					if ( this.channel instanceof TextChannel ) {
 						const filterFeedMessage = await this.channel.send( message, embed );
 						NewsUtil.publishMessage( filterFeedMessage );
+						filterFeedMessage.react( '🎉' );
 					} else {
 						throw `Expected ${ this.channel } to be a TextChannel`;
 					}
