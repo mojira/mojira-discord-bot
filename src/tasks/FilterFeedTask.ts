@@ -1,6 +1,7 @@
 import { MentionRegistry } from '../mentions/MentionRegistry';
 import { FilterFeedConfig } from '../BotConfig';
 import { Client, TextChannel, Channel } from 'discord.js';
+import BotConfig, from '../../BotConfig';
 import * as log4js from 'log4js';
 import Task from './Task';
 import JiraClient from 'jira-connector';
