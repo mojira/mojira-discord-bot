@@ -1,7 +1,6 @@
 import * as log4js from 'log4js';
 import Task from './Task';
 import { Channel, TextChannel, RichEmbed } from 'discord.js';
-import BotConfig, from '../../BotConfig';
 import { VersionFeedConfig } from '../BotConfig';
 import JiraClient from 'jira-connector';
 import { NewsUtil } from '../util/NewsUtil';
@@ -75,7 +74,7 @@ export default class VersionFeedTask extends Task {
 		for ( const change of changes ) {
 			const versionFeedMessage = await this.channel.send( change.message, change.embed );
 			NewsUtil.publishMessage( versionFeedMessage );
-			versionFeedMessage.react( BotConfig.feed.feedEmoji );
+			versionFeedMessage.react( this.versionFeedEmoji );
 		}
 
 		this.cachedVersions = currentVersions;
