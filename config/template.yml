@@ -138,9 +138,6 @@ filterFeeds:
     # The emoji to react to all filter feed messages with.
     filterFeedEmoji: <string>
     
-    # The emoji to react to all version feed messages with.
-    versionFeedEmoji: <string>
-
     # The message accompanying this feed embed, in case there's only one ticket.
     # If this is not set, `title` will be used instead.
     titleSingle: <string>
@@ -158,6 +155,9 @@ filterFeeds:
 
     # The ID of the channel in which the feed should be sent.
     channel: <string>
+
+    # The emoji to react to all version feed messages with.
+    versionFeedEmoji: <string>
 
     # How many versions should be monitored; only the x latest versions are monitored.
     scope: <version>
