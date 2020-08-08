@@ -15,7 +15,7 @@ export default class MooCommand extends PrefixCommand {
 			new SingleMention( 'MC-772' );
 			let embed: RichEmbed;
 			await message.channel.send( embed );
-			await ReactionsUtil.reactToMessage( embed, ['🐄' , '🥛'] );
+			await ReactionsUtil.reactToMessage( embed, ['🐄', '🥛'] );
 		} catch {
 			return false;
 		}
