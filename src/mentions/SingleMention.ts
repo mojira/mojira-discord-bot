@@ -20,6 +20,7 @@ export class SingleMention extends Mention {
 	}
 
 	public async getEmbed(): Promise<RichEmbed> {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		let ticketResult: any;
 
 		try {
