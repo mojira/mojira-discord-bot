@@ -1,6 +1,7 @@
 import * as log4js from 'log4js';
 import Task from './Task';
 import { Channel, TextChannel, RichEmbed } from 'discord.js';
+import BotConfig, from '../../BotConfig';
 import { VersionFeedConfig } from '../BotConfig';
 import JiraClient from 'jira-connector';
 import { NewsUtil } from '../util/NewsUtil';
