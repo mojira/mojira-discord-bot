@@ -63,9 +63,6 @@ export interface FilterFeedConfig {
 	filterFeedEmoji: string;
 	title: string;
 	titleSingle?: string;
-	constructor() {
-		this.filterFeedEmoji = config.get( 'feed.filterFeedEmoji' );
-	}
 }
 
 export interface VersionFeedConfig {
@@ -74,9 +71,6 @@ export interface VersionFeedConfig {
 	versionFeedEmoji: string;
 	scope: number;
 	actions: VersionChangeType[];
-	constructor() {
-		this.versionFeedEmoji = config.get( 'feed.versionFeedEmoji' );
-	}
 }
 
 export default class BotConfig {
