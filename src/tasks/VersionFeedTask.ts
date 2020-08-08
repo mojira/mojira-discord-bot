@@ -74,6 +74,7 @@ export default class VersionFeedTask extends Task {
 		for ( const change of changes ) {
 			const versionFeedMessage = await this.channel.send( change.message, change.embed );
 			NewsUtil.publishMessage( versionFeedMessage );
+			versionFeedMessage.react( '🎉' );
 		}
 
 		this.cachedVersions = currentVersions;
