@@ -60,7 +60,6 @@ export interface RoleConfig {
 export interface FilterFeedConfig {
 	jql: string;
 	channel: string;
-	filterFeedEmoji: string;
 	title: string;
 	titleSingle?: string;
 }
@@ -68,7 +67,6 @@ export interface FilterFeedConfig {
 export interface VersionFeedConfig {
 	project: string;
 	channel: string;
-	versionFeedEmoji: string;
 	scope: number;
 	actions: VersionChangeType[];
 }
