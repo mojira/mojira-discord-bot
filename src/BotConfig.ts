@@ -39,6 +39,8 @@ export class RequestConfig {
 		}
 
 		this.noLinkEmoji = config.get( 'request.noLinkEmoji' );
+		this.filterFeedEmoji = config.get( 'feed.filterFeedEmoji' );
+		this.versionFeedEmoji = config.get( 'feed.versionFeedEmoji' );
 		this.noLinkWarningLifetime = config.get( 'request.noLinkWarningLifetime' );
 		this.waitingEmoji = config.get( 'request.waitingEmoji' );
 		this.suggestedEmoji = getOrDefault( 'request.suggestedEmoji', [] );
@@ -60,6 +62,7 @@ export interface RoleConfig {
 export interface FilterFeedConfig {
 	jql: string;
 	channel: string;
+	filterFeedEmoji: string;
 	title: string;
 	titleSingle?: string;
 }
@@ -67,6 +70,7 @@ export interface FilterFeedConfig {
 export interface VersionFeedConfig {
 	project: string;
 	channel: string;
+	versionFeedEmoji: string;
 	scope: number;
 	actions: VersionChangeType[];
 }
