@@ -27,6 +27,7 @@ export default class VersionFeedTask extends Task {
 
 	private channel: Channel;
 	private project: string;
+	private versionFeedEmoji: string;
 	private scope: number;
 	private actions: VersionChangeType[];
 
@@ -34,13 +35,14 @@ export default class VersionFeedTask extends Task {
 
 	private initialized = false;
 
-	constructor( { project, scope, actions }: VersionFeedConfig, channel: Channel ) {
+	constructor( { project, scope, actions, versionFeedEmoji }: VersionFeedConfig, channel: Channel ) {
 		super();
 
 		this.channel = channel;
 		this.project = project;
 		this.scope = scope;
 		this.actions = actions;
+		this.versionFeedEmoji = versionFeedEmoji;
 
 		this.jira = new JiraClient( {
 			host: 'bugs.mojang.com',
