@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
-import { SingleMention } from './SingleMention';
+import { SingleMention } from '../mentions/SingleMention';
 
 export default class PingCommand extends PrefixCommand {
 	public readonly aliases = ['moo', 'test'];
@@ -9,6 +9,13 @@ export default class PingCommand extends PrefixCommand {
 		if ( args.length ) {
 			return false;
 		}
+		
+		try {
+			new SingleMention("MC-772");
+		} catch {
+			return false;
+		}
+		
 		try {
 			await message.react( '🐄' );
 		} catch {
@@ -21,12 +28,9 @@ export default class PingCommand extends PrefixCommand {
 			return false;
 		}
 
-		try {
-			return new SingleMention( "MC-772" );
-		} catch {
-			return false;
-		}
+		
 
+		return true;
 	}
 
 	public asString(): string {
