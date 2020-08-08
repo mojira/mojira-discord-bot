@@ -1,9 +1,10 @@
-import { Message } from 'discord.js';
+import { Message, RichEmbed } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
 import { SingleMention } from '../mentions/SingleMention';
+import { ReactionsUtil } from '../util/ReactionsUtil';
 
-export default class PingCommand extends PrefixCommand {
-	public readonly aliases = ['moo', 'test'];
+export default class MooCommand extends PrefixCommand {
+	public readonly aliases = ['moo', 'cow'];
 
 	public async run( message: Message, args: string ): Promise<boolean> {
 		if ( args.length ) {
@@ -11,19 +12,10 @@ export default class PingCommand extends PrefixCommand {
 		}
 
 		try {
-			new SingleMention("MC-772");
-		} catch {
-			return false;
-		}
-
-		try {
-			await message.react( '🐄' );
-		} catch {
-			return false;
-		}
-
-		try {
-			await message.react( '🥛' );
+			new SingleMention( 'MC-772' );
+			let embed: RichEmbed; 
+			await message.channel.send( embed );
+			await ReactionsUtil.reactToMessage( embed, ['🐄','🥛'] );
 		} catch {
 			return false;
 		}
