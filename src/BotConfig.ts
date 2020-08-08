@@ -39,8 +39,6 @@ export class RequestConfig {
 		}
 
 		this.noLinkEmoji = config.get( 'request.noLinkEmoji' );
-		this.filterFeedEmoji = config.get( 'feed.filterFeedEmoji' );
-		this.versionFeedEmoji = config.get( 'feed.versionFeedEmoji' );
 		this.noLinkWarningLifetime = config.get( 'request.noLinkWarningLifetime' );
 		this.waitingEmoji = config.get( 'request.waitingEmoji' );
 		this.suggestedEmoji = getOrDefault( 'request.suggestedEmoji', [] );
@@ -65,6 +63,10 @@ export interface FilterFeedConfig {
 	filterFeedEmoji: string;
 	title: string;
 	titleSingle?: string;
+	
+	constructor() {
+		this.filterFeedEmoji = config.get( 'feed.filterFeedEmoji' );
+	}
 }
 
 export interface VersionFeedConfig {
@@ -73,6 +75,10 @@ export interface VersionFeedConfig {
 	versionFeedEmoji: string;
 	scope: number;
 	actions: VersionChangeType[];
+	
+	constructor() {
+		this.versionFeedEmoji = config.get( 'feed.versionFeedEmoji' );
+	}
 }
 
 export default class BotConfig {
