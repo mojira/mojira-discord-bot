@@ -15,10 +15,12 @@ projects:
   - MC
   - MCAPI
   - MCCE
+  - MCD
   - MCE
   - MCL
   - MCPE
   - WEB
+  - REALMS
 
 request:
   noLinkEmoji: ⛔
