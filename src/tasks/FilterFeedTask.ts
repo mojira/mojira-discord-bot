@@ -1,6 +1,6 @@
 import { MentionRegistry } from '../mentions/MentionRegistry';
 import { FilterFeedConfig } from '../BotConfig';
-import { Client, TextChannel, Channel } from 'discord.js';
+import { TextChannel, Channel } from 'discord.js';
 import * as log4js from 'log4js';
 import Task from './Task';
 import JiraClient from 'jira-connector';
@@ -9,7 +9,6 @@ import { NewsUtil } from '../util/NewsUtil';
 export default class FilterFeedTask extends Task {
 	public static logger = log4js.getLogger( 'FilterFeed' );
 
-	private client: Client;
 	private jira: JiraClient;
 	private channel: Channel;
 	private jql: string;
@@ -30,6 +29,8 @@ export default class FilterFeedTask extends Task {
 			host: 'bugs.mojang.com',
 			strictSSL: true,
 		} );
+
+		this.run();
 	}
 
 	public async run(): Promise<void> {
@@ -73,7 +74,7 @@ export default class FilterFeedTask extends Task {
 						const filterFeedMessage = await this.channel.send( message, embed );
 						NewsUtil.publishMessage( filterFeedMessage );
 					} else {
-						throw `Expected ${ this.channel } to be a TextChannel`;
+						throw new Error( `Expected ${ this.channel } to be a TextChannel` );
 					}
 				} catch ( err ) {
 					FilterFeedTask.logger.error( err );

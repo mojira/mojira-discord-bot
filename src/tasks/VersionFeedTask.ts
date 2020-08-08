@@ -11,6 +11,7 @@ interface JiraVersion {
 	archived: boolean;
 	released: boolean;
 	releaseDate?: string;
+	project: string;
 }
 
 interface JiraVersionChange {
@@ -26,7 +27,7 @@ export default class VersionFeedTask extends Task {
 	private jira: JiraClient;
 
 	private channel: Channel;
-	private project: string;
+	private projects: string[];
 	private scope: number;
 	private actions: VersionChangeType[];
 
@@ -34,11 +35,11 @@ export default class VersionFeedTask extends Task {
 
 	private initialized = false;
 
-	constructor( { project, scope, actions }: VersionFeedConfig, channel: Channel ) {
+	constructor( { projects, scope, actions }: VersionFeedConfig, channel: Channel ) {
 		super();
 
 		this.channel = channel;
-		this.project = project;
+		this.projects = projects;
 		this.scope = scope;
 		this.actions = actions;
 
@@ -51,11 +52,11 @@ export default class VersionFeedTask extends Task {
 			versions => {
 				this.cachedVersions = versions;
 				this.initialized = true;
+				this.run();
 			}
 		).catch(
 			error => {
 				VersionFeedTask.logger.error( error );
-				this.initialized = true;
 			}
 		);
 	}
@@ -80,13 +81,21 @@ export default class VersionFeedTask extends Task {
 	}
 
 	private async getVersions(): Promise<JiraVersion[]> {
+		let versions: JiraVersion[] = [...this.cachedVersions];
+
+		for ( const project of this.projects ) {
+			versions = await this.updateVersionsForProject( project, versions );
+		}
+
+		return versions;
+	}
+
+	private async updateVersionsForProject( project: string, versions: JiraVersion[] ): Promise<JiraVersion[]> {
 		const results = await this.jira.project.getVersionsPaginated( {
-			projectIdOrKey: this.project,
+			projectIdOrKey: project,
 			maxResults: this.scope,
 			orderBy: '-sequence',
 		} );
-
-		const versions: JiraVersion[] = [...this.cachedVersions];
 
 		for ( const value of results.values ) {
 			const version: JiraVersion = {
@@ -95,6 +104,7 @@ export default class VersionFeedTask extends Task {
 				archived: value.archived,
 				released: value.released,
 				releaseDate: value.releaseDate,
+				project,
 			};
 
 			const replaceId = versions.findIndex( it => value.id === it.id );
@@ -191,6 +201,10 @@ export default class VersionFeedTask extends Task {
 
 		if ( version.releaseDate !== undefined ) {
 			embed.addField( 'Released', version.releaseDate, true );
+		}
+
+		if ( this.projects.length > 1 ) {
+			embed.addField( 'Project', version.project, true );
 		}
 
 		if ( !embed.fields?.length ) {

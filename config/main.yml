@@ -45,14 +45,38 @@ roles:
 filterFeeds:
   - jql: project = MC AND resolved > -1m AND resolution = Fixed AND fixVersion = earliestUnreleasedVersion()
     channel: '666349583227682819'
+    interval: 30000
     title: '{{num}} tickets have just been resolved as Fixed!'
     titleSingle: This ticket has just been resolved as Fixed!
 
 versionFeeds:
-  - project: MC
+    #java-fixes
+  - projects:
+      - MC
     channel: '666349583227682819'
+    interval: 30000
     scope: 5
     actions:
+      - released
+      - unreleased
+      - renamed
+  
+    #version-log
+  - projects:
+      - BDS
+      - MC
+      - MCD
+      - MCE
+      - MCL
+      - MCPE
+      - REALMS
+    channel: '741600360619049000'
+    interval: 300000
+    scope: 5
+    actions:
+      - created
+      - archived
+      - unarchived
       - released
       - unreleased
       - renamed

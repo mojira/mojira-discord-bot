@@ -60,13 +60,15 @@ export interface RoleConfig {
 export interface FilterFeedConfig {
 	jql: string;
 	channel: string;
+	interval: number;
 	title: string;
 	titleSingle?: string;
 }
 
 export interface VersionFeedConfig {
-	project: string;
+	projects: string[];
 	channel: string;
+	interval: number;
 	scope: number;
 	actions: VersionChangeType[];
 }
@@ -93,10 +95,7 @@ export default class BotConfig {
 
 	public static roles: RoleConfig[];
 
-	public static filterFeedInterval: number;
 	public static filterFeeds: FilterFeedConfig[];
-
-	public static versionFeedInterval: number;
 	public static versionFeeds: VersionFeedConfig[];
 
 	public static init(): void {
@@ -120,10 +119,7 @@ export default class BotConfig {
 
 		this.roles = getOrDefault( 'roles', [] );
 
-		this.filterFeedInterval = config.get( 'filterFeedInterval' );
 		this.filterFeeds = config.get( 'filterFeeds' );
-
-		this.versionFeedInterval = config.get( 'versionFeedInterval' );
 		this.versionFeeds = config.get( 'versionFeeds' );
 	}
 

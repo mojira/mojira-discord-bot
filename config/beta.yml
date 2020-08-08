@@ -32,12 +32,17 @@ roles:
 filterFeeds:
   - jql: created > -1m
     channel: '665904688616701953'
+    interval: 10000
     title: '{{num}} tickets have been created!'
     titleSingle: This ticket has just been created!
 
 versionFeeds:
-  - project: MC
+  - projects:
+      - MC
+      - MCD
+      - MCPE
     channel: '665904688616701953'
+    interval: 20000
     scope: 5
     actions:
       - created
