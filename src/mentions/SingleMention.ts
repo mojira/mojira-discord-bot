@@ -78,8 +78,8 @@ export class SingleMention extends Mention {
 		// convert to Discord markdown
 		description = MarkdownUtil.jira2md( description );
 
-		// remove headings
-		description = description.replace( /^#.*$/mi, '' );
+		// remove first heading
+		description = description.replace( /^#.*$/m, '' );
 
 		// remove empty lines
 		description = description.replace( /(^|\n)\s*(\n|$)/g, '\n' );
