@@ -1,18 +1,19 @@
-import { Client, TextChannel, ChannelLogsQueryOptions, Message } from 'discord.js';
+import { ChannelLogsQueryOptions, Client, Message, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from './BotConfig';
-import TaskScheduler from './tasks/TaskScheduler';
+import ErrorEventHandler from './events/discord/ErrorEventHandler';
 import EventRegistry from './events/EventRegistry';
+import MessageDeleteEventHandler from './events/message/MessageDeleteEventHandler';
+import MessageEventHandler from './events/message/MessageEventHandler';
+import MessageUpdateEventHandler from './events/message/MessageUpdateEventHandler';
+import ReactionAddEventHandler from './events/reaction/ReactionAddEventHandler';
+import ReactionRemoveEventHandler from './events/reaction/ReactionRemoveEventHandler';
+import RequestEventHandler from './events/request/RequestEventHandler';
+import RequestResolveEventHandler from './events/request/RequestResolveEventHandler';
 import FilterFeedTask from './tasks/FilterFeedTask';
-import ErrorEventHandler from './events/ErrorEventHandler';
-import MessageEventHandler from './events/MessageEventHandler';
-import AddReactionEventHandler from './events/AddReactionEventHandler';
-import RemoveReactionEventHandler from './events/RemoveReactionEventHandler';
-import ResolveRequestEventHandler from './events/requests/ResolveRequestEventHandler';
-import MessageDeleteEventHandler from './events/MessageDeleteEventHandler';
-import MessageUpdateEventHandler from './events/MessageUpdateEventHandler';
+import TaskScheduler from './tasks/TaskScheduler';
 import VersionFeedTask from './tasks/VersionFeedTask';
-import NewRequestEventHandler from './events/requests/NewRequestEventHandler';
+import DiscordUtil from './util/DiscordUtil';
 
 /**
  * Core class of MojiraBot
@@ -42,29 +43,29 @@ export default class MojiraBot {
 			// Register events.
 			EventRegistry.setClient( this.client );
 			EventRegistry.add( new ErrorEventHandler() );
-			EventRegistry.add( new RemoveReactionEventHandler( this.client.user.id ) );
 
-			const rolesChannel = this.client.channels.get( BotConfig.rolesChannel );
+			const rolesChannel = await DiscordUtil.getChannel( BotConfig.rolesChannel );
 			if ( rolesChannel && rolesChannel instanceof TextChannel ) {
 				try {
-					await rolesChannel.fetchMessage( BotConfig.rolesMessage );
+					await DiscordUtil.getMessage( rolesChannel, BotConfig.rolesMessage );
 				} catch ( err ) {
 					this.logger.error( err );
 				}
 			}
 
 			const requestChannels: TextChannel[] = [];
-			const internalChannels = new Map<string, TextChannel>();
+			const internalChannels = new Map<string, string>();
+
 			if ( BotConfig.request.channels ) {
 				for ( let i = 0; i < BotConfig.request.channels.length; i++ ) {
 					const requestChannelId = BotConfig.request.channels[i];
 					const internalChannelId = BotConfig.request.internalChannels[i];
 					try {
-						const requestChannel = this.client.channels.get( requestChannelId );
-						const internalChannel = this.client.channels.get( internalChannelId );
+						const requestChannel = await DiscordUtil.getChannel( requestChannelId );
+						const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 						if ( requestChannel instanceof TextChannel && internalChannel instanceof TextChannel ) {
 							requestChannels.push( requestChannel );
-							internalChannels.set( requestChannelId, internalChannel );
+							internalChannels.set( requestChannelId, internalChannelId );
 							// https://stackoverflow.com/questions/55153125/fetch-more-than-100-messages
 							const allMessages: Message[] = [];
 							let lastId: string | undefined;
@@ -74,17 +75,19 @@ export default class MojiraBot {
 								if ( lastId ) {
 									options.before = lastId;
 								}
-								const messages = await internalChannel.fetchMessages( options );
+								const messages = await internalChannel.messages.fetch( options );
 								allMessages.push( ...messages.array() );
 								lastId = messages.last()?.id;
 								if ( messages.size !== 50 || !lastId ) {
 									break;
 								}
 							}
-							const handler = new ResolveRequestEventHandler();
+
+							// Resolve pending resolved requests
+							const handler = new RequestResolveEventHandler();
 							for ( const message of allMessages ) {
-								message.reactions.forEach( async reaction => {
-									const users = await reaction.fetchUsers();
+								message.reactions.cache.forEach( async reaction => {
+									const users = await reaction.users.fetch();
 									const user = users.array().find( v => v.id !== this.client.user.id );
 									if ( user ) {
 										handler.onEvent( reaction, user );
@@ -96,14 +99,14 @@ export default class MojiraBot {
 						this.logger.error( err );
 					}
 				}
-				const newRequestHandler = new NewRequestEventHandler( internalChannels );
+				const newRequestHandler = new RequestEventHandler( internalChannels );
 				for ( const requestChannel of requestChannels ) {
 					let lastId: string | undefined = undefined;
 					// eslint-disable-next-line no-constant-condition
 					while ( true ) {
 						const options: ChannelLogsQueryOptions = { limit: 1, before: lastId };
-						const message = ( await requestChannel.fetchMessages( options ) ).first();
-						if ( message?.reactions?.size === 0 ) {
+						const message = ( await requestChannel.messages.fetch( options ) ).first();
+						if ( message?.reactions?.cache.size === 0 ) {
 							newRequestHandler.onEvent( message );
 							lastId = message.id;
 						} else {
@@ -112,7 +115,9 @@ export default class MojiraBot {
 					}
 				}
 			}
-			EventRegistry.add( new AddReactionEventHandler( this.client.user.id, internalChannels ) );
+
+			EventRegistry.add( new ReactionAddEventHandler( this.client.user.id, internalChannels ) );
+			EventRegistry.add( new ReactionRemoveEventHandler( this.client.user.id ) );
 			EventRegistry.add( new MessageEventHandler( this.client.user.id, internalChannels ) );
 			EventRegistry.add( new MessageUpdateEventHandler( this.client.user.id, internalChannels ) );
 			EventRegistry.add( new MessageDeleteEventHandler( this.client.user.id, internalChannels ) );
@@ -121,7 +126,7 @@ export default class MojiraBot {
 			// Filter feed tasks.
 			for ( const config of BotConfig.filterFeeds ) {
 				TaskScheduler.addTask(
-					new FilterFeedTask( config, this.client.channels.get( config.channel ) ),
+					new FilterFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
 					BotConfig.filterFeedInterval
 				);
 			}
@@ -129,7 +134,7 @@ export default class MojiraBot {
 			// Version feed tasks.
 			for ( const config of BotConfig.versionFeeds ) {
 				TaskScheduler.addTask(
-					new VersionFeedTask( config, this.client.channels.get( config.channel ) ),
+					new VersionFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
 					BotConfig.versionFeedInterval
 				);
 			}
@@ -138,7 +143,7 @@ export default class MojiraBot {
 			// TODO Change to custom status when discord.js#3552 is merged into current version of package
 			this.client.user.setActivity( '!jira help' );
 
-			const homeChannel = this.client.channels.find( channel => channel.id === BotConfig.homeChannel );
+			const homeChannel = await DiscordUtil.getChannel( BotConfig.homeChannel );
 
 			if ( homeChannel instanceof TextChannel ) {
 				await ( homeChannel as TextChannel ).send( 'Hey, I have been restarted!' );
@@ -163,7 +168,7 @@ export default class MojiraBot {
 
 		try {
 			TaskScheduler.clearAll();
-			await this.client.destroy();
+			this.client.destroy();
 			this.running = false;
 			this.logger.info( 'MojiraBot has been successfully shut down.' );
 			log4js.shutdown( ( err ) => err && console.log( err ) );

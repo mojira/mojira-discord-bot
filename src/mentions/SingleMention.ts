@@ -1,8 +1,8 @@
-import { RichEmbed } from 'discord.js';
-import { Mention } from './Mention';
+import { MessageEmbed } from 'discord.js';
 import JiraClient from 'jira-connector';
 import moment from 'moment';
 import { MarkdownUtil } from '../util/MarkdownUtil';
+import { Mention } from './Mention';
 
 export class SingleMention extends Mention {
 	private jira: JiraClient;
@@ -20,7 +20,7 @@ export class SingleMention extends Mention {
 		} );
 	}
 
-	public async getEmbed(): Promise<RichEmbed> {
+	public async getEmbed(): Promise<MessageEmbed> {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		let ticketResult: any;
 
@@ -91,7 +91,7 @@ export class SingleMention extends Mention {
 		// only show first two lines
 		description = description.split( '\n' ).slice( 0, 2 ).join( '\n' );
 
-		const embed = new RichEmbed();
+		const embed = new MessageEmbed();
 		embed.setAuthor( ticketResult.fields.reporter.displayName, ticketResult.fields.reporter.avatarUrls['48x48'], 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) )
 			.setTitle( `[${ ticketResult.key }] ${ ticketResult.fields.summary }` )
 			.setDescription( description.substring( 0, 2048 ) )

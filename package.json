@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "config": "^3.3.1",
-    "discord.js": "^11.6.4",
+    "discord.js": "^12.2.0",
     "jira-connector": "^3.1.0",
     "js-yaml": "^3.14.0",
     "log4js": "^6.1.2",
