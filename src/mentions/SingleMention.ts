@@ -1,6 +1,7 @@
 import { MessageEmbed } from 'discord.js';
 import JiraClient from 'jira-connector';
 import moment from 'moment';
+import { MarkdownUtil } from '../util/MarkdownUtil';
 import { Mention } from './Mention';
 
 export class SingleMention extends Mention {
@@ -71,8 +72,23 @@ export class SingleMention extends Mention {
 		}
 
 		let description = ticketResult.fields.description || '';
-		description = description.replace( /\s*\{panel[^}]+\}(?:.|\s)*?\{panel\}\s*/gi, '' );
+
+		// unify line breaks
 		description = description.replace( /^\s*[\r\n]/gm, '\n' );
+
+		// convert to Discord markdown
+		description = MarkdownUtil.jira2md( description );
+
+		// remove first heading
+		description = description.replace( /^#.*$/m, '' );
+
+		// remove empty lines
+		description = description.replace( /(^|\n)\s*(\n|$)/g, '\n' );
+
+		// remove all sections except for the first
+		description = description.replace( /\n#[\s\S]*$/i, '' );
+
+		// only show first two lines
 		description = description.split( '\n' ).slice( 0, 2 ).join( '\n' );
 
 		const embed = new MessageEmbed();
@@ -83,10 +99,14 @@ export class SingleMention extends Mention {
 			.addField( 'Status', status, !largeStatus )
 			.setColor( 'RED' );
 
-		function findThumbnail( attachments ): string {
+		function findThumbnail( attachments: any[] ): string {
 			const allowedMimes = [
 				'image/png', 'image/jpeg',
 			];
+
+			attachments.sort( ( a, b ) => {
+				return new Date( a.created ).valueOf() - new Date( b.created ).valueOf();
+			} );
 
 			for ( const attachment of attachments ) {
 				if ( allowedMimes.includes( attachment.mimeType ) ) return attachment.content;
@@ -98,7 +118,7 @@ export class SingleMention extends Mention {
 		// Assigned to, Reported by, Created on, Category, Resolution, Resolved on, Since version, (Latest) affected version, Fixed version(s)
 
 		const thumbnail = findThumbnail( ticketResult.fields.attachment );
-		if ( thumbnail !== undefined ) embed.setImage( thumbnail );
+		if ( thumbnail !== undefined ) embed.setThumbnail( thumbnail );
 
 		if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
 			const fixVersions = ticketResult.fields.fixVersions.map( v => v.name );
