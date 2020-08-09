@@ -143,7 +143,7 @@ export default class MojiraBot {
 			// TODO Change to custom status when discord.js#3552 is merged into current version of package
 			this.client.user.setActivity( '!jira help' );
 
-			const homeChannel = this.client.channels.cache.find( channel => channel.id === BotConfig.homeChannel );
+			const homeChannel = await DiscordUtil.getChannel( BotConfig.homeChannel );
 
 			if ( homeChannel instanceof TextChannel ) {
 				await ( homeChannel as TextChannel ).send( 'Hey, I have been restarted!' );
