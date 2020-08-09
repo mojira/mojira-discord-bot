@@ -1,4 +1,4 @@
-import { Message, RichEmbed } from 'discord.js';
+import { Message } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
 import { SingleMention } from '../mentions/SingleMention';
 import { ReactionsUtil } from '../util/ReactionsUtil';
