@@ -1,19 +1,19 @@
-import EventHandler from './EventHandler';
-import { Message, TextChannel } from 'discord.js';
-import BotConfig from '../BotConfig';
-import DeleteRequestEventHandler from './requests/DeleteRequestEventHandler';
+import { Message } from 'discord.js';
+import BotConfig from '../../BotConfig';
+import EventHandler from '../EventHandler';
+import RequestDeleteEventHandler from '../request/RequestDeleteEventHandler';
 
-export default class MessageDeleteEventHandler implements EventHandler {
+export default class MessageDeleteEventHandler implements EventHandler<'messageDelete'> {
 	public readonly eventName = 'messageDelete';
 
 	private readonly botUserId: string;
 
-	private readonly deleteRequestEventHandler: DeleteRequestEventHandler;
+	private readonly requestDeleteEventHandler: RequestDeleteEventHandler;
 
-	constructor( botUserId: string, internalChannels: Map<string, TextChannel> ) {
+	constructor( botUserId: string, internalChannels: Map<string, string> ) {
 		this.botUserId = botUserId;
 
-		this.deleteRequestEventHandler = new DeleteRequestEventHandler( internalChannels );
+		this.requestDeleteEventHandler = new RequestDeleteEventHandler( internalChannels );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageDeleteEventHandler` object
@@ -31,7 +31,7 @@ export default class MessageDeleteEventHandler implements EventHandler {
 
 		if ( BotConfig.request.channels && BotConfig.request.channels.includes( message.channel.id ) ) {
 			// The deleted message is in a request channel
-			this.deleteRequestEventHandler.onEvent( message );
+			this.requestDeleteEventHandler.onEvent( message );
 		}
 	};
 }

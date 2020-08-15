@@ -1,5 +1,5 @@
 import PrefixCommand from './PrefixCommand';
-import { Message, TextChannel, DMChannel, GroupDMChannel, RichEmbed } from 'discord.js';
+import { Message, TextChannel, DMChannel, MessageEmbed, NewsChannel } from 'discord.js';
 import Command from './Command';
 import emojiRegex = require( 'emoji-regex/text.js' );
 import PermissionRegistry from '../permissions/PermissionRegistry';
@@ -17,7 +17,7 @@ export default class PollCommand extends PrefixCommand {
 
 	public readonly aliases = ['poll', 'vote'];
 
-	private async sendSyntaxMessage( channel: TextChannel | DMChannel | GroupDMChannel, additionalInfo?: string ): Promise<void> {
+	private async sendSyntaxMessage( channel: TextChannel | DMChannel | NewsChannel, additionalInfo?: string ): Promise<void> {
 		try {
 			if ( additionalInfo != undefined ) {
 				additionalInfo += '\n';
@@ -40,9 +40,9 @@ export default class PollCommand extends PrefixCommand {
 	}
 
 	private async sendPollMessage( message: Message, title: string, options: PollOption[] ): Promise<void> {
-		const embed = new RichEmbed();
+		const embed = new MessageEmbed();
 		embed.setTitle( 'Poll' )
-			.setFooter( message.author.tag, message.author.avatarURL )
+			.setFooter( message.author.tag, message.author.avatarURL() )
 			.setTimestamp( message.createdAt )
 			.setColor( 'GREEN' );
 

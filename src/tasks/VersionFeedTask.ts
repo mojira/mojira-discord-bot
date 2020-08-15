@@ -1,9 +1,9 @@
-import * as log4js from 'log4js';
-import Task from './Task';
-import { Channel, TextChannel, RichEmbed } from 'discord.js';
-import { VersionFeedConfig } from '../BotConfig';
+import { Channel, MessageEmbed, TextChannel } from 'discord.js';
 import JiraClient from 'jira-connector';
+import * as log4js from 'log4js';
+import { VersionFeedConfig } from '../BotConfig';
 import { NewsUtil } from '../util/NewsUtil';
+import Task from './Task';
 
 interface JiraVersion {
 	id: string;
@@ -16,7 +16,7 @@ interface JiraVersion {
 
 interface JiraVersionChange {
 	message: string;
-	embed?: RichEmbed;
+	embed?: MessageEmbed;
 }
 
 export type VersionChangeType = 'created' | 'released' | 'unreleased' | 'archived' | 'unarchived' | 'renamed';
@@ -28,6 +28,7 @@ export default class VersionFeedTask extends Task {
 
 	private channel: Channel;
 	private projects: string[];
+	private versionFeedEmoji: string;
 	private scope: number;
 	private actions: VersionChangeType[];
 
@@ -35,13 +36,14 @@ export default class VersionFeedTask extends Task {
 
 	private initialized = false;
 
-	constructor( { projects, scope, actions }: VersionFeedConfig, channel: Channel ) {
+	constructor( { projects, scope, actions, versionFeedEmoji }: VersionFeedConfig, channel: Channel ) {
 		super();
 
 		this.channel = channel;
 		this.projects = projects;
 		this.scope = scope;
 		this.actions = actions;
+		this.versionFeedEmoji = versionFeedEmoji;
 
 		this.jira = new JiraClient( {
 			host: 'bugs.mojang.com',
@@ -75,6 +77,7 @@ export default class VersionFeedTask extends Task {
 		for ( const change of changes ) {
 			const versionFeedMessage = await this.channel.send( change.message, change.embed );
 			NewsUtil.publishMessage( versionFeedMessage );
+			versionFeedMessage.react( this.versionFeedEmoji );
 		}
 
 		this.cachedVersions = currentVersions;
@@ -167,8 +170,8 @@ export default class VersionFeedTask extends Task {
 		return changes;
 	}
 
-	private async getVersionEmbed( version: JiraVersion ): Promise<RichEmbed> {
-		const embed = new RichEmbed()
+	private async getVersionEmbed( version: JiraVersion ): Promise<MessageEmbed> {
+		const embed = new MessageEmbed()
 			.setTitle( version.name )
 			.setColor( 'PURPLE' );
 

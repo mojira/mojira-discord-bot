@@ -61,6 +61,7 @@ export interface FilterFeedConfig {
 	jql: string;
 	channel: string;
 	interval: number;
+	filterFeedEmoji: string;
 	title: string;
 	titleSingle?: string;
 }
@@ -69,6 +70,7 @@ export interface VersionFeedConfig {
 	projects: string[];
 	channel: string;
 	interval: number;
+	versionFeedEmoji: string;
 	scope: number;
 	actions: VersionChangeType[];
 }

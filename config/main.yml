@@ -46,6 +46,7 @@ filterFeeds:
   - jql: project = MC AND resolved > -1m AND resolution = Fixed AND fixVersion = earliestUnreleasedVersion()
     channel: '666349583227682819'
     interval: 30000
+    filterFeedEmoji: '🎉'
     title: '{{num}} tickets have just been resolved as Fixed!'
     titleSingle: This ticket has just been resolved as Fixed!
 
@@ -56,6 +57,7 @@ versionFeeds:
     channel: '666349583227682819'
     interval: 30000
     scope: 5
+    versionFeedEmoji: '🎉'
     actions:
       - released
       - unreleased

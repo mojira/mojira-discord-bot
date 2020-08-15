@@ -1,6 +1,6 @@
-import { RichEmbed } from 'discord.js';
-import { Mention } from './Mention';
+import { MessageEmbed } from 'discord.js';
 import JiraClient from 'jira-connector';
+import { Mention } from './Mention';
 
 export class MultipleMention extends Mention {
 	private jira: JiraClient;
@@ -18,8 +18,8 @@ export class MultipleMention extends Mention {
 		} );
 	}
 
-	public async getEmbed(): Promise<RichEmbed> {
-		const embed = new RichEmbed();
+	public async getEmbed(): Promise<MessageEmbed> {
+		const embed = new MessageEmbed();
 		embed.setTitle( 'Mentioned tickets' )
 			.setColor( 'RED' );
 

@@ -1,10 +1,10 @@
+import { Client, ClientEvents } from 'discord.js';
 import EventHandler from './EventHandler';
-import { Client } from 'discord.js';
 
 export default class EventRegistry {
 	private static client: Client;
 
-	public static add( handler: EventHandler ): void {
+	public static add<K extends keyof ClientEvents>( handler: EventHandler<K> ): void {
 		if ( this.client == undefined ) {
 			throw 'Event handlers cannot be added to a nonexisting Discord client';
 		}
