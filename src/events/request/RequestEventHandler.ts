@@ -69,6 +69,6 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 	private replaceTicketReferencesWithRichLinks( content: string, regex: RegExp ): string {
 		// Only one of the two capture groups ($1 and $2) can catch an ID at the same time.
 		// `$1$2` is used to get the ID from either of the two groups.
-		return content.replace( regex, '[$1$2](https://bugs.mojang.com/browse/$1$2$3)' );
+		return content.replace( /([\[\]])/gm, '\\$1' ).replace( regex, '[$1$2](https://bugs.mojang.com/browse/$1$2$3)' );
 	}
 }
