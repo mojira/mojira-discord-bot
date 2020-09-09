@@ -82,6 +82,7 @@ export default class MojiraBot {
 									break;
 								}
 							}
+							this.logger.info( `Fetched ${ allMessages.length } messages from "${ internalChannel.name }"` );
 
 							// Resolve pending resolved requests
 							const handler = new RequestResolveEventHandler();
