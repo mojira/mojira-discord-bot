@@ -24,7 +24,7 @@ import DiscordUtil from './util/DiscordUtil';
 export default class MojiraBot {
 	public static logger = log4js.getLogger( 'MojiraBot' );
 
-	public static client: Client = new Client();
+	public static client: Client = new Client( { partials: ['REACTION'] } );
 	private static running = false;
 
 	public static async start(): Promise<void> {

@@ -23,19 +23,23 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 	}
 
 	// This syntax is used to ensure that `this` refers to the `ReactionAddEventHandler` object
-	public onEvent = ( messageReaction: MessageReaction, user: User ): void => {
+	public onEvent = async ( messageReaction: MessageReaction, user: User ): Promise<void> => {
 		// Do not react to own reactions
 		if ( user.id === this.botUserId ) return;
 
+		if ( messageReaction.partial ) {
+			await messageReaction.fetch();
+		}
+
 		if ( messageReaction.message.id === BotConfig.rolesMessage ) {
 			// Handle role selection
-			this.roleSelectHandler.onEvent( messageReaction, user );
+			return this.roleSelectHandler.onEvent( messageReaction, user );
 		} else if ( BotConfig.request.internalChannels.includes( messageReaction.message.channel.id ) ) {
 			// Handle resolving user request
-			this.requestResolveEventHandler.onEvent( messageReaction, user );
+			return this.requestResolveEventHandler.onEvent( messageReaction, user );
 		} else if ( BotConfig.request.logChannel.includes( messageReaction.message.channel.id ) ) {
 			// Handle reopening a user request
-			this.requestReopenEventHandler.onEvent( messageReaction, user );
+			return this.requestReopenEventHandler.onEvent( messageReaction, user );
 		}
 	};
 }
