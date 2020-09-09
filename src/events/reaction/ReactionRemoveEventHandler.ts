@@ -17,15 +17,19 @@ export default class ReactionRemoveEventHandler implements EventHandler<'message
 	}
 
 	// This syntax is used to ensure that `this` refers to the `ReactionRemoveEventHandler` object
-	public onEvent = ( messageReaction: MessageReaction, user: User ): void => {
+	public onEvent = async ( messageReaction: MessageReaction, user: User ): Promise<void> => {
 		if ( user.id === this.botUserId ) return;
+
+		if ( messageReaction.partial ) {
+			await messageReaction.fetch();
+		}
 
 		if ( messageReaction.message.id === BotConfig.rolesMessage ) {
 			// Handle role removal
-			this.roleRemoveHandler.onEvent( messageReaction, user );
+			return this.roleRemoveHandler.onEvent( messageReaction, user );
 		} else if ( BotConfig.request.internalChannels.includes( messageReaction.message.channel.id ) ) {
 			// Handle unresolving user request
-			this.requestUnresolveEventHandler.onEvent( messageReaction, user );
+			return this.requestUnresolveEventHandler.onEvent( messageReaction, user );
 		}
 	};
 }
