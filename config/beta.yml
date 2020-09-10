@@ -13,7 +13,7 @@ request:
     - '681145724364259438'
   logChannel: '681145896247099618'
 
-roleGroupos:
+roleGroups:
   - prompt: Please select the project(s) you are interested in, so that we can add you to the appropriate channels.
     channelId: '653602305417150475'
     messageId: '654300040239775784'
