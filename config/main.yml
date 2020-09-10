@@ -3,8 +3,6 @@
 owner: '417403221863301130'
 
 homeChannel: '646317855234850818'
-rolesChannel: '648479533246316555'
-rolesMessage: '692405794305736816'
 
 request:
   channels:
@@ -21,26 +19,52 @@ request:
     - '692382871578607767'
   logChannel: '683039388825026562'
 
-roles:
-  - id: '648536573675044865'
-    desc: |-
-      Java Edition
-      _PC, Mac and Linux_
-    emoji: '648525192414494730'
-  - id: '648536590481752074'
-    desc: |-
-      Bedrock Edition
-      _Android, iOS, Windows 10, Xbox One, Nintendo Switch and Playstation 4_
-    emoji: '648474430158405642'
-  - id: '648536605094707201'
-    desc: 'Minecraft: Earth'
-    emoji: '648524067359686678'
-  - id: '692398773762261023'
-    desc: 'Minecraft: Dungeons'
-    emoji: '692399397232836758'
-  - id: '648536618113826847'
-    desc: Other projects
-    emoji: '648521149390520320'
+roleGroups:
+  - prompt: Please select the project(s) you are interested in, so that we can add you to the appropriate channels.
+    channel: '648479533246316555'
+    message: '692405794305736816'
+    radio: false
+    roles:
+      - id: '648536573675044865'
+        desc: |-
+          Java Edition
+          _PC, Mac and Linux_
+        emoji: '648525192414494730'
+      - id: '648536590481752074'
+        desc: |-
+          Bedrock Edition
+          _Android, iOS, Windows 10, Xbox One, Nintendo Switch and Playstation 4_
+        emoji: '648474430158405642'
+      - id: '648536605094707201'
+        desc: 'Minecraft: Earth'
+        emoji: '648524067359686678'
+      - id: '692398773762261023'
+        desc: 'Minecraft: Dungeons'
+        emoji: '692399397232836758'
+      - id: '648536618113826847'
+        desc: Other projects
+        emoji: '648521149390520320'
+  - prompt: |-
+      Please select the pronoun(s) that you'd like to go by.
+      This is not mandatory, but we encourage people to use the appropriate pronouns when referring to each other.
+    channel: '648479533246316555'
+    # message: ''
+    radio: false # Some people might go by multiple pronouns? So why I implemented the radio feature 😅
+    roles:
+      - id: '753741802829381765'
+        desc: He/Him
+        emoji: '🇭'
+      - id: '753741949474832434'
+        desc: She/Her
+        emoji: '🇸'
+      - id: '753742065971757167'
+        desc: They/Them
+        emoji: '🇹'
+      - id: '753745759148572801'
+        desc: |-
+          Other Pronoun
+          (please indicate in your nickname)
+        emoji: '🇴'
 
 filterFeeds:
   - jql: project = MC AND resolved > -1m AND resolution = Fixed AND fixVersion = earliestUnreleasedVersion()

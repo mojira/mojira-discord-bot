@@ -31,7 +31,7 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 			await messageReaction.fetch();
 		}
 
-		if ( messageReaction.message.id === BotConfig.rolesMessage ) {
+		if ( BotConfig.roleGroups.find( g => g.message === messageReaction.message.id ) ) {
 			// Handle role selection
 			return this.roleSelectHandler.onEvent( messageReaction, user );
 		} else if ( BotConfig.request.internalChannels.includes( messageReaction.message.channel.id ) ) {
