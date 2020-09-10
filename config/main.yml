@@ -48,7 +48,7 @@ roleGroups:
       Please select the pronoun(s) that you'd like to go by.
       This is not mandatory, but we encourage people to use the appropriate pronouns when referring to each other.
     channel: '648479533246316555'
-    # message: ''
+    message: '753757208575082556'
     radio: false # Some people might go by multiple pronouns? So why I implemented the radio feature 😅
     roles:
       - id: '753741802829381765'
