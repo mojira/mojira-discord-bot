@@ -15,8 +15,8 @@ request:
 
 roleGroups:
   - prompt: Please select the project(s) you are interested in, so that we can add you to the appropriate channels.
-    channelId: '653602305417150475'
-    messageId: '654300040239775784'
+    channel: '653602305417150475'
+    message: '654300040239775784'
     radio: false
     roles:
       - emoji: '651840398859304961'

@@ -35,6 +35,6 @@ export class RoleSelectionUtil {
 		ReactionsUtil.reactToMessage( sentMessage as Message, groupConfig.roles.map( role => role.emoji ) );
 
 		// TODO: Ideally we would like to save the message ID automagically.
-		this.logger.warn( `Please set the 'messageId' for role selection group '${ groupConfig.prompt }' to '${ ( sentMessage as Message ).id }' in the config.` );
+		this.logger.warn( `Please set the 'message' for role selection group '${ groupConfig.prompt }' to '${ ( sentMessage as Message ).id }' in the config.` );
 	}
 }

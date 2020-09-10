@@ -21,8 +21,8 @@ request:
 
 roleGroups:
   - prompt: Please select the project(s) you are interested in, so that we can add you to the appropriate channels.
-    channelId: '648479533246316555'
-    messageId: '692405794305736816'
+    channel: '648479533246316555'
+    message: '692405794305736816'
     radio: false
     roles:
       - id: '648536573675044865'
@@ -47,8 +47,8 @@ roleGroups:
   - prompt: |-
       Please select the pronoun(s) that you'd like to go by.
       This is not mandatory, but we encourage people to use the appropriate pronouns when referring to each other.
-    channelId: '648479533246316555'
-    # messageId: ''
+    channel: '648479533246316555'
+    # message: ''
     radio: false # Some people might go by multiple pronouns? So why I implemented the radio feature 😅
     roles:
       - id: '753741802829381765'

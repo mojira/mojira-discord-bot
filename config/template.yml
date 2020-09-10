@@ -118,9 +118,9 @@ roleGroups:
     # The prompt that should be shown for the role selection message.
     prompt: <string>
     # The channel ID of which the role selection message is in.
-    channelId: <string>
+    channel: <string>
     # The message ID of this role selection message.
-    messageId: <string>
+    message: <string>
     # Whether or not users can only choose one role from this group.
     radio: <boolean>
 

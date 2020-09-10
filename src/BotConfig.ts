@@ -60,8 +60,8 @@ export interface RoleConfig {
 export interface RoleGroupConfig {
 	roles: RoleConfig[];
 	prompt: string;
-	channelId: string;
-	messageId?: string;
+	channel: string;
+	message?: string;
 	radio?: boolean;
 }
 

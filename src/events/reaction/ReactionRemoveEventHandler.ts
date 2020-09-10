@@ -24,7 +24,7 @@ export default class ReactionRemoveEventHandler implements EventHandler<'message
 			await messageReaction.fetch();
 		}
 
-		if ( BotConfig.roleGroups.find( g => g.messageId === messageReaction.message.id ) ) {
+		if ( BotConfig.roleGroups.find( g => g.message === messageReaction.message.id ) ) {
 			// Handle role removal
 			return this.roleRemoveHandler.onEvent( messageReaction, user );
 		} else if ( BotConfig.request.internalChannels.includes( messageReaction.message.channel.id ) ) {
