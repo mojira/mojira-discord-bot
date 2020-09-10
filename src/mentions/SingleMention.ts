@@ -99,6 +99,7 @@ export class SingleMention extends Mention {
 			.addField( 'Status', status, !largeStatus )
 			.setColor( 'RED' );
 
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		function findThumbnail( attachments: any[] ): string {
 			const allowedMimes = [
 				'image/png', 'image/jpeg',

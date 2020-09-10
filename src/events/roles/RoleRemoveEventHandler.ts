@@ -13,7 +13,8 @@ export default class RoleRemoveEventHandler implements EventHandler<'messageReac
 	public onEvent = async ( messageReaction: MessageReaction, user: User ): Promise<void> => {
 		this.logger.info( `User ${ user.tag } removed '${ messageReaction.emoji.name }' reaction from role message` );
 
-		const role = BotConfig.roles.find( searchedRole => searchedRole.emoji === messageReaction.emoji.id );
+		const group = BotConfig.roleGroups.find( searchedGroup => searchedGroup.messageId === messageReaction.message.id );
+		const role = group.roles.find( searchedRole => searchedRole.emoji === messageReaction.emoji.id );
 
 		if ( !role ) return;
 

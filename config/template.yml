@@ -17,12 +17,6 @@ owner: <string>
 # The channel ID of the bot's home channel.
 homeChannel: <string>
 
-# The channel ID of the bot's roles channel.
-rolesChannel: <string>
-
-# The message ID of the bot's roles message.
-rolesMessage: <string>
-
 # Whether the bot should send an embed when a full URL to a ticket gets posted.
 ticketUrlsCauseEmbed: <boolean>
 
@@ -105,20 +99,30 @@ request:
   # Optional; empty string by default
   responseMessage: <string>
 
-# A list of roles that should be used for the roles message
-roles:
-    # The role's ID
-  - id: <number>
+# A list of role groups that users can self-assign roles.
+roleGroups:
+  # A list of self-assignable roles for this group.
+  - roles:
+      # The role's ID
+    - id: <number>
 
-    # The role's description.
-    desc: <string>
+      # The role's description.
+      desc: <string>
 
-    # The ID of an emoji representing this role.
-    # This needs to be the ID of a custom emoji currently!
-    emoji: <number>
+      # The ID of an emoji representing this role.
+      # This needs to be the ID of a custom emoji currently!
+      emoji: <number>
 
-  - <see above>
-  - ...
+    - <see above>
+    - ...
+    # The prompt that should be shown for the role selection message.
+    prompt: <string>
+    # The channel ID of which the role selection message is in.
+    channelId: <string>
+    # The message ID of this role selection message.
+    messageId: <string>
+    # Whether or not users can only choose one role from this group.
+    radio: <boolean>
 
 # The interval of the check for filter feeds, in milliseconds.
 filterFeedInterval: <number>
@@ -149,7 +153,7 @@ filterFeeds:
 versionFeedInterval: <number>
 
 # A list of feeds that should be sent when there has been a change to a version.
-filterFeeds:
+versionFeeds:
     # The project whose versions should be monitored.
   - project: <string>
 

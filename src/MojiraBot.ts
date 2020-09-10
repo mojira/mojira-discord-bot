@@ -14,6 +14,7 @@ import FilterFeedTask from './tasks/FilterFeedTask';
 import TaskScheduler from './tasks/TaskScheduler';
 import VersionFeedTask from './tasks/VersionFeedTask';
 import DiscordUtil from './util/DiscordUtil';
+import { RoleSelectionUtil } from './util/RoleSelectionUtil';
 
 /**
  * Core class of MojiraBot
@@ -44,12 +45,17 @@ export default class MojiraBot {
 			EventRegistry.setClient( this.client );
 			EventRegistry.add( new ErrorEventHandler() );
 
-			const rolesChannel = await DiscordUtil.getChannel( BotConfig.rolesChannel );
-			if ( rolesChannel && rolesChannel instanceof TextChannel ) {
-				try {
-					await DiscordUtil.getMessage( rolesChannel, BotConfig.rolesMessage );
-				} catch ( err ) {
-					this.logger.error( err );
+			for ( const group of BotConfig.roleGroups ) {
+				const channel = await DiscordUtil.getChannel( group.channelId );
+				if ( channel && channel instanceof TextChannel ) {
+					try {
+						if ( !group.messageId ) {
+							RoleSelectionUtil.sendRoleSelectionMessage( channel, group );
+						}
+						await DiscordUtil.getMessage( channel, group.messageId );
+					} catch ( err ) {
+						this.logger.error( err );
+					}
 				}
 			}
 
