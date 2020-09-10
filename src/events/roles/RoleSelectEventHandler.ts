@@ -14,7 +14,7 @@ export default class RoleSelectEventHandler implements EventHandler<'messageReac
 		this.logger.info( `User ${ user.tag } added '${ messageReaction.emoji.name }' reaction to role message` );
 
 		const group = BotConfig.roleGroups.find( searchedGroup => searchedGroup.message === messageReaction.message.id );
-		const role = group.roles.find( searchedRole => searchedRole.emoji === messageReaction.emoji.id );
+		const role = group.roles.find( searchedRole => searchedRole.emoji === messageReaction.emoji.id || searchedRole.emoji === messageReaction.emoji.name );
 
 		if ( !role ) {
 			messageReaction.users.remove( user );

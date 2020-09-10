@@ -14,7 +14,7 @@ export class RoleSelectionUtil {
 			.setColor( 'AQUA' );
 		for ( const role of groupConfig.roles ) {
 			const roleEmoji = MojiraBot.client.emojis.cache.get( role.emoji );
-			const textEmoji = ( roleEmoji == undefined ) ? '❓' : roleEmoji.toString();
+			const textEmoji = ( roleEmoji == undefined ) ? role.emoji : roleEmoji.toString();
 			embed.addField( textEmoji, role.desc );
 		}
 		let sentMessage: Message | Message[];
