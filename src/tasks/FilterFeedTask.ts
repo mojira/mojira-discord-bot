@@ -77,10 +77,12 @@ export default class FilterFeedTask extends Task {
 
 						await NewsUtil.publishMessage( filterFeedMessage );
 
-						try {
-							await filterFeedMessage.react( this.filterFeedEmoji );
-						} catch ( error ) {
-							FilterFeedTask.logger.error( error );
+						if ( this.filterFeedEmoji !== undefined ) {
+							try {
+								await filterFeedMessage.react( this.filterFeedEmoji );
+							} catch ( error ) {
+								FilterFeedTask.logger.error( error );
+							}
 						}
 					} else {
 						throw new Error( `Expected ${ this.channel } to be a TextChannel` );

@@ -79,10 +79,12 @@ export default class VersionFeedTask extends Task {
 
 			await NewsUtil.publishMessage( versionFeedMessage );
 
-			try {
-				await versionFeedMessage.react( this.versionFeedEmoji );
-			} catch ( error ) {
-				VersionFeedTask.logger.error( error );
+			if ( this.versionFeedEmoji !== undefined ) {
+				try {
+					await versionFeedMessage.react( this.versionFeedEmoji );
+				} catch ( error ) {
+					VersionFeedTask.logger.error( error );
+				}
 			}
 		}
 
