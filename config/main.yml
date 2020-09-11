@@ -65,6 +65,13 @@ roleGroups:
           Other Pronoun
           (please indicate in your nickname)
         emoji: '🇴'
+  - prompt: Click the emoji if you want to be pinged when MC-200000 comes out!
+    channel: '648479533246316555'
+    # message: ''
+    roles:
+      - id: '753772282169524234'
+        desc: MC-200000 Notification
+        emoji: '🎆'
 
 filterFeeds:
   - jql: project = MC AND resolved > -1m AND resolution = Fixed AND fixVersion = earliestUnreleasedVersion()
