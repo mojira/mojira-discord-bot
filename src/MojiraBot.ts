@@ -14,6 +14,7 @@ import FilterFeedTask from './tasks/FilterFeedTask';
 import TaskScheduler from './tasks/TaskScheduler';
 import VersionFeedTask from './tasks/VersionFeedTask';
 import DiscordUtil from './util/DiscordUtil';
+import { RoleSelectionUtil } from './util/RoleSelectionUtil';
 
 /**
  * Core class of MojiraBot
@@ -24,7 +25,7 @@ import DiscordUtil from './util/DiscordUtil';
 export default class MojiraBot {
 	public static logger = log4js.getLogger( 'MojiraBot' );
 
-	public static client: Client = new Client();
+	public static client: Client = new Client( { partials: ['REACTION'] } );
 	private static running = false;
 
 	public static async start(): Promise<void> {
@@ -44,12 +45,17 @@ export default class MojiraBot {
 			EventRegistry.setClient( this.client );
 			EventRegistry.add( new ErrorEventHandler() );
 
-			const rolesChannel = await DiscordUtil.getChannel( BotConfig.rolesChannel );
-			if ( rolesChannel && rolesChannel instanceof TextChannel ) {
-				try {
-					await DiscordUtil.getMessage( rolesChannel, BotConfig.rolesMessage );
-				} catch ( err ) {
-					this.logger.error( err );
+			for ( const group of BotConfig.roleGroups ) {
+				const channel = await DiscordUtil.getChannel( group.channel );
+				if ( channel && channel instanceof TextChannel ) {
+					try {
+						if ( !group.message ) {
+							RoleSelectionUtil.sendRoleSelectionMessage( channel, group );
+						}
+						await DiscordUtil.getMessage( channel, group.message );
+					} catch ( err ) {
+						this.logger.error( err );
+					}
 				}
 			}
 
@@ -82,6 +88,7 @@ export default class MojiraBot {
 									break;
 								}
 							}
+							this.logger.info( `Fetched ${ allMessages.length } messages from "${ internalChannel.name }"` );
 
 							// Resolve pending resolved requests
 							const handler = new RequestResolveEventHandler();
