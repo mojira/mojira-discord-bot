@@ -45,7 +45,7 @@ export default class MentionCommand extends Command {
 			embed = await mention.getEmbed();
 		} catch ( err ) {
 			try {
-				message.channel.send( err );
+				await message.channel.send( err );
 			} catch ( err ) {
 				Command.logger.log( err );
 			}
@@ -70,7 +70,7 @@ export default class MentionCommand extends Command {
 
 			if ( matchesTicketId || ( BotConfig.ticketUrlsCauseEmbed && matchesTicketUrl ) ) {
 				try {
-					message.delete();
+					await message.delete();
 				} catch ( err ) {
 					Command.logger.error( err );
 				}

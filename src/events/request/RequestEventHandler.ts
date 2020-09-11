@@ -34,15 +34,30 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 		const regex = new RegExp( `(?:${ MentionCommand.ticketLinkRegex.source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
 
 		if ( BotConfig.request.noLinkEmoji && !origin.content.match( regex ) ) {
-			origin.react( BotConfig.request.noLinkEmoji );
-			const timeout = BotConfig.request.noLinkWarningLifetime;
-			const warning = await origin.channel.send( `${ origin.author }, your request doesn't contain any valid ticket reference. If you'd like to add it you can edit your message.` ) as Message;
-			warning.delete( { timeout } );
+			try {
+				await origin.react( BotConfig.request.noLinkEmoji );
+			} catch ( error ) {
+				this.logger.error( error );
+			}
+
+			try {
+				const warning = await origin.channel.send( `${ origin.author }, your request doesn't contain any valid ticket reference. If you'd like to add it you can edit your message.` );
+
+				const timeout = BotConfig.request.noLinkWarningLifetime;
+				await warning.delete( { timeout } );
+			} catch ( error ) {
+				this.logger.error( error );
+			}
+
 			return;
 		}
 
 		if ( BotConfig.request.waitingEmoji ) {
-			origin.react( BotConfig.request.waitingEmoji );
+			try {
+				await origin.react( BotConfig.request.waitingEmoji );
+			} catch ( error ) {
+				this.logger.error( error );
+			}
 		}
 
 		const internalChannelId = this.internalChannels.get( origin.channel.id );
@@ -57,11 +72,15 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 				.addField( 'Channel', origin.channel.id, true )
 				.addField( 'Message', origin.id, true )
 				.setTimestamp( new Date() );
-			const response = BotConfig.request.prependResponseMessage == PrependResponseMessageType.Always ?
-				RequestsUtil.getResponseMessage( origin ) : '';
+
+			const response = BotConfig.request.prependResponseMessage == PrependResponseMessageType.Always
+				? RequestsUtil.getResponseMessage( origin )
+				: '';
+
 			const copy = await internalChannel.send( response, embed ) as Message;
+
 			if ( BotConfig.request.suggestedEmoji ) {
-				ReactionsUtil.reactToMessage( copy, [...BotConfig.request.suggestedEmoji] );
+				await ReactionsUtil.reactToMessage( copy, [...BotConfig.request.suggestedEmoji] );
 			}
 		}
 	};

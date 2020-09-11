@@ -21,7 +21,11 @@ export default class RequestResolveEventHandler implements EventHandler<'message
 			&& BotConfig.request.ignorePrependResponseMessageEmoji !== reaction.emoji.name ) {
 			const origin = await RequestsUtil.getOriginMessage( reaction.message );
 			if ( origin ) {
-				reaction.message.edit( RequestsUtil.getResponseMessage( origin ) );
+				try {
+					await reaction.message.edit( RequestsUtil.getResponseMessage( origin ) );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
 			}
 		}
 

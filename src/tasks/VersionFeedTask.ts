@@ -22,7 +22,7 @@ interface JiraVersionChange {
 export type VersionChangeType = 'created' | 'released' | 'unreleased' | 'archived' | 'unarchived' | 'renamed';
 
 export default class VersionFeedTask extends Task {
-	public static logger = log4js.getLogger( 'Version' );
+	private static logger = log4js.getLogger( 'VersionFeedTask' );
 
 	private jira: JiraClient;
 
@@ -51,10 +51,10 @@ export default class VersionFeedTask extends Task {
 		} );
 
 		this.getVersions().then(
-			versions => {
+			async versions => {
 				this.cachedVersions = versions;
 				this.initialized = true;
-				this.run();
+				await this.run();
 			}
 		).catch(
 			error => {
@@ -76,8 +76,14 @@ export default class VersionFeedTask extends Task {
 
 		for ( const change of changes ) {
 			const versionFeedMessage = await this.channel.send( change.message, change.embed );
-			NewsUtil.publishMessage( versionFeedMessage );
-			versionFeedMessage.react( this.versionFeedEmoji );
+
+			await NewsUtil.publishMessage( versionFeedMessage );
+
+			try {
+				await versionFeedMessage.react( this.versionFeedEmoji );
+			} catch ( error ) {
+				VersionFeedTask.logger.error( error );
+			}
 		}
 
 		this.cachedVersions = currentVersions;

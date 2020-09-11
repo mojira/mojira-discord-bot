@@ -20,7 +20,11 @@ export default class RoleRemoveEventHandler implements EventHandler<'messageReac
 
 		const member = await DiscordUtil.getMember( messageReaction.message.guild, user.id );
 		if ( member ) {
-			member.roles.remove( role.id );
+			try {
+				await member.roles.remove( role.id );
+			} catch ( error ) {
+				this.logger.error( error );
+			}
 		}
 	};
 }

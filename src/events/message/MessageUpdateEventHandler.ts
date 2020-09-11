@@ -20,7 +20,7 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageUpdateEventHandler` object
-	public onEvent = ( oldMessage: Message, newMessage: Message ): void => {
+	public onEvent = async ( oldMessage: Message, newMessage: Message ): Promise<void> => {
 		if (
 			// Don't handle non-default messages
 			oldMessage.type !== 'DEFAULT'
@@ -34,8 +34,8 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 
 		if ( BotConfig.request.channels && BotConfig.request.channels.includes( oldMessage.channel.id ) ) {
 			// The updated message is in a request channel
-			this.requestDeleteEventHandler.onEvent( oldMessage );
-			this.requestEventHandler.onEvent( newMessage );
+			await this.requestDeleteEventHandler.onEvent( oldMessage );
+			await this.requestEventHandler.onEvent( newMessage );
 		}
 	};
 }

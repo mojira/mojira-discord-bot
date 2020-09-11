@@ -18,7 +18,7 @@ export default class MessageEventHandler implements EventHandler<'message'> {
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageEventHandler` object
-	public onEvent = ( message: Message ): void => {
+	public onEvent = async ( message: Message ): Promise<void> => {
 		if (
 			// Don't reply to webhooks
 			message.webhookID
@@ -32,12 +32,12 @@ export default class MessageEventHandler implements EventHandler<'message'> {
 
 		if ( BotConfig.request.channels && BotConfig.request.channels.includes( message.channel.id ) ) {
 			// This message is in a request channel
-			this.requestEventHandler.onEvent( message );
+			await this.requestEventHandler.onEvent( message );
 
 			// Don't reply in request channels
 			return;
 		}
 
-		CommandExecutor.checkCommands( message );
+		await CommandExecutor.checkCommands( message );
 	};
 }

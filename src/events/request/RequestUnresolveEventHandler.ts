@@ -10,11 +10,15 @@ export default class RequestUnresolveEventHandler implements EventHandler<'messa
 	private logger = log4js.getLogger( 'RequestUnresolveEventHandler' );
 
 	// This syntax is used to ensure that `this` refers to the `RequestUnresolveEventHandler` object
-	public onEvent = ( { emoji, message }: MessageReaction, user: User ): void => {
+	public onEvent = async ( { emoji, message }: MessageReaction, user: User ): Promise<void> => {
 		this.logger.info( `User ${ user.tag } removed '${ emoji.name }' reaction from request message '${ message.id }'` );
 
 		if ( BotConfig.request.prependResponseMessage == PrependResponseMessageType.WhenResolved ) {
-			message.edit( '' );
+			try {
+				await message.edit( '' );
+			} catch ( error ) {
+				this.logger.error( error );
+			}
 		}
 
 		if ( message.reactions.cache.size <= BotConfig.request.suggestedEmoji.length ) {
