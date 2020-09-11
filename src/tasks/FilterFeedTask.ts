@@ -7,7 +7,7 @@ import JiraClient from 'jira-connector';
 import { NewsUtil } from '../util/NewsUtil';
 
 export default class FilterFeedTask extends Task {
-	public static logger = log4js.getLogger( 'FilterFeed' );
+	private static logger = log4js.getLogger( 'FilterFeedTask' );
 
 	private jira: JiraClient;
 	private channel: Channel;
@@ -32,7 +32,7 @@ export default class FilterFeedTask extends Task {
 			strictSSL: true,
 		} );
 
-		this.run();
+		this.run().catch( FilterFeedTask.logger.error );
 	}
 
 	public async run(): Promise<void> {
@@ -74,8 +74,16 @@ export default class FilterFeedTask extends Task {
 
 					if ( this.channel instanceof TextChannel ) {
 						const filterFeedMessage = await this.channel.send( message, embed );
-						NewsUtil.publishMessage( filterFeedMessage );
-						filterFeedMessage.react( this.filterFeedEmoji );
+
+						await NewsUtil.publishMessage( filterFeedMessage );
+
+						if ( this.filterFeedEmoji !== undefined ) {
+							try {
+								await filterFeedMessage.react( this.filterFeedEmoji );
+							} catch ( error ) {
+								FilterFeedTask.logger.error( error );
+							}
+						}
 					} else {
 						throw new Error( `Expected ${ this.channel } to be a TextChannel` );
 					}

@@ -12,6 +12,7 @@ export class ReactionsUtil {
 		} catch ( err ) {
 			this.logger.error( err );
 		}
-		this.reactToMessage( message, reactions );
+
+		await this.reactToMessage( message, reactions );
 	}
 }

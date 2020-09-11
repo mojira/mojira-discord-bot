@@ -35,7 +35,11 @@ export default class RequestDeleteEventHandler implements EventHandler<'messageD
 				if ( result.channelId === origin.channel.id && result.messageId === origin.id ) {
 					TaskScheduler.clearMessageTasks( internalMessage );
 					if ( internalMessage.deletable ) {
-						internalMessage.delete();
+						try {
+							await internalMessage.delete();
+						} catch ( error ) {
+							this.logger.error( error );
+						}
 					}
 				}
 			}

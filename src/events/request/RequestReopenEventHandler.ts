@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, MessageReaction, TextChannel, User } from 'discord.js';
+import { MessageEmbed, MessageReaction, TextChannel, User } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from '../../BotConfig';
 import DiscordUtil from '../../util/DiscordUtil';
@@ -22,9 +22,14 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 
 		const embeds = message.embeds;
 		if ( embeds.length == 0 ) {
-			const timeout = BotConfig.request.noLinkWarningLifetime;
-			const warning = await message.channel.send( `${ message.author }, this is not a valid log message.` ) as Message;
-			warning.delete( { timeout } );
+			try {
+				const warning = await message.channel.send( `${ message.author }, this is not a valid log message.` );
+
+				const timeout = BotConfig.request.noLinkWarningLifetime;
+				await warning.delete( { timeout } );
+			} catch ( error ) {
+				this.logger.error( error );
+			}
 		}
 
 		// Assume first embed is the log message
@@ -47,7 +52,12 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 					.addField( 'Message', `[Here](${ requestMessage.url })`, true )
 					.setFooter( `${ user.tag } reopened this request`, user.avatarURL() )
 					.setTimestamp( new Date() );
-				logChannel.send( log );
+
+				try {
+					await logChannel.send( log );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
 			}
 
 			await this.requestEventHandler.onEvent( requestMessage );

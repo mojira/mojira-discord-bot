@@ -10,7 +10,8 @@
 		"node": true
 	},
 	"parserOptions": {
-		"sourceType": "module"
+		"sourceType": "module",
+		"project": "tsconfig.json"
 	},
 	"rules": {
 		"brace-style": ["error", "1tbs", { "allowSingleLine": true }],
@@ -26,6 +27,7 @@
 		"max-statements-per-line": ["error", { "max": 2 }],
 		"no-empty-function": "error",
 		"no-floating-decimal": "error",
+		"@typescript-eslint/no-floating-promises": "error",
 		"no-inline-comments": "error",
 		"no-lonely-if": "error",
 		"no-multi-spaces": "error",

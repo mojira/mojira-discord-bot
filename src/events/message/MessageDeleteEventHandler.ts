@@ -17,7 +17,7 @@ export default class MessageDeleteEventHandler implements EventHandler<'messageD
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageDeleteEventHandler` object
-	public onEvent = ( message: Message ): void => {
+	public onEvent = async ( message: Message ): Promise<void> => {
 		if (
 			// Don't handle non-default messages
 			message.type !== 'DEFAULT'
@@ -31,7 +31,7 @@ export default class MessageDeleteEventHandler implements EventHandler<'messageD
 
 		if ( BotConfig.request.channels && BotConfig.request.channels.includes( message.channel.id ) ) {
 			// The deleted message is in a request channel
-			this.requestDeleteEventHandler.onEvent( message );
+			await this.requestDeleteEventHandler.onEvent( message );
 		}
 	};
 }

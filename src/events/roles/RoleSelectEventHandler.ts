@@ -17,7 +17,11 @@ export default class RoleSelectEventHandler implements EventHandler<'messageReac
 		const role = group.roles.find( searchedRole => searchedRole.emoji === messageReaction.emoji.id || searchedRole.emoji === messageReaction.emoji.name );
 
 		if ( !role ) {
-			messageReaction.users.remove( user );
+			try {
+				await messageReaction.users.remove( user );
+			} catch ( error ) {
+				this.logger.error( error );
+			}
 			return;
 		}
 
@@ -27,19 +31,31 @@ export default class RoleSelectEventHandler implements EventHandler<'messageReac
 			// Remove other reactions.
 			for ( const reaction of messageReaction.message.reactions.cache.values() ) {
 				if ( reaction.emoji.id !== role.emoji ) {
-					reaction.remove();
+					try {
+						await reaction.remove();
+					} catch ( error ) {
+						this.logger.error( error );
+					}
 				}
 			}
 			// Remove other roles.
 			if ( member ) {
 				for ( const { id } of group.roles ) {
-					member.roles.remove( id );
+					try {
+						await member.roles.remove( id );
+					} catch ( error ) {
+						this.logger.error( error );
+					}
 				}
 			}
 		}
 
 		if ( member ) {
-			member.roles.add( role.id );
+			try {
+				await member.roles.add( role.id );
+			} catch ( error ) {
+				this.logger.error( error );
+			}
 		}
 	};
 }

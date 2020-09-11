@@ -140,7 +140,7 @@ export default class PollCommand extends PrefixCommand {
 			}
 		}
 
-		this.sendPollMessage( message, pollTitle, options );
+		await this.sendPollMessage( message, pollTitle, options );
 
 		return true;
 	}

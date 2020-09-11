@@ -139,7 +139,7 @@ filterFeeds:
     # {{num}} will be replaced by the number of ticket(s).
     title: <string>
     
-    # The emoji to react to all filter feed messages with.
+    # Optional; The emoji to react to all filter feed messages with.
     filterFeedEmoji: <string>
     
     # The message accompanying this feed embed, in case there's only one ticket.
@@ -163,7 +163,7 @@ versionFeeds:
     # The interval of the check for this version feed, in milliseconds.
     interval: <number>
 
-    # The emoji to react to all version feed messages with.
+    # Optional; The emoji to react to all version feed messages with.
     versionFeedEmoji: <string>
 
     # How many versions should be monitored; only the x latest versions are monitored.

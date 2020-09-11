@@ -50,7 +50,11 @@ export default class MojiraBot {
 				if ( channel && channel instanceof TextChannel ) {
 					try {
 						if ( !group.message ) {
-							RoleSelectionUtil.sendRoleSelectionMessage( channel, group );
+							try {
+								await RoleSelectionUtil.sendRoleSelectionMessage( channel, group );
+							} catch ( error ) {
+								MojiraBot.logger.error( error );
+							}
 						}
 						await DiscordUtil.getMessage( channel, group.message );
 					} catch ( err ) {
@@ -97,7 +101,11 @@ export default class MojiraBot {
 									const users = await reaction.users.fetch();
 									const user = users.array().find( v => v.id !== this.client.user.id );
 									if ( user ) {
-										handler.onEvent( reaction, user );
+										try {
+											await handler.onEvent( reaction, user );
+										} catch ( error ) {
+											MojiraBot.logger.error( error );
+										}
 									}
 								} );
 							}
@@ -114,7 +122,12 @@ export default class MojiraBot {
 						const options: ChannelLogsQueryOptions = { limit: 1, before: lastId };
 						const message = ( await requestChannel.messages.fetch( options ) ).first();
 						if ( message?.reactions?.cache.size === 0 ) {
-							newRequestHandler.onEvent( message );
+							try {
+								await newRequestHandler.onEvent( message );
+							} catch ( error ) {
+								MojiraBot.logger.error( error );
+							}
+
 							lastId = message.id;
 						} else {
 							break;
@@ -148,7 +161,11 @@ export default class MojiraBot {
 			// #endregion
 
 			// TODO Change to custom status when discord.js#3552 is merged into current version of package
-			this.client.user.setActivity( '!jira help' );
+			try {
+				await this.client.user.setActivity( '!jira help' );
+			} catch ( error ) {
+				MojiraBot.logger.error( error );
+			}
 
 			const homeChannel = await DiscordUtil.getChannel( BotConfig.homeChannel );
 
