@@ -68,14 +68,16 @@ export interface RoleGroupConfig {
 export interface FilterFeedConfig {
 	jql: string;
 	channel: string;
+	interval: number;
 	filterFeedEmoji: string;
 	title: string;
 	titleSingle?: string;
 }
 
 export interface VersionFeedConfig {
-	project: string;
+	projects: string[];
 	channel: string;
+	interval: number;
 	versionFeedEmoji: string;
 	scope: number;
 	actions: VersionChangeType[];
@@ -101,10 +103,7 @@ export default class BotConfig {
 
 	public static roleGroups: RoleGroupConfig[];
 
-	public static filterFeedInterval: number;
 	public static filterFeeds: FilterFeedConfig[];
-
-	public static versionFeedInterval: number;
 	public static versionFeeds: VersionFeedConfig[];
 
 	public static init(): void {
@@ -126,10 +125,7 @@ export default class BotConfig {
 
 		this.roleGroups = getOrDefault( 'roleGroups', [] );
 
-		this.filterFeedInterval = config.get( 'filterFeedInterval' );
 		this.filterFeeds = config.get( 'filterFeeds' );
-
-		this.versionFeedInterval = config.get( 'versionFeedInterval' );
 		this.versionFeeds = config.get( 'versionFeeds' );
 	}
 

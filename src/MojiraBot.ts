@@ -134,7 +134,7 @@ export default class MojiraBot {
 			for ( const config of BotConfig.filterFeeds ) {
 				TaskScheduler.addTask(
 					new FilterFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
-					BotConfig.filterFeedInterval
+					config.interval
 				);
 			}
 
@@ -142,7 +142,7 @@ export default class MojiraBot {
 			for ( const config of BotConfig.versionFeeds ) {
 				TaskScheduler.addTask(
 					new VersionFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
-					BotConfig.versionFeedInterval
+					config.interval
 				);
 			}
 			// #endregion

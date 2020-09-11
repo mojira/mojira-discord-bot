@@ -124,9 +124,6 @@ roleGroups:
     # Whether or not users can only choose one role from this group.
     radio: <boolean>
 
-# The interval of the check for filter feeds, in milliseconds.
-filterFeedInterval: <number>
-
 # A list of feeds that should be sent when there are unknown tickets in a specific filter.
 filterFeeds:
     # The filter's JQL query.
@@ -134,6 +131,9 @@ filterFeeds:
 
     # The ID of the channel in which the feed should be sent.
     channel: <string>
+
+    # The interval of the check for this filter feed, in milliseconds.
+    interval: <number>
 
     # The title for this feed embed.
     # {{num}} will be replaced by the number of ticket(s).
@@ -149,22 +149,25 @@ filterFeeds:
   - <see above>
   - ...
 
-# The interval of the check for version feeds, in milliseconds.
-versionFeedInterval: <number>
-
 # A list of feeds that should be sent when there has been a change to a version.
 versionFeeds:
-    # The project whose versions should be monitored.
-  - project: <string>
+    # The projects whose versions should be monitored.
+  - projects:
+      - <string>
+      - <string>
+      - ...
 
     # The ID of the channel in which the feed should be sent.
     channel: <string>
+
+    # The interval of the check for this version feed, in milliseconds.
+    interval: <number>
 
     # The emoji to react to all version feed messages with.
     versionFeedEmoji: <string>
 
     # How many versions should be monitored; only the x latest versions are monitored.
-    scope: <version>
+    scope: <number>
 
     # A list of actions that should be included in the version feed
     actions:
