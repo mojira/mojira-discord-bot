@@ -17,7 +17,11 @@ export default class RoleSelectEventHandler implements EventHandler<'messageReac
 		const role = group.roles.find( searchedRole => searchedRole.emoji === messageReaction.emoji.id || searchedRole.emoji === messageReaction.emoji.name );
 
 		if ( !role ) {
-			await messageReaction.users.remove( user );
+			try {
+				await messageReaction.users.remove( user );
+			} catch ( error ) {
+				this.logger.error( error );
+			}
 			return;
 		}
 

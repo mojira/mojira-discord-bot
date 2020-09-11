@@ -29,7 +29,11 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 		this.logger.info( `User ${ origin.author.tag } posted a new request to requests channel ${ origin.channel.id }` );
 
-		await origin.reactions.removeAll();
+		try {
+			await origin.reactions.removeAll();
+		} catch ( error ) {
+			this.logger.error( error );
+		}
 
 		const regex = new RegExp( `(?:${ MentionCommand.ticketLinkRegex.source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
 
