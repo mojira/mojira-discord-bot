@@ -89,7 +89,7 @@ export default class BotConfig {
 
 	// TODO: make private again when /crosspost api endpoint is implemented into discord.js
 	public static token: string;
-	public static owner: string;
+	public static owners: string[];
 
 	public static homeChannel: string;
 
@@ -111,7 +111,7 @@ export default class BotConfig {
 		this.logDirectory = getOrDefault( 'logDirectory', false );
 
 		this.token = config.get( 'token' );
-		this.owner = config.get( 'owner' );
+		this.owners = getOrDefault( 'owners', [] );
 
 		this.homeChannel = config.get( 'homeChannel' );
 		this.ticketUrlsCauseEmbed = getOrDefault( 'ticketUrlsCauseEmbed', false );
