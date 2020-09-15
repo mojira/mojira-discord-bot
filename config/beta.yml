@@ -2,7 +2,8 @@
 
 debug: true
 
-owner: '417403221863301130'
+owners:
+  - '417403221863301130' # violine1101
 
 homeChannel: '649027251010142228'
 

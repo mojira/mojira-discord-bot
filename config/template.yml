@@ -11,8 +11,12 @@ logDirectory: <string | false>
 # Your bot token used to log in to Discord with the bot.
 token: <string>
 
-# Your user ID for owner only commands.
-owner: <string>
+# A list of user IDs for owner only commands.
+# Optional; empty by default.
+owners:
+  - <string>
+  - <string>
+  - ...
 
 # The channel ID of the bot's home channel.
 homeChannel: <string>
@@ -139,7 +143,8 @@ filterFeeds:
     # {{num}} will be replaced by the number of ticket(s).
     title: <string>
     
-    # Optional; The emoji to react to all filter feed messages with.
+    # The emoji to react to all filter feed messages with.
+    # Optional; none by default.
     filterFeedEmoji: <string>
     
     # The message accompanying this feed embed, in case there's only one ticket.
@@ -163,7 +168,8 @@ versionFeeds:
     # The interval of the check for this version feed, in milliseconds.
     interval: <number>
 
-    # Optional; The emoji to react to all version feed messages with.
+    # The emoji to react to all version feed messages with.
+    # Optional; none by default.
     versionFeedEmoji: <string>
 
     # How many versions should be monitored; only the x latest versions are monitored.

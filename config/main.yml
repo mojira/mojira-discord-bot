@@ -1,6 +1,12 @@
 # Settings for the offical Mojira Discord bot
 
-owner: '417403221863301130'
+owners:
+  - '87225001874325504' # urielsalis
+  - '137290216691073024' # NeunEinser
+  - '252267207264960513' # LateLag
+  - '263098499858563072' # Sonicwave
+  - '417403221863301130' # violine1101
+  - '437088929485684737' # SPGoding
 
 homeChannel: '646317855234850818'
 
