@@ -39,6 +39,11 @@ filterFeeds:
     interval: 10000
     title: '{{num}} tickets have been created!'
     titleSingle: This ticket has just been created!
+  - jql: CHK > -2h
+    channel: '665904688616701953'
+    interval: 10000
+    title: '{{num}} tickets have been confirmed!'
+    titleSingle: This ticket has just been confirmed!
 
 versionFeeds:
   - projects:

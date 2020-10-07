@@ -72,6 +72,7 @@ export interface FilterFeedConfig {
 	filterFeedEmoji: string;
 	title: string;
 	titleSingle?: string;
+	publish?: boolean;
 }
 
 export interface VersionFeedConfig {
@@ -81,6 +82,7 @@ export interface VersionFeedConfig {
 	versionFeedEmoji: string;
 	scope: number;
 	actions: VersionChangeType[];
+	publish?: boolean;
 }
 
 export default class BotConfig {
