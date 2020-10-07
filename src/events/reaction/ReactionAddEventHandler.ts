@@ -5,6 +5,7 @@ import RequestEventHandler from '../request/RequestEventHandler';
 import RequestReopenEventHandler from '../request/RequestReopenEventHandler';
 import RequestResolveEventHandler from '../request/RequestResolveEventHandler';
 import RoleSelectEventHandler from '../roles/RoleSelectEventHandler';
+import MojiraBot from '../../MojiraBot';
 
 export default class ReactionAddEventHandler implements DiscordEventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';
@@ -28,8 +29,10 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 		if ( user.id === this.botUserId ) return;
 
 		if ( messageReaction.partial ) {
-			await messageReaction.fetch();
+			messageReaction = await messageReaction.fetch();
 		}
+
+		MojiraBot.logger.debug( `User ${ user.tag } reacted with ${ messageReaction.emoji } to message ${ messageReaction.message.id }` );
 
 		if ( BotConfig.roleGroups.find( g => g.message === messageReaction.message.id ) ) {
 			// Handle role selection
