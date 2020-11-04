@@ -23,6 +23,7 @@ export type VersionChangeType = 'created' | 'released' | 'unreleased' | 'archive
 
 export default class VersionFeedTask extends Task {
 	private static logger = log4js.getLogger( 'VersionFeedTask' );
+	private static maxId = 0;
 
 	private jira: JiraClient;
 
@@ -31,19 +32,25 @@ export default class VersionFeedTask extends Task {
 	private versionFeedEmoji: string;
 	private scope: number;
 	private actions: VersionChangeType[];
+	private publish: boolean;
 
 	private cachedVersions: JiraVersion[] = [];
 
 	private initialized = false;
+	private id = 0;
 
-	constructor( { projects, scope, actions, versionFeedEmoji }: VersionFeedConfig, channel: Channel ) {
+	constructor( feedConfig: VersionFeedConfig, channel: Channel ) {
 		super();
 
+		this.id = VersionFeedTask.maxId++;
+		VersionFeedTask.logger.debug( `Initializing version feed task ${ this.id } with settings ${ JSON.stringify( feedConfig ) }` );
+
 		this.channel = channel;
-		this.projects = projects;
-		this.scope = scope;
-		this.actions = actions;
-		this.versionFeedEmoji = versionFeedEmoji;
+		this.projects = feedConfig.projects;
+		this.versionFeedEmoji = feedConfig.versionFeedEmoji;
+		this.scope = feedConfig.scope;
+		this.actions = feedConfig.actions;
+		this.publish = feedConfig.publish ?? false;
 
 		this.jira = new JiraClient( {
 			host: 'bugs.mojang.com',
@@ -54,6 +61,9 @@ export default class VersionFeedTask extends Task {
 			async versions => {
 				this.cachedVersions = versions;
 				this.initialized = true;
+
+				VersionFeedTask.logger.debug( `Version feed task ${ this.id } has been initialized` );
+
 				await this.run();
 			}
 		).catch(
@@ -64,7 +74,12 @@ export default class VersionFeedTask extends Task {
 	}
 
 	public async run(): Promise<void> {
-		if ( !this.initialized ) return;
+		if ( !this.initialized ) {
+			VersionFeedTask.logger.debug( `Version feed task ${ this.id } was run but did not execute because it has not been initialized yet` );
+			return;
+		}
+
+		VersionFeedTask.logger.debug( `Running version feed task ${ this.id }` );
 
 		if ( !( this.channel instanceof TextChannel ) ) {
 			VersionFeedTask.logger.error( `Expected ${ this.channel } to be a TextChannel` );
@@ -75,20 +90,25 @@ export default class VersionFeedTask extends Task {
 		const changes = await this.getVersionChanges( this.cachedVersions, currentVersions );
 
 		for ( const change of changes ) {
-			const versionFeedMessage = await this.channel.send( change.message, change.embed );
+			try {
+				const versionFeedMessage = await this.channel.send( change.message, change.embed );
 
-			await NewsUtil.publishMessage( versionFeedMessage );
-
-			if ( this.versionFeedEmoji !== undefined ) {
-				try {
-					await versionFeedMessage.react( this.versionFeedEmoji );
-				} catch ( error ) {
-					VersionFeedTask.logger.error( error );
+				if ( this.publish ) {
+					await NewsUtil.publishMessage( versionFeedMessage );
 				}
+
+				if ( this.versionFeedEmoji !== undefined ) {
+					await versionFeedMessage.react( this.versionFeedEmoji );
+				}
+			} catch ( error ) {
+				VersionFeedTask.logger.error( error );
 			}
 		}
 
-		this.cachedVersions = currentVersions;
+		if ( changes.length ) {
+			this.cachedVersions = currentVersions;
+			VersionFeedTask.logger.debug( `Cached versions for version feed task ${ this.id }: ${ JSON.stringify( this.cachedVersions ) }` );
+		}
 	}
 
 	private async getVersions(): Promise<JiraVersion[]> {

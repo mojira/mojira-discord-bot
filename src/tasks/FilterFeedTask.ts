@@ -8,34 +8,57 @@ import { NewsUtil } from '../util/NewsUtil';
 
 export default class FilterFeedTask extends Task {
 	private static logger = log4js.getLogger( 'FilterFeedTask' );
+	private static maxId = 0;
 
 	private jira: JiraClient;
 	private channel: Channel;
 	private jql: string;
+	private filterFeedEmoji: string;
 	private title: string;
 	private titleSingle: string;
-	private filterFeedEmoji: string;
+	private publish: boolean;
 
 	private knownTickets = new Set<string>();
 
-	constructor( { jql, title, titleSingle, filterFeedEmoji }: FilterFeedConfig, channel: Channel ) {
+	private initialized = false;
+	private id = 0;
+
+	constructor( feedConfig: FilterFeedConfig, channel: Channel ) {
 		super();
 
+		this.id = FilterFeedTask.maxId++;
+		FilterFeedTask.logger.debug( `Initializing filter feed task ${ this.id } with settings ${ JSON.stringify( feedConfig ) }` );
+
 		this.channel = channel;
-		this.jql = jql;
-		this.title = title;
-		this.filterFeedEmoji = filterFeedEmoji;
-		this.titleSingle = titleSingle || title.replace( /\{\{num\}\}/g, '1' );
+		this.jql = feedConfig.jql;
+		this.filterFeedEmoji = feedConfig.filterFeedEmoji;
+		this.title = feedConfig.title;
+		this.titleSingle = feedConfig.titleSingle || feedConfig.title.replace( /\{\{num\}\}/g, '1' );
+		this.publish = feedConfig.publish ?? false;
 
 		this.jira = new JiraClient( {
 			host: 'bugs.mojang.com',
 			strictSSL: true,
 		} );
 
-		this.run().catch( FilterFeedTask.logger.error );
+		this.run().then(
+			async () => {
+				this.initialized = true;
+				FilterFeedTask.logger.debug( `Filter feed task ${ this.id } has been initialized` );
+
+				await this.run();
+			}
+		).catch( FilterFeedTask.logger.error );
 	}
 
 	public async run(): Promise<void> {
+		if ( !this.initialized ) {
+			FilterFeedTask.logger.debug( `Filter feed task ${ this.id } was run but did not execute because it has not been initialized yet` );
+			return;
+		}
+
+		FilterFeedTask.logger.debug( `Running filter feed task ${ this.id }` );
+
 		let upcomingTickets: string[];
 
 		try {
@@ -55,46 +78,48 @@ export default class FilterFeedTask extends Task {
 			return;
 		}
 
-		if ( this.knownTickets ) {
-			const unknownTickets = upcomingTickets.filter( key => !this.knownTickets.has( key ) );
+		const unknownTickets = upcomingTickets.filter( key => !this.knownTickets.has( key ) );
 
-			if ( unknownTickets.length > 0 ) {
-				try {
-					const embed = await MentionRegistry.getMention( unknownTickets ).getEmbed();
+		if ( unknownTickets.length > 0 ) {
+			try {
+				const embed = await MentionRegistry.getMention( unknownTickets ).getEmbed();
 
-					let message = '';
+				let message = '';
 
-					if ( unknownTickets.length > 1 ) {
-						embed.setTitle(
-							this.title.replace( /\{\{num\}\}/g, unknownTickets.length.toString() )
-						);
-					} else {
-						message = this.titleSingle;
-					}
+				if ( unknownTickets.length > 1 ) {
+					embed.setTitle(
+						this.title.replace( /\{\{num\}\}/g, unknownTickets.length.toString() )
+					);
+				} else {
+					message = this.titleSingle;
+				}
 
-					if ( this.channel instanceof TextChannel ) {
+				if ( this.channel instanceof TextChannel ) {
+					try {
 						const filterFeedMessage = await this.channel.send( message, embed );
 
-						await NewsUtil.publishMessage( filterFeedMessage );
+						if ( this.publish ) {
+							await NewsUtil.publishMessage( filterFeedMessage );
+						}
 
 						if ( this.filterFeedEmoji !== undefined ) {
-							try {
-								await filterFeedMessage.react( this.filterFeedEmoji );
-							} catch ( error ) {
-								FilterFeedTask.logger.error( error );
-							}
+							await filterFeedMessage.react( this.filterFeedEmoji );
 						}
-					} else {
-						throw new Error( `Expected ${ this.channel } to be a TextChannel` );
+					} catch ( error ) {
+						FilterFeedTask.logger.error( error );
 					}
-				} catch ( err ) {
-					FilterFeedTask.logger.error( err );
-					return;
+				} else {
+					throw new Error( `Expected ${ this.channel } to be a TextChannel` );
 				}
+			} catch ( err ) {
+				FilterFeedTask.logger.error( err );
+				return;
 			}
 		}
-		for ( const ticket of upcomingTickets ) {
+
+		for ( const ticket of unknownTickets ) {
 			this.knownTickets.add( ticket );
+			FilterFeedTask.logger.debug( `Added ${ ticket } to known tickets for filter feed task ${ this.id }` );
 		}
 	}
 }

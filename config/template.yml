@@ -138,18 +138,22 @@ filterFeeds:
 
     # The interval of the check for this filter feed, in milliseconds.
     interval: <number>
+    
+    # The emoji to react to all filter feed messages with.
+    # Optional; none by default.
+    filterFeedEmoji: <string>
 
     # The title for this feed embed.
     # {{num}} will be replaced by the number of ticket(s).
     title: <string>
     
-    # The emoji to react to all filter feed messages with.
-    # Optional; none by default.
-    filterFeedEmoji: <string>
-    
     # The message accompanying this feed embed, in case there's only one ticket.
     # If this is not set, `title` will be used instead.
     titleSingle: <string>
+
+    # Whether the bot should automatically publish feed messages it posts, if the channel is an announcement channel.
+    # Optional; false by default.
+    publish: <boolean>
   
   - <see above>
   - ...
@@ -175,10 +179,14 @@ versionFeeds:
     # How many versions should be monitored; only the x latest versions are monitored.
     scope: <number>
 
-    # A list of actions that should be included in the version feed
+    # A list of actions that should be included in the version feed.
     actions:
       - <'created' | 'released' | 'unreleased' | 'archived' | 'unarchived' | 'renamed'>
       - ...
+
+    # Whether the bot should automatically publish feed messages it posts, if the channel is an announcement channel.
+    # Optional; false by default.
+    publish: <boolean>
   
   - <see above>
   - ...
