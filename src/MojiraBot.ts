@@ -1,4 +1,4 @@
-import { ChannelLogsQueryOptions, Client, Message, TextChannel } from 'discord.js';
+import { ChannelLogsQueryOptions, Client, Message, MessageReaction, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from './BotConfig';
 import ErrorEventHandler from './events/discord/ErrorEventHandler';
@@ -121,11 +121,14 @@ export default class MojiraBot {
 					while ( true ) {
 						const options: ChannelLogsQueryOptions = { limit: 1, before: lastId };
 						const message = ( await requestChannel.messages.fetch( options ) ).first();
-						if ( message?.reactions?.cache.size === 0 ) {
-							try {
-								await newRequestHandler.onEvent( message );
-							} catch ( error ) {
-								MojiraBot.logger.error( error );
+						const addedByBot = ( r: MessageReaction ): boolean => !!r.users.cache.find( u => u.id === MojiraBot.client.user.id );
+						if ( !message?.reactions?.cache.find( addedByBot ) ) {
+							if ( message?.reactions?.cache.size === 0 ) {
+								try {
+									await newRequestHandler.onEvent( message );
+								} catch ( error ) {
+									MojiraBot.logger.error( error );
+								}
 							}
 
 							lastId = message.id;
