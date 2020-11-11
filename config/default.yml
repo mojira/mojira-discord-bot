@@ -43,5 +43,4 @@ request:
     {{author}} {{url}}
     {{message}}
     
-    <Enter your response here>
     ```

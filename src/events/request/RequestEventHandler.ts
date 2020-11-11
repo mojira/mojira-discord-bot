@@ -27,7 +27,9 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			return;
 		}
 
-		this.logger.info( `User ${ origin.author.tag } posted a new request to requests channel ${ origin.channel.id }` );
+		if ( origin.channel instanceof TextChannel ) {
+			this.logger.info( `${ origin.author.tag } posted request ${ origin.id } in #${ origin.channel.name }` );
+		}
 
 		try {
 			await origin.reactions.removeAll();
@@ -45,7 +47,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			}
 
 			try {
-				const warning = await origin.channel.send( `${ origin.author }, your request doesn't contain any valid ticket reference. If you'd like to add it you can edit your message.` );
+				const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) doesn't contain any valid ticket reference. If you'd like to add it you can edit your message.` );
 
 				const timeout = BotConfig.request.noLinkWarningLifetime;
 				await warning.delete( { timeout } );
@@ -92,6 +94,6 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 	private replaceTicketReferencesWithRichLinks( content: string, regex: RegExp ): string {
 		// Only one of the two capture groups ($1 and $2) can catch an ID at the same time.
 		// `$1$2` is used to get the ID from either of the two groups.
-		return content.replace( /([\[\]])/gm, '\\$1' ).replace( regex, '[$1$2](https://bugs.mojang.com/browse/$1$2$3)' );
+		return content.replace( /([[\]])/gm, '\\$1' ).replace( regex, '[$1$2](https://bugs.mojang.com/browse/$1$2$3)' );
 	}
 }
