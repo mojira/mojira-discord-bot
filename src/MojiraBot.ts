@@ -1,4 +1,4 @@
-import { ChannelLogsQueryOptions, Client, Message, MessageReaction, TextChannel } from 'discord.js';
+import { ChannelLogsQueryOptions, Client, Message, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from './BotConfig';
 import ErrorEventHandler from './events/discord/ErrorEventHandler';
@@ -114,29 +114,54 @@ export default class MojiraBot {
 						this.logger.error( err );
 					}
 				}
+
 				const newRequestHandler = new RequestEventHandler( internalChannels );
 				for ( const requestChannel of requestChannels ) {
-					let lastId: string | undefined = undefined;
-					// eslint-disable-next-line no-constant-condition
-					while ( true ) {
-						const options: ChannelLogsQueryOptions = { limit: 1, before: lastId };
-						const message = ( await requestChannel.messages.fetch( options ) ).first();
-						const addedByBot = ( r: MessageReaction ): boolean => !!r.users.cache.find( u => u.id === MojiraBot.client.user.id );
-						if ( !message?.reactions?.cache.find( addedByBot ) ) {
-							if ( message?.reactions?.cache.size === 0 ) {
-								try {
-									await newRequestHandler.onEvent( message );
-								} catch ( error ) {
-									MojiraBot.logger.error( error );
-								}
-							}
+					this.logger.info( `Catching up on requests from #${ requestChannel.name }...` );
 
-							lastId = message.id;
-						} else {
-							break;
+					let lastId: string | undefined = undefined;
+
+					let pendingRequests: Message[] = [];
+
+					let foundLastBotReaction = false;
+					while ( !foundLastBotReaction ) {
+						let fetchedMessages = await requestChannel.messages.fetch( { before: lastId } );
+
+						if ( fetchedMessages.size === 0 ) break;
+
+						fetchedMessages = fetchedMessages.sort( ( a: Message, b: Message ) => {
+							return a.createdAt < b.createdAt ? -1 : 1;
+						} );
+
+						for ( const messageId of fetchedMessages.keys() ) {
+							const message = fetchedMessages.get( messageId );
+							const hasBotReaction = message.reactions.cache.find( reaction => reaction.me ) !== undefined;
+							const hasReactions = message.reactions.cache.size > 0;
+
+							if ( hasBotReaction ) {
+								foundLastBotReaction = true;
+							} else if ( !hasReactions ) {
+								pendingRequests.push( message );
+							}
+						}
+
+						lastId = fetchedMessages.firstKey();
+					}
+
+					pendingRequests = pendingRequests.sort( ( a: Message, b: Message ) => {
+						return a.createdAt < b.createdAt ? -1 : 1;
+					} );
+
+					for ( const message of pendingRequests ) {
+						try {
+							await newRequestHandler.onEvent( message );
+						} catch ( error ) {
+							MojiraBot.logger.error( error );
 						}
 					}
 				}
+
+				this.logger.info( 'Fully caught up on requests.' );
 			}
 
 			EventRegistry.add( new ReactionAddEventHandler( this.client.user.id, internalChannels ) );
