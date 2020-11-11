@@ -34,6 +34,19 @@ export default class MojiraBot {
 			return;
 		}
 
+		// Ensure graceful shutdown
+		process.on( 'SIGTERM', async () => {
+			this.logger.info( 'The bot process has been terminated (SIGTERM).' );
+
+			await MojiraBot.shutdown();
+		} );
+
+		process.on( 'SIGINT', async () => {
+			this.logger.info( 'The bot process has been terminated (SIGINT).' );
+
+			await MojiraBot.shutdown();
+		} );
+
 		try {
 			const loginResult = await BotConfig.login( this.client );
 			if ( !loginResult ) return;
@@ -172,15 +185,9 @@ export default class MojiraBot {
 			if ( homeChannel instanceof TextChannel ) {
 				await ( homeChannel as TextChannel ).send( 'Hey, I have been restarted!' );
 			}
-
-			process.on( 'beforeExit', exitCode => {
-				this.logger.info( `The bot has been shut down. Exit code: ${ exitCode }` );
-				if ( this.running ) {
-					this.client.destroy();
-				}
-			} );
 		} catch ( err ) {
 			this.logger.error( `MojiraBot could not be started: ${ err }` );
+			await this.shutdown();
 		}
 	}
 
@@ -190,12 +197,20 @@ export default class MojiraBot {
 			return;
 		}
 
+		this.logger.info( 'Initiating graceful shutdown...' );
+
 		try {
 			TaskScheduler.clearAll();
 			this.client.destroy();
 			this.running = false;
 			this.logger.info( 'MojiraBot has been successfully shut down.' );
-			log4js.shutdown( ( err ) => err && console.log( err ) );
+
+			log4js.shutdown( ( err ) => {
+				if ( err ) {
+					console.log( err );
+				}
+				process.exit();
+			} );
 		} catch ( err ) {
 			this.logger.error( `MojiraBot could not be shut down: ${ err }` );
 		}
