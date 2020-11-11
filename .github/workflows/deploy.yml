@@ -28,15 +28,15 @@ jobs:
           ${{ runner.os }}-node-
 
     - name: Install dependencies
-      run: npm install
-
-    - name: Check code style
-      run: npm run lint --if-present
+      run: npm i -D --no-audit
       
     - name: Compile to JavaScript
       run: npm run build --if-present
       env:
         CI: true
+    
+    - name: Prune dependencies
+      run: npm prune --production
         
     - name: Upload new binaries
       uses: urielsalis/rsync-deploy@v1.4
@@ -44,6 +44,17 @@ jobs:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
         FOLDER: "bin"
+        ARGS: "-avh --delete"
+        SERVER_IP: ssh.urielsalis.com
+        USERNAME: ${{ secrets.REMOTE_USER }}
+        SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
+    
+    - name: Upload new dependencies
+      uses: urielsalis/rsync-deploy@v1.4
+      env:
+        DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SERVER_PORT: 22
+        FOLDER: "node_modules"
         ARGS: "-avh --delete"
         SERVER_IP: ssh.urielsalis.com
         USERNAME: ${{ secrets.REMOTE_USER }}
@@ -71,24 +82,13 @@ jobs:
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
 
-    - name: Update package.json
+    - name: Update shell files
       uses: urielsalis/rsync-deploy@v1.4
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
-        FOLDER: "package.json"
-        ARGS: "-avh --delete"
-        SERVER_IP: ssh.urielsalis.com
-        USERNAME: ${{ secrets.REMOTE_USER }}
-        SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
-
-    - name: Update package-lock.json
-      uses: urielsalis/rsync-deploy@v1.4
-      env:
-        DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        SERVER_PORT: 22
-        FOLDER: "package-lock.json"
-        ARGS: "-avh --delete"
+        FOLDER: "*.sh"
+        ARGS: "-avh"
         SERVER_IP: ssh.urielsalis.com
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
@@ -100,8 +100,6 @@ jobs:
         user: ${{ secrets.REMOTE_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         command: |
-          /usr/bin/screen -ls | /bin/grep Detached | /usr/bin/cut -d. -f1 | /usr/bin/awk '{print $1}' | /usr/bin/xargs /bin/kill
-          sleep 1
           cd mojira-discord-bot
-          /usr/bin/screen -d -m bash -c 'npm install && NODE_ENV=main node bin; exec sh'
+          ./restart.sh main
         args: "-tt"

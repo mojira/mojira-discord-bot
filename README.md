@@ -64,13 +64,27 @@ You can create another configuration like that for your own bot.
 An overview / documentation of all config options can be found in `template.yml`.
 
 ### Running
-To run the bot, you need to run the following command:
+#### Testing / development
+For testing or development purposes, it is recommended to run the bot using the following command:
 
 ```
 NODE_ENV=<deployment> npm run bot
 ```
 
 where `<deployment>` is the name of a deployment configuration (`main` or `beta`).
+
+#### Deployment
+To deploy the bot, you need to run the following command:
+
+```
+./start.sh <deployment>
+```
+
+where `<deployment>` is the name of a deployment configuration (`main` or `beta`).
+
+Note that the bot is started in a detached screen, which means you won't see any output and the bot is running in the background.
+
+You can stop the bot with `./stop.sh <deployment>` or restart it with `./restart.sh <deployment>`.
 
 ## Built with
 
