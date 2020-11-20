@@ -3,7 +3,7 @@ import PrefixCommand from './PrefixCommand';
 import BotConfig from '../BotConfig';
 
 export default class TipsCommand extends PrefixCommand {
-	public readonly aliases = ['tips','tutorial'];
+	public readonly aliases = ['tips', 'tutorial'];
 
 	public async run( message: Message ): Promise<boolean> {
 		try {
