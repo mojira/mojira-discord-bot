@@ -82,15 +82,15 @@ export default class FilterFeedTask extends Task {
 
 		try {
 			let ticketKeys: string;
-			for( const ticket of this.knownTickets ) {
-				ticketKeys = ticketKeys + ticket + ','; 
+			for ( const ticket of this.knownTickets ) {
+				ticketKeys = ticketKeys + ticket + ',';
 			}
-			ticketKeys = ticketKeys.slice(0 , -1);
+			ticketKeys = ticketKeys.slice(0, -1);
 			const previousTicketResults = await this.jira.search.search( {
 				jql: `resolution = Unresolved AND key in (${ ticketKeys })`,
 				fields: ['key'],
 			} );
-			
+
 			if ( !previousTicketResults.issues ) {
 				FilterFeedTask.logger.error( 'Error: no issues returned by JIRA' );
 				return;
