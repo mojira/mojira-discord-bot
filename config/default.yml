@@ -31,10 +31,10 @@ request:
     - ✅
     - ☑️
     - ❌
-    - :speech_balloon:
+    - 💬
   
   ignorePrependResponseMessageEmoji: ✅
-  ignoreResolutionEmoji: :speech_balloon:
+  ignoreResolutionEmoji: 💬
 
   resolveDelay: 10000
   prependResponseMessage: whenResolved
