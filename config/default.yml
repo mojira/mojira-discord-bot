@@ -31,8 +31,10 @@ request:
     - ✅
     - ☑️
     - ❌
+    - 💬
   
   ignorePrependResponseMessageEmoji: ✅
+  ignoreResolutionEmoji: 💬
 
   resolveDelay: 10000
   prependResponseMessage: whenResolved
