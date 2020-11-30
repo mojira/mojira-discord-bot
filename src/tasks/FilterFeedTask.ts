@@ -85,7 +85,7 @@ export default class FilterFeedTask extends Task {
 			for ( const ticket of this.knownTickets ) {
 				ticketKeys = ticketKeys + ticket + ',';
 			}
-			ticketKeys = ticketKeys.slice(0, -1);
+			ticketKeys = ticketKeys.slice( 0, -1 );
 			const previousTicketResults = await this.jira.search.search( {
 				jql: `resolution = Unresolved AND key in (${ ticketKeys })`,
 				fields: ['key'],
