@@ -136,7 +136,7 @@ filterFeeds:
     # The filter's JQL query.
   - jql: <string>
 
-    # The JQL query for reposting tickets that have been posted previously.
+    # The JQL query for which tickets should be allowed to be reposted that have been posted previously.
     jqlRemoved: <string>
 
     # The ID of the channel in which the feed should be sent.
