@@ -84,6 +84,9 @@ request:
   # An emoji or emoji ID which, when used, doesn't trigger the response template message.
   ignorePrependResponseMessageEmoji: <string>
 
+  # An emoji or emoji ID which, when used, doesn't resolve the request.
+  ignoreResolutionEmoji: <string>
+
   # The amount of time in milliseconds between a volunteer reacts to the message and the bot deletes its message.
   resolveDelay: <number>
 
@@ -132,6 +135,9 @@ roleGroups:
 filterFeeds:
     # The filter's JQL query.
   - jql: <string>
+
+    # The JQL query for reposting tickets that have been posted previously.
+    jqlRemoved: <string>
 
     # The ID of the channel in which the feed should be sent.
     channel: <string>
