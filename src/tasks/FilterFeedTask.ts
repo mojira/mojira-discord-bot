@@ -61,6 +61,8 @@ export default class FilterFeedTask extends Task {
 
 		let upcomingTickets: string[];
 
+		let reopenedTickets: string[];
+
 		try {
 			const searchResults = await this.jira.search.search( {
 				jql: this.jql,
@@ -76,6 +78,33 @@ export default class FilterFeedTask extends Task {
 		} catch ( err ) {
 			FilterFeedTask.logger.error( err );
 			return;
+		}
+
+		try {
+			let ticketKeys: string;
+			for( const ticket of this.knownTickets ) {
+				ticketKeys = ticketKeys + ticket + ','; 
+			}
+			ticketKeys = ticketKeys.slice(0 , -1);
+			const previousTicketResults = await this.jira.search.search( {
+				jql: `resolution = Unresolved AND key in (${ ticketKeys })`,
+				fields: ['key'],
+			} );
+			
+			if ( !previousTicketResults.issues ) {
+				FilterFeedTask.logger.error( 'Error: no issues returned by JIRA' );
+				return;
+			}
+
+			reopenedTickets = previousTicketResults.issues.map( ( { key } ) => key );
+		} catch ( err ) {
+			FilterFeedTask.logger.error( err );
+			return;
+		}
+
+		for ( const ticket of reopenedTickets ) {
+			this.knownTickets.delete( ticket );
+			FilterFeedTask.logger.debug( `Removed ${ ticket } from known tickets for filter feed task ${ this.id }` );
 		}
 
 		const unknownTickets = upcomingTickets.filter( key => !this.knownTickets.has( key ) );
