@@ -6,7 +6,6 @@ import MentionCommand from './MentionCommand';
 import PollCommand from './PollCommand';
 import RolesCommand from './RolesCommand';
 import ShutdownCommand from './ShutdownCommand';
-import TipsCommand from './TipsCommand';
 
 export default class CommandRegistry {
 	public static BUG_COMMAND = new BugCommand();
@@ -17,5 +16,4 @@ export default class CommandRegistry {
 	public static POLL_COMMAND = new PollCommand();
 	public static ROLES_COMMAND = new RolesCommand();
 	public static SHUTDOWN_COMMAND = new ShutdownCommand();
-	public static TIPS_COMMAND = new TipsCommand();
 }
