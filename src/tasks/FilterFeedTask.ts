@@ -13,6 +13,7 @@ export default class FilterFeedTask extends Task {
 	private jira: JiraClient;
 	private channel: Channel;
 	private jql: string;
+	private jqlRemoved: string;
 	private filterFeedEmoji: string;
 	private title: string;
 	private titleSingle: string;
@@ -31,6 +32,7 @@ export default class FilterFeedTask extends Task {
 
 		this.channel = channel;
 		this.jql = feedConfig.jql;
+		this.jqlRemoved = feedConfig.jqlRemoved;
 		this.filterFeedEmoji = feedConfig.filterFeedEmoji;
 		this.title = feedConfig.title;
 		this.titleSingle = feedConfig.titleSingle || feedConfig.title.replace( /\{\{num\}\}/g, '1' );
@@ -87,7 +89,7 @@ export default class FilterFeedTask extends Task {
 			}
 			ticketKeys = ticketKeys.slice( 0, -1 );
 			const previousTicketResults = await this.jira.search.search( {
-				jql: `resolution = Unresolved AND key in (${ ticketKeys })`,
+				jql: `${ this.jqlRemoved } AND key in (${ ticketKeys })`,
 				fields: ['key'],
 			} );
 

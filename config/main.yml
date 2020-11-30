@@ -74,6 +74,7 @@ roleGroups:
 
 filterFeeds:
   - jql: project = MC AND resolved > -1m AND resolution = Fixed AND fixVersion in unreleasedVersions()
+    jqlRemoved: resolution = Unresolved
     channel: '666349583227682819'
     interval: 30000
     filterFeedEmoji: '🎉'
