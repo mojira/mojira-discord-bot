@@ -72,7 +72,7 @@ export default class ResolveRequestMessageTask extends MessageTask {
 
 				if ( origin.member.roles.cache.has( BotConfig.request.oldNotificationsRole ) ) {
 					const curTime = new Date();
-					const createdTime = origin.createdAt();
+					const createdTime = origin.createdAt;
 					const timeDifference = Math.abs( curTime.getTime() - createdTime.getTime() );
 					if ( timeDifference >= BotConfig.request.oldNotificationsTimeDifference ) {
 						try {
