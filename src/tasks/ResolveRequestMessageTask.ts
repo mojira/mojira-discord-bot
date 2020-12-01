@@ -51,7 +51,11 @@ export default class ResolveRequestMessageTask extends MessageTask {
 			const internalChannelName = this.internalChannelNames.get( internalChannelId );
 			if ( internalChannel && internalChannel instanceof TextChannel ) {
 				const messageCount = internalChannel.messages.cache.size;
-				internalChannel.setName( `${ messageCount }-${ internalChannelName }` );
+				try {
+					await internalChannel.setName( `${ messageCount }-${ internalChannelName }` );
+				} catch ( error ) {
+					ResolveRequestMessageTask.logger.error( error );
+				}
 			}
 
 			if ( BotConfig.request.logChannel ) {
