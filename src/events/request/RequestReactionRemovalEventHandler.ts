@@ -3,7 +3,7 @@ import * as log4js from 'log4js';
 import TaskScheduler from '../../tasks/TaskScheduler';
 import EventHandler from '../EventHandler';
 
-export default class RequestReactionRemovalrEventHandler implements EventHandler<'messageReactionAdd'> {
+export default class RequestReactionRemovalEventHandler implements EventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';
 
 	private logger = log4js.getLogger( 'RequestResolutionRemovalEventHandler' );
