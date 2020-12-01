@@ -117,6 +117,7 @@ export default class ResolveRequestMessageTask extends MessageTask {
 						}
 					}
 				}
+			}
 
 			if ( BotConfig.request.logChannel ) {
 				const logChannel = await DiscordUtil.getChannel( BotConfig.request.logChannel );

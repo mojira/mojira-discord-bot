@@ -41,7 +41,7 @@ request:
   oldNotificationsRole: 'Three Day Old Request Notifications'
   oldNotificationsTimeDifference: 259200000 # 3 days
   longNotificationsRole: 'One Week Old Request Notifications'
-  longNotificationsTimeDifference: 259200000 # 1 week
+  longNotificationsTimeDifference: 604800000 # 1 week
 
   resolveDelay: 10000
   prependResponseMessage: whenResolved
