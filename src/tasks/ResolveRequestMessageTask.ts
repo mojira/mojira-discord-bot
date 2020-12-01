@@ -49,7 +49,7 @@ export default class ResolveRequestMessageTask extends MessageTask {
 			const internalChannelId = this.internalChannels.get( origin.channel.id );
 			const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 			const internalChannelName = this.internalChannelNames.get( internalChannelId );
-			if ( internalChannel.type === 'text' ) {
+			if ( internalChannel && internalChannel instanceof TextChannel ) {
 				const messageCount = internalChannel.messages.cache.size;
 				internalChannel.setName( `${ messageCount }-${ internalChannelName }` );
 			}
