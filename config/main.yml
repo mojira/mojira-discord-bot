@@ -72,20 +72,33 @@ roleGroups:
           (please indicate in your nickname)
         emoji: '🇴'
   - prompt: |-
-      Select a reaction on this message if you want to be notified in DMs when your requests are resolved.
+      Request Notifications (1/2)
+      Select reaction(s) on this message to be notified in DMs when specific requests are resolved. 
+    channel: '648479533246316555'
+    message: #TODO
+    radio: false
+    roles:
+      - id: #TODO
+      desc: Be notified of your resolved requests that are resolved as ✅.
+      emoji: '✅'
+      - id: #TODO
+      desc: Be notified of your resolved requests that are not resolved as ✅.
+      emoji: '☑️'
+  - prompt: |-
+      Request Notifications (2/2)
+      Select a reaction on this message if you want to be notified in DMs when requests are resolved after a certain amount of time.
+      Default is no time requirement.
     channel: '648479533246316555'
     message: #TODO
     radio: true
     roles:
       - id: #TODO
-      desc: Be notified of all of your resolved requests.
-      emoji: '🔔'
+      desc: Be notified of your resolved requests that are resolved at least three days after creation.
+      emoji: ':three:'
       - id: #TODO
-      desc: Be notified of your resolved requests that are not resolved as ✅.
-      emoji: '🛎️'
-      - id: #TODO
-      desc: Be notified of your resolved requests that are resolved at least three days after they were created.
-      emoji: '⏰'
+      desc: Be notified of your resolved requests that are resolved at least one week after creation.
+      emoji: ':seven:'
+      
 
 
 filterFeeds:
