@@ -10,7 +10,7 @@ export default class RequestReactionRemovalEventHandler implements EventHandler<
 	// This syntax is used to ensure that `this` refers to the `RequestResolveEventHandler` object
 	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ reaction.message.id }'` );
-                const guildMember = reaction.message.guild.members.fetch(user);
+                const guildMember = reaction.message.guild.member(user);
 
                 if ( guildMember.permissionsIn(reaction.message.channel) !== 'ADD_REACTIONS' ) {
 		     reaction.users.remove(user);
