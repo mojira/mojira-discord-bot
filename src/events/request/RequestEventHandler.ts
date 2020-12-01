@@ -13,7 +13,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 	private logger = log4js.getLogger( 'RequestEventHandler' );
 
 	/**
-	 * A map from request channel IDs to internal channel objects.
+	 * A map from request channel IDs to internal channel objects and names.
 	 */
 	private readonly internalChannels: Map<string, string>;
 	private readonly internalChannelNames: Map<string, string>;
