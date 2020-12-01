@@ -84,22 +84,22 @@ request:
   # An emoji or emoji ID which, when used, doesn't trigger the response template message.
   ignorePrependResponseMessageEmoji: <string>
 
-  # The name of the role that signifies users that get notifications from some of their resolved requests.
+  # The ID of the role that signifies users that get notifications from some of their resolved requests.
   # This includes only the ignorePrependResponseMessageEmoji resolution.
   normalNotificationsRole: <string>
 
-  # The name of the role that signifies users that get some of the notifications from their resolved requests.
+  # The ID of the role that signifies users that get some of the notifications from their resolved requests.
   # This does not include the ignorePrependResponseMessageEmoji resolution.
   someNotificationsRole: <string>
 
-  # The name of the role that signifies users that get all notifications from their resolved requests from a certain time period before.
+  # The ID of the role that signifies users that get all notifications from their resolved requests from a certain time period before.
   oldNotificationsRole: <string>
 
   # The amount of time in milliseconds that needs to occur after creating a request before a user will get a notification for their report.
   # Only applies to the oldNotificationsRole.
   oldNotificationsTimeDifference: <number>
 
-  # The name of the role that signifies users that get all notifications from their resolved requests regardless of the time it took to resolve.
+  # The ID of the role that signifies users that get all notifications from their resolved requests regardless of the time it took to resolve.
   longNotificationsRole: <string>
 
   # The amount of time in milliseconds that needs to occur after creating a request before a user will get a notification for their report.
