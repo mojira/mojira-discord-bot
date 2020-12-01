@@ -25,6 +25,10 @@ export class RequestConfig {
 	public suggestedEmoji: string[];
 	public ignorePrependResponseMessageEmoji: string;
 	public ignoreResolutionEmoji: string;
+	public fullNotificationsRole: string;
+	public someNotificationsRole: string;
+	public oldNotificationsRole: string;
+	public oldNotificationsTimeDifference: number;
 	public resolveDelay: number;
 	public prependResponseMessage: PrependResponseMessageType;
 	public prependResponseMessageInLog: boolean;
@@ -45,6 +49,11 @@ export class RequestConfig {
 		this.suggestedEmoji = getOrDefault( 'request.suggestedEmoji', [] );
 		this.ignorePrependResponseMessageEmoji = config.get( 'request.ignorePrependResponseMessageEmoji' );
 		this.ignoreResolutionEmoji = config.get( 'request.ignoreResolutionEmoji' );
+
+		this.fullNotificationsRole = config.get( 'request.fullNotificationsRole' );
+		this.someNotificationsRole = config.get( 'request.someNotificationsRole' );
+		this.oldNotificationsRole = config.get( 'request.oldNotificationsRole' );
+		this.oldNotificationsTimeDifference = config.get( 'request.oldNotificationsTimeDifference' );
 
 		this.resolveDelay = config.get( 'request.resolveDelay' );
 		this.prependResponseMessage = getOrDefault( 'request.prependResponseMessage', PrependResponseMessageType.Never );

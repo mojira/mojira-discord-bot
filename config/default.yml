@@ -36,6 +36,11 @@ request:
   ignorePrependResponseMessageEmoji: ✅
   ignoreResolutionEmoji: 💬
 
+  fullNotificationsRole: 'All Request Notifications'
+  someNotificationsRole: 'Fewer Request Notifications'
+  oldNotificationsRole: 'Old Request Notifications'
+  oldNotificationsTimeDifference: 259200000 # 3 days
+
   resolveDelay: 10000
   prependResponseMessage: whenResolved
   prependResponseMessageInLog: false

@@ -71,6 +71,22 @@ roleGroups:
           Other Pronoun
           (please indicate in your nickname)
         emoji: '🇴'
+  - prompt: |-
+      Select a reaction on this message if you want to be notified in DMs when your requests are resolved.
+    channel: '648479533246316555'
+    message: #TODO
+    radio: true
+    roles:
+      - id: #TODO
+      desc: Be notified of all of your resolved requests.
+      emoji: '🔔'
+      - id: #TODO
+      desc: Be notified of your resolved requests that are not resolved as ✅.
+      emoji: '🛎️'
+      - id: #TODO
+      desc: Be notified of your resolved requests that are resolved at least three days after they were created.
+      emoji: '⏰'
+
 
 filterFeeds:
   - jql: project = MC AND resolved > -1m AND resolution = Fixed AND fixVersion in unreleasedVersions()

@@ -41,6 +41,49 @@ export default class ResolveRequestMessageTask extends MessageTask {
 				ResolveRequestMessageTask.logger.error( error );
 			}
 
+			if ( origin.author ) {
+				const response = BotConfig.request.prependResponseMessageInLog ?
+						RequestsUtil.getResponseMessage( origin ) : '';
+
+				const log = new MessageEmbed()
+						.setColor( 'GREEN' )
+						.setAuthor( origin.author.tag, origin.author.avatarURL() )
+						.setDescription( origin.content )
+						.addField( 'Channel', origin.channel.toString(), true )
+						.addField( 'Message', `[Here](${ origin.url })`, true )
+						.setFooter( `${ this.user.tag } resolved as ${ this.emoji }`, this.user.avatarURL() )
+						.setTimestamp( new Date() );
+
+				if ( origin.author.roles.find( r => r.name === BotConfig.request.fullNotificationsRole ) ) {
+					try {
+						await origin.author.send( response, log );
+					} catch ( error ) {
+						ResolveRequestMessageTask.logger.error( error );
+					}
+				}
+
+				if ( origin.author.roles.find( r => r.name === BotConfig.request.someNotificationsRole ) && this.emoji != BotConfig.request.ignorePrependResponseMessageEmoji ) {
+					try {
+						await origin.author.send( response, log );
+					} catch ( error ) {
+						ResolveRequestMessageTask.logger.error( error );
+					}
+				}
+
+				if ( origin.author.roles.find( r => r.name === BotConfig.request.oldNotificationsRole ) ) {
+					const curTime = new Date();
+					const createdTime = origin.createdAt();
+					const timeDifference = Math.abs( curTime.getTime() - createdTime.getTime() );
+					if ( timeDifference >= BotConfig.request.oldNotificationsTimeDifference ) {
+						try {
+							await origin.author.send( response, log );
+						} catch ( error ) {
+							ResolveRequestMessageTask.logger.error( error );
+						}
+					}
+				}
+			}
+
 			if ( BotConfig.request.logChannel ) {
 				const logChannel = await DiscordUtil.getChannel( BotConfig.request.logChannel );
 				if ( logChannel && logChannel instanceof TextChannel ) {
