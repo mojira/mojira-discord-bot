@@ -185,7 +185,7 @@ export default class MojiraBot {
 				this.logger.info( 'Fully caught up on requests.' );
 			}
 
-			EventRegistry.add( new ReactionAddEventHandler( this.client.user.id, internalChannels ) );
+			EventRegistry.add( new ReactionAddEventHandler( this.client.user.id, internalChannels, internalChannelNames  ) );
 			EventRegistry.add( new ReactionRemoveEventHandler( this.client.user.id ) );
 			EventRegistry.add( new MessageEventHandler( this.client.user.id, internalChannels, internalChannelNames ) );
 			EventRegistry.add( new MessageUpdateEventHandler( this.client.user.id, internalChannels, internalChannelNames ) );

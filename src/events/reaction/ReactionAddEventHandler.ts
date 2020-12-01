@@ -13,14 +13,15 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 	private readonly botUserId: string;
 
 	private readonly roleSelectHandler = new RoleSelectEventHandler();
-	private readonly requestResolveEventHandler = new RequestResolveEventHandler();
+	private readonly requestResolveEventHandler: RequestResolveEventHandler;
 	private readonly requestReopenEventHandler: RequestReopenEventHandler;
 
-	constructor( botUserId: string, internalChannels: Map<string, string> ) {
+	constructor( botUserId: string, internalChannels: Map<string, string>, internalChannelNames: Map<string, string> ) {
 		this.botUserId = botUserId;
 
-		const requestEventHandler = new RequestEventHandler( internalChannels );
+		const requestEventHandler = new RequestEventHandler( internalChannels, internalChannelNames );
 		this.requestReopenEventHandler = new RequestReopenEventHandler( requestEventHandler );
+		this.requestResolveEventHandler = new RequestResolveEventHandler( internalChannels, internalChannelNames );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `ReactionAddEventHandler` object
