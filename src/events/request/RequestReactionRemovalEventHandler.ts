@@ -6,7 +6,7 @@ import EventHandler from '../EventHandler';
 export default class RequestReactionRemovalEventHandler implements EventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';
 
-	private logger = log4js.getLogger( 'RequestResolutionRemovalEventHandler' );
+	private logger = log4js.getLogger( 'RequestReactionRemovalEventHandler' );
 
 	// This syntax is used to ensure that `this` refers to the `RequestResolveEventHandler` object
 	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
