@@ -90,7 +90,7 @@ request:
 
   # The ID of the role that signifies users that get some of the notifications from their resolved requests.
   # This does not include the ignorePrependResponseMessageEmoji resolution.
-  someNotificationsRole: <string>
+  specialNotificationsRole: <string>
 
   # The ID of the role that signifies users that get all notifications from their resolved requests from a certain time period before.
   oldNotificationsRole: <string>

@@ -86,7 +86,7 @@ export default class ResolveRequestMessageTask extends MessageTask {
 					}
 				}
 
-				if ( origin.member.roles.cache.has( BotConfig.request.someNotificationsRole ) && this.emoji !== BotConfig.request.ignorePrependResponseMessageEmoji ) {
+				if ( origin.member.roles.cache.has( BotConfig.request.specialNotificationsRole ) && this.emoji !== BotConfig.request.ignorePrependResponseMessageEmoji ) {
 					if ( origin.member.roles.cache.has( BotConfig.request.oldNotificationsRole ) ) {
 						const curTime = new Date();
 						const createdTime = origin.createdAt;

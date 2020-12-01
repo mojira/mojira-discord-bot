@@ -26,7 +26,7 @@ export class RequestConfig {
 	public ignorePrependResponseMessageEmoji: string;
 	public ignoreResolutionEmoji: string;
 	public normalNotificationsRole: string;
-	public someNotificationsRole: string;
+	public specialNotificationsRole: string;
 	public oldNotificationsRole: string;
 	public oldNotificationsTimeDifference: number;
 	public longNotificationsRole: string;
@@ -53,7 +53,7 @@ export class RequestConfig {
 		this.ignoreResolutionEmoji = config.get( 'request.ignoreResolutionEmoji' );
 
 		this.normalNotificationsRole = config.get( 'request.normalNotificationsRole' );
-		this.someNotificationsRole = config.get( 'request.someNotificationsRole' );
+		this.specialNotificationsRole = config.get( 'request.specialNotificationsRole' );
 		this.oldNotificationsRole = config.get( 'request.oldNotificationsRole' );
 		this.oldNotificationsTimeDifference = config.get( 'request.oldNotificationsTimeDifference' );
 		this.longNotificationsRole = config.get( 'request.longNotificationsRole' );
