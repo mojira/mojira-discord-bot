@@ -12,7 +12,7 @@ export default class RequestReactionRemovalEventHandler implements EventHandler<
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ reaction.message.id }'` );
                 const guildMember = reaction.members.fetch(user);
 
-                if ( !guildMember.roles.cache.has( #mod role id ) && !guildMember.roles.cache.has( #helper role id ) ) {
+                if ( guildMember.permissionsIn(reaction.message.channel) !== 'ADD_REACTIONS' ) {
 		     reaction.users.remove(user);
                 }
 	};
