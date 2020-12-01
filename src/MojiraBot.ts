@@ -83,17 +83,20 @@ export default class MojiraBot {
 
 			const requestChannels: TextChannel[] = [];
 			const internalChannels = new Map<string, string>();
+			const internalChannelNames = new Map<string, string>();
 
 			if ( BotConfig.request.channels ) {
 				for ( let i = 0; i < BotConfig.request.channels.length; i++ ) {
 					const requestChannelId = BotConfig.request.channels[i];
 					const internalChannelId = BotConfig.request.internalChannels[i];
+					const internalChannelName = BotConfig.request.internalChannelNames[i];
 					try {
 						const requestChannel = await DiscordUtil.getChannel( requestChannelId );
 						const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 						if ( requestChannel instanceof TextChannel && internalChannel instanceof TextChannel ) {
 							requestChannels.push( requestChannel );
 							internalChannels.set( requestChannelId, internalChannelId );
+							internalChannelNames.set( internalChannelId, internalChannelName )
 							// https://stackoverflow.com/questions/55153125/fetch-more-than-100-messages
 							const allMessages: Message[] = [];
 							let lastId: string | undefined;
@@ -133,7 +136,7 @@ export default class MojiraBot {
 					}
 				}
 
-				const newRequestHandler = new RequestEventHandler( internalChannels );
+				const newRequestHandler = new RequestEventHandler( internalChannels, internalChannelNames );
 				for ( const requestChannel of requestChannels ) {
 					this.logger.info( `Catching up on requests from #${ requestChannel.name }...` );
 
@@ -184,9 +187,9 @@ export default class MojiraBot {
 
 			EventRegistry.add( new ReactionAddEventHandler( this.client.user.id, internalChannels ) );
 			EventRegistry.add( new ReactionRemoveEventHandler( this.client.user.id ) );
-			EventRegistry.add( new MessageEventHandler( this.client.user.id, internalChannels ) );
-			EventRegistry.add( new MessageUpdateEventHandler( this.client.user.id, internalChannels ) );
-			EventRegistry.add( new MessageDeleteEventHandler( this.client.user.id, internalChannels ) );
+			EventRegistry.add( new MessageEventHandler( this.client.user.id, internalChannels, internalChannelNames ) );
+			EventRegistry.add( new MessageUpdateEventHandler( this.client.user.id, internalChannels, internalChannelNames ) );
+			EventRegistry.add( new MessageDeleteEventHandler( this.client.user.id, internalChannels, internalChannelNames ) );
 
 			// #region Schedule tasks.
 			// Filter feed tasks.

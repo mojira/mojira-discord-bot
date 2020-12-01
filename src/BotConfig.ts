@@ -17,6 +17,7 @@ export enum PrependResponseMessageType {
 export class RequestConfig {
 	public channels: string[];
 	public internalChannels: string[];
+	public internalChannelNames: string[];
 	public logChannel: string;
 
 	public noLinkEmoji: string;
@@ -33,9 +34,13 @@ export class RequestConfig {
 	constructor() {
 		this.channels = getOrDefault( 'request.channels', [] );
 		this.internalChannels = this.channels.length ? config.get( 'request.internalChannels' ) : getOrDefault( 'request.internalChannels', [] );
+		this.internalChannelNames = this.channels.length ? config.get( 'request.internalChannelNames' ) : getOrDefault( 'request.internalChannelNames', [] );
 		this.logChannel = config.get( 'request.logChannel' );
 
 		if ( this.channels.length !== this.internalChannels.length ) {
+			throw new Error( 'There are not exactly as many Request channels and ' );
+		}
+				if ( this.channels.length !== this.internalChannelNames.length ) {
 			throw new Error( 'There are not exactly as many Request channels and ' );
 		}
 

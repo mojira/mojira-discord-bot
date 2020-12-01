@@ -14,9 +14,11 @@ export default class RequestDeleteEventHandler implements EventHandler<'messageD
 	 * A map from request channel IDs to internal channel objects.
 	 */
 	private readonly internalChannels: Map<string, string>;
+	private readonly internalChannelNames: Map<string, string>;
 
-	constructor( internalChannels: Map<string, string> ) {
+	constructor( internalChannels: Map<string, string>, internalChannelNames: Map<string, string> ) {
 		this.internalChannels = internalChannels;
+		this.internalChannelNames = internalChannelNames;
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestDeleteEventHandler` object
@@ -25,6 +27,7 @@ export default class RequestDeleteEventHandler implements EventHandler<'messageD
 
 		const internalChannelId = this.internalChannels.get( origin.channel.id );
 		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
+		const internalChannelName = this.internalChannelNames.get( internalChannelId );
 
 		if ( internalChannel && internalChannel instanceof TextChannel ) {
 			for ( const [, internalMessage] of internalChannel.messages.cache ) {
@@ -37,6 +40,8 @@ export default class RequestDeleteEventHandler implements EventHandler<'messageD
 					if ( internalMessage.deletable ) {
 						try {
 							await internalMessage.delete();
+							const messageCount = internalChannel.messages.cache.size;
+							internalChannel.setName( `${ messageCount }-${ internalChannelName }` )
 						} catch ( error ) {
 							this.logger.error( error );
 						}

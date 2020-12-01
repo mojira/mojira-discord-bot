@@ -58,6 +58,16 @@ request:
     - <string>
     - <string>
     - ...
+
+  # The names of the corresponding internal channels of the request channels.
+  # All the messages sent in a request channel by users will be forwarded to the respective internal channel by the bot.
+  # The length of this array MUST be the same as the length of `channels`.
+  # You MAY use the same internal channel for multiple times.
+  # Optional; empty by default.
+  internalChannelNames:
+    - <string>
+    - <string>
+    - ...
   
   # A channel which stores logs like `<volunteer> resolved <original message ID> as <emoji>.`
   logChannel: <string>

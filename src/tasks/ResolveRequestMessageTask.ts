@@ -10,11 +10,15 @@ export default class ResolveRequestMessageTask extends MessageTask {
 
 	private readonly emoji: EmojiResolvable;
 	private readonly user: User;
+	private readonly internalChannels: Map<string, string>;
+	private readonly internalChannelNames: Map<string, string>;
 
-	constructor( emoji: EmojiResolvable, user: User ) {
+	constructor( emoji: EmojiResolvable, user: User, internalChannels: Map<string, string>, internalChannelNames: Map<string, string> ) {
 		super();
 		this.emoji = emoji;
 		this.user = user;
+		this.internalChannels = internalChannels;
+		this.internalChannelNames = internalChannelNames;
 	}
 
 	public async run( copy: Message ): Promise<void> {
@@ -29,6 +33,7 @@ export default class ResolveRequestMessageTask extends MessageTask {
 		}
 
 		if ( origin ) {
+
 			try {
 				await origin.reactions.removeAll();
 			} catch ( error ) {
@@ -40,6 +45,12 @@ export default class ResolveRequestMessageTask extends MessageTask {
 			} catch ( error ) {
 				ResolveRequestMessageTask.logger.error( error );
 			}
+
+			const internalChannelId = this.internalChannels.get( origin.channel.id );
+			const internalChannel = await DiscordUtil.getChannel( internalChannelId );
+			const internalChannelName = this.internalChannelNames.get( internalChannelId );
+			const messageCount = internalChannel.messages.cache.size;
+			internalChannel.setName( `${ messageCount }-${ internalChannelName }` )
 
 			if ( BotConfig.request.logChannel ) {
 				const logChannel = await DiscordUtil.getChannel( BotConfig.request.logChannel );

@@ -12,11 +12,11 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 	private readonly requestEventHandler: RequestEventHandler;
 	private readonly requestDeleteEventHandler: RequestDeleteEventHandler;
 
-	constructor( botUserId: string, internalChannels: Map<string, string> ) {
+	constructor( botUserId: string, internalChannels: Map<string, string>, internalChannelNames: Map<string, string> ) {
 		this.botUserId = botUserId;
 
-		this.requestEventHandler = new RequestEventHandler( internalChannels );
-		this.requestDeleteEventHandler = new RequestDeleteEventHandler( internalChannels );
+		this.requestEventHandler = new RequestEventHandler( internalChannels, internalChannelNames );
+		this.requestDeleteEventHandler = new RequestDeleteEventHandler( internalChannels, internalChannelNames );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageUpdateEventHandler` object

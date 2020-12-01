@@ -23,6 +23,12 @@ request:
     - '683039615837536380'
     - '683040112191340560'
     - '692382871578607767'
+  internalChannelNames:
+    - 'java-pending-requests'
+    - 'bedrock-pending-requests'
+    - 'earth-pending-requests'
+    - 'other-pending-requests'
+    - 'dungeons-pending-requests'
   logChannel: '683039388825026562'
 
 roleGroups:

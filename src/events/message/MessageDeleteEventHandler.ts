@@ -10,10 +10,10 @@ export default class MessageDeleteEventHandler implements EventHandler<'messageD
 
 	private readonly requestDeleteEventHandler: RequestDeleteEventHandler;
 
-	constructor( botUserId: string, internalChannels: Map<string, string> ) {
+	constructor( botUserId: string, internalChannels: Map<string, string>, internalChannelNames: Map<string, string> ) {
 		this.botUserId = botUserId;
 
-		this.requestDeleteEventHandler = new RequestDeleteEventHandler( internalChannels );
+		this.requestDeleteEventHandler = new RequestDeleteEventHandler( internalChannels, internalChannelNames );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageDeleteEventHandler` object

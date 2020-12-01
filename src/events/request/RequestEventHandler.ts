@@ -16,9 +16,11 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 	 * A map from request channel IDs to internal channel objects.
 	 */
 	private readonly internalChannels: Map<string, string>;
+	private readonly internalChannelNames: Map<string, string>;
 
-	constructor( internalChannels: Map<string, string> ) {
+	constructor( internalChannels: Map<string, string>, internalChannelNames: Map<string, string> ) {
 		this.internalChannels = internalChannels;
+		this.internalChannelNames = internalChannelNames;
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestEventHandler` object
@@ -68,6 +70,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 		const internalChannelId = this.internalChannels.get( origin.channel.id );
 		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
+		const internalChannelName = this.internalChannelNames.get( internalChannelId );
 
 		if ( internalChannel && internalChannel instanceof TextChannel ) {
 			const embed = new MessageEmbed()
@@ -84,6 +87,10 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 				: '';
 
 			const copy = await internalChannel.send( response, embed ) as Message;
+
+			const messageCount = internalChannel.messages.cache.size;
+
+			internalChannel.setName( `${ messageCount }-${ internalChannelName }` )
 
 			if ( BotConfig.request.suggestedEmoji ) {
 				await ReactionsUtil.reactToMessage( copy, [...BotConfig.request.suggestedEmoji] );
