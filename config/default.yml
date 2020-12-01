@@ -37,7 +37,7 @@ request:
   ignoreResolutionEmoji: 💬
 
   normalNotificationsRole: #TODO
-  someNotificationsRole: #TODO
+  speicalNotificationsRole: #TODO
   oldNotificationsRole: #TODO
   oldNotificationsTimeDifference: 259200000 # 3 days
   longNotificationsRole: #TODO
