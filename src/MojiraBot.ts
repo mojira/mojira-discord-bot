@@ -1,4 +1,4 @@
-import { ChannelLogsQueryOptions, Client, Message, TextChannel } from 'discord.js';
+import { ChannelLogsQueryOptions, Client, Intents, Message, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from './BotConfig';
 import ErrorEventHandler from './events/discord/ErrorEventHandler';
@@ -25,7 +25,12 @@ import { RoleSelectionUtil } from './util/RoleSelectionUtil';
 export default class MojiraBot {
 	public static logger = log4js.getLogger( 'MojiraBot' );
 
-	public static client: Client = new Client( { partials: ['REACTION'] } );
+	public static client: Client = new Client( {
+		partials: ['REACTION'],
+		ws: {
+			intents: Intents.NON_PRIVILEGED,
+		},
+	} );
 	private static running = false;
 
 	public static async start(): Promise<void> {

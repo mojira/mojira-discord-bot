@@ -29,10 +29,12 @@ export default class RequestResolveEventHandler implements EventHandler<'message
 			}
 		}
 
-		TaskScheduler.addOneTimeMessageTask(
-			reaction.message,
-			new ResolveRequestMessageTask( reaction.emoji, user ),
-			BotConfig.request.resolveDelay || 0
-		);
+		if ( BotConfig.request.ignoreResolutionEmoji !== reaction.emoji.name ) {
+			TaskScheduler.addOneTimeMessageTask(
+				reaction.message,
+				new ResolveRequestMessageTask( reaction.emoji, user ),
+				BotConfig.request.resolveDelay || 0
+			);
+		}
 	};
 }
