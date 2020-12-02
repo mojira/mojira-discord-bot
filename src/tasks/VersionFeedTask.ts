@@ -1,9 +1,9 @@
-import * as log4js from 'log4js';
-import Task from './Task';
-import { Channel, TextChannel, RichEmbed } from 'discord.js';
-import { VersionFeedConfig } from '../BotConfig';
+import { Channel, MessageEmbed, TextChannel } from 'discord.js';
 import JiraClient from 'jira-connector';
+import * as log4js from 'log4js';
+import { VersionFeedConfig } from '../BotConfig';
 import { NewsUtil } from '../util/NewsUtil';
+import Task from './Task';
 
 interface JiraVersion {
 	id: string;
@@ -11,36 +11,46 @@ interface JiraVersion {
 	archived: boolean;
 	released: boolean;
 	releaseDate?: string;
+	project: string;
 }
 
 interface JiraVersionChange {
 	message: string;
-	embed?: RichEmbed;
+	embed?: MessageEmbed;
 }
 
 export type VersionChangeType = 'created' | 'released' | 'unreleased' | 'archived' | 'unarchived' | 'renamed';
 
 export default class VersionFeedTask extends Task {
-	public static logger = log4js.getLogger( 'Version' );
+	private static logger = log4js.getLogger( 'VersionFeedTask' );
+	private static maxId = 0;
 
 	private jira: JiraClient;
 
 	private channel: Channel;
-	private project: string;
+	private projects: string[];
+	private versionFeedEmoji: string;
 	private scope: number;
 	private actions: VersionChangeType[];
+	private publish: boolean;
 
 	private cachedVersions: JiraVersion[] = [];
 
 	private initialized = false;
+	private id = 0;
 
-	constructor( { project, scope, actions }: VersionFeedConfig, channel: Channel ) {
+	constructor( feedConfig: VersionFeedConfig, channel: Channel ) {
 		super();
 
+		this.id = VersionFeedTask.maxId++;
+		VersionFeedTask.logger.debug( `Initializing version feed task ${ this.id } with settings ${ JSON.stringify( feedConfig ) }` );
+
 		this.channel = channel;
-		this.project = project;
-		this.scope = scope;
-		this.actions = actions;
+		this.projects = feedConfig.projects;
+		this.versionFeedEmoji = feedConfig.versionFeedEmoji;
+		this.scope = feedConfig.scope;
+		this.actions = feedConfig.actions;
+		this.publish = feedConfig.publish ?? false;
 
 		this.jira = new JiraClient( {
 			host: 'bugs.mojang.com',
@@ -48,20 +58,28 @@ export default class VersionFeedTask extends Task {
 		} );
 
 		this.getVersions().then(
-			versions => {
+			async versions => {
 				this.cachedVersions = versions;
 				this.initialized = true;
+
+				VersionFeedTask.logger.debug( `Version feed task ${ this.id } has been initialized` );
+
+				await this.run();
 			}
 		).catch(
 			error => {
 				VersionFeedTask.logger.error( error );
-				this.initialized = true;
 			}
 		);
 	}
 
 	public async run(): Promise<void> {
-		if ( !this.initialized ) return;
+		if ( !this.initialized ) {
+			VersionFeedTask.logger.debug( `Version feed task ${ this.id } was run but did not execute because it has not been initialized yet` );
+			return;
+		}
+
+		VersionFeedTask.logger.debug( `Running version feed task ${ this.id }` );
 
 		if ( !( this.channel instanceof TextChannel ) ) {
 			VersionFeedTask.logger.error( `Expected ${ this.channel } to be a TextChannel` );
@@ -72,21 +90,43 @@ export default class VersionFeedTask extends Task {
 		const changes = await this.getVersionChanges( this.cachedVersions, currentVersions );
 
 		for ( const change of changes ) {
-			const versionFeedMessage = await this.channel.send( change.message, change.embed );
-			NewsUtil.publishMessage( versionFeedMessage );
+			try {
+				const versionFeedMessage = await this.channel.send( change.message, change.embed );
+
+				if ( this.publish ) {
+					await NewsUtil.publishMessage( versionFeedMessage );
+				}
+
+				if ( this.versionFeedEmoji !== undefined ) {
+					await versionFeedMessage.react( this.versionFeedEmoji );
+				}
+			} catch ( error ) {
+				VersionFeedTask.logger.error( error );
+			}
 		}
 
-		this.cachedVersions = currentVersions;
+		if ( changes.length ) {
+			this.cachedVersions = currentVersions;
+			VersionFeedTask.logger.debug( `Cached versions for version feed task ${ this.id }: ${ JSON.stringify( this.cachedVersions ) }` );
+		}
 	}
 
 	private async getVersions(): Promise<JiraVersion[]> {
+		let versions: JiraVersion[] = [...this.cachedVersions];
+
+		for ( const project of this.projects ) {
+			versions = await this.updateVersionsForProject( project, versions );
+		}
+
+		return versions;
+	}
+
+	private async updateVersionsForProject( project: string, versions: JiraVersion[] ): Promise<JiraVersion[]> {
 		const results = await this.jira.project.getVersionsPaginated( {
-			projectIdOrKey: this.project,
+			projectIdOrKey: project,
 			maxResults: this.scope,
 			orderBy: '-sequence',
 		} );
-
-		const versions: JiraVersion[] = [...this.cachedVersions];
 
 		for ( const value of results.values ) {
 			const version: JiraVersion = {
@@ -95,6 +135,7 @@ export default class VersionFeedTask extends Task {
 				archived: value.archived,
 				released: value.released,
 				releaseDate: value.releaseDate,
+				project,
 			};
 
 			const replaceId = versions.findIndex( it => value.id === it.id );
@@ -157,8 +198,8 @@ export default class VersionFeedTask extends Task {
 		return changes;
 	}
 
-	private async getVersionEmbed( version: JiraVersion ): Promise<RichEmbed> {
-		const embed = new RichEmbed()
+	private async getVersionEmbed( version: JiraVersion ): Promise<MessageEmbed> {
+		const embed = new MessageEmbed()
 			.setTitle( version.name )
 			.setColor( 'PURPLE' );
 
@@ -191,6 +232,10 @@ export default class VersionFeedTask extends Task {
 
 		if ( version.releaseDate !== undefined ) {
 			embed.addField( 'Released', version.releaseDate, true );
+		}
+
+		if ( this.projects.length > 1 ) {
+			embed.addField( 'Project', version.project, true );
 		}
 
 		if ( !embed.fields?.length ) {

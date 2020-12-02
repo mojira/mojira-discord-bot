@@ -1,7 +1,7 @@
-import EventHandler from './EventHandler';
-import MojiraBot from '../MojiraBot';
+import MojiraBot from '../../MojiraBot';
+import EventHandler from '../EventHandler';
 
-export default class ErrorEventHandler implements EventHandler {
+export default class ErrorEventHandler implements EventHandler<'error'> {
 	public readonly eventName = 'error';
 
 	public onEvent = ( errorEvent: Error ): void => {

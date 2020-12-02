@@ -1,6 +1,6 @@
 import { Message, TextChannel } from 'discord.js';
-import MojiraBot from '../MojiraBot';
 import BotConfig from '../BotConfig';
+import DiscordUtil from './DiscordUtil';
 
 export class RequestsUtil {
 	public static getOriginIds( message: Message ): {channelId: string; messageId: string} | undefined {
@@ -32,8 +32,10 @@ export class RequestsUtil {
 		}
 
 		try {
-			const originChannel = MojiraBot.client.channels.get( ids.channelId ) as TextChannel;
-			return await originChannel.fetchMessage( ids.messageId );
+			const originChannel = await DiscordUtil.getChannel( ids.channelId );
+			if ( originChannel instanceof TextChannel ) {
+				return await DiscordUtil.getMessage( originChannel, ids.messageId );
+			}
 		} catch ( ignored ) {
 			// The channel and/or the message don't exist.
 			return undefined;

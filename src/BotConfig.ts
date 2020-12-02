@@ -24,6 +24,7 @@ export class RequestConfig {
 	public waitingEmoji: string;
 	public suggestedEmoji: string[];
 	public ignorePrependResponseMessageEmoji: string;
+	public ignoreResolutionEmoji: string;
 	public resolveDelay: number;
 	public prependResponseMessage: PrependResponseMessageType;
 	public prependResponseMessageInLog: boolean;
@@ -43,6 +44,7 @@ export class RequestConfig {
 		this.waitingEmoji = config.get( 'request.waitingEmoji' );
 		this.suggestedEmoji = getOrDefault( 'request.suggestedEmoji', [] );
 		this.ignorePrependResponseMessageEmoji = config.get( 'request.ignorePrependResponseMessageEmoji' );
+		this.ignoreResolutionEmoji = config.get( 'request.ignoreResolutionEmoji' );
 
 		this.resolveDelay = config.get( 'request.resolveDelay' );
 		this.prependResponseMessage = getOrDefault( 'request.prependResponseMessage', PrependResponseMessageType.Never );
@@ -57,18 +59,32 @@ export interface RoleConfig {
 	id: string;
 }
 
+export interface RoleGroupConfig {
+	roles: RoleConfig[];
+	prompt: string;
+	channel: string;
+	message?: string;
+	radio?: boolean;
+}
+
 export interface FilterFeedConfig {
 	jql: string;
 	channel: string;
+	interval: number;
+	filterFeedEmoji: string;
 	title: string;
 	titleSingle?: string;
+	publish?: boolean;
 }
 
 export interface VersionFeedConfig {
-	project: string;
+	projects: string[];
 	channel: string;
+	interval: number;
+	versionFeedEmoji: string;
 	scope: number;
 	actions: VersionChangeType[];
+	publish?: boolean;
 }
 
 export default class BotConfig {
@@ -77,11 +93,9 @@ export default class BotConfig {
 
 	// TODO: make private again when /crosspost api endpoint is implemented into discord.js
 	public static token: string;
-	public static owner: string;
+	public static owners: string[];
 
 	public static homeChannel: string;
-	public static rolesChannel: string;
-	public static rolesMessage: string;
 
 	public static ticketUrlsCauseEmbed: boolean;
 	public static requiredTicketPrefix: string;
@@ -91,12 +105,9 @@ export default class BotConfig {
 
 	public static request: RequestConfig;
 
-	public static roles: RoleConfig[];
+	public static roleGroups: RoleGroupConfig[];
 
-	public static filterFeedInterval: number;
 	public static filterFeeds: FilterFeedConfig[];
-
-	public static versionFeedInterval: number;
 	public static versionFeeds: VersionFeedConfig[];
 
 	public static init(): void {
@@ -104,11 +115,9 @@ export default class BotConfig {
 		this.logDirectory = getOrDefault( 'logDirectory', false );
 
 		this.token = config.get( 'token' );
-		this.owner = config.get( 'owner' );
+		this.owners = getOrDefault( 'owners', [] );
 
 		this.homeChannel = config.get( 'homeChannel' );
-		this.rolesChannel = config.get( 'rolesChannel' );
-		this.rolesMessage = config.get( 'rolesMessage' );
 		this.ticketUrlsCauseEmbed = getOrDefault( 'ticketUrlsCauseEmbed', false );
 
 		this.forbiddenTicketPrefix = getOrDefault( 'forbiddenTicketPrefix', '' );
@@ -118,12 +127,9 @@ export default class BotConfig {
 
 		this.request = new RequestConfig();
 
-		this.roles = getOrDefault( 'roles', [] );
+		this.roleGroups = getOrDefault( 'roleGroups', [] );
 
-		this.filterFeedInterval = config.get( 'filterFeedInterval' );
 		this.filterFeeds = config.get( 'filterFeeds' );
-
-		this.versionFeedInterval = config.get( 'versionFeedInterval' );
 		this.versionFeeds = config.get( 'versionFeeds' );
 	}
 

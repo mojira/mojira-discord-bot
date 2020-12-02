@@ -1,4 +1,4 @@
-import { Message, RichEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import Command from './Command';
 import { MentionRegistry } from '../mentions/MentionRegistry';
 import BotConfig from '../BotConfig';
@@ -40,12 +40,12 @@ export default class MentionCommand extends Command {
 	public async run( message: Message, args: string[] ): Promise<boolean> {
 		const mention = MentionRegistry.getMention( args );
 
-		let embed: RichEmbed;
+		let embed: MessageEmbed;
 		try {
 			embed = await mention.getEmbed();
 		} catch ( err ) {
 			try {
-				message.channel.send( err );
+				await message.channel.send( err );
 			} catch ( err ) {
 				Command.logger.log( err );
 			}
@@ -54,7 +54,7 @@ export default class MentionCommand extends Command {
 
 		if ( embed === undefined ) return false;
 
-		embed.setFooter( message.author.tag, message.author.avatarURL )
+		embed.setFooter( message.author.tag, message.author.avatarURL() )
 			.setTimestamp( message.createdAt );
 
 		try {
@@ -70,7 +70,7 @@ export default class MentionCommand extends Command {
 
 			if ( matchesTicketId || ( BotConfig.ticketUrlsCauseEmbed && matchesTicketUrl ) ) {
 				try {
-					message.delete();
+					await message.delete();
 				} catch ( err ) {
 					Command.logger.error( err );
 				}

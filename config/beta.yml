@@ -2,11 +2,10 @@
 
 debug: true
 
-owner: '417403221863301130'
+owners:
+  - '417403221863301130' # violine1101
 
 homeChannel: '649027251010142228'
-rolesChannel: '653602305417150475'
-rolesMessage: '654300040239775784'
 
 request:
   channels:
@@ -15,29 +14,44 @@ request:
     - '681145724364259438'
   logChannel: '681145896247099618'
 
-roles:
-  - emoji: '651840398859304961'
-    desc: Test 1
-    id: '654297808286777404'
-  - emoji: '651840436515897354'
-    desc: Test 2
-    id: '654297834241130507'
-  - emoji: '651840478957797420'
-    desc: Test 3
-    id: '654297849902661673'
-  - emoji: '654297985835859978'
-    desc: Test 4
-    id: '654297862867517441'
+roleGroups:
+  - prompt: Please select the project(s) you are interested in, so that we can add you to the appropriate channels.
+    channel: '653602305417150475'
+    message: '654300040239775784'
+    radio: false
+    roles:
+      - emoji: '651840398859304961'
+        desc: Test 1
+        id: '654297808286777404'
+      - emoji: '651840436515897354'
+        desc: Test 2
+        id: '654297834241130507'
+      - emoji: '651840478957797420'
+        desc: Test 3
+        id: '654297849902661673'
+      - emoji: '654297985835859978'
+        desc: Test 4
+        id: '654297862867517441'  
 
 filterFeeds:
   - jql: created > -1m
     channel: '665904688616701953'
+    interval: 10000
     title: '{{num}} tickets have been created!'
     titleSingle: This ticket has just been created!
+  - jql: CHK > -2h
+    channel: '665904688616701953'
+    interval: 10000
+    title: '{{num}} tickets have been confirmed!'
+    titleSingle: This ticket has just been confirmed!
 
 versionFeeds:
-  - project: MC
+  - projects:
+      - MC
+      - MCD
+      - MCPE
     channel: '665904688616701953'
+    interval: 20000
     scope: 5
     actions:
       - created

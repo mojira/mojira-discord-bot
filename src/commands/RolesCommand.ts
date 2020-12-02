@@ -1,4 +1,4 @@
-import { Message, TextChannel, DMChannel, GroupDMChannel } from 'discord.js';
+import { Message, TextChannel, DMChannel, NewsChannel } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
 import PermissionRegistry from '../permissions/PermissionRegistry';
 
@@ -7,10 +7,10 @@ export default class RolesCommand extends PrefixCommand {
 
 	public readonly aliases = ['roles'];
 
-	private async sendRolesMessage( channel: TextChannel | DMChannel | GroupDMChannel ): Promise<boolean> {
-		channel.send( 'Sorry, this command is currently disabled!' );
+	private async sendRolesMessage( channel: TextChannel | DMChannel | NewsChannel ): Promise<boolean> {
+		await channel.send( 'Sorry, this command is currently disabled!' );
 
-		// const embed = new RichEmbed();
+		// const embed = new MessageEmbed();
 		// embed.setTitle( 'Please select the project(s) you are interested in, so that we can add you to the appropriate channels.' )
 		// 	.setColor( 'AQUA' );
 
@@ -48,7 +48,7 @@ export default class RolesCommand extends PrefixCommand {
 			return false;
 		}
 
-		this.sendRolesMessage( message.channel );
+		await this.sendRolesMessage( message.channel );
 
 		// if ( message.deletable ) {
 		// 	try {
