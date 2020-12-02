@@ -43,16 +43,16 @@ export default class ResolveRequestMessageTask extends MessageTask {
 
 			if ( origin.author ) {
 				const response = BotConfig.request.prependResponseMessageInLog ?
-						RequestsUtil.getResponseMessage( origin ) : '';
+					RequestsUtil.getResponseMessage( origin ) : '';
 
 				const log = new MessageEmbed()
-						.setColor( 'GREEN' )
-						.setAuthor( origin.author.tag, origin.author.avatarURL() )
-						.setDescription( origin.content )
-						.addField( 'Channel', origin.channel.toString(), true )
-						.addField( 'Message', `[Here](${ origin.url })`, true )
-						.setFooter( `${ this.user.tag } resolved as ${ this.emoji }`, this.user.avatarURL() )
-						.setTimestamp( new Date() );
+					.setColor( 'GREEN' )
+					.setAuthor( origin.author.tag, origin.author.avatarURL() )
+					.setDescription( origin.content )
+					.addField( 'Channel', origin.channel.toString(), true )
+					.addField( 'Message', `[Here](${ origin.url })`, true )
+					.setFooter( `${ this.user.tag } resolved as ${ this.emoji }`, this.user.avatarURL() )
+					.setTimestamp( new Date() );
 
 				if ( origin.member.roles.cache.has( BotConfig.request.normalNotificationsRole ) && this.emoji === BotConfig.request.ignorePrependResponseMessageEmoji ) {
 					if ( origin.member.roles.cache.has( BotConfig.request.oldNotificationsRole ) ) {
