@@ -135,7 +135,7 @@ export default class MojiraBot {
 
                                 if ( BotConfig.request.logChannel ) {
                                         try {
-                                                const logChannel = await Discord until.getChannel( BotConfig.request.logChannel );
+                                                const logChannel = await DiscordUtil.getChannel( BotConfig.request.logChannel );
                                                 if ( logChannel instanceof TextChannel ) {
                                                         const messages = ChannelLogsQueryOptions = { limit: 100 };
                                                         await logChannel.messages.fetch( messages );
