@@ -133,6 +133,18 @@ export default class MojiraBot {
 					}
 				}
 
+                                if ( BotConfig.request.logChannel ) {
+                                        try {
+                                                const logChannel = await Discord until.getChannel( BotConfig.request.logChannel );
+                                                if ( logChannel instanceof TextChannel ) {
+                                                        const messages = ChannelLogsQueryOptions = { limit: 100 };
+                                                        await logChannel.messages.fetch( messages );
+                                                }
+                                        } catch ( err ) {
+						this.logger.error( err );
+					}
+                                }
+
 				const newRequestHandler = new RequestEventHandler( internalChannels );
 				for ( const requestChannel of requestChannels ) {
 					this.logger.info( `Catching up on requests from #${ requestChannel.name }...` );
