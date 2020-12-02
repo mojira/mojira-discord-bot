@@ -41,7 +41,7 @@ export class RequestConfig {
 			throw new Error( 'There are not exactly as many Request channels and ' );
 		}
 				if ( this.internalChannels.length !== this.internalChannelNames.length ) {
-			throw new Error( 'There are not exactly as many Request channels and ' );
+			throw new Error( 'There are not exactly as many Internal channels and ' );
 		}
 
 		this.noLinkEmoji = config.get( 'request.noLinkEmoji' );
