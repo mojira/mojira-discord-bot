@@ -10,6 +10,8 @@ forbiddenTicketPrefix: '!'
 
 requiredTicketPrefix: ''
 
+embedDeletionEmoji: '🗑️'
+
 projects:
   - BDS
   - MC
