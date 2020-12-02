@@ -50,7 +50,7 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 		} else if ( BotConfig.request.logChannel.includes( messageReaction.message.channel.id ) ) {
 			// Handle reopening a user request
 			return this.requestReopenEventHandler.onEvent( messageReaction, user );
-		} else if ( messageReaction.message.author === this.botUserId && messageReaction.emoji.name === BotConfig.embedDeletionEmoji ) {
+		} else if ( messageReaction.message.author.id === this.botUserId && messageReaction.emoji.name === BotConfig.embedDeletionEmoji ) {
 			// Handle deleting bot embed
 			return this.mentionDeleteEventHandler.onEvent( messageReaction, user );
 		}
