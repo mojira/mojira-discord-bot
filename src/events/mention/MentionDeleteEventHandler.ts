@@ -9,20 +9,9 @@ export default class MentionDeleteEventHandler implements EventHandler<'messageR
     private logger = log4js.getLogger( 'MentionDeleteEventHandler' );
 
     public onEvent = async ( { message }: MessageReaction, user: User ): Promise<void> => {
-        this.logger.info( `User ${ user.tag } is deleting message '${ message.id }'` );
+        this.logger.info( `User ${ user.tag } is attempting to delete message '${ message.id }'` );
 
-		const embeds = message.embeds;
-		if ( embeds.length == 0 ) {
-			try {
-				const warning = await message.channel.send( `${ message.author }, this is not a valid embed.` );
-
-				const timeout = BotConfig.request.noLinkWarningLifetime;
-				await warning.delete( { timeout } );
-			} catch ( error ) {
-				this.logger.error( error );
-			}
-        }
-
+	const embeds = message.embeds;
         const mentionEmbed = embeds[0];
         const footer: string = mentionEmbed.footer.text;
         const userTag = footer.match( /.{3,32}#[0-9]{4}/ )[0];
