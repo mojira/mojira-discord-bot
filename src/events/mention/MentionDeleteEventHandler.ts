@@ -14,7 +14,7 @@ export default class MentionDeleteEventHandler implements EventHandler<'messageR
 	const embeds = message.embeds;
         const mentionEmbed = embeds[0];
         const footer: string = mentionEmbed.footer.text;
-        const userTag = footer.match( /.+#\d{4}/ )[0];
+        const userTag = footer.match( /.{3,32}#[0-9]{4}/ )[0];
 
         if ( user.tag === userTag ) {
             try {
