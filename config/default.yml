@@ -27,6 +27,8 @@ request:
   noLinkWarningLifetime: 5000
   waitingEmoji: ⌛
 
+  invalidRequestJql: created < 24h
+
   suggestedEmoji:
     - ✅
     - ☑️

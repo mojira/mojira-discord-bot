@@ -6,9 +6,11 @@ import DiscordUtil from '../../util/DiscordUtil';
 import { ReactionsUtil } from '../../util/ReactionsUtil';
 import { RequestsUtil } from '../../util/RequestsUtil';
 import EventHandler from '../EventHandler';
+import JiraClient from 'jira-connector';
 
 export default class RequestEventHandler implements EventHandler<'message'> {
 	public readonly eventName = 'message';
+	private jira: JiraClient;
 
 	private logger = log4js.getLogger( 'RequestEventHandler' );
 
@@ -58,6 +60,33 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			return;
 		}
 
+		if ( BotConfig.request.invalidRequestJql ) {
+			const searchResults = await this.jira.search.search ( {
+				jql: BotConfig.request.invalidRequestJql,
+				fields: ['key'],
+			} );
+			const tickets = this.getTickets( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) );
+			const invalidTickets = searchResults.issues.map( ( { key } ) => key );
+			const mentionedTicket = invalidTickets.filter( key => tickets.has( key ) );
+			if ( mentionedTicket > 0 ) {
+				try {
+					await origin.react( BotConfig.request.noLinkEmoji );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
+
+				try {
+					const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) contains a ticket that is less than 24 hours old. Please wait until it is at least one day old before making a request.` );
+
+					const timeout = BotConfig.request.noLinkWarningLifetime;
+					await warning.delete( { timeout } );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
+				return;
+			}
+		}
+
 		if ( BotConfig.request.waitingEmoji ) {
 			try {
 				await origin.react( BotConfig.request.waitingEmoji );
@@ -90,6 +119,15 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			}
 		}
 	};
+
+	private getTickets( content: string ): Set<string> {
+			let ticketMatch: RegExpExecArray;
+			const ticketMatches: Set<string> = new Set();
+			while ( ( ticketMatch = MentionCommand.ticketIdRegex.exec( content ) ) !== null ) {
+				ticketMatches.add( ticketMatch[1] );
+			}
+			return ticketMatches;
+	}
 
 	private replaceTicketReferencesWithRichLinks( content: string, regex: RegExp ): string {
 		// Only one of the two capture groups ($1 and $2) can catch an ID at the same time.

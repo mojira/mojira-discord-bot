@@ -68,6 +68,9 @@ request:
   # The lifetime of the warning about an invalid request, in milliseconds.
   noLinkWarningLifetime: <number>
 
+  # Jira search jql that marks a ticket as invalid to make requests for.
+  invalidRequestJql: <string>
+
   # An emoji or emoji ID which means that the request is waiting to be handled.
   # The bot will react to every user's request with this emoji.
   waitingEmoji: <string>

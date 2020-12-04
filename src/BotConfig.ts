@@ -21,6 +21,7 @@ export class RequestConfig {
 
 	public noLinkEmoji: string;
 	public noLinkWarningLifetime: number;
+	public invalidRequestJql: string;
 	public waitingEmoji: string;
 	public suggestedEmoji: string[];
 	public ignorePrependResponseMessageEmoji: string;
@@ -41,6 +42,7 @@ export class RequestConfig {
 
 		this.noLinkEmoji = config.get( 'request.noLinkEmoji' );
 		this.noLinkWarningLifetime = config.get( 'request.noLinkWarningLifetime' );
+		this.invalidRequestJql = config.get( 'request.invalidRequestJql' );
 		this.waitingEmoji = config.get( 'request.waitingEmoji' );
 		this.suggestedEmoji = getOrDefault( 'request.suggestedEmoji', [] );
 		this.ignorePrependResponseMessageEmoji = config.get( 'request.ignorePrependResponseMessageEmoji' );
