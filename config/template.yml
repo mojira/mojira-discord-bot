@@ -63,7 +63,7 @@ request:
   logChannel: <string>
   
   # An emoji or emoji ID which means that the request doesn't contain any valid ticket ID or ticket link.
-  noLinkWarningEmoji: <string>
+  noLinkEmoji: <string>
 
   # An emoji or emoji ID which means that the request contains a ticket that is invalid.
   invalidTicketEmoji: <string>
