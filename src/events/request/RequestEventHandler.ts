@@ -61,14 +61,13 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 		}
 
 		if ( BotConfig.request.invalidRequestJql ) {
+			const tickets = this.getTickets( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) );
 			const searchResults = await this.jira.search.search ( {
-				jql: BotConfig.request.invalidRequestJql,
+				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ tickets.join( ',' ) })`,
 				fields: ['key'],
 			} );
-			const tickets = this.getTickets( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) );
 			const invalidTickets = searchResults.issues.map( ( { key } ) => key );
-			const mentionedTickets = invalidTickets.filter( key => tickets.has( key ) );
-			if ( mentionedTickets.length > 0 ) {
+			if ( invalidTickets.length > 0 ) {
 				try {
 					await origin.react( BotConfig.request.noLinkEmoji );
 				} catch ( error ) {
