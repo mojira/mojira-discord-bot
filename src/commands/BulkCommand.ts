@@ -20,7 +20,7 @@ export default class BulkCommand extends PrefixCommand {
 			try {
 				const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 				if ( internalChannel instanceof TextChannel ) {
-					const channelMessages = internalChannel.messages;
+					const channelMessages = internalChannel.messages.cache;
 					for await ( const channelMessage of channelMessages ) {
 						const reaction = channelMessage.reactions.cache.get( BotConfig.request.bulkEmoji );
 						if ( reaction.users.cache.get( message.author ) ) {
