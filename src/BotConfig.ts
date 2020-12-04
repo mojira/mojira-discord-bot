@@ -41,7 +41,7 @@ export class RequestConfig {
 		}
 
 		this.warningEmoji = config.get( 'request.warningEmoji' );
-		this.warningLifetime = config.get( 'request.warningWarningLifetime' );
+		this.warningLifetime = config.get( 'request.warningLifetime' );
 		this.invalidRequestJql = config.get( 'request.invalidRequestJql' );
 		this.waitingEmoji = config.get( 'request.waitingEmoji' );
 		this.suggestedEmoji = getOrDefault( 'request.suggestedEmoji', [] );
