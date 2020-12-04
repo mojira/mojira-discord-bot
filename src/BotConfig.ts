@@ -19,7 +19,8 @@ export class RequestConfig {
 	public internalChannels: string[];
 	public logChannel: string;
 
-	public warningEmoji: string;
+	public invalidTicketEmoji: string;
+	public noLinkEmoji: string;
 	public warningLifetime: number;
 	public invalidRequestJql: string;
 	public waitingEmoji: string;
@@ -40,8 +41,9 @@ export class RequestConfig {
 			throw new Error( 'There are not exactly as many Request channels and ' );
 		}
 
-		this.warningEmoji = config.get( 'request.warningEmoji' );
-		this.warningLifetime = config.get( 'request.warningWarningLifetime' );
+		this.invalidTicketEmoji = config.get( 'request.invalidTicketEmoji' );
+		this.noLinkEmoji = config.get( 'request.noLinkEmoji' );
+		this.warningLifetime = config.get( 'request.warningLifetime' );
 		this.invalidRequestJql = config.get( 'request.invalidRequestJql' );
 		this.waitingEmoji = config.get( 'request.waitingEmoji' );
 		this.suggestedEmoji = getOrDefault( 'request.suggestedEmoji', [] );

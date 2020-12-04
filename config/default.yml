@@ -23,7 +23,8 @@ projects:
   - WEB
 
 request:
-  warningEmoji: ⛔
+  invalidTicketEmoji: ⏸
+  noLinkEmoji: ⛔
   warningLifetime: 5000
   waitingEmoji: ⌛
 

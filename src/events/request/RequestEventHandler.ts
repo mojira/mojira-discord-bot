@@ -41,9 +41,9 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 		const regex = new RegExp( `(?:${ MentionCommand.ticketLinkRegex.source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
 
-		if ( BotConfig.request.warningEmoji && !origin.content.match( regex ) ) {
+		if ( BotConfig.request.noLinkEmoji && !origin.content.match( regex ) ) {
 			try {
-				await origin.react( BotConfig.request.warningEmoji );
+				await origin.react( BotConfig.request.noLinkEmoji );
 			} catch ( error ) {
 				this.logger.error( error );
 			}
@@ -69,7 +69,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			const invalidTickets = searchResults.issues.map( ( { key } ) => key );
 			if ( invalidTickets.length > 0 ) {
 				try {
-					await origin.react( BotConfig.request.warningEmoji );
+					await origin.react( BotConfig.request.invalidTicketEmoji );
 				} catch ( error ) {
 					this.logger.error( error );
 				}

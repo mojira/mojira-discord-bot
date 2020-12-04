@@ -62,8 +62,11 @@ request:
   # A channel which stores logs like `<volunteer> resolved <original message ID> as <emoji>.`
   logChannel: <string>
   
-  # An emoji or emoji ID which means that the request is invalid.
-  warningEmoji: <string>
+  # An emoji or emoji ID which means that the request doesn't contain any valid ticket ID or ticket link.
+  noLinkWarningEmoji: <string>
+
+  # An emoji or emoji ID which means that the request contains a ticket that is invalid.
+  invalidTicketEmoji: <string>
 
   # The lifetime of the warning about an invalid request, in milliseconds.
   warningLifetime: <number>
