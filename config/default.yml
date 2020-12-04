@@ -32,6 +32,7 @@ request:
     - ☑️
     - ❌
     - 💬
+    - 📁
   
   ignorePrependResponseMessageEmoji: ✅
   ignoreResolutionEmoji: 💬
