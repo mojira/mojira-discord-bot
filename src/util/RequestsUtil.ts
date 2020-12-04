@@ -1,31 +1,45 @@
 import { Message, TextChannel } from 'discord.js';
+import * as log4js from 'log4js';
 import BotConfig from '../BotConfig';
 import DiscordUtil from './DiscordUtil';
 
 export class RequestsUtil {
-	public static getOriginIds( message: Message ): {channelId: string; messageId: string} | undefined {
-		let channelId: string;
-		let messageId: string;
+	private static logger = log4js.getLogger( 'RequestsUtil' );
 
-		if ( message.embeds && message.embeds.length > 0 ) {
-			for ( const field of message.embeds[0].fields ) {
-				if ( field.name === 'Channel' ) {
-					channelId = field.value;
-				} else if ( field.name === 'Message' ) {
-					messageId = field.value;
-				}
+	public static async getOriginIds( message: Message ): Promise<{ channelId: string; messageId: string } | undefined> {
+		try {
+			const embeds = message.embeds;
+			if ( embeds.length == 0 ) {
+				const warning = await message.channel.send( `${ message.author }, this is not a valid log message.` );
+
+				const timeout = BotConfig.request.noLinkWarningLifetime;
+				await warning.delete( { timeout } );
 			}
 
-			if ( channelId && messageId ) {
-				return { channelId, messageId };
+			// Assume first embed is the actual message.
+			const embed = embeds[0];
+			// Assume the last field contains the link to the original message.
+			const url: string = embed.fields[embed.fields.length - 1].value;
+
+			const messageUrl = url.match( /\((.*)\)/ )[1];
+			const parts = messageUrl.split( '/' );
+
+			const channelId = parts[parts.length - 2];
+			const messageId = parts[parts.length - 1];
+
+			if ( !channelId || !messageId ) {
+				throw new Error( `Failed to get channel ID and message ID from "${ url }"` );
 			}
+
+			return { channelId, messageId };
+		} catch ( error ) {
+			this.logger.error( error );
+			return undefined;
 		}
-
-		return undefined;
 	}
 
 	public static async getOriginMessage( internalMessage: Message ): Promise<Message | undefined> {
-		const ids = this.getOriginIds( internalMessage );
+		const ids = await this.getOriginIds( internalMessage );
 
 		if ( !ids ) {
 			return undefined;
