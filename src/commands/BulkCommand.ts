@@ -54,7 +54,7 @@ export default class BulkCommand extends PrefixCommand {
 			Command.logger.error( err );
 			return false;
 		}
-		const filter = `https://bugs.mojang.com/browse/${ firstMentioned }?jql=key%20in(${ ticketKeys.join( '%2C' ) })`
+		const filter = `https://bugs.mojang.com/browse/${ firstMentioned }?jql=key%20in(${ ticketKeys.join( '%2C' ) })`;
 		try {
 			await message.channel.send( `${ message.author.toString() } ${ filter }` );
 		} catch {
