@@ -83,13 +83,9 @@ export default class FilterFeedTask extends Task {
 		}
 
 		try {
-			let ticketKeys: string;
-			for ( const ticket of this.knownTickets ) {
-				ticketKeys = ticketKeys + ticket + ',';
-			}
-			ticketKeys = ticketKeys.slice( 0, -1 );
+			const ticketKeys = Array.from( this.knownTickets );
 			const previousTicketResults = await this.jira.search.search( {
-				jql: `${ this.jqlRemoved } AND key in (${ ticketKeys })`,
+				jql: `${ this.jqlRemoved } AND key in (${ ticketKeys.join( ',' ) })`,
 				fields: ['key'],
 			} );
 
