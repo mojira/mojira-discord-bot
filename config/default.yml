@@ -28,7 +28,7 @@ request:
   warningLifetime: 5000
   waitingEmoji: ⌛
 
-  invalidRequestJql: created < 24h
+  invalidRequestJql: created > -24h
 
   suggestedEmoji:
     - ✅
