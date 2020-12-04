@@ -21,6 +21,11 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 	constructor( internalChannels: Map<string, string> ) {
 		this.internalChannels = internalChannels;
+
+		this.jira = new JiraClient( {
+			host: 'bugs.mojang.com',
+			strictSSL: true,
+		} );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestEventHandler` object
@@ -39,7 +44,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			this.logger.error( error );
 		}
 
-		const regex = new RegExp( `(?:${ MentionCommand.ticketLinkRegex.source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
+		const regex = new RegExp( `(?:${ MentionCommand.getTicketLinkRegex().source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
 
 		if ( BotConfig.request.warningEmoji && !origin.content.match( regex ) ) {
 			try {
@@ -62,7 +67,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 		if ( BotConfig.request.invalidRequestJql ) {
 			const tickets = Array.from( this.getTickets( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) ) );
-			const searchResults = await this.jira.search.search ( {
+			const searchResults = await this.jira.search.search( {
 				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ tickets.join( ',' ) })`,
 				fields: ['key'],
 			} );
@@ -120,12 +125,13 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 	};
 
 	private getTickets( content: string ): Set<string> {
-			let ticketMatch: RegExpExecArray;
-			const ticketMatches: Set<string> = new Set();
-			while ( ( ticketMatch = MentionCommand.ticketIdRegex.exec( content ) ) !== null ) {
-				ticketMatches.add( ticketMatch[1] );
-			}
-			return ticketMatches;
+		let ticketMatch: RegExpExecArray;
+		const regex = MentionCommand.getTicketIdRegex();
+		const ticketMatches: Set<string> = new Set();
+		while ( ( ticketMatch = regex.exec( content ) ) !== null ) {
+			ticketMatches.add( ticketMatch[1] );
+		}
+		return ticketMatches;
 	}
 
 	private replaceTicketReferencesWithRichLinks( content: string, regex: RegExp ): string {
