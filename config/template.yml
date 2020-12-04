@@ -99,7 +99,7 @@ request:
   # Only applies to the oldNotificationsRole.
   oldNotificationsTimeDifference: <number>
 
-  # The ID of the role that signifies users that get all notifications from their resolved requests regardless of the time it took to resolve.
+  # The ID of the role that signifies users that get all notifications from their resolved requests from a certain, longer, time period before.
   longNotificationsRole: <string>
 
   # The amount of time in milliseconds that needs to occur after creating a request before a user will get a notification for their report.
