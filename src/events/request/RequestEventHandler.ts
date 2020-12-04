@@ -67,8 +67,8 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			} );
 			const tickets = this.getTickets( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) );
 			const invalidTickets = searchResults.issues.map( ( { key } ) => key );
-			const mentionedTicket = invalidTickets.filter( key => tickets.has( key ) );
-			if ( mentionedTicket > 0 ) {
+			const mentionedTickets = invalidTickets.filter( key => tickets.has( key ) );
+			if ( mentionedTickets.size > 0 ) {
 				try {
 					await origin.react( BotConfig.request.noLinkEmoji );
 				} catch ( error ) {
