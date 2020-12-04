@@ -25,6 +25,7 @@ export class RequestConfig {
 	public suggestedEmoji: string[];
 	public ignorePrependResponseMessageEmoji: string;
 	public ignoreResolutionEmoji: string;
+	public bulkEmoji: string;
 	public resolveDelay: number;
 	public prependResponseMessage: PrependResponseMessageType;
 	public prependResponseMessageInLog: boolean;
@@ -45,6 +46,7 @@ export class RequestConfig {
 		this.suggestedEmoji = getOrDefault( 'request.suggestedEmoji', [] );
 		this.ignorePrependResponseMessageEmoji = config.get( 'request.ignorePrependResponseMessageEmoji' );
 		this.ignoreResolutionEmoji = config.get( 'request.ignoreResolutionEmoji' );
+		this.bulkEmoji = config.get( 'request.bulkEmoji' );
 
 		this.resolveDelay = config.get( 'request.resolveDelay' );
 		this.prependResponseMessage = getOrDefault( 'request.prependResponseMessage', PrependResponseMessageType.Never );

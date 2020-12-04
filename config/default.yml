@@ -35,6 +35,7 @@ request:
   
   ignorePrependResponseMessageEmoji: ✅
   ignoreResolutionEmoji: 💬
+  bulkEmoji: 📁
 
   resolveDelay: 10000
   prependResponseMessage: whenResolved
