@@ -13,7 +13,6 @@ export default class BulkCommand extends PrefixCommand {
 			return false;
 		}
 
-		//get messages with bulk reaction from user
 		let bulkMessages: Set<Message>;
 
 		for ( let i = 0; i < BotConfig.request.internalChannels.length; i++ ) {
@@ -21,11 +20,11 @@ export default class BulkCommand extends PrefixCommand {
 			try {
 				const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 				if ( internalChannel instanceof TextChannel ) {
-					const messages = internalChannel.messages;
-					for (const message of messages) {
-						const reaction = message.reactions.cache.get( BotConfig.request.bulkEmoji );
+					const channelMessages = internalChannel.messages;
+					for ( const channelMessage of channelMessages ) {
+						const reaction = channelMessage.reactions.cache.get( BotConfig.request.bulkEmoji );
 						if ( reaction.users.cache.get( message.author ) ) {
-							bulkMessages.add( message );
+							bulkMessages.add( channelMessage );
 						}
 					}
 				}
@@ -37,19 +36,18 @@ export default class BulkCommand extends PrefixCommand {
 
 		const bulkMessageArray = Array.from( bulkMessages );
 
-		//get tickets and create filter
 		let firstMentioned: string;
 		let ticketKeys: string[];
 
 		try {
 			for ( let j = 0; j < bulkMessageArray.length; j++ ) {
-				const message = bulkMessageArray[j];
-				const ticket = Array.from( this.getTickets( message.toString() ) );
+				const bulkMessage = bulkMessageArray[j];
+				const ticket = Array.from( this.getTickets( bulkMessage.toString() ) );
 				if ( firstMentioned == null ) {
 					firstMentioned = ticket[1];
 				}
 				ticket.forEach( key => ticketKeys.push( key ) );
-				const reaction = message.reactions.cache.get( BotConfig.request.bulkEmoji );
+				const reaction = bulkMessage.reactions.cache.get( BotConfig.request.bulkEmoji );
 				await reaction.users.remove( message.author );
 			}
 		} catch ( err ) {
