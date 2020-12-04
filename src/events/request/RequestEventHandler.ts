@@ -61,7 +61,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 		}
 
 		if ( BotConfig.request.invalidRequestJql ) {
-			const tickets = this.getTickets( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) );
+			const tickets = Array.from( this.getTickets( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) ) );
 			const searchResults = await this.jira.search.search ( {
 				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ tickets.join( ',' ) })`,
 				fields: ['key'],
