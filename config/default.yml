@@ -23,8 +23,8 @@ projects:
   - WEB
 
 request:
-  noLinkEmoji: ⛔
-  noLinkWarningLifetime: 5000
+  warningEmoji: ⛔
+  warningLifetime: 5000
   waitingEmoji: ⌛
 
   invalidRequestJql: created < 24h

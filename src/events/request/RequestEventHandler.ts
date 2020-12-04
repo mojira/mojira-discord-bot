@@ -41,9 +41,9 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 		const regex = new RegExp( `(?:${ MentionCommand.ticketLinkRegex.source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
 
-		if ( BotConfig.request.noLinkEmoji && !origin.content.match( regex ) ) {
+		if ( BotConfig.request.warningEmoji && !origin.content.match( regex ) ) {
 			try {
-				await origin.react( BotConfig.request.noLinkEmoji );
+				await origin.react( BotConfig.request.warningEmoji );
 			} catch ( error ) {
 				this.logger.error( error );
 			}
@@ -51,7 +51,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			try {
 				const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) doesn't contain any valid ticket reference. If you'd like to add it you can edit your message.` );
 
-				const timeout = BotConfig.request.noLinkWarningLifetime;
+				const timeout = BotConfig.request.warningWarningLifetime;
 				await warning.delete( { timeout } );
 			} catch ( error ) {
 				this.logger.error( error );
@@ -69,7 +69,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			const invalidTickets = searchResults.issues.map( ( { key } ) => key );
 			if ( invalidTickets.length > 0 ) {
 				try {
-					await origin.react( BotConfig.request.noLinkEmoji );
+					await origin.react( BotConfig.request.warningEmoji );
 				} catch ( error ) {
 					this.logger.error( error );
 				}
@@ -77,7 +77,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 				try {
 					const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) contains a ticket that is less than 24 hours old. Please wait until it is at least one day old before making a request.` );
 
-					const timeout = BotConfig.request.noLinkWarningLifetime;
+					const timeout = BotConfig.request.warningLifetime;
 					await warning.delete( { timeout } );
 				} catch ( error ) {
 					this.logger.error( error );

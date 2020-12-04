@@ -62,11 +62,11 @@ request:
   # A channel which stores logs like `<volunteer> resolved <original message ID> as <emoji>.`
   logChannel: <string>
   
-  # An emoji or emoji ID which means that the request doesn't contain any valid ticket ID or ticket link.
-  noLinkEmoji: <string>
+  # An emoji or emoji ID which means that the request is invalid.
+  warningEmoji: <string>
 
   # The lifetime of the warning about an invalid request, in milliseconds.
-  noLinkWarningLifetime: <number>
+  warningLifetime: <number>
 
   # Jira search jql that marks a ticket as invalid to make requests for.
   invalidRequestJql: <string>
