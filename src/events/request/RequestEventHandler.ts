@@ -51,7 +51,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			try {
 				const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) doesn't contain any valid ticket reference. If you'd like to add it you can edit your message.` );
 
-				const timeout = BotConfig.request.warningWarningLifetime;
+				const timeout = BotConfig.request.warningLifetime;
 				await warning.delete( { timeout } );
 			} catch ( error ) {
 				this.logger.error( error );
