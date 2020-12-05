@@ -25,7 +25,7 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 			try {
 				const warning = await message.channel.send( `${ message.author }, this is not a valid log message.` );
 
-				const timeout = BotConfig.request.noLinkWarningLifetime;
+				const timeout = BotConfig.request.warningLifetime;
 				await warning.delete( { timeout } );
 			} catch ( error ) {
 				this.logger.error( error );
