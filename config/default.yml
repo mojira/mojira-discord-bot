@@ -23,9 +23,12 @@ projects:
   - WEB
 
 request:
+  invalidTicketEmoji: ⏸
   noLinkEmoji: ⛔
-  noLinkWarningLifetime: 5000
+  warningLifetime: 5000
   waitingEmoji: ⌛
+
+  invalidRequestJql: created > -24h
 
   suggestedEmoji:
     - ✅
