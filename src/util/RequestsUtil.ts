@@ -1,25 +1,19 @@
-import { Message, TextChannel } from 'discord.js';
+import { EmbedField, Message, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from '../BotConfig';
 import DiscordUtil from './DiscordUtil';
 
+interface OriginIds {
+	channelId: string;
+	messageId: string;
+}
+
 export class RequestsUtil {
 	private static logger = log4js.getLogger( 'RequestsUtil' );
 
-	public static async getOriginIds( message: Message ): Promise<{ channelId: string; messageId: string } | undefined> {
+	private static getOriginIdsFromField( field: EmbedField ): OriginIds | undefined {
 		try {
-			const embeds = message.embeds;
-			if ( embeds.length == 0 ) {
-				const warning = await message.channel.send( `${ message.author }, this is not a valid log message.` );
-
-				const timeout = BotConfig.request.noLinkWarningLifetime;
-				await warning.delete( { timeout } );
-			}
-
-			// Assume first embed is the actual message.
-			const embed = embeds[0];
-			// Assume the last field contains the link to the original message.
-			const url: string = embed.fields[embed.fields.length - 1].value;
+			const url = field.value;
 
 			const messageUrl = url.match( /\((.*)\)/ )[1];
 			const parts = messageUrl.split( '/' );
@@ -27,11 +21,31 @@ export class RequestsUtil {
 			const channelId = parts[parts.length - 2];
 			const messageId = parts[parts.length - 1];
 
-			if ( !channelId || !messageId ) {
-				throw new Error( `Failed to get channel ID and message ID from "${ url }"` );
+			if ( channelId && messageId ) {
+				return { channelId, messageId };
+			} else {
+				return undefined;
+			}
+		} catch ( ignored ) {
+			// The field doesn't contain a valid message URL.
+			return undefined;
+		}
+	}
+
+	public static async getOriginIds( message: Message ): Promise<OriginIds | undefined> {
+		try {
+			const embeds = message.embeds;
+			if ( embeds.length == 0 ) {
+				const warning = await message.channel.send( `${ message.author }, this is not a valid log message.` );
+
+				const timeout = BotConfig.request.warningLifetime;
+				await warning.delete( { timeout } );
 			}
 
-			return { channelId, messageId };
+			// Assume first embed is the actual message.
+			const fields = embeds[0].fields;
+			// Assume either the first field or the last field contains the link to the original message.
+			return this.getOriginIdsFromField( fields[0] ) ?? this.getOriginIdsFromField( fields[fields.length - 1] );
 		} catch ( error ) {
 			this.logger.error( error );
 			return undefined;

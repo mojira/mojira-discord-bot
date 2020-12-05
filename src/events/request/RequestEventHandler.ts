@@ -107,7 +107,6 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 				.setColor( 'BLUE' )
 				.setAuthor( origin.author.tag, origin.author.avatarURL() )
 				.setDescription( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) )
-				.addField( 'Note', 'WIP', true )
 				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
 				.setTimestamp( new Date() );
 
