@@ -23,7 +23,7 @@ export default class BulkCommand extends PrefixCommand {
 					const channelMessages = internalChannel.messages.cache.values();
 					for await ( const channelMessage of channelMessages ) {
 						const reaction = channelMessage.reactions.cache.get( BotConfig.request.bulkEmoji );
-						if ( reaction.users.cache.get( message.author ) ) {
+						if ( reaction.users.cache.get( message.author.id ) ) {
 							bulkMessages.add( channelMessage );
 						}
 					}
@@ -48,7 +48,7 @@ export default class BulkCommand extends PrefixCommand {
 				}
 				ticket.forEach( key => ticketKeys.push( key ) );
 				const reaction = bulkMessage.reactions.cache.get( BotConfig.request.bulkEmoji );
-				await reaction.users.remove( message.author );
+				await reaction.users.remove( message.author.id );
 			}
 		} catch ( err ) {
 			Command.logger.error( err );
