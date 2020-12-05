@@ -13,7 +13,7 @@ export default class BulkCommand extends PrefixCommand {
 			return false;
 		}
 
-		let bulkMessages: Set<Message>;
+		let bulkMessages: Messages[];
 
 		for ( let i = 0; i < BotConfig.request.internalChannels.length; i++ ) {
 			const internalChannelId = BotConfig.request.internalChannels[i];
@@ -24,7 +24,7 @@ export default class BulkCommand extends PrefixCommand {
 					for await ( const channelMessage of channelMessages ) {
 						const reaction = channelMessage.reactions.cache.get( BotConfig.request.bulkEmoji );
 						if ( reaction.users.cache.get( message.author.id ) ) {
-							bulkMessages.add( channelMessage );
+							bulkMessages.push( channelMessage );
 						}
 					}
 				}
@@ -32,17 +32,15 @@ export default class BulkCommand extends PrefixCommand {
 				Command.logger.error( err );
 				return false;
 			}
-		}
-
-		const bulkMessageArray = Array.from( bulkMessages );
+	        }
 
 		let firstMentioned: string;
 		let ticketKeys: string[];
 
 		try {
-			for ( let j = 0; j < bulkMessageArray.length; j++ ) {
-				const bulkMessage = bulkMessageArray[j];
-				const ticket = Array.from( this.getTickets( bulkMessage.toString() ) );
+			for ( let j = 0; j < bulkMessages.length; j++ ) {
+				const bulkMessage = bulkMessages[j];
+				const ticket = this.getTickets( bulkMessage.toString() );
 				if ( firstMentioned == null ) {
 					firstMentioned = ticket[1];
 				}
@@ -64,12 +62,12 @@ export default class BulkCommand extends PrefixCommand {
 		return true;
 	}
 
-	private getTickets( content: string ): Set<string> {
+	private getTickets( content: string ): string[] {
 		let ticketMatch: RegExpExecArray;
 		const regex = MentionCommand.getTicketIdRegex();
-		const ticketMatches: Set<string> = new Set();
+		const ticketMatches: string[] = [];
 		while ( ( ticketMatch = regex.exec( content ) ) !== null ) {
-			ticketMatches.add( ticketMatch[1] );
+			ticketMatches.push( ticketMatch[1] );
 		}
 		return ticketMatches;
 	}
