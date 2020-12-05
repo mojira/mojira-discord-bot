@@ -66,7 +66,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 		}
 
 		if ( BotConfig.request.invalidRequestJql ) {
-			const tickets = Array.from( this.getTickets( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) ) );
+			const tickets = this.getTickets( origin.content );
 			const searchResults = await this.jira.search.search( {
 				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ tickets.join( ',' ) })`,
 				fields: ['key'],
@@ -124,14 +124,14 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 		}
 	};
 
-	private getTickets( content: string ): Set<string> {
+	private getTickets( content: string ): string[] {
 		let ticketMatch: RegExpExecArray;
 		const regex = MentionCommand.getTicketIdRegex();
 		const ticketMatches: Set<string> = new Set();
 		while ( ( ticketMatch = regex.exec( content ) ) !== null ) {
 			ticketMatches.add( ticketMatch[1] );
 		}
-		return ticketMatches;
+		return Array.from( ticketMatches );
 	}
 
 	private replaceTicketReferencesWithRichLinks( content: string, regex: RegExp ): string {
