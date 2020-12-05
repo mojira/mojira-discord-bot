@@ -8,11 +8,17 @@ export default class MentionCommand extends Command {
 		return `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;
 	}
 
-	public static get ticketIdRegex(): RegExp {
+	/**
+	 * @returns A NEW regex object every time. You have to store it as a variable if you use `exec` on it, otherwise you will encounter infinite loops.
+	 */
+	public static getTicketIdRegex(): RegExp {
 		return new RegExp( `(?<=^|[^${ BotConfig.forbiddenTicketPrefix }])(?<=${ BotConfig.requiredTicketPrefix })(${ MentionCommand.ticketPattern })`, 'g' );
 	}
 
-	public static get ticketLinkRegex(): RegExp {
+	/**
+	 * @returns A NEW regex object every time. You have to store it as a variable if you use `exec` on it, otherwise you will encounter infinite loops.
+	 */
+	public static getTicketLinkRegex(): RegExp {
 		return new RegExp( `https?://bugs\\.mojang\\.com/(?:browse|projects/\\w+/issues)/(${ MentionCommand.ticketPattern })`, 'g' );
 	}
 
@@ -21,13 +27,13 @@ export default class MentionCommand extends Command {
 		// replace all issues posted in the form of a link from the search either with a mention or remove them
 		if ( !BotConfig.ticketUrlsCauseEmbed || BotConfig.requiredTicketPrefix ) {
 			messageText = messageText.replace(
-				MentionCommand.ticketLinkRegex,
+				MentionCommand.getTicketLinkRegex(),
 				BotConfig.ticketUrlsCauseEmbed ? `${ BotConfig.requiredTicketPrefix }$1` : ''
 			);
 		}
 
 		let ticketMatch: RegExpExecArray;
-		const ticketIdRegex = MentionCommand.ticketIdRegex;
+		const ticketIdRegex = MentionCommand.getTicketIdRegex();
 		const ticketMatches: Set<string> = new Set();
 
 		while ( ( ticketMatch = ticketIdRegex.exec( messageText ) ) !== null ) {
