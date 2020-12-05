@@ -1,6 +1,5 @@
 import { Message } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
-import BotConfig from '../BotConfig';
 
 export default class TipsCommand extends PrefixCommand {
 	public readonly aliases = ['tips', 'tutorial'];
