@@ -6,9 +6,11 @@ import DiscordUtil from '../../util/DiscordUtil';
 import { ReactionsUtil } from '../../util/ReactionsUtil';
 import { RequestsUtil } from '../../util/RequestsUtil';
 import EventHandler from '../EventHandler';
+import JiraClient from 'jira-connector';
 
 export default class RequestEventHandler implements EventHandler<'message'> {
 	public readonly eventName = 'message';
+	private jira: JiraClient;
 
 	private logger = log4js.getLogger( 'RequestEventHandler' );
 
@@ -19,6 +21,11 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 	constructor( internalChannels: Map<string, string> ) {
 		this.internalChannels = internalChannels;
+
+		this.jira = new JiraClient( {
+			host: 'bugs.mojang.com',
+			strictSSL: true,
+		} );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestEventHandler` object
@@ -37,7 +44,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			this.logger.error( error );
 		}
 
-		const regex = new RegExp( `(?:${ MentionCommand.ticketLinkRegex.source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
+		const regex = new RegExp( `(?:${ MentionCommand.getTicketLinkRegex().source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
 
 		if ( BotConfig.request.noLinkEmoji && !origin.content.match( regex ) ) {
 			try {
@@ -49,13 +56,39 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			try {
 				const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) doesn't contain any valid ticket reference. If you'd like to add it you can edit your message.` );
 
-				const timeout = BotConfig.request.noLinkWarningLifetime;
+				const timeout = BotConfig.request.warningLifetime;
 				await warning.delete( { timeout } );
 			} catch ( error ) {
 				this.logger.error( error );
 			}
 
 			return;
+		}
+
+		if ( BotConfig.request.invalidRequestJql ) {
+			const tickets = this.getTickets( origin.content );
+			const searchResults = await this.jira.search.search( {
+				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ tickets.join( ',' ) })`,
+				fields: ['key'],
+			} );
+			const invalidTickets = searchResults.issues.map( ( { key } ) => key );
+			if ( invalidTickets.length > 0 ) {
+				try {
+					await origin.react( BotConfig.request.invalidTicketEmoji );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
+
+				try {
+					const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) contains a ticket that is less than 24 hours old. Please wait until it is at least one day old before making a request.` );
+
+					const timeout = BotConfig.request.warningLifetime;
+					await warning.delete( { timeout } );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
+				return;
+			}
 		}
 
 		if ( BotConfig.request.waitingEmoji ) {
@@ -90,6 +123,16 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			}
 		}
 	};
+
+	private getTickets( content: string ): string[] {
+		let ticketMatch: RegExpExecArray;
+		const regex = MentionCommand.getTicketIdRegex();
+		const ticketMatches: string[] = [];
+		while ( ( ticketMatch = regex.exec( content ) ) !== null ) {
+			ticketMatches.push( ticketMatch[1] );
+		}
+		return ticketMatches;
+	}
 
 	private replaceTicketReferencesWithRichLinks( content: string, regex: RegExp ): string {
 		// Only one of the two capture groups ($1 and $2) can catch an ID at the same time.
