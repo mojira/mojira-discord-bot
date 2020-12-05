@@ -18,7 +18,7 @@ export default class MentionDeleteEventHandler implements EventHandler<'messageR
 
         if ( user.tag === userTag ) {
             try {
-                await message.delete;
+                await message.delete();
             } catch ( error ) {
                 this.logger.error( error );
             }
