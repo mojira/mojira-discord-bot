@@ -11,7 +11,7 @@ export default class MentionDeleteEventHandler implements EventHandler<'messageR
     public onEvent = async ( { message }: MessageReaction, user: User ): Promise<void> => {
         this.logger.info( `User ${ user.tag } is attempting to delete message '${ message.id }'` );
 
-	const embeds = message.embeds;
+	    const embeds = message.embeds;
         const mentionEmbed = embeds[0];
         const footer: string = mentionEmbed.footer.text;
         const userTag = footer.match( /.{3,32}#[0-9]{4}/ )[0];
