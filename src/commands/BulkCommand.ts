@@ -13,7 +13,7 @@ export default class BulkCommand extends PrefixCommand {
 			return false;
 		}
 
-		let bulkMessages: Messages[];
+		let bulkMessages: Message[];
 
 		for ( let i = 0; i < BotConfig.request.internalChannels.length; i++ ) {
 			const internalChannelId = BotConfig.request.internalChannels[i];
