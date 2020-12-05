@@ -32,7 +32,7 @@ export default class BulkCommand extends PrefixCommand {
 				Command.logger.error( err );
 				return false;
 			}
-	        }
+		}
 
 		let firstMentioned: string;
 		let ticketKeys: string[];
