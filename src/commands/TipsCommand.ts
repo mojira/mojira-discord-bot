@@ -14,7 +14,7 @@ export default class TipsCommand extends PrefixCommand {
 				How to use this server: 
 				Start by choosing which bug tracker projects you would like to be a part of in #role-selection.
 				Afterwards, you can use corresponding request channels in each project to make requests for changes to tickets on the bug tracker, like resolutions and adding affected versions. 
-				The mods and helpers of the bug tracker will then be able to see the requests and resolve them.`.replace( /\t/g, '' )
+				The moderators and helpers of the bug tracker will then be able to see the requests and resolve them.`.replace( /\t/g, '' )
 			);
 		} catch {
 			return false;
