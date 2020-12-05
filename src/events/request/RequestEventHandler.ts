@@ -127,11 +127,11 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 	private getTickets( content: string ): string[] {
 		let ticketMatch: RegExpExecArray;
 		const regex = MentionCommand.getTicketIdRegex();
-		const ticketMatches: Set<string> = new Set();
+		const ticketMatches: string[] = [];
 		while ( ( ticketMatch = regex.exec( content ) ) !== null ) {
-			ticketMatches.add( ticketMatch[1] );
+			ticketMatches.push( ticketMatch[1] );
 		}
-		return Array.from( ticketMatches );
+		return ticketMatches;
 	}
 
 	private replaceTicketReferencesWithRichLinks( content: string, regex: RegExp ): string {
