@@ -42,7 +42,7 @@ export class RequestConfig {
 		if ( this.channels.length !== this.internalChannels.length ) {
 			throw new Error( 'There are not exactly as many Request channels and ' );
 		}
-				if ( this.internalChannels.length !== this.internalChannelNames.length ) {
+		if ( this.internalChannels.length !== this.internalChannelNames.length ) {
 			throw new Error( 'There are not exactly as many Internal channels and ' );
 		}
 

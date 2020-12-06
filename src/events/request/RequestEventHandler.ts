@@ -123,7 +123,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 			const messageCount = internalChannel.messages.cache.size;
 
-			internalChannel.setName( `${ messageCount }-${ internalChannelName }` )
+			await internalChannel.setName( `${ messageCount }-${ internalChannelName }` );
 
 			if ( BotConfig.request.suggestedEmoji ) {
 				await ReactionsUtil.reactToMessage( copy, [...BotConfig.request.suggestedEmoji] );

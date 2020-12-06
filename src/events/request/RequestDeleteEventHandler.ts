@@ -41,7 +41,7 @@ export default class RequestDeleteEventHandler implements EventHandler<'messageD
 						try {
 							await internalMessage.delete();
 							const messageCount = internalChannel.messages.cache.size;
-							internalChannel.setName( `${ messageCount }-${ internalChannelName }` );
+							await internalChannel.setName( `${ messageCount }-${ internalChannelName }` );
 						} catch ( error ) {
 							this.logger.error( error );
 						}

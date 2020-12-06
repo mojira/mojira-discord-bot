@@ -14,7 +14,7 @@ export default class MessageEventHandler implements EventHandler<'message'> {
 	constructor( botUserId: string, internalChannels: Map<string, string>, internalChannelNames: Map<string, string> ) {
 		this.botUserId = botUserId;
 
-		this.requestEventHandler = new RequestEventHandler( internalChannels , internalChannelNames );
+		this.requestEventHandler = new RequestEventHandler( internalChannels, internalChannelNames );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageEventHandler` object

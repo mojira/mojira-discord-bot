@@ -96,7 +96,7 @@ export default class MojiraBot {
 						if ( requestChannel instanceof TextChannel && internalChannel instanceof TextChannel ) {
 							requestChannels.push( requestChannel );
 							internalChannels.set( requestChannelId, internalChannelId );
-							internalChannelNames.set( internalChannelId, internalChannelName )
+							internalChannelNames.set( internalChannelId, internalChannelName );
 							// https://stackoverflow.com/questions/55153125/fetch-more-than-100-messages
 							const allMessages: Message[] = [];
 							let lastId: string | undefined;
@@ -185,7 +185,7 @@ export default class MojiraBot {
 				this.logger.info( 'Fully caught up on requests.' );
 			}
 
-			EventRegistry.add( new ReactionAddEventHandler( this.client.user.id, internalChannels, internalChannelNames  ) );
+			EventRegistry.add( new ReactionAddEventHandler( this.client.user.id, internalChannels, internalChannelNames ) );
 			EventRegistry.add( new ReactionRemoveEventHandler( this.client.user.id ) );
 			EventRegistry.add( new MessageEventHandler( this.client.user.id, internalChannels, internalChannelNames ) );
 			EventRegistry.add( new MessageUpdateEventHandler( this.client.user.id, internalChannels, internalChannelNames ) );
