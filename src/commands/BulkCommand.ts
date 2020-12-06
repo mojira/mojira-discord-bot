@@ -1,58 +1,38 @@
-import { Message, TextChannel } from 'discord.js';
+import { Message, User } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
 import MentionCommand from './MentionCommand';
-import Command from './Command';
-import DiscordUtil from '../util/DiscordUtil';
+import { RequestsUtil } from '../util/RequestsUtil';
 import BotConfig from '../BotConfig';
 
 export default class BulkCommand extends PrefixCommand {
 	public readonly aliases = ['bulk', 'filter'];
+
+	public static currentBulkReactions: Map<User, Message[]>;
 
 	public async run( message: Message, args: string ): Promise<boolean> {
 		if ( args.length ) {
 			return false;
 		}
 
-		let bulkMessages: Message[];
-
-		for ( let i = 0; i < BotConfig.request.internalChannels.length; i++ ) {
-			const internalChannelId = BotConfig.request.internalChannels[i];
-			try {
-				const internalChannel = await DiscordUtil.getChannel( internalChannelId );
-				if ( internalChannel instanceof TextChannel ) {
-					const channelMessages = internalChannel.messages.cache.values();
-					for await ( const channelMessage of channelMessages ) {
-						const reaction = channelMessage.reactions.cache.get( BotConfig.request.bulkEmoji );
-						if ( reaction.users.cache.get( message.author.id ) ) {
-							bulkMessages.push( channelMessage );
-						}
-					}
-				}
-			} catch ( err ) {
-				Command.logger.error( err );
-				return false;
-			}
-		}
-
-		let firstMentioned: string;
 		let ticketKeys: string[];
+		let firstMentioned: string;
 
 		try {
-			for ( let j = 0; j < bulkMessages.length; j++ ) {
-				const bulkMessage = bulkMessages[j];
-				const ticket = this.getTickets( bulkMessage.toString() );
-				if ( firstMentioned == null ) {
-					firstMentioned = ticket[1];
-				}
-				ticket.forEach( key => ticketKeys.push( key ) );
-				const reaction = bulkMessage.reactions.cache.get( BotConfig.request.bulkEmoji );
-				await reaction.users.remove( message.author.id );
+			const bulkMessages = BulkCommand.currentBulkReactions.get( message.author );
+			let originMessages: Message[];
+			for ( const bulk of bulkMessages ) {
+				originMessages.push( await RequestsUtil.getOriginMessage( bulk ) );
+				bulk.reactions.cache.get( BotConfig.request.bulkEmoji ).users.remove( message.author );
 			}
-		} catch ( err ) {
-			Command.logger.error( err );
+			originMessages.forEach( origin => this.getTickets( origin.content ).forEach( ticket => ticketKeys.push( ticket ) ) );
+			firstMentioned = ticketKeys[0];
+			BulkCommand.currentBulkReactions.delete( message.author );
+		} catch {
 			return false;
 		}
+
 		const filter = `https://bugs.mojang.com/browse/${ firstMentioned }?jql=key%20in(${ ticketKeys.join( '%2C' ) })`;
+
 		try {
 			await message.channel.send( `${ message.author.toString() } ${ filter }` );
 		} catch {
