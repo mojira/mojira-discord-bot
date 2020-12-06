@@ -1,6 +1,7 @@
 import { Message, User } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
 import MentionCommand from './MentionCommand';
+import Command from './Command';
 import { RequestsUtil } from '../util/RequestsUtil';
 import BotConfig from '../BotConfig';
 
@@ -22,7 +23,12 @@ export default class BulkCommand extends PrefixCommand {
 			let originMessages: Message[];
 			for ( const bulk of bulkMessages ) {
 				originMessages.push( await RequestsUtil.getOriginMessage( bulk ) );
-				bulk.reactions.cache.get( BotConfig.request.bulkEmoji ).users.remove( message.author );
+				try {
+					bulk.reactions.cache.get( BotConfig.request.bulkEmoji ).users.remove( message.author );
+				} catch (error) {
+					Command.logger.error( err );
+					return false;
+				}
 			}
 			originMessages.forEach( origin => this.getTickets( origin.content ).forEach( ticket => ticketKeys.push( ticket ) ) );
 			firstMentioned = ticketKeys[0];
