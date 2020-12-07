@@ -16,7 +16,9 @@ export default class HelpCommand extends PrefixCommand {
 				
 				To check whether the bot is currently running, you can use \`!jira ping\`. This bot is continuously being worked on and this will receive more features in the future.
 				It is not possible to invite this bot to other servers yet.
-				If you have any issues, feel free to ping violine1101.`.replace( /\t/g, '' )
+				If you have any issues, feel free to ping violine1101.
+				
+				(For help with the bug tracker, use !jira tips)`.replace( /\t/g, '' )
 			);
 		} catch {
 			return false;
