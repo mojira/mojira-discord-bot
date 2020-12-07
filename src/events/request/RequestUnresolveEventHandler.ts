@@ -2,7 +2,7 @@ import { MessageReaction, User } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
 import TaskScheduler from '../../tasks/TaskScheduler';
-import { RequestsUtil } from '../../util/RequestsUtil'
+import { RequestsUtil } from '../../util/RequestsUtil';
 import EventHandler from '../EventHandler';
 
 export default class RequestUnresolveEventHandler implements EventHandler<'messageReactionRemove'> {

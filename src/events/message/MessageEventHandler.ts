@@ -36,6 +36,12 @@ export default class MessageEventHandler implements EventHandler<'message'> {
 
 			// Don't reply in request channels
 			return;
+		} else if ( BotConfig.request.testingRequestChannels && BotConfig.request.testingRequestChannels.includes( message.channel.id ) ) {
+			// This message is in a testing request channel
+			await this.requestEventHandler.onEvent( message );
+
+			// Don't reply in testing request channels
+			return;
 		}
 
 		await CommandExecutor.checkCommands( message );

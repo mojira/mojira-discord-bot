@@ -133,16 +133,16 @@ export default class MojiraBot {
 					}
 				}
 
-                                if ( BotConfig.request.logChannel ) {
-                                        try {
-                                                const logChannel = await DiscordUtil.getChannel( BotConfig.request.logChannel );
-                                                if ( logChannel instanceof TextChannel ) {
-                                                        await logChannel.messages.fetch( { limit: 100 } );
-                                                }
-                                        } catch ( err ) {
+				if ( BotConfig.request.logChannel ) {
+					try {
+						const logChannel = await DiscordUtil.getChannel( BotConfig.request.logChannel );
+						if ( logChannel instanceof TextChannel ) {
+							await logChannel.messages.fetch( { limit: 100 } );
+						}
+					} catch ( err ) {
 						this.logger.error( err );
 					}
-                                }
+				}
 
 				const newRequestHandler = new RequestEventHandler( internalChannels );
 				for ( const requestChannel of requestChannels ) {

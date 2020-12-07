@@ -58,7 +58,14 @@ request:
     - <string>
     - <string>
     - ...
-  
+
+  # The IDs of the server's testing request channels.
+  # Optional; empty by default.
+  testingRequestChannels:
+    - <string>
+    - <string>
+    - ...
+
   # A channel which stores logs like `<volunteer> resolved <original message ID> as <emoji>.`
   logChannel: <string>
   
