@@ -4,7 +4,6 @@ import DiscordUtil from './DiscordUtil';
 import JiraClient from 'jira-connector';
 import * as log4js from 'log4js';
 import MentionCommand from '../commands/MentionCommand';
-import c from 'config';
 
 export class RequestsUtil {
 	private static logger = log4js.getLogger( 'RequestsUtil' );
