@@ -129,7 +129,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 				}
 
 				try {
-					const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) doesn't contain any valid ticket reference.` );
+					const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) doesn't contain exactly one ticket reference.` );
 
 					const timeout = BotConfig.request.warningLifetime;
 					await warning.delete( { timeout } );
