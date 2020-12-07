@@ -41,7 +41,7 @@ export default class BulkCommand extends PrefixCommand {
 				originMessages.push( await RequestsUtil.getOriginMessage( bulk ) );
 				await bulk.reactions.cache.get( BotConfig.request.bulkEmoji ).users.remove( message.author );
 			}
-			originMessages.forEach( origin => this.getTickets( origin.content ).forEach( ticket => ticketKeys.push( ticket ) ) );
+			originMessages.forEach( origin => ticketKeys.push( ...this.getTickets( origin.content ) ) );
 			firstMentioned = ticketKeys[0];
 			if ( rawEmoji ) {
 				bulkMessages.forEach( resolvable => TaskScheduler.addOneTimeMessageTask(
