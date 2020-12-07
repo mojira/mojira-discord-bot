@@ -5,12 +5,12 @@ export class EmojiUtil {
 		const customEmoji = /^<a?:(.+):(\d+)>/;
 		const unicodeEmoji = emojiRegex();
 		let rawEmoji: string;
-		if ( unicodeEmoji.test( args ) ) {
-			rawEmoji = args;
-		} else if ( customEmoji.test( args ) ) {
+		if ( customEmoji.test( args ) ) {
 			rawEmoji = customEmoji.exec( args )[2];
+		} else if ( unicodeEmoji.test( args ) ) {
+			rawEmoji = args;
 		} else {
-			return;
+			return undefined;
 		}
 		return rawEmoji;
 	}

@@ -7,7 +7,6 @@ import { ReactionsUtil } from '../util/ReactionsUtil';
 
 interface PollOption {
 	emoji: string;
-	emojiName?: string;
 	rawEmoji: string;
 	text: string;
 }
@@ -109,12 +108,11 @@ export default class PollCommand extends PrefixCommand {
 			}
 
 			const emoji = optionArgs[1];
-			const emojiTest = EmojiUtil.getEmoji( emoji );
-			if ( emojiTest ) {
+			const rawEmoji = EmojiUtil.getEmoji( emoji );
+			if ( rawEmoji ) {
 				options.push( {
 					emoji: emoji,
-					emojiName: emojiTest,
-					rawEmoji: emojiTest,
+					rawEmoji: rawEmoji,
 					text: optionArgs[2],
 				} );
 			} else {
