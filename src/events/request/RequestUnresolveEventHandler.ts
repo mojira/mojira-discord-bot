@@ -3,6 +3,7 @@ import * as log4js from 'log4js';
 import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
 import BulkCommand from '../../commands/BulkCommand';
 import TaskScheduler from '../../tasks/TaskScheduler';
+import { RequestsUtil } from '../../util/RequestsUtil'
 import EventHandler from '../EventHandler';
 
 export default class RequestUnresolveEventHandler implements EventHandler<'messageReactionRemove'> {
@@ -15,6 +16,7 @@ export default class RequestUnresolveEventHandler implements EventHandler<'messa
 		this.logger.info( `User ${ user.tag } removed '${ emoji.name }' reaction from request message '${ message.id }'` );
 
 		if ( BotConfig.request.bulkEmoji !== emoji.name ) {
+      await message.edit( message.embeds[0].setColor( RequestsUtil.getEmbedColor() ) );
 			if ( BotConfig.request.prependResponseMessage == PrependResponseMessageType.WhenResolved ) {
 				try {
 					await message.edit( '' );

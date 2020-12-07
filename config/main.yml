@@ -79,6 +79,12 @@ filterFeeds:
     filterFeedEmoji: '🎉'
     title: '{{num}} tickets have just been resolved as Fixed!'
     titleSingle: This ticket has just been resolved as Fixed!
+  - jql: project = MC AND status changed AFTER -1m AND status = "In Progress"
+    channel: '666349583227682819'
+    interval: 30000
+    filterFeedEmoji: '👀'
+    title: '{{num}} tickets have just been marked as In Progress!'
+    titleSingle: This ticket has just been marked as In Progress!
 
 versionFeeds:
     #java-fixes
@@ -92,7 +98,7 @@ versionFeeds:
       - released
       - unreleased
       - renamed
-  
+
     #version-log
   - projects:
       - BDS
