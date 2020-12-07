@@ -12,13 +12,13 @@ export default class RequestBulkRemoveEventHandler implements EventHandler<'mess
 	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
 		this.logger.info( `User ${ user.tag } removed '${ reaction.emoji.name }' reaction from request message '${ reaction.message.id }'` );
 
-		if ( BulkCommand.currentBulkReactions.has( user ) ) {
-			const currentMessages = BulkCommand.currentBulkReactions.get( user );
+		if ( BulkCommand.currentBulkReactions.has( user.tag ) ) {
+			const currentMessages = BulkCommand.currentBulkReactions.get( user.tag );
 			for ( let i = 0; i <= currentMessages.length; i++ ) {
 				const currentMessage = currentMessages[i];
-				if ( currentMessage === reaction.message ) {
-					BulkCommand.currentBulkReactions.delete( user );
-					BulkCommand.currentBulkReactions.set( user, currentMessages.splice( i, 1 ) );
+				if ( currentMessage.id === reaction.message.id ) {
+					BulkCommand.currentBulkReactions.delete( user.tag );
+					BulkCommand.currentBulkReactions.set( user.tag, currentMessages.splice( i, 1 ) );
 					break;
 				}
 			}

@@ -12,10 +12,10 @@ export default class RequestBulkAddEventHandler implements EventHandler<'message
 	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ reaction.message.id }'` );
 
-		if ( BulkCommand.currentBulkReactions.has( user ) ) {
-			BulkCommand.currentBulkReactions.get( user ).push( reaction.message );
+		if ( BulkCommand.currentBulkReactions.has( user.tag ) ) {
+			BulkCommand.currentBulkReactions.get( user.tag ).push( reaction.message );
 		} else {
-			BulkCommand.currentBulkReactions.set( user, [reaction.message] );
+			BulkCommand.currentBulkReactions.set( user.tag, [reaction.message] );
 		}
 	};
 }

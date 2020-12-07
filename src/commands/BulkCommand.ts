@@ -1,4 +1,4 @@
-import { Message, User } from 'discord.js';
+import { Message } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
 import MentionCommand from './MentionCommand';
 import ResolveRequestMessageTask from '../tasks/ResolveRequestMessageTask';
@@ -10,13 +10,13 @@ import BotConfig from '../BotConfig';
 export default class BulkCommand extends PrefixCommand {
 	public readonly aliases = ['bulk', 'filter'];
 
-	public static currentBulkReactions: Map<User, Message[]>;
+	public static currentBulkReactions = new Map<string, Message[]>();
 
 	public async run( message: Message, args: string ): Promise<boolean> {
 		let rawEmoji: string;
 
 		if ( args.length ) {
-			const customEmoji = /^<a?:(\w+):(\d+)>/;
+			const customEmoji = /^<a?:(.+):(\d+)>/;
 			const unicodeEmoji = emojiRegex();
 
 			if ( customEmoji.test( args ) || unicodeEmoji.test( args ) ) {
@@ -35,7 +35,7 @@ export default class BulkCommand extends PrefixCommand {
 		let firstMentioned: string;
 
 		try {
-			const bulkMessages = BulkCommand.currentBulkReactions.get( message.author );
+			const bulkMessages = BulkCommand.currentBulkReactions.get( message.author.tag );
 			let originMessages: Message[];
 			for ( const bulk of bulkMessages ) {
 				originMessages.push( await RequestsUtil.getOriginMessage( bulk ) );
@@ -50,7 +50,7 @@ export default class BulkCommand extends PrefixCommand {
 					BotConfig.request.resolveDelay || 0
 				) );
 			}
-			BulkCommand.currentBulkReactions.delete( message.author );
+			BulkCommand.currentBulkReactions.delete( message.author.tag );
 		} catch {
 			return false;
 		}
