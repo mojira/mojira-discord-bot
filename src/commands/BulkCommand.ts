@@ -23,12 +23,12 @@ export default class BulkCommand extends PrefixCommand {
 			}
 		}
 
-		let ticketKeys: string[] = [];
+		const ticketKeys: string[] = [];
 		let firstMentioned: string;
 
 		try {
 			const bulkMessages = BulkCommand.currentBulkReactions.get( message.author.tag );
-			let originMessages: Message[] = [];
+			const originMessages: Message[] = [];
 			if ( bulkMessages ) {
 				for ( const bulk of bulkMessages ) {
 					originMessages.push( await RequestsUtil.getOriginMessage( bulk ) );
