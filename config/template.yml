@@ -34,6 +34,9 @@ forbiddenTicketPrefix: <string>
 # When omitted or empty, no prefix is required for posting embeds.
 requiredTicketPrefix: <string>
 
+# The time (in milliseconds) the bot will wait before removing a '!jira bulk' filter
+filterRemovalTimeout: <number>
+
 # The projects the bot should be able to find tickets for.
 projects:
   - <string>

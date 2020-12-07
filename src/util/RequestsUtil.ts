@@ -1,5 +1,6 @@
 import { Message, TextChannel } from 'discord.js';
 import BotConfig from '../BotConfig';
+import MentionCommand from '../commands/MentionCommand';
 import DiscordUtil from './DiscordUtil';
 
 export class RequestsUtil {
@@ -47,5 +48,15 @@ export class RequestsUtil {
 			.replace( '{{author}}', `@${ message.author.tag }` )
 			.replace( '{{url}}', message.url )
 			.replace( '{{message}}', message.content.replace( /(^|\n)/g, '$1> ' ) );
+	}
+
+	public static getTickets( content: string ): string[] {
+		let ticketMatch: RegExpExecArray;
+		const regex = MentionCommand.getTicketIdRegex();
+		const ticketMatches: string[] = [];
+		while ( ( ticketMatch = regex.exec( content ) ) !== null ) {
+			ticketMatches.push( ticketMatch[1] );
+		}
+		return ticketMatches;
 	}
 }

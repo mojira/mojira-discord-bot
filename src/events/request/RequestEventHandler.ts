@@ -66,7 +66,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 		}
 
 		if ( BotConfig.request.invalidRequestJql ) {
-			const tickets = this.getTickets( origin.content );
+			const tickets = RequestsUtil.getTickets( origin.content );
 			const searchResults = await this.jira.search.search( {
 				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ tickets.join( ',' ) })`,
 				fields: ['key'],
@@ -123,16 +123,6 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			}
 		}
 	};
-
-	private getTickets( content: string ): string[] {
-		let ticketMatch: RegExpExecArray;
-		const regex = MentionCommand.getTicketIdRegex();
-		const ticketMatches: string[] = [];
-		while ( ( ticketMatch = regex.exec( content ) ) !== null ) {
-			ticketMatches.push( ticketMatch[1] );
-		}
-		return ticketMatches;
-	}
 
 	private replaceTicketReferencesWithRichLinks( content: string, regex: RegExp ): string {
 		// Only one of the two capture groups ($1 and $2) can catch an ID at the same time.

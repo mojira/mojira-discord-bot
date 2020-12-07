@@ -10,6 +10,8 @@ forbiddenTicketPrefix: '!'
 
 requiredTicketPrefix: ''
 
+filterRemovalTimeout: 300000
+
 projects:
   - BDS
   - MC
