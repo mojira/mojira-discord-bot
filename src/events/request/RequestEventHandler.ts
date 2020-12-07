@@ -47,7 +47,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 			const regex = new RegExp( `(?:${ MentionCommand.getTicketLinkRegex().source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
 
-			if ( BotConfig.request.noLinkEmoji && !RequestsUtil.checkTicketLinks( origin.content ) ) {
+			if ( BotConfig.request.noLinkEmoji && RequestsUtil.checkTicketLinks( origin.content ) === 0 ) {
 				try {
 					await origin.react( BotConfig.request.noLinkEmoji );
 				} catch ( error ) {
@@ -119,7 +119,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 				}
 			}
 		} else if ( !origin.guild.member( origin.author ).permissionsIn( await DiscordUtil.getChannel( BotConfig.request.logChannel ) ).has( 'VIEW_CHANNEL' ) ) {
-			if ( !RequestsUtil.checkTicketLinks( origin.content ) ) {
+			if ( RequestsUtil.checkTicketLinks( origin.content ) !== 1 ) {
 				if ( origin.deletable ) {
 					try {
 						await origin.delete();

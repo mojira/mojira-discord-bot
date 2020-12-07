@@ -4,6 +4,7 @@ import DiscordUtil from './DiscordUtil';
 import JiraClient from 'jira-connector';
 import * as log4js from 'log4js';
 import MentionCommand from '../commands/MentionCommand';
+import c from 'config';
 
 export class RequestsUtil {
 	private static logger = log4js.getLogger( 'RequestsUtil' );
@@ -89,13 +90,9 @@ export class RequestsUtil {
 		}
 	}
 
-	public static checkTicketLinks( content: string ): boolean {
+	public static checkTicketLinks( content: string ): number {
 		const regex = new RegExp( `(?:${ MentionCommand.getTicketLinkRegex().source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
-
-		if ( content.match( regex ) ) {
-			return true;
-		} else {
-			return false;
-		}
+		const matches = content.match( regex );
+		return matches.length;
 	}
 }
