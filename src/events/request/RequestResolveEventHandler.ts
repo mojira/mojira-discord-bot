@@ -27,6 +27,7 @@ export default class RequestResolveEventHandler implements EventHandler<'message
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ reaction.message.id }'` );
 
 		TaskScheduler.clearMessageTasks( reaction.message );
+		await reaction.message.edit( reaction.message.embeds[0].setColor( RequestsUtil.getEmbedColor( user ) ) );
 
 		if ( BotConfig.request.prependResponseMessage == PrependResponseMessageType.WhenResolved
 			&& BotConfig.request.ignorePrependResponseMessageEmoji !== reaction.emoji.name ) {
