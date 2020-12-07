@@ -1,10 +1,11 @@
 import { Message } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
 import MentionCommand from './MentionCommand';
+import Command from './Command';
 import ResolveRequestMessageTask from '../tasks/ResolveRequestMessageTask';
 import TaskScheduler from '../tasks/TaskScheduler';
-import emojiRegex = require( 'emoji-regex/text.js' );
 import { RequestsUtil } from '../util/RequestsUtil';
+import { EmojiUtil } from '../util/EmojiUtil';
 import BotConfig from '../BotConfig';
 
 export default class BulkCommand extends PrefixCommand {
@@ -12,27 +13,19 @@ export default class BulkCommand extends PrefixCommand {
 
 	public static currentBulkReactions = new Map<string, Message[]>();
 
+	private emoji: string;
+
+	private ticketKeys: string[];
+	private firstMentioned: string;
+
 	public async run( message: Message, args: string ): Promise<boolean> {
-		let rawEmoji: string;
-
 		if ( args.length ) {
-			const customEmoji = /^<a?:(.+):(\d+)>/;
-			const unicodeEmoji = emojiRegex();
-
-			if ( customEmoji.test( args ) || unicodeEmoji.test( args ) ) {
-				rawEmoji = args;
-				const emojiMatch = customEmoji.exec( args );
-				if ( emojiMatch ) {
-					rawEmoji = emojiMatch[2];
-				}
-			} else {
+			this.emoji = EmojiUtil.getEmoji( args );
+			if ( !this.emoji ) {
 				await message.channel.send( `**Error:** ${ args } is not a valid emoji.` );
 				return false;
 			}
 		}
-
-		let ticketKeys: string[];
-		let firstMentioned: string;
 
 		try {
 			const bulkMessages = BulkCommand.currentBulkReactions.get( message.author.tag );
@@ -41,12 +34,12 @@ export default class BulkCommand extends PrefixCommand {
 				originMessages.push( await RequestsUtil.getOriginMessage( bulk ) );
 				await bulk.reactions.cache.get( BotConfig.request.bulkEmoji ).users.remove( message.author );
 			}
-			originMessages.forEach( origin => ticketKeys.push( ...this.getTickets( origin.content ) ) );
-			firstMentioned = ticketKeys[0];
-			if ( rawEmoji ) {
+			originMessages.forEach( origin => this.ticketKeys.push( ...this.getTickets( origin.content ) ) );
+			this.firstMentioned = this.ticketKeys[0];
+			if ( this.emoji ) {
 				bulkMessages.forEach( resolvable => TaskScheduler.addOneTimeMessageTask(
 					resolvable,
-					new ResolveRequestMessageTask( rawEmoji, message.author ),
+					new ResolveRequestMessageTask( this.emoji, message.author ),
 					BotConfig.request.resolveDelay || 0
 				) );
 			}
@@ -55,12 +48,20 @@ export default class BulkCommand extends PrefixCommand {
 			return false;
 		}
 
-		const filter = `https://bugs.mojang.com/browse/${ firstMentioned }?jql=key%20in(${ ticketKeys.join( '%2C' ) })`;
+		const filter = `https://bugs.mojang.com/browse/${ this.firstMentioned }?jql=key%20in(${ this.ticketKeys.join( '%2C' ) })`;
 
 		try {
 			await message.channel.send( `${ message.author.toString() } ${ filter }` );
 		} catch {
 			return false;
+		}
+
+		if ( message.deletable ) {
+			try {
+				await message.delete();
+			} catch ( err ) {
+				Command.logger.error( err );
+			}
 		}
 
 		return true;
