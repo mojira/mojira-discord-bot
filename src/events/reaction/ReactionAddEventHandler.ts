@@ -1,7 +1,6 @@
 import { MessageReaction, User } from 'discord.js';
 import BotConfig from '../../BotConfig';
 import DiscordEventHandler from '../EventHandler';
-import RequestBulkAddEventHandler from '../request/RequestBulkAddEventHandler';
 import RequestEventHandler from '../request/RequestEventHandler';
 import RequestReopenEventHandler from '../request/RequestReopenEventHandler';
 import RequestResolveEventHandler from '../request/RequestResolveEventHandler';
@@ -15,7 +14,6 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 	private readonly botUserId: string;
 
 	private readonly roleSelectHandler = new RoleSelectEventHandler();
-	private readonly requestBulkAddEventHandler = new RequestBulkAddEventHandler();
 	private readonly requestResolveEventHandler = new RequestResolveEventHandler();
 	private readonly requestReactionRemovalEventHandler = new RequestReactionRemovalEventHandler();
 	private readonly requestReopenEventHandler: RequestReopenEventHandler;
@@ -41,9 +39,6 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 		if ( BotConfig.roleGroups.find( g => g.message === messageReaction.message.id ) ) {
 			// Handle role selection
 			return this.roleSelectHandler.onEvent( messageReaction, user );
-		} else if ( BotConfig.request.internalChannels.includes( messageReaction.message.channel.id ) && messageReaction.emoji.name === BotConfig.request.bulkEmoji ) {
-			// Handle adding a request to a bulk action
-			return this.requestBulkAddEventHandler.onEvent( messageReaction, user );
 		} else if ( BotConfig.request.internalChannels.includes( messageReaction.message.channel.id ) ) {
 			// Handle resolving user request
 			return this.requestResolveEventHandler.onEvent( messageReaction, user );
