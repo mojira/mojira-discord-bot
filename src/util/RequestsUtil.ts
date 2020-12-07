@@ -1,4 +1,4 @@
-import { Message, TextChannel } from 'discord.js';
+import { Message, TextChannel, User } from 'discord.js';
 import BotConfig from '../BotConfig';
 import DiscordUtil from './DiscordUtil';
 
@@ -47,5 +47,22 @@ export class RequestsUtil {
 			.replace( '{{author}}', `@${ message.author.tag }` )
 			.replace( '{{url}}', message.url )
 			.replace( '{{message}}', message.content.replace( /(^|\n)/g, '$1> ' ) );
+	}
+
+	// https://stackoverflow.com/a/3426956
+	private static hashCode( str: string ): number {
+		let hash = 0;
+		for ( let i = 0; i < str.length; i++ ) {
+			hash = str.charCodeAt( i ) + ( ( hash << 5 ) - hash );
+		}
+		return hash;
+	}
+
+	// https://stackoverflow.com/a/3426956
+	public static getEmbedColor( resolver?: User ): 'BLUE' | number {
+		if ( !resolver ) {
+			return 'BLUE';
+		}
+		return this.hashCode( resolver.tag ) & 0x00FFFFFF;
 	}
 }
