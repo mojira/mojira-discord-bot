@@ -17,8 +17,7 @@ export default class RequestBulkRemoveEventHandler implements EventHandler<'mess
 			for ( let i = 0; i <= currentMessages.length; i++ ) {
 				const currentMessage = currentMessages[i];
 				if ( currentMessage === reaction.message ) {
-					BulkCommand.currentBulkReactions.delete( user );
-					BulkCommand.currentBulkReactions.set( user, currentMessages.splice( i, 1 ) );
+					currentMessages.splice( i, 1 );
 					break;
 				}
 			}
