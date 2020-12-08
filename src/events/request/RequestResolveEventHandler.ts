@@ -39,10 +39,16 @@ export default class RequestResolveEventHandler implements EventHandler<'message
 					BotConfig.request.resolveDelay || 0
 				);
 			}
-		} else if ( BulkCommand.currentBulkReactions.has( user.tag ) ) {
-			BulkCommand.currentBulkReactions.get( user.tag ).push( reaction.message );
 		} else {
-			BulkCommand.currentBulkReactions.set( user.tag, [reaction.message] );
+			try {
+				if ( !BulkCommand.currentBulkReactions.has( user.tag ) ) {
+					BulkCommand.currentBulkReactions.set( user.tag, [ reaction.message ] );
+				} else {
+					BulkCommand.currentBulkReactions.get( user.tag ).push( reaction.message );
+				}
+			} catch ( error ) {
+				this.logger.error( error );
+			}
 		}
 	};
 }

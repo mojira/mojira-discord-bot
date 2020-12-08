@@ -1,11 +1,10 @@
 import { Message } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
 import Command from './Command';
-import ResolveRequestMessageTask from '../tasks/ResolveRequestMessageTask';
-import TaskScheduler from '../tasks/TaskScheduler';
 import { RequestsUtil } from '../util/RequestsUtil';
 import { EmojiUtil } from '../util/EmojiUtil';
 import BotConfig from '../BotConfig';
+import RequestResolveEventHandler from '../events/request/RequestResolveEventHandler';
 
 export default class BulkCommand extends PrefixCommand {
 	public readonly aliases = ['bulk', 'filter'];
@@ -33,16 +32,13 @@ export default class BulkCommand extends PrefixCommand {
 				for ( const bulk of bulkMessages ) {
 					originMessages.push( await RequestsUtil.getOriginMessage( bulk ) );
 					await bulk.reactions.cache.get( BotConfig.request.bulkEmoji ).users.remove( message.author );
+					if ( emoji ) {
+						const reaction = await bulk.react( emoji );
+						await new RequestResolveEventHandler().onEvent( reaction, message.author );
+					}
 				}
 				originMessages.forEach( origin => ticketKeys.push( ...RequestsUtil.getTickets( origin.content ) ) );
 				firstMentioned = ticketKeys[0];
-				if ( emoji ) {
-					bulkMessages.forEach( resolvable => TaskScheduler.addOneTimeMessageTask(
-						resolvable,
-						new ResolveRequestMessageTask( emoji, message.author ),
-						BotConfig.request.resolveDelay || 0
-					) );
-				}
 				BulkCommand.currentBulkReactions.delete( message.author.tag );
 			} else {
 				return false;
