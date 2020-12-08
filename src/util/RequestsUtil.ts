@@ -92,6 +92,10 @@ export class RequestsUtil {
 	public static checkTicketLinks( content: string ): number {
 		const regex = new RegExp( `(?:${ MentionCommand.getTicketLinkRegex().source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
 		const matches = content.match( regex );
-		return matches.length;
+		if ( matches ) {
+			return matches.length;
+		} else {
+			return 0;
+		}
 	}
 }

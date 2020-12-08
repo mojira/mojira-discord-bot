@@ -68,7 +68,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 			if ( BotConfig.request.invalidRequestJql ) {
 				const tickets = this.getTickets( origin.content );
-				if ( await RequestsUtil.checkTicketValidity( this.jira, tickets.join( ',' ) ) ) {
+				if ( !await RequestsUtil.checkTicketValidity( this.jira, tickets.join( ',' ) ) ) {
 					try {
 						await origin.react( BotConfig.request.invalidTicketEmoji );
 					} catch ( error ) {
@@ -129,7 +129,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 				}
 
 				try {
-					const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) doesn't contain exactly one ticket reference.` );
+					const warning = await origin.channel.send( `${ origin.author }, your request doesn't contain exactly one ticket reference.` );
 
 					const timeout = BotConfig.request.warningLifetime;
 					await warning.delete( { timeout } );
@@ -142,7 +142,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 			if ( BotConfig.request.invalidRequestJql ) {
 				const tickets = this.getTickets( origin.content );
-				if ( await RequestsUtil.checkTicketValidity( this.jira, tickets.join( ',' ) ) ) {
+				if ( !await RequestsUtil.checkTicketValidity( this.jira, tickets.join( ',' ) ) ) {
 					if ( origin.deletable ) {
 						try {
 							await origin.delete();
@@ -152,7 +152,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 					}
 
 					try {
-						const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) contains a ticket that is less than 24 hours old. Please wait until it is at least one day old before making a request.` );
+						const warning = await origin.channel.send( `${ origin.author }, your request contains a ticket that is less than 24 hours old. Please wait until it is at least one day old before making a request.` );
 
 						const timeout = BotConfig.request.warningLifetime;
 						await warning.delete( { timeout } );
