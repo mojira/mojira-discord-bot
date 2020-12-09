@@ -37,7 +37,7 @@ export default class ShutdownCommand extends PrefixCommand {
 		const content = matches[2];
 		const sendChannel = message.guild.channels.cache.find( channel => channel.name === channelName.replace( /#/, '' ) );
 
-		if ( !channelName || !messageType || !content || !channel ) {
+		if ( !channelName || !messageType || !content || !sendChannel ) {
 			await this.sendSyntaxMessage( message.channel );
 			return false;
 		}
