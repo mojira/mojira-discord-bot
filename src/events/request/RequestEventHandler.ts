@@ -104,7 +104,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 		if ( internalChannel && internalChannel instanceof TextChannel ) {
 			const embed = new MessageEmbed()
-				.setColor( 'BLUE' )
+				.setColor( RequestsUtil.getEmbedColor() )
 				.setAuthor( origin.author.tag, origin.author.avatarURL() )
 				.setDescription( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) )
 				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
