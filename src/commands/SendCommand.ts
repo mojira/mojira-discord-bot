@@ -25,20 +25,20 @@ export default class ShutdownCommand extends PrefixCommand {
 
 	public async run( message: Message, args: string ): Promise<boolean> {
 		if ( !args.length ) {
-			await this.sendSyntaxMessage( message.channel );
+			await this.sendSyntaxMessage( message.channel, 'No Arguments Specified ' );
 			return false;
 		}
 
 		const sendRegex = /^(?:(.*?))?\s(?:(.*?))?\s*((?:\n.*)*)$/;
 		const matches = sendRegex.exec( args );
 
-		const channelName = matches[0];
-		const messageType = matches[1];
-		const content = matches[2];
-		const sendChannel = message.guild.channels.cache.find( channel => channel.name === channelName.replace( /#/, '' ) );
+		const channelName = matches ? matches[0] : '';
+		const messageType = matches[1] ? matches[2] : '';
+		const content = matches[3] ? matches[3].split( '\n' ) : '';
+		const sendChannel = message.mentions.channels.first();;
 
-		if ( !channelName || !messageType || !content || !sendChannel ) {
-			await this.sendSyntaxMessage( message.channel );
+		if ( !channelName || !sendChannel || !messageType || !content ) {
+			await this.sendSyntaxMessage( message.channel, 'Field was missing! ' );
 			return false;
 		}
 
@@ -50,7 +50,7 @@ export default class ShutdownCommand extends PrefixCommand {
 			}
 		}
 
-		if ( sendChannel instanceof TextChannel || sendChannel instanceof DMChannel || sendChannel instanceof NewsChannel ) {
+		if ( sendChannel instanceof TextChannel ) {
 			if ( messageType === 'text' ) {
 				try {
 					await sendChannel.send( content );
@@ -66,11 +66,11 @@ export default class ShutdownCommand extends PrefixCommand {
 					return false;
 				}
 			} else {
-				await this.sendSyntaxMessage( message.channel, `**Error:** ${ messageType } must be text or embed.` );
+				await this.sendSyntaxMessage( message.channel, `**Error:** ${ messageType } must be text or embed. ` );
 				return false;
 			}
 		} else {
-			await this.sendSyntaxMessage( message.channel, `**Error:** ${ sendChannel.name } is not a valid channel.` );
+			await this.sendSyntaxMessage( message.channel, `**Error:** ${ channelName } is not a valid channel. ` );
 			return false;
 		}
 
