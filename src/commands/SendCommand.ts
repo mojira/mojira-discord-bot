@@ -35,7 +35,7 @@ export default class ShutdownCommand extends PrefixCommand {
 		const channelName = matches ? matches[0] : '';
 		const messageType = matches[1] ? matches[2] : '';
 		const content = matches[3] ? matches[3].split( '\n' ) : '';
-		const sendChannel = message.mentions.channels.first();;
+		const sendChannel = message.mentions.channels.first();
 
 		if ( !channelName || !sendChannel || !messageType || !content ) {
 			await this.sendSyntaxMessage( message.channel, 'Field was missing! ' );
