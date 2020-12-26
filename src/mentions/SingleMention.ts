@@ -93,7 +93,7 @@ export class SingleMention extends Mention {
 
 		const embed = new MessageEmbed();
 		embed.setAuthor( ticketResult.fields.reporter.displayName, ticketResult.fields.reporter.avatarUrls['48x48'], 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) )
-			.setTitle( this.shorten( `[${ ticketResult.key }] ${ ticketResult.fields.summary }` ) )
+			.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ ticketResult.fields.summary }` ) )
 			.setDescription( description.substring( 0, 2048 ) )
 			.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
 			.addField( 'Status', status, !largeStatus )
@@ -151,7 +151,7 @@ export class SingleMention extends Mention {
 
 		return embed;
 	}
-	private shorten( input: string ): string {
+	private ensureLength( input: string ): string {
 		if ( input.length > 251 ) {
 			return input.substring( 0, 251 ) + '...';
 		}
