@@ -158,4 +158,3 @@ export class SingleMention extends Mention {
 		return input;
 	}
 }
-
