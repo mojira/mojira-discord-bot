@@ -6,9 +6,9 @@ logDirectory: logs
 
 ticketUrlsCauseEmbed: false
 
-forbiddenTicketPrefix: "!"
+forbiddenTicketPrefix: '!'
 
-requiredTicketPrefix: ""
+requiredTicketPrefix: ''
 
 projects:
   - BDS

@@ -1,94 +1,94 @@
 # Settings for the offical Mojira Discord bot
 
 owners:
-  - "87225001874325504" # urielsalis
-  - "137290216691073024" # NeunEinser
-  - "252267207264960513" # LateLag
-  - "263098499858563072" # Sonicwave
-  - "417403221863301130" # violine1101
-  - "437088929485684737" # SPGoding
+  - '87225001874325504' # urielsalis
+  - '137290216691073024' # NeunEinser
+  - '252267207264960513' # LateLag
+  - '263098499858563072' # Sonicwave
+  - '417403221863301130' # violine1101
+  - '437088929485684737' # SPGoding
 
-homeChannel: "646317855234850818"
+homeChannel: '646317855234850818'
 
 request:
   channels:
-    - "648555618994618378" # java-requests
-    - "648555751438155776" # bedrock-requests
-    - "651161365091844116" # other-requests
-    - "692382286103969843" # dungeons-requests
+    - '648555618994618378' # java-requests
+    - '648555751438155776' # bedrock-requests
+    - '651161365091844116' # other-requests
+    - '692382286103969843' # dungeons-requests
   internalChannels:
-    - "683038862024638474" # java-pending-requests
-    - "683038914306506841" # bedrock-pending-requests
-    - "683040112191340560" # other-pending-requests
-    - "692382871578607767" # dungeons-pending-requests
-  logChannel: "683039388825026562"
+    - '683038862024638474' # java-pending-requests
+    - '683038914306506841' # bedrock-pending-requests
+    - '683040112191340560' # other-pending-requests
+    - '692382871578607767' # dungeons-pending-requests
+  logChannel: '683039388825026562'
 
 roleGroups:
   - prompt: Please select the project(s) you are interested in, so that we can add you to the appropriate channels.
-    channel: "648479533246316555"
-    message: "692405794305736816"
+    channel: '648479533246316555'
+    message: '692405794305736816'
     radio: false
     roles:
-      - id: "648536573675044865"
+      - id: '648536573675044865'
         desc: |-
           Java Edition
           _PC, Mac and Linux_
-        emoji: "648525192414494730"
-      - id: "648536590481752074"
+        emoji: '648525192414494730'
+      - id: '648536590481752074'
         desc: |-
           Bedrock Edition
           _Android, iOS, Windows 10, Xbox One, Nintendo Switch and Playstation 4_
-        emoji: "648474430158405642"
-      - id: "692398773762261023"
-        desc: "Minecraft: Dungeons"
-        emoji: "692399397232836758"
-      - id: "648536618113826847"
+        emoji: '648474430158405642'
+      - id: '692398773762261023'
+        desc: 'Minecraft: Dungeons'
+        emoji: '692399397232836758'
+      - id: '648536618113826847'
         desc: Other projects
-        emoji: "648521149390520320"
+        emoji: '648521149390520320'
   - prompt: |-
       Please select the pronoun(s) that you'd like to go by.
       This is not mandatory, but we encourage people to use the appropriate pronouns when referring to each other.
-    channel: "648479533246316555"
-    message: "753757208575082556"
+    channel: '648479533246316555'
+    message: '753757208575082556'
     radio: false # Some people might go by multiple pronouns? So why I implemented the radio feature 😅
     roles:
-      - id: "753741802829381765"
+      - id: '753741802829381765'
         desc: He/Him
-        emoji: "🇭"
-      - id: "753741949474832434"
+        emoji: '🇭'
+      - id: '753741949474832434'
         desc: She/Her
-        emoji: "🇸"
-      - id: "753742065971757167"
+        emoji: '🇸'
+      - id: '753742065971757167'
         desc: They/Them
-        emoji: "🇹"
-      - id: "753745759148572801"
+        emoji: '🇹'
+      - id: '753745759148572801'
         desc: |-
           Other Pronoun
           (please indicate in your nickname)
-        emoji: "🇴"
+        emoji: '🇴'
 
 filterFeeds:
   - jql: project = MC AND resolved > -1m AND resolution = Fixed AND fixVersion in unreleasedVersions()
-    channel: "666349583227682819"
+    channel: '666349583227682819'
     interval: 30000
-    filterFeedEmoji: "🎉"
-    title: "{{num}} tickets have just been resolved as Fixed!"
+    filterFeedEmoji: '🎉'
+    title: '{{num}} tickets have just been resolved as Fixed!'
     titleSingle: This ticket has just been resolved as Fixed!
   - jql: project = MC AND status changed AFTER -1m AND status = "In Progress"
-    channel: "666349583227682819"
+    channel: '666349583227682819'
     interval: 30000
-    filterFeedEmoji: "👀"
-    title: "{{num}} tickets have just been marked as In Progress!"
+    filterFeedEmoji: '👀'
+    title: '{{num}} tickets have just been marked as In Progress!'
     titleSingle: This ticket has just been marked as In Progress!
 
 versionFeeds:
-  #java-fixes
+    #java-fixes
   - projects:
       - MC
-    channel: "666349583227682819"
+    channel: '666349583227682819'
     interval: 30000
     scope: 5
-    versionFeedEmoji: "🎉"
+    versionFeedEmoji: '🎉'
     actions:
       - released
       - unreleased
@@ -102,7 +102,7 @@ versionFeeds:
       - MCL
       - MCPE
       - REALMS
-    channel: "741600360619049000"
+    channel: '741600360619049000'
     interval: 300000
     scope: 5
     actions:
