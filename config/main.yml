@@ -14,13 +14,11 @@ request:
   channels:
     - '648555618994618378'
     - '648555751438155776'
-    - '648555873836335124'
     - '651161365091844116'
     - '692382286103969843'
   internalChannels:
     - '683038862024638474'
     - '683038914306506841'
-    - '683039615837536380'
     - '683040112191340560'
     - '692382871578607767'
   logChannel: '683039388825026562'
@@ -41,9 +39,6 @@ roleGroups:
           Bedrock Edition
           _Android, iOS, Windows 10, Xbox One, Nintendo Switch and Playstation 4_
         emoji: '648474430158405642'
-      - id: '648536605094707201'
-        desc: 'Minecraft: Earth'
-        emoji: '648524067359686678'
       - id: '692398773762261023'
         desc: 'Minecraft: Dungeons'
         emoji: '692399397232836758'
@@ -104,7 +99,6 @@ versionFeeds:
       - BDS
       - MC
       - MCD
-      - MCE
       - MCL
       - MCPE
       - REALMS
