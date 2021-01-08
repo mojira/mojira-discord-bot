@@ -15,7 +15,8 @@ request:
   logChannel: '681145896247099618'
 
 roleGroups:
-  - prompt: Please select the project(s) you are interested in, so that we can add you to the appropriate channels.
+  - prompt: Please select the role(s) you are interested in, so that we can add you to the appropriate channels.
+    color: RED
     channel: '653602305417150475'
     message: '654300040239775784'
     radio: false
@@ -31,7 +32,25 @@ roleGroups:
         id: '654297849902661673'
       - emoji: '654297985835859978'
         desc: Test 4
-        id: '654297862867517441'  
+        id: '654297862867517441'
+  - prompt: Radio test selection
+    color: BLUE
+    channel: '653602305417150475'
+    message: '797220404661059595'
+    radio: true
+    roles:
+      - emoji: 1️⃣
+        desc: Test selection \#1
+        id: '654297808286777404'
+      - emoji: 2️⃣
+        desc: Test selection \#2
+        id: '654297834241130507'
+      - emoji: 3️⃣
+        desc: Test selection \#3
+        id: '654297849902661673'
+      - emoji: 4️⃣
+        desc: Test selection \#4
+        id: '654297862867517441'
 
 filterFeeds:
   - jql: created > -1m

@@ -25,6 +25,7 @@ request:
 
 roleGroups:
   - prompt: Please select the project(s) you are interested in, so that we can add you to the appropriate channels.
+    color: GREEN
     channel: '648479533246316555'
     message: '692405794305736816'
     radio: false
@@ -40,7 +41,7 @@ roleGroups:
           _Android, iOS, Windows 10, Xbox One, Nintendo Switch and Playstation 4_
         emoji: '648474430158405642'
       - id: '692398773762261023'
-        desc: 'Minecraft: Dungeons'
+        desc: 'Minecraft Dungeons'
         emoji: '692399397232836758'
       - id: '648536618113826847'
         desc: Other projects
@@ -48,6 +49,7 @@ roleGroups:
   - prompt: |-
       Please select the pronoun(s) that you'd like to go by.
       This is not mandatory, but we encourage people to use the appropriate pronouns when referring to each other.
+    color: BLUE
     channel: '648479533246316555'
     message: '753757208575082556'
     radio: false # Some people might go by multiple pronouns? So why I implemented the radio feature 😅

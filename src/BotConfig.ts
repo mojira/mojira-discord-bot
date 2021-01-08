@@ -66,6 +66,7 @@ export interface RoleConfig {
 export interface RoleGroupConfig {
 	roles: RoleConfig[];
 	prompt: string;
+	color: string;
 	channel: string;
 	message?: string;
 	radio?: boolean;
