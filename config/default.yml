@@ -13,10 +13,8 @@ requiredTicketPrefix: ''
 projects:
   - BDS
   - MC
-  - MCAPI
   - MCCE
   - MCD
-  - MCE
   - MCL
   - MCPE
   - REALMS
@@ -35,7 +33,7 @@ request:
     - ☑️
     - ❌
     - 💬
-  
+
   ignorePrependResponseMessageEmoji: ✅
   ignoreResolutionEmoji: 💬
 
@@ -47,5 +45,5 @@ request:
     ```
     {{author}} {{url}}
     {{message}}
-    
+
     ```
