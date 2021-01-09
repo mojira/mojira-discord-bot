@@ -10,15 +10,15 @@ export default class RoleRemoveEventHandler implements EventHandler<'messageReac
 	private logger = log4js.getLogger( 'RoleRemoveEventHandler' );
 
 	// This syntax is used to ensure that `this` refers to the `RoleRemoveEventHandler` object
-	public onEvent = async ( messageReaction: MessageReaction, user: User ): Promise<void> => {
-		this.logger.info( `User ${ user.tag } removed '${ messageReaction.emoji.name }' reaction from role message` );
+	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
+		this.logger.info( `User ${ user.tag } removed '${ reaction.emoji.name }' reaction from role message` );
 
-		const group = BotConfig.roleGroups.find( searchedGroup => searchedGroup.message === messageReaction.message.id );
-		const role = group.roles.find( searchedRole => searchedRole.emoji === messageReaction.emoji.id || searchedRole.emoji === messageReaction.emoji.name );
+		const group = BotConfig.roleGroups.find( searchedGroup => searchedGroup.message === reaction.message.id );
+		const role = group.roles.find( searchedRole => searchedRole.emoji === reaction.emoji.id || searchedRole.emoji === reaction.emoji.name );
 
 		if ( !role ) return;
 
-		const member = await DiscordUtil.getMember( messageReaction.message.guild, user.id );
+		const member = await DiscordUtil.getMember( reaction.message.guild, user.id );
 		if ( member ) {
 			try {
 				await member.roles.remove( role.id );

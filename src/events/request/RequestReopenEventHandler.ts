@@ -21,6 +21,8 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 	public onEvent = async ( { message }: MessageReaction, user: User ): Promise<void> => {
 		this.logger.info( `User ${ user.tag } is reopening the request message '${ message.id }'` );
 
+		message = await DiscordUtil.fetchMessage( message );
+
 		const requestMessage = await RequestsUtil.getOriginMessage( message );
 
 		const logChannel = await DiscordUtil.getChannel( BotConfig.request.logChannel );

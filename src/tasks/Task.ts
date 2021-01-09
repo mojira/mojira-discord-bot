@@ -1,3 +1,3 @@
 export default abstract class Task {
-	public abstract async run(): Promise<void>;
+	public abstract run(): Promise<void>;
 }
