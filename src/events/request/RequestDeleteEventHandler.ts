@@ -28,7 +28,7 @@ export default class RequestDeleteEventHandler implements EventHandler<'messageD
 
 		if ( internalChannel && internalChannel instanceof TextChannel ) {
 			for ( const [, internalMessage] of internalChannel.messages.cache ) {
-				const result = RequestsUtil.getOriginIds( internalMessage );
+				const result = await RequestsUtil.getOriginIds( internalMessage );
 				if ( !result ) {
 					continue;
 				}
