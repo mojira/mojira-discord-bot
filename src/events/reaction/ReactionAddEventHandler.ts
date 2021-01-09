@@ -30,22 +30,31 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 		// Do not react to own reactions
 		if ( user.id === this.botUserId ) return;
 
+		if ( user.partial ) {
+			user = await user.fetch();
+		}
+
 		if ( messageReaction.partial ) {
 			messageReaction = await messageReaction.fetch();
 		}
 
-		MojiraBot.logger.debug( `User ${ user.tag } reacted with ${ messageReaction.emoji } to message ${ messageReaction.message.id }` );
+		let message = messageReaction.message;
+		if ( messageReaction.message.partial ) {
+			message = await messageReaction.message.fetch();
+		}
 
-		if ( BotConfig.roleGroups.find( g => g.message === messageReaction.message.id ) ) {
+		MojiraBot.logger.debug( `User ${ user.tag } reacted with ${ messageReaction.emoji } to message ${ message.id }` );
+
+		if ( BotConfig.roleGroups.find( g => g.message === message.id ) ) {
 			// Handle role selection
 			return this.roleSelectHandler.onEvent( messageReaction, user );
-		} else if ( BotConfig.request.internalChannels.includes( messageReaction.message.channel.id ) ) {
+		} else if ( BotConfig.request.internalChannels.includes( message.channel.id ) ) {
 			// Handle resolving user request
 			return this.requestResolveEventHandler.onEvent( messageReaction, user );
-		} else if ( BotConfig.request.channels.includes( messageReaction.message.channel.id ) ) {
+		} else if ( BotConfig.request.channels.includes( message.channel.id ) ) {
 			// Handle removing user reactions in the request channels
 			return this.requestReactionRemovalEventHandler.onEvent( messageReaction, user );
-		} else if ( BotConfig.request.logChannel.includes( messageReaction.message.channel.id ) ) {
+		} else if ( BotConfig.request.logChannel.includes( message.channel.id ) ) {
 			// Handle reopening a user request
 			return this.requestReopenEventHandler.onEvent( messageReaction, user );
 		}

@@ -26,7 +26,7 @@ export default class MojiraBot {
 	public static logger = log4js.getLogger( 'MojiraBot' );
 
 	public static client: Client = new Client( {
-		partials: ['REACTION'],
+		partials: ['MESSAGE', 'REACTION', 'USER'],
 		ws: {
 			intents: Intents.NON_PRIVILEGED,
 		},
@@ -74,7 +74,6 @@ export default class MojiraBot {
 								MojiraBot.logger.error( error );
 							}
 						}
-						await DiscordUtil.getMessage( channel, group.message );
 					} catch ( err ) {
 						this.logger.error( err );
 					}
@@ -94,11 +93,13 @@ export default class MojiraBot {
 						if ( requestChannel instanceof TextChannel && internalChannel instanceof TextChannel ) {
 							requestChannels.push( requestChannel );
 							internalChannels.set( requestChannelId, internalChannelId );
+
 							// https://stackoverflow.com/questions/55153125/fetch-more-than-100-messages
 							const allMessages: Message[] = [];
 							let lastId: string | undefined;
-							// eslint-disable-next-line no-constant-condition
-							while ( true ) {
+							let continueSearch = true;
+
+							while ( continueSearch ) {
 								const options: ChannelLogsQueryOptions = { limit: 50 };
 								if ( lastId ) {
 									options.before = lastId;
@@ -107,7 +108,7 @@ export default class MojiraBot {
 								allMessages.push( ...messages.array() );
 								lastId = messages.last()?.id;
 								if ( messages.size !== 50 || !lastId ) {
-									break;
+									continueSearch = false;
 								}
 							}
 							this.logger.info( `Fetched ${ allMessages.length } messages from "${ internalChannel.name }"` );
@@ -132,17 +133,6 @@ export default class MojiraBot {
 						this.logger.error( err );
 					}
 				}
-
-                                if ( BotConfig.request.logChannel ) {
-                                        try {
-                                                const logChannel = await DiscordUtil.getChannel( BotConfig.request.logChannel );
-                                                if ( logChannel instanceof TextChannel ) {
-                                                        await logChannel.messages.fetch( { limit: 100 } );
-                                                }
-                                        } catch ( err ) {
-						this.logger.error( err );
-					}
-                                }
 
 				const newRequestHandler = new RequestEventHandler( internalChannels );
 				for ( const requestChannel of requestChannels ) {

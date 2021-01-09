@@ -21,16 +21,25 @@ export default class ReactionRemoveEventHandler implements EventHandler<'message
 	public onEvent = async ( messageReaction: MessageReaction, user: User ): Promise<void> => {
 		if ( user.id === this.botUserId ) return;
 
+		if ( user.partial ) {
+			user = await user.fetch();
+		}
+
 		if ( messageReaction.partial ) {
 			messageReaction = await messageReaction.fetch();
 		}
 
-		MojiraBot.logger.debug( `User ${ user.tag } removed reaction ${ messageReaction.emoji } to message ${ messageReaction.message.id }` );
+		let message = messageReaction.message;
+		if ( messageReaction.message.partial ) {
+			message = await messageReaction.message.fetch();
+		}
 
-		if ( BotConfig.roleGroups.find( g => g.message === messageReaction.message.id ) ) {
+		MojiraBot.logger.debug( `User ${ user.tag } removed reaction ${ messageReaction.emoji } to message ${ message.id }` );
+
+		if ( BotConfig.roleGroups.find( g => g.message === message.id ) ) {
 			// Handle role removal
 			return this.roleRemoveHandler.onEvent( messageReaction, user );
-		} else if ( BotConfig.request.internalChannels.includes( messageReaction.message.channel.id ) ) {
+		} else if ( BotConfig.request.internalChannels.includes( message.channel.id ) ) {
 			// Handle unresolving user request
 			return this.requestUnresolveEventHandler.onEvent( messageReaction, user );
 		}

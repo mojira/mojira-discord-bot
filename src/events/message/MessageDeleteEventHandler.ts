@@ -18,6 +18,10 @@ export default class MessageDeleteEventHandler implements EventHandler<'messageD
 
 	// This syntax is used to ensure that `this` refers to the `MessageDeleteEventHandler` object
 	public onEvent = async ( message: Message ): Promise<void> => {
+		if ( message.partial ) {
+			message = await message.fetch();
+		}
+
 		if (
 			// Don't handle non-default messages
 			message.type !== 'DEFAULT'

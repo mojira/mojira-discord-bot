@@ -21,6 +21,13 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 
 	// This syntax is used to ensure that `this` refers to the `MessageUpdateEventHandler` object
 	public onEvent = async ( oldMessage: Message, newMessage: Message ): Promise<void> => {
+		if ( oldMessage.partial ) {
+			oldMessage = await oldMessage.fetch();
+		}
+		if ( newMessage.partial ) {
+			newMessage = await newMessage.fetch();
+		}
+
 		if (
 			// Don't handle non-default messages
 			oldMessage.type !== 'DEFAULT'

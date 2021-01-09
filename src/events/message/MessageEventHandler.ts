@@ -19,6 +19,10 @@ export default class MessageEventHandler implements EventHandler<'message'> {
 
 	// This syntax is used to ensure that `this` refers to the `MessageEventHandler` object
 	public onEvent = async ( message: Message ): Promise<void> => {
+		if ( message.partial ) {
+			message = await message.fetch();
+		}
+
 		if (
 			// Don't reply to webhooks
 			message.webhookID
