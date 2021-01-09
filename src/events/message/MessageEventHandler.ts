@@ -1,6 +1,7 @@
 import { Message } from 'discord.js';
 import BotConfig from '../../BotConfig';
 import CommandExecutor from '../../commands/CommandExecutor';
+import DiscordUtil from '../../util/DiscordUtil';
 import EventHandler from '../EventHandler';
 import RequestEventHandler from '../request/RequestEventHandler';
 
@@ -19,9 +20,7 @@ export default class MessageEventHandler implements EventHandler<'message'> {
 
 	// This syntax is used to ensure that `this` refers to the `MessageEventHandler` object
 	public onEvent = async ( message: Message ): Promise<void> => {
-		if ( message.partial ) {
-			message = await message.fetch();
-		}
+		message = await DiscordUtil.fetchMessage( message );
 
 		if (
 			// Don't reply to webhooks

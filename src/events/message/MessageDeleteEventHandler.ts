@@ -1,5 +1,6 @@
 import { Message } from 'discord.js';
 import BotConfig from '../../BotConfig';
+import DiscordUtil from '../../util/DiscordUtil';
 import EventHandler from '../EventHandler';
 import RequestDeleteEventHandler from '../request/RequestDeleteEventHandler';
 
@@ -18,9 +19,7 @@ export default class MessageDeleteEventHandler implements EventHandler<'messageD
 
 	// This syntax is used to ensure that `this` refers to the `MessageDeleteEventHandler` object
 	public onEvent = async ( message: Message ): Promise<void> => {
-		if ( message.partial ) {
-			message = await message.fetch();
-		}
+		message = await DiscordUtil.fetchMessage( message );
 
 		if (
 			// Don't handle non-default messages

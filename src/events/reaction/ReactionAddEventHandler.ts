@@ -7,6 +7,7 @@ import RequestResolveEventHandler from '../request/RequestResolveEventHandler';
 import RequestReactionRemovalEventHandler from '../request/RequestReactionRemovalEventHandler';
 import RoleSelectEventHandler from '../roles/RoleSelectEventHandler';
 import MojiraBot from '../../MojiraBot';
+import DiscordUtil from '../../util/DiscordUtil';
 
 export default class ReactionAddEventHandler implements DiscordEventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';
@@ -26,37 +27,29 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 	}
 
 	// This syntax is used to ensure that `this` refers to the `ReactionAddEventHandler` object
-	public onEvent = async ( messageReaction: MessageReaction, user: User ): Promise<void> => {
+	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
 		// Do not react to own reactions
 		if ( user.id === this.botUserId ) return;
 
-		if ( user.partial ) {
-			user = await user.fetch();
-		}
+		reaction = await DiscordUtil.fetchReaction( reaction );
+		user = await DiscordUtil.fetchUser( user );
 
-		if ( messageReaction.partial ) {
-			messageReaction = await messageReaction.fetch();
-		}
+		const message = await DiscordUtil.fetchMessage( reaction.message );
 
-		let message = messageReaction.message;
-		if ( messageReaction.message.partial ) {
-			message = await messageReaction.message.fetch();
-		}
-
-		MojiraBot.logger.debug( `User ${ user.tag } reacted with ${ messageReaction.emoji } to message ${ message.id }` );
+		MojiraBot.logger.debug( `User ${ user.tag } reacted with ${ reaction.emoji } to message ${ message.id }` );
 
 		if ( BotConfig.roleGroups.find( g => g.message === message.id ) ) {
 			// Handle role selection
-			return this.roleSelectHandler.onEvent( messageReaction, user );
+			return this.roleSelectHandler.onEvent( reaction, user );
 		} else if ( BotConfig.request.internalChannels.includes( message.channel.id ) ) {
 			// Handle resolving user request
-			return this.requestResolveEventHandler.onEvent( messageReaction, user );
+			return this.requestResolveEventHandler.onEvent( reaction, user );
 		} else if ( BotConfig.request.channels.includes( message.channel.id ) ) {
 			// Handle removing user reactions in the request channels
-			return this.requestReactionRemovalEventHandler.onEvent( messageReaction, user );
+			return this.requestReactionRemovalEventHandler.onEvent( reaction, user );
 		} else if ( BotConfig.request.logChannel.includes( message.channel.id ) ) {
 			// Handle reopening a user request
-			return this.requestReopenEventHandler.onEvent( messageReaction, user );
+			return this.requestReopenEventHandler.onEvent( reaction, user );
 		}
 	};
 }

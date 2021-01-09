@@ -4,6 +4,7 @@ import EventHandler from '../EventHandler';
 import RequestUnresolveEventHandler from '../request/RequestUnresolveEventHandler';
 import RoleRemoveEventHandler from '../roles/RoleRemoveEventHandler';
 import MojiraBot from '../../MojiraBot';
+import DiscordUtil from '../../util/DiscordUtil';
 
 export default class ReactionRemoveEventHandler implements EventHandler<'messageReactionRemove'> {
 	public readonly eventName = 'messageReactionRemove';
@@ -18,30 +19,22 @@ export default class ReactionRemoveEventHandler implements EventHandler<'message
 	}
 
 	// This syntax is used to ensure that `this` refers to the `ReactionRemoveEventHandler` object
-	public onEvent = async ( messageReaction: MessageReaction, user: User ): Promise<void> => {
+	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
 		if ( user.id === this.botUserId ) return;
 
-		if ( user.partial ) {
-			user = await user.fetch();
-		}
+		reaction = await DiscordUtil.fetchReaction( reaction );
+		user = await DiscordUtil.fetchUser( user );
 
-		if ( messageReaction.partial ) {
-			messageReaction = await messageReaction.fetch();
-		}
+		const message = await DiscordUtil.fetchMessage( reaction.message );
 
-		let message = messageReaction.message;
-		if ( messageReaction.message.partial ) {
-			message = await messageReaction.message.fetch();
-		}
-
-		MojiraBot.logger.debug( `User ${ user.tag } removed reaction ${ messageReaction.emoji } to message ${ message.id }` );
+		MojiraBot.logger.debug( `User ${ user.tag } removed reaction ${ reaction.emoji } to message ${ message.id }` );
 
 		if ( BotConfig.roleGroups.find( g => g.message === message.id ) ) {
 			// Handle role removal
-			return this.roleRemoveHandler.onEvent( messageReaction, user );
+			return this.roleRemoveHandler.onEvent( reaction, user );
 		} else if ( BotConfig.request.internalChannels.includes( message.channel.id ) ) {
 			// Handle unresolving user request
-			return this.requestUnresolveEventHandler.onEvent( messageReaction, user );
+			return this.requestUnresolveEventHandler.onEvent( reaction, user );
 		}
 	};
 }
