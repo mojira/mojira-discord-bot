@@ -6,6 +6,7 @@ import RequestReopenEventHandler from '../request/RequestReopenEventHandler';
 import RequestResolveEventHandler from '../request/RequestResolveEventHandler';
 import RequestReactionRemovalEventHandler from '../request/RequestReactionRemovalEventHandler';
 import RoleSelectEventHandler from '../roles/RoleSelectEventHandler';
+import MentionDeleteEventHandler from '../mention/MentionDeleteEventHandler';
 import MojiraBot from '../../MojiraBot';
 import DiscordUtil from '../../util/DiscordUtil';
 
@@ -18,6 +19,7 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 	private readonly requestResolveEventHandler = new RequestResolveEventHandler();
 	private readonly requestReactionRemovalEventHandler = new RequestReactionRemovalEventHandler();
 	private readonly requestReopenEventHandler: RequestReopenEventHandler;
+	private readonly mentionDeleteEventHandler = new MentionDeleteEventHandler();
 
 	constructor( botUserId: string, internalChannels: Map<string, string> ) {
 		this.botUserId = botUserId;
@@ -50,6 +52,9 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 		} else if ( BotConfig.request.logChannel.includes( message.channel.id ) ) {
 			// Handle reopening a user request
 			return this.requestReopenEventHandler.onEvent( reaction, user );
+		} else if ( reaction.message.author.id === this.botUserId && reaction.emoji.name === BotConfig.embedDeletionEmoji ) {
+			// Handle deleting bot embed
+			return this.mentionDeleteEventHandler.onEvent( reaction, user );
 		}
 	};
 }

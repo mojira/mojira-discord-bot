@@ -59,13 +59,16 @@ export class RequestConfig {
 
 export interface RoleConfig {
 	emoji: string;
-	desc: string;
+	title: string;
+	desc?: string;
 	id: string;
 }
 
 export interface RoleGroupConfig {
 	roles: RoleConfig[];
 	prompt: string;
+	desc?: string;
+	color: string;
 	channel: string;
 	message?: string;
 	radio?: boolean;
@@ -105,6 +108,8 @@ export default class BotConfig {
 	public static requiredTicketPrefix: string;
 	public static forbiddenTicketPrefix: string;
 
+	public static embedDeletionEmoji: string;
+
 	public static projects: string[];
 
 	public static request: RequestConfig;
@@ -126,6 +131,8 @@ export default class BotConfig {
 
 		this.forbiddenTicketPrefix = getOrDefault( 'forbiddenTicketPrefix', '' );
 		this.requiredTicketPrefix = getOrDefault( 'requiredTicketPrefix', '' );
+
+		this.embedDeletionEmoji = getOrDefault( 'embedDeletionEmoji', '' );
 
 		this.projects = config.get( 'projects' );
 

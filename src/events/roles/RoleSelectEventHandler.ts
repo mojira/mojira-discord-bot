@@ -32,7 +32,7 @@ export default class RoleSelectEventHandler implements EventHandler<'messageReac
 			for ( const otherReaction of reaction.message.reactions.cache.values() ) {
 				if ( otherReaction.emoji.id !== role.emoji ) {
 					try {
-						await otherReaction.remove();
+						await otherReaction.users.remove( user );
 					} catch ( error ) {
 						this.logger.error( error );
 					}

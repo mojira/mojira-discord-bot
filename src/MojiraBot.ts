@@ -67,12 +67,10 @@ export default class MojiraBot {
 				const channel = await DiscordUtil.getChannel( group.channel );
 				if ( channel && channel instanceof TextChannel ) {
 					try {
-						if ( !group.message ) {
-							try {
-								await RoleSelectionUtil.sendRoleSelectionMessage( channel, group );
-							} catch ( error ) {
-								MojiraBot.logger.error( error );
-							}
+						try {
+							await RoleSelectionUtil.updateRoleSelectionMessage( group );
+						} catch ( error ) {
+							MojiraBot.logger.error( error );
 						}
 					} catch ( err ) {
 						this.logger.error( err );
