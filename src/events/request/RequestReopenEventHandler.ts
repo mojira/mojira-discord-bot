@@ -20,6 +20,10 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 	public onEvent = async ( { message }: MessageReaction, user: User ): Promise<void> => {
 		this.logger.info( `User ${ user.tag } is reopening the request message '${ message.id }'` );
 
+		if ( message.partial ) {
+			message = await message.fetch();
+		}
+
 		const embeds = message.embeds;
 		if ( embeds.length == 0 ) {
 			try {

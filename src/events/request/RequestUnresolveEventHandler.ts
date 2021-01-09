@@ -2,7 +2,7 @@ import { MessageReaction, User } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
 import TaskScheduler from '../../tasks/TaskScheduler';
-import { RequestsUtil } from '../../util/RequestsUtil'
+import { RequestsUtil } from '../../util/RequestsUtil';
 import EventHandler from '../EventHandler';
 
 export default class RequestUnresolveEventHandler implements EventHandler<'messageReactionRemove'> {
@@ -13,6 +13,10 @@ export default class RequestUnresolveEventHandler implements EventHandler<'messa
 	// This syntax is used to ensure that `this` refers to the `RequestUnresolveEventHandler` object
 	public onEvent = async ( { emoji, message }: MessageReaction, user: User ): Promise<void> => {
 		this.logger.info( `User ${ user.tag } removed '${ emoji.name }' reaction from request message '${ message.id }'` );
+
+		if ( message.partial ) {
+			message = await message.fetch();
+		}
 
 		await message.edit( message.embeds[0].setColor( RequestsUtil.getEmbedColor() ) );
 
