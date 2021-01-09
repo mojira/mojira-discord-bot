@@ -119,7 +119,10 @@ roleGroups:
       # The role's ID
     - id: <number>
 
-      # The role's description.
+      # The role's name.
+      title: <string>
+
+      # Optional; the role's description.
       desc: <string>
 
       # The ID of an emoji representing this role.
@@ -130,6 +133,10 @@ roleGroups:
     - ...
     # The prompt that should be shown for the role selection message.
     prompt: <string>
+    # Optional; Further explanation on the role selection.
+    desc: <string>
+    # Color of the role selection embed.
+    color: <string>
     # The channel ID of which the role selection message is in.
     channel: <string>
     # The message ID of this role selection message.
