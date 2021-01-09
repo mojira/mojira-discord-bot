@@ -108,6 +108,8 @@ export default class BotConfig {
 	public static requiredTicketPrefix: string;
 	public static forbiddenTicketPrefix: string;
 
+	public static embedDeletionEmoji: string;
+
 	public static projects: string[];
 
 	public static request: RequestConfig;
@@ -129,6 +131,8 @@ export default class BotConfig {
 
 		this.forbiddenTicketPrefix = getOrDefault( 'forbiddenTicketPrefix', '' );
 		this.requiredTicketPrefix = getOrDefault( 'requiredTicketPrefix', '' );
+
+		this.embedDeletionEmoji = getOrDefault( 'embedDeletionEmoji', '' );
 
 		this.projects = config.get( 'projects' );
 
