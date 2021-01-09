@@ -13,10 +13,14 @@ export class RoleSelectionUtil {
 		embed.setTitle( groupConfig.prompt )
 			.setColor( groupConfig.color );
 
+		if ( groupConfig.desc ) {
+			embed.setDescription( groupConfig.desc );
+		}
+
 		for ( const role of groupConfig.roles ) {
 			const emoji = MojiraBot.client.emojis.resolve( role.emoji ) ?? role.emoji;
 
-			embed.addField( emoji.toString(), role.desc );
+			embed.addField( `${ emoji.toString() }\u2002${ role.title }`, role.desc ?? '\u200b' );
 		}
 
 		const channel = await DiscordUtil.getChannel( groupConfig.channel );
@@ -50,6 +54,10 @@ export class RoleSelectionUtil {
 	private static areEmbedsEqual( embedA: MessageEmbed, embedB: MessageEmbed ): boolean {
 		if ( embedA.title !== embedB.title ) {
 			this.logger.debug( `Title doesn't match ('${ embedA.title }' !== '${ embedB.title }')` );
+			return false;
+		}
+		if ( embedA.description !== embedB.description ) {
+			this.logger.debug( `Description doesn't match ('${ embedA.description }' !== '${ embedB.description }')` );
 			return false;
 		}
 		if ( embedA.hexColor !== embedB.hexColor ) {

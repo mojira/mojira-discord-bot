@@ -59,13 +59,15 @@ export class RequestConfig {
 
 export interface RoleConfig {
 	emoji: string;
-	desc: string;
+	title: string;
+	desc?: string;
 	id: string;
 }
 
 export interface RoleGroupConfig {
 	roles: RoleConfig[];
 	prompt: string;
+	desc?: string;
 	color: string;
 	channel: string;
 	message?: string;
