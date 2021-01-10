@@ -1,8 +1,8 @@
 import { Channel, MessageEmbed, TextChannel } from 'discord.js';
-import JiraClient from 'jira-connector';
 import * as log4js from 'log4js';
 import { VersionFeedConfig } from '../BotConfig';
 import { NewsUtil } from '../util/NewsUtil';
+import MojiraBot from '../MojiraBot';
 import Task from './Task';
 
 interface JiraVersion {
@@ -24,8 +24,6 @@ export type VersionChangeType = 'created' | 'released' | 'unreleased' | 'archive
 export default class VersionFeedTask extends Task {
 	private static logger = log4js.getLogger( 'VersionFeedTask' );
 	private static maxId = 0;
-
-	private jira: JiraClient;
 
 	private channel: Channel;
 	private projects: string[];
@@ -51,11 +49,6 @@ export default class VersionFeedTask extends Task {
 		this.scope = feedConfig.scope;
 		this.actions = feedConfig.actions;
 		this.publish = feedConfig.publish ?? false;
-
-		this.jira = new JiraClient( {
-			host: 'bugs.mojang.com',
-			strictSSL: true,
-		} );
 
 		this.getVersions().then(
 			async versions => {
@@ -122,7 +115,7 @@ export default class VersionFeedTask extends Task {
 	}
 
 	private async updateVersionsForProject( project: string, versions: JiraVersion[] ): Promise<JiraVersion[]> {
-		const results = await this.jira.project.getVersionsPaginated( {
+		const results = await MojiraBot.jira.projectVersions.getProjectVersionsPaginated( {
 			projectIdOrKey: project,
 			maxResults: this.scope,
 			orderBy: '-sequence',
@@ -209,8 +202,8 @@ export default class VersionFeedTask extends Task {
 		};
 
 		try {
-			versionIssueCounts = await this.jira.version.getRelatedIssueCounts( {
-				versionId: version.id,
+			versionIssueCounts = await MojiraBot.jira.projectVersions.getVersionsRelatedIssuesCount( {
+				id: version.id,
 			} );
 		} catch ( error ) {
 			VersionFeedTask.logger.error( error );

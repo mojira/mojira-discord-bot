@@ -3,14 +3,13 @@ import { FilterFeedConfig } from '../BotConfig';
 import { TextChannel, Channel } from 'discord.js';
 import * as log4js from 'log4js';
 import Task from './Task';
-import JiraClient from 'jira-connector';
 import { NewsUtil } from '../util/NewsUtil';
+import MojiraBot from '../MojiraBot';
 
 export default class FilterFeedTask extends Task {
 	private static logger = log4js.getLogger( 'FilterFeedTask' );
 	private static maxId = 0;
 
-	private jira: JiraClient;
 	private channel: Channel;
 	private jql: string;
 	private filterFeedEmoji: string;
@@ -36,11 +35,6 @@ export default class FilterFeedTask extends Task {
 		this.titleSingle = feedConfig.titleSingle || feedConfig.title.replace( /\{\{num\}\}/g, '1' );
 		this.publish = feedConfig.publish ?? false;
 
-		this.jira = new JiraClient( {
-			host: 'bugs.mojang.com',
-			strictSSL: true,
-		} );
-
 		this.run().then(
 			async () => {
 				this.initialized = true;
@@ -62,7 +56,7 @@ export default class FilterFeedTask extends Task {
 		let upcomingTickets: string[];
 
 		try {
-			const searchResults = await this.jira.search.search( {
+			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
 				jql: this.jql,
 				fields: ['key'],
 			} );

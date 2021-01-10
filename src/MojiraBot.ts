@@ -1,5 +1,6 @@
 import { ChannelLogsQueryOptions, Client, Intents, Message, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
+import { Client as JiraClient } from 'jira.js';
 import BotConfig from './BotConfig';
 import ErrorEventHandler from './events/discord/ErrorEventHandler';
 import EventRegistry from './events/EventRegistry';
@@ -32,6 +33,10 @@ export default class MojiraBot {
 		},
 	} );
 	private static running = false;
+
+	public static jira = new JiraClient( {
+		host: 'https://bugs.mojang.com',
+	} );
 
 	public static async start(): Promise<void> {
 		if ( this.running ) {
