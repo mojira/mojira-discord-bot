@@ -2,15 +2,14 @@ import { Message, MessageEmbed, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
 import MentionCommand from '../../commands/MentionCommand';
+import MojiraBot from '../../MojiraBot';
 import DiscordUtil from '../../util/DiscordUtil';
 import { ReactionsUtil } from '../../util/ReactionsUtil';
 import { RequestsUtil } from '../../util/RequestsUtil';
 import EventHandler from '../EventHandler';
-import JiraClient from 'jira-connector';
 
 export default class RequestEventHandler implements EventHandler<'message'> {
 	public readonly eventName = 'message';
-	private jira: JiraClient;
 
 	private logger = log4js.getLogger( 'RequestEventHandler' );
 
@@ -21,11 +20,6 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 	constructor( internalChannels: Map<string, string> ) {
 		this.internalChannels = internalChannels;
-
-		this.jira = new JiraClient( {
-			host: 'bugs.mojang.com',
-			strictSSL: true,
-		} );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestEventHandler` object
@@ -67,7 +61,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 		if ( BotConfig.request.invalidRequestJql ) {
 			const tickets = this.getTickets( origin.content );
-			const searchResults = await this.jira.search.search( {
+			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
 				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ tickets.join( ',' ) })`,
 				fields: ['key'],
 			} );
