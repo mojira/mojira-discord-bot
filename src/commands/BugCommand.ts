@@ -1,4 +1,4 @@
-import { Message, RichEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import Command from './Command';
 import PrefixCommand from './PrefixCommand';
 import { MentionRegistry } from '../mentions/MentionRegistry';
@@ -15,7 +15,7 @@ export default class BugCommand extends PrefixCommand {
 		for ( const ticket of tickets ) {
 			if ( !ticketRegex.test( ticket ) ) {
 				try {
-					message.channel.send( `'${ ticket }' is not a valid ticket ID.` );
+					await message.channel.send( `'${ ticket }' is not a valid ticket ID.` );
 				} catch ( err ) {
 					Command.logger.log( err );
 				}
@@ -25,12 +25,12 @@ export default class BugCommand extends PrefixCommand {
 
 		const mention = MentionRegistry.getMention( tickets );
 
-		let embed: RichEmbed;
+		let embed: MessageEmbed;
 		try {
 			embed = await mention.getEmbed();
 		} catch ( err ) {
 			try {
-				message.channel.send( err );
+				await message.channel.send( err );
 			} catch ( err ) {
 				Command.logger.log( err );
 			}
@@ -39,7 +39,7 @@ export default class BugCommand extends PrefixCommand {
 
 		if ( embed === undefined ) return false;
 
-		embed.setFooter( message.author.tag, message.author.avatarURL )
+		embed.setFooter( message.author.tag, message.author.avatarURL() )
 			.setTimestamp( message.createdAt );
 
 		try {
@@ -56,7 +56,7 @@ export default class BugCommand extends PrefixCommand {
 				Command.logger.error( err );
 			}
 		} else {
-			console.log( 'message not deletable' );
+			BugCommand.logger.log( 'message not deletable' );
 		}
 
 		return true;

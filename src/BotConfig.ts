@@ -1,6 +1,7 @@
 import { Client } from 'discord.js';
 import config from 'config';
 import MojiraBot from './MojiraBot';
+import { VersionChangeType } from './tasks/VersionFeedTask';
 
 function getOrDefault<T>( configPath: string, defaultValue: T ): T {
 	if ( !config.has( configPath ) ) MojiraBot.logger.debug( `config ${ configPath } not set, assuming default` );
@@ -18,11 +19,14 @@ export class RequestConfig {
 	public internalChannels: string[];
 	public logChannel: string;
 
+	public invalidTicketEmoji: string;
 	public noLinkEmoji: string;
-	public noLinkWarningLifetime: number;
+	public warningLifetime: number;
+	public invalidRequestJql: string;
 	public waitingEmoji: string;
 	public suggestedEmoji: string[];
 	public ignorePrependResponseMessageEmoji: string;
+	public ignoreResolutionEmoji: string;
 	public resolveDelay: number;
 	public prependResponseMessage: PrependResponseMessageType;
 	public prependResponseMessageInLog: boolean;
@@ -37,11 +41,14 @@ export class RequestConfig {
 			throw new Error( 'There are not exactly as many Request channels and ' );
 		}
 
+		this.invalidTicketEmoji = config.get( 'request.invalidTicketEmoji' );
 		this.noLinkEmoji = config.get( 'request.noLinkEmoji' );
-		this.noLinkWarningLifetime = config.get( 'request.noLinkWarningLifetime' );
+		this.warningLifetime = config.get( 'request.warningLifetime' );
+		this.invalidRequestJql = config.get( 'request.invalidRequestJql' );
 		this.waitingEmoji = config.get( 'request.waitingEmoji' );
 		this.suggestedEmoji = getOrDefault( 'request.suggestedEmoji', [] );
 		this.ignorePrependResponseMessageEmoji = config.get( 'request.ignorePrependResponseMessageEmoji' );
+		this.ignoreResolutionEmoji = config.get( 'request.ignoreResolutionEmoji' );
 
 		this.resolveDelay = config.get( 'request.resolveDelay' );
 		this.prependResponseMessage = getOrDefault( 'request.prependResponseMessage', PrependResponseMessageType.Never );
@@ -52,21 +59,39 @@ export class RequestConfig {
 
 export interface RoleConfig {
 	emoji: string;
-	desc: string;
+	title: string;
+	desc?: string;
 	id: string;
+}
+
+export interface RoleGroupConfig {
+	roles: RoleConfig[];
+	prompt: string;
+	desc?: string;
+	color: string;
+	channel: string;
+	message?: string;
+	radio?: boolean;
 }
 
 export interface FilterFeedConfig {
 	jql: string;
 	channel: string;
+	interval: number;
+	filterFeedEmoji: string;
 	title: string;
-	title_single?: string;
+	titleSingle?: string;
+	publish?: boolean;
 }
 
 export interface VersionFeedConfig {
-	project: string;
+	projects: string[];
 	channel: string;
+	interval: number;
+	versionFeedEmoji: string;
 	scope: number;
+	actions: VersionChangeType[];
+	publish?: boolean;
 }
 
 export default class BotConfig {
@@ -75,26 +100,23 @@ export default class BotConfig {
 
 	// TODO: make private again when /crosspost api endpoint is implemented into discord.js
 	public static token: string;
-	public static owner: string;
+	public static owners: string[];
 
 	public static homeChannel: string;
-	public static rolesChannel: string;
-	public static rolesMessage: string;
 
 	public static ticketUrlsCauseEmbed: boolean;
 	public static requiredTicketPrefix: string;
 	public static forbiddenTicketPrefix: string;
 
+	public static embedDeletionEmoji: string;
+
 	public static projects: string[];
 
 	public static request: RequestConfig;
 
-	public static roles: RoleConfig[];
+	public static roleGroups: RoleGroupConfig[];
 
-	public static filterFeedInterval: number;
 	public static filterFeeds: FilterFeedConfig[];
-
-	public static versionFeedInterval: number;
 	public static versionFeeds: VersionFeedConfig[];
 
 	public static init(): void {
@@ -102,26 +124,23 @@ export default class BotConfig {
 		this.logDirectory = getOrDefault( 'logDirectory', false );
 
 		this.token = config.get( 'token' );
-		this.owner = config.get( 'owner' );
+		this.owners = getOrDefault( 'owners', [] );
 
 		this.homeChannel = config.get( 'homeChannel' );
-		this.rolesChannel = config.get( 'rolesChannel' );
-		this.rolesMessage = config.get( 'rolesMessage' );
 		this.ticketUrlsCauseEmbed = getOrDefault( 'ticketUrlsCauseEmbed', false );
 
 		this.forbiddenTicketPrefix = getOrDefault( 'forbiddenTicketPrefix', '' );
 		this.requiredTicketPrefix = getOrDefault( 'requiredTicketPrefix', '' );
 
+		this.embedDeletionEmoji = getOrDefault( 'embedDeletionEmoji', '' );
+
 		this.projects = config.get( 'projects' );
 
 		this.request = new RequestConfig();
 
-		this.roles = getOrDefault( 'roles', [] );
+		this.roleGroups = getOrDefault( 'roleGroups', [] );
 
-		this.filterFeedInterval = config.get( 'filterFeedInterval' );
 		this.filterFeeds = config.get( 'filterFeeds' );
-
-		this.versionFeedInterval = config.get( 'versionFeedInterval' );
 		this.versionFeeds = config.get( 'versionFeeds' );
 	}
 

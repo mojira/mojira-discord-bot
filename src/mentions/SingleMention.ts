@@ -1,7 +1,8 @@
-import { RichEmbed } from 'discord.js';
-import { Mention } from './Mention';
+import { MessageEmbed } from 'discord.js';
 import moment from 'moment';
 import MojiraBot from '../MojiraBot';
+import { MarkdownUtil } from '../util/MarkdownUtil';
+import { Mention } from './Mention';
 
 export class SingleMention extends Mention {
 	private ticket: string;
@@ -12,7 +13,8 @@ export class SingleMention extends Mention {
 		this.ticket = ticket;
 	}
 
-	public async getEmbed(): Promise<RichEmbed> {
+	public async getEmbed(): Promise<MessageEmbed> {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		let ticketResult: any;
 
 		try {
@@ -60,22 +62,42 @@ export class SingleMention extends Mention {
 		}
 
 		let description = ticketResult.fields.description || '';
-		description = description.replace( /\s*\{panel[^}]+\}(?:.|\s)*?\{panel\}\s*/gi, '' );
+
+		// unify line breaks
 		description = description.replace( /^\s*[\r\n]/gm, '\n' );
+
+		// convert to Discord markdown
+		description = MarkdownUtil.jira2md( description );
+
+		// remove first heading
+		description = description.replace( /^#.*$/m, '' );
+
+		// remove empty lines
+		description = description.replace( /(^|\n)\s*(\n|$)/g, '\n' );
+
+		// remove all sections except for the first
+		description = description.replace( /\n#[\s\S]*$/i, '' );
+
+		// only show first two lines
 		description = description.split( '\n' ).slice( 0, 2 ).join( '\n' );
 
-		const embed = new RichEmbed();
+		const embed = new MessageEmbed();
 		embed.setAuthor( ticketResult.fields.reporter.displayName, ticketResult.fields.reporter.avatarUrls['48x48'], 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) )
-			.setTitle( `[${ ticketResult.key }] ${ ticketResult.fields.summary }` )
+			.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ ticketResult.fields.summary }` ) )
 			.setDescription( description.substring( 0, 2048 ) )
 			.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
 			.addField( 'Status', status, !largeStatus )
 			.setColor( 'RED' );
 
-		function findThumbnail( attachments ): string {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		function findThumbnail( attachments: any[] ): string {
 			const allowedMimes = [
 				'image/png', 'image/jpeg',
 			];
+
+			attachments.sort( ( a, b ) => {
+				return new Date( a.created ).valueOf() - new Date( b.created ).valueOf();
+			} );
 
 			for ( const attachment of attachments ) {
 				if ( allowedMimes.includes( attachment.mimeType ) ) return attachment.content;
@@ -87,7 +109,7 @@ export class SingleMention extends Mention {
 		// Assigned to, Reported by, Created on, Category, Resolution, Resolved on, Since version, (Latest) affected version, Fixed version(s)
 
 		const thumbnail = findThumbnail( ticketResult.fields.attachment );
-		if ( thumbnail !== undefined ) embed.setImage( thumbnail );
+		if ( thumbnail !== undefined ) embed.setThumbnail( thumbnail );
 
 		if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
 			const fixVersions = ticketResult.fields.fixVersions.map( v => v.name );
@@ -118,5 +140,11 @@ export class SingleMention extends Mention {
 		embed.addField( 'Created', moment( ticketResult.fields.created ).fromNow(), true );
 
 		return embed;
+	}
+	private ensureLength( input: string ): string {
+		if ( input.length > 251 ) {
+			return input.substring( 0, 251 ) + '...';
+		}
+		return input;
 	}
 }

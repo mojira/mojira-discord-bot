@@ -41,6 +41,7 @@ try {
 		MojiraBot.logger.info( `Writing log to ${ logConfig.appenders.log[ 'filename' ] }` );
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-floating-promises
 	MojiraBot.start();
 } catch ( err ) {
 	MojiraBot.logger.error( err );

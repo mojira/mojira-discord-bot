@@ -10,27 +10,34 @@ forbiddenTicketPrefix: '!'
 
 requiredTicketPrefix: ''
 
+embedDeletionEmoji: '🗑️'
+
 projects:
   - BDS
   - MC
-  - MCAPI
   - MCCE
-  - MCE
+  - MCD
   - MCL
   - MCPE
+  - REALMS
   - WEB
 
 request:
+  invalidTicketEmoji: ⏸
   noLinkEmoji: ⛔
-  noLinkWarningLifetime: 5000
+  warningLifetime: 5000
   waitingEmoji: ⌛
+
+  invalidRequestJql: created > -24h
 
   suggestedEmoji:
     - ✅
     - ☑️
     - ❌
-  
+    - 💬
+
   ignorePrependResponseMessageEmoji: ✅
+  ignoreResolutionEmoji: 💬
 
   resolveDelay: 10000
   prependResponseMessage: whenResolved
@@ -39,9 +46,6 @@ request:
   responseMessage: |-
     ```
     {{author}} {{url}}
-    > {{message}}
-    
-    ```
+    {{message}}
 
-filterFeedInterval: 30000
-versionFeedInterval: 30000
+    ```

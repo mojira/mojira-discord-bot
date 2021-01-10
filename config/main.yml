@@ -1,54 +1,111 @@
 # Settings for the offical Mojira Discord bot
 
-owner: '417403221863301130'
+owners:
+  - '87225001874325504' # urielsalis
+  - '137290216691073024' # NeunEinser
+  - '252267207264960513' # LateLag
+  - '263098499858563072' # Sonicwave
+  - '417403221863301130' # violine1101
+  - '437088929485684737' # SPGoding
 
 homeChannel: '646317855234850818'
-rolesChannel: '648479533246316555'
-rolesMessage: '692405794305736816'
 
 request:
   channels:
-    - '648555618994618378'
-    - '648555751438155776'
-    - '648555873836335124'
-    - '651161365091844116'
-    - '692382286103969843'
+    - '648555618994618378' # java-requests
+    - '648555751438155776' # bedrock-requests
+    - '651161365091844116' # other-requests
+    - '692382286103969843' # dungeons-requests
   internalChannels:
-    - '683038862024638474'
-    - '683038914306506841'
-    - '683039615837536380'
-    - '683040112191340560'
-    - '692382871578607767'
+    - '683038862024638474' # java-pending-requests
+    - '683038914306506841' # bedrock-pending-requests
+    - '683040112191340560' # other-pending-requests
+    - '692382871578607767' # dungeons-pending-requests
   logChannel: '683039388825026562'
 
-roles:
-  - id: '648536573675044865'
-    desc: |-
-      Java Edition
-      _PC, Mac and Linux_
-    emoji: '648525192414494730'
-  - id: '648536590481752074'
-    desc: |-
-      Bedrock Edition
-      _Android, iOS, Windows 10, Xbox One, Nintendo Switch and Playstation 4_
-    emoji: '648474430158405642'
-  - id: '648536605094707201'
-    desc: 'Minecraft: Earth'
-    emoji: '648524067359686678'
-  - id: '692398773762261023'
-    desc: 'Minecraft: Dungeons'
-    emoji: '692399397232836758'
-  - id: '648536618113826847'
-    desc: Other projects
-    emoji: '648521149390520320'
+roleGroups:
+  - prompt: Please select the project(s) you are interested in.
+    desc: This will give you access to the appropriate channels.
+    color: GREEN
+    channel: '648479533246316555'
+    message: '692405794305736816'
+    radio: false
+    roles:
+      - id: '648536573675044865'
+        title: Java Edition (MC)
+        desc: _Windows, macOS and Linux_
+        emoji: '648525192414494730'
+      - id: '648536590481752074'
+        title: Bedrock Edition (MCPE)
+        desc: |-
+          _Android, iOS, Windows 10 (from the Microsoft Store),
+          Xbox, Nintendo Switch, Playstation, Fire OS, and Gear VR_
+        emoji: '648474430158405642'
+      - id: '692398773762261023'
+        title: Minecraft Dungeons (MCD)
+        desc: _Action-adventure title set in the Minecraft universe_
+        emoji: '692399397232836758'
+      - id: '648536618113826847'
+        title: Other projects
+        desc: (BDS, MCL, REALMS, WEB)
+        emoji: '648521149390520320'
+  - prompt: Please select the pronoun(s) that you'd like to go by.
+    desc: This is not mandatory, but we encourage people to use the appropriate pronouns when referring to each other.
+    color: BLUE
+    channel: '648479533246316555'
+    message: '753757208575082556'
+    radio: false # Some people might go by multiple pronouns? So why I implemented the radio feature 😅
+    roles:
+      - id: '753741802829381765'
+        title: He/Him
+        emoji: '🇭'
+      - id: '753741949474832434'
+        title: She/Her
+        emoji: '🇸'
+      - id: '753742065971757167'
+        title: They/Them
+        emoji: '🇹'
+      - id: '753745759148572801'
+        title: Other Pronoun
+        desc: (please indicate in your nickname)
+        emoji: '🇴'
 
 filterFeeds:
-  - jql: project = MC AND resolved > -1m AND resolution = Fixed AND fixVersion = earliestUnreleasedVersion()
+  - jql: project = MC AND resolved > -1m AND resolution = Fixed AND fixVersion in unreleasedVersions()
     channel: '666349583227682819'
+    interval: 30000
+    filterFeedEmoji: '🎉'
     title: '{{num}} tickets have just been resolved as Fixed!'
     titleSingle: This ticket has just been resolved as Fixed!
 
 versionFeeds:
-  - project: MC
+    #java-fixes
+  - projects:
+      - MC
     channel: '666349583227682819'
+    interval: 30000
     scope: 5
+    versionFeedEmoji: '🎉'
+    actions:
+      - released
+      - unreleased
+      - renamed
+
+    #version-log
+  - projects:
+      - BDS
+      - MC
+      - MCD
+      - MCL
+      - MCPE
+      - REALMS
+    channel: '741600360619049000'
+    interval: 300000
+    scope: 5
+    actions:
+      - created
+      - archived
+      - unarchived
+      - released
+      - unreleased
+      - renamed

@@ -1,6 +1,6 @@
-import { RichEmbed } from 'discord.js';
-import { Mention } from './Mention';
+import { MessageEmbed } from 'discord.js';
 import MojiraBot from '../MojiraBot';
+import { Mention } from './Mention';
 
 export class MultipleMention extends Mention {
 	private tickets: string[];
@@ -11,11 +11,12 @@ export class MultipleMention extends Mention {
 		this.tickets = tickets;
 	}
 
-	public async getEmbed(): Promise<RichEmbed> {
-		const embed = new RichEmbed();
+	public async getEmbed(): Promise<MessageEmbed> {
+		const embed = new MessageEmbed();
 		embed.setTitle( 'Mentioned tickets' )
 			.setColor( 'RED' );
 
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		let searchResults: any;
 
 		try {
