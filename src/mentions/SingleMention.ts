@@ -83,7 +83,7 @@ export class SingleMention extends Mention {
 
 		const embed = new MessageEmbed();
 		embed.setAuthor( ticketResult.fields.reporter.displayName, ticketResult.fields.reporter.avatarUrls['48x48'], 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) )
-			.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ ticketResult.fields.summary }` ) )
+			.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ MarkdownUtil.escape( ticketResult.fields.summary ) }` ) )
 			.setDescription( description.substring( 0, 2048 ) )
 			.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
 			.addField( 'Status', status, !largeStatus )
@@ -113,11 +113,11 @@ export class SingleMention extends Mention {
 
 		if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
 			const fixVersions = ticketResult.fields.fixVersions.map( v => v.name );
-			embed.addField( 'Fix version' + ( fixVersions.length > 1 ? 's' : '' ), fixVersions.join( ', ' ), true );
+			embed.addField( 'Fix version' + ( fixVersions.length > 1 ? 's' : '' ), MarkdownUtil.escape( fixVersions.join( ', ' ) ), true );
 		}
 
 		if ( ticketResult.fields.assignee ) {
-			embed.addField( 'Assignee', `[${ ticketResult.fields.assignee.displayName }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.assignee.name ) })`, true );
+			embed.addField( 'Assignee', `[${ MarkdownUtil.escape( ticketResult.fields.assignee.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.assignee.name ) })`, true );
 		}
 
 		if ( ticketResult.fields.votes.votes ) {
@@ -134,7 +134,7 @@ export class SingleMention extends Mention {
 		}
 
 		if ( ticketResult.fields.creator.key !== ticketResult.fields.reporter.key ) {
-			embed.addField( 'Created by', `[${ ticketResult.fields.creator.displayName }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.creator.name ) })`, true );
+			embed.addField( 'Created by', `[${ MarkdownUtil.escape( ticketResult.fields.creator.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.creator.name ) })`, true );
 		}
 
 		embed.addField( 'Created', moment( ticketResult.fields.created ).fromNow(), true );
