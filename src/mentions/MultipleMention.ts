@@ -1,5 +1,6 @@
 import { MessageEmbed } from 'discord.js';
 import MojiraBot from '../MojiraBot';
+import { MarkdownUtil } from '../util/MarkdownUtil';
 import { Mention } from './Mention';
 
 export class MultipleMention extends Mention {
@@ -46,7 +47,7 @@ export class MultipleMention extends Mention {
 		}
 
 		for ( const issue of searchResults.issues ) {
-			embed.addField( issue.key, `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })` );
+			embed.addField( issue.key, `[${ MarkdownUtil.escape( issue.fields.summary ) }](https://bugs.mojang.com/browse/${ issue.key })` );
 		}
 
 		if ( this.tickets.length !== searchResults.issues.length ) {
