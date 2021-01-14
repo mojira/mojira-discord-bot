@@ -50,8 +50,8 @@ export class MarkdownUtil {
 			// Remove panel
 			.replace( /\{panel:title=([^}]*)\}\n?([^]*?)\n?\{panel\}/gm, '' )
 			// Remove table header
-			.replace( /^[ \t]*((\|\|.*?)+\|\|)[ \t]*$/gm, '' )
+			.replace( /^[ \t]*((\|\|[^|]+)+\|\|)[ \t]*$/gm, '' )
 			// Remove table rows
-			.replace( /^[ \t]*((\|.*?)+\|)[ \t]*$/gm, '' );
+			.replace( /^[ \t]*((\|[^|]+)+\|)[ \t]*$/gm, '' );
 	}
 }
