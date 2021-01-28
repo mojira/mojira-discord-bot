@@ -73,6 +73,7 @@ roleGroups:
 filterFeeds:
   - jql: project = MC AND resolved > -1m AND resolution = Fixed AND fixVersion in unreleasedVersions()
     channel: '666349583227682819'
+    publish: true
     interval: 30000
     filterFeedEmoji: '🎉'
     title: '{{num}} tickets have just been resolved as Fixed!'
@@ -83,6 +84,7 @@ versionFeeds:
   - projects:
       - MC
     channel: '666349583227682819'
+    publish: true
     interval: 30000
     scope: 5
     versionFeedEmoji: '🎉'
