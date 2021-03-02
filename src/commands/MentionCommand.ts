@@ -49,11 +49,12 @@ export default class MentionCommand extends Command {
 		let embed: MessageEmbed;
 		try {
 			embed = await mention.getEmbed();
-		} catch ( err ) {
+		} catch ( jiraError ) {
 			try {
-				await message.channel.send( err );
-			} catch ( err ) {
-				Command.logger.log( err );
+				Command.logger.info( `Error when retreiving issue information: ${ jiraError.message }` );
+				await message.channel.send( `${ message.author } ${ jiraError.message }` );
+			} catch ( discordError ) {
+				Command.logger.error( discordError );
 			}
 			return false;
 		}

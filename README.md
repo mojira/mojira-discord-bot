@@ -92,7 +92,7 @@ This project depends on the following projects, thanks to every developer who ma
 
 - [discord.js](https://github.com/discordjs/discord.js/)
 - [ESLint](https://github.com/eslint/eslint)
-- [jira-connector](https://github.com/floralvikings/jira-connector)
+- [jira.js](https://github.com/MrRefactoring/jira.js)
 - [JS-YAML](https://github.com/nodeca/js-yaml)
 - [log4js](https://github.com/log4js-node/log4js-node)
 - [moment](https://github.com/moment/moment)

@@ -50,8 +50,17 @@ export class MarkdownUtil {
 			// Remove panel
 			.replace( /\{panel:title=([^}]*)\}\n?([^]*?)\n?\{panel\}/gm, '' )
 			// Remove table header
-			.replace( /^[ \t]*((\|\|.*?)+\|\|)[ \t]*$/gm, '' )
+			.replace( /^[ \t]*((\|\|[^|]+)+\|\|)[ \t]*$/gm, '' )
 			// Remove table rows
-			.replace( /^[ \t]*((\|.*?)+\|)[ \t]*$/gm, '' );
+			.replace( /^[ \t]*((\|[^|]+)+\|)[ \t]*$/gm, '' );
+	}
+
+	/**
+	 * Escapes all meta characters supported by Discord's Markdown syntax.
+	 *
+	 * @param text The text that should be escaped
+	 */
+	public static escape( text: string ): string {
+		return text.replace( /([*_`~|\\])/g, '\\$1' );
 	}
 }

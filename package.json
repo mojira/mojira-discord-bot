@@ -6,7 +6,8 @@
   "author": "violine1101",
   "contributors": [
     "NeunEinser",
-    "SPGoding"
+    "SPGoding",
+    "urielsalis"
   ],
   "repository": "https://github.com/mojira/mojira-discord-bot",
   "scripts": {
@@ -21,7 +22,7 @@
     "discord.js": "^12.4.1",
     "emoji-regex": "^8.0.0",
     "escape-string-regexp": "^1.0.5",
-    "jira-connector": "^3.1.0",
+    "jira.js": "^1.8.0",
     "js-yaml": "^3.14.0",
     "log4js": "^6.3.0",
     "moment": "^2.29.1",

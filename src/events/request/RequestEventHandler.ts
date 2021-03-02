@@ -2,15 +2,14 @@ import { Message, MessageEmbed, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
 import MentionCommand from '../../commands/MentionCommand';
+import MojiraBot from '../../MojiraBot';
 import DiscordUtil from '../../util/DiscordUtil';
 import { ReactionsUtil } from '../../util/ReactionsUtil';
 import { RequestsUtil } from '../../util/RequestsUtil';
 import EventHandler from '../EventHandler';
-import JiraClient from 'jira-connector';
 
 export default class RequestEventHandler implements EventHandler<'message'> {
 	public readonly eventName = 'message';
-	private jira: JiraClient;
 
 	private logger = log4js.getLogger( 'RequestEventHandler' );
 
@@ -21,11 +20,6 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 	constructor( internalChannels: Map<string, string> ) {
 		this.internalChannels = internalChannels;
-
-		this.jira = new JiraClient( {
-			host: 'bugs.mojang.com',
-			strictSSL: true,
-		} );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestEventHandler` object
@@ -98,19 +92,17 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			const internalChannelId = this.internalChannels.get( origin.channel.id );
 			const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 
-			if ( internalChannel && internalChannel instanceof TextChannel ) {
-				const embed = new MessageEmbed()
-					.setColor( RequestsUtil.getEmbedColor() )
-					.setAuthor( origin.author.tag, origin.author.avatarURL() )
-					.setDescription( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) )
-					.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
-					.addField( 'Channel', origin.channel.id, true )
-					.addField( 'Message', origin.id, true )
-					.setTimestamp( new Date() );
+		if ( internalChannel && internalChannel instanceof TextChannel ) {
+			const embed = new MessageEmbed()
+				.setColor( RequestsUtil.getEmbedColor() )
+				.setAuthor( origin.author.tag, origin.author.avatarURL() )
+				.setDescription( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) )
+				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
+				.setTimestamp( new Date() );
 
-				const response = BotConfig.request.prependResponseMessage == PrependResponseMessageType.Always
-					? RequestsUtil.getResponseMessage( origin )
-					: '';
+			const response = BotConfig.request.prependResponseMessage == PrependResponseMessageType.Always
+				? RequestsUtil.getResponseMessage( origin )
+				: '';
 
 				const copy = await internalChannel.send( response, embed ) as Message;
 
@@ -176,8 +168,12 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 	}
 
 	private replaceTicketReferencesWithRichLinks( content: string, regex: RegExp ): string {
+		// First, escape all of the following characters with a backslash: [, ], \
+		return content.replace( /([[\]\\])/gm, '\\$1' )
+
 		// Only one of the two capture groups ($1 and $2) can catch an ID at the same time.
 		// `$1$2` is used to get the ID from either of the two groups.
-		return content.replace( /([[\]])/gm, '\\$1' ).replace( regex, '[$1$2](https://bugs.mojang.com/browse/$1$2$3)' );
+		// `$3` then is the query parameter (e.g. `?focusedCommentId=<id>`).
+			.replace( regex, '[$1$2](https://bugs.mojang.com/browse/$1$2$3)' );
 	}
 }
