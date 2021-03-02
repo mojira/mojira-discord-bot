@@ -2,6 +2,8 @@ import { EmbedField, Message, TextChannel, User } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from '../BotConfig';
 import DiscordUtil from './DiscordUtil';
+import MentionCommand from '../commands/MentionCommand';
+import MojiraBot from '../MojiraBot';
 
 interface OriginIds {
 	channelId: string;
@@ -92,5 +94,28 @@ export class RequestsUtil {
 			return 'BLUE';
 		}
 		return this.hashCode( resolver.tag ) & 0x00FFFFFF;
+	}
+
+	public static async checkTicketValidity( tickets: string[] ): Promise<boolean> {
+		try {
+			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
+				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ tickets.join( ',' ) })`,
+				fields: ['key'],
+			} );
+			const invalidTickets = searchResults.issues.map( ( { key } ) => key );
+			return invalidTickets.length === 0;
+		} catch ( err ) {
+			this.logger.error( `Error while checking validity of tickets ${ tickets.join( ',' ) }`, err );
+			return true;
+		}
+	}
+
+	/**
+	 * Gets all ticket IDs from a string, including ticket IDs from URLs.
+	 * @param content The string that should be searched for ticket IDs
+	 */
+	public static getTicketIdsFromString( content: string ): string[] {
+		const regex = new RegExp( `(?:${ MentionCommand.getTicketLinkRegex().source }|(${ MentionCommand.ticketPattern }))`, 'g' );
+		return content.match( regex );
 	}
 }

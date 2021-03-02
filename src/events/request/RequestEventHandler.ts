@@ -2,7 +2,6 @@ import { Message, MessageEmbed, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
 import MentionCommand from '../../commands/MentionCommand';
-import MojiraBot from '../../MojiraBot';
 import DiscordUtil from '../../util/DiscordUtil';
 import { ReactionsUtil } from '../../util/ReactionsUtil';
 import { RequestsUtil } from '../../util/RequestsUtil';
@@ -24,6 +23,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 	// This syntax is used to ensure that `this` refers to the `RequestEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
+		// we need this because this method gets invoked directly on bot startup instead of via the general MessageEventHandler
 		if ( origin.type !== 'DEFAULT' ) {
 			return;
 		}
@@ -38,9 +38,9 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			this.logger.error( error );
 		}
 
-		const regex = new RegExp( `(?:${ MentionCommand.getTicketLinkRegex().source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
+		const tickets = RequestsUtil.getTicketIdsFromString( origin.content );
 
-		if ( BotConfig.request.noLinkEmoji && !origin.content.match( regex ) ) {
+		if ( BotConfig.request.noLinkEmoji && !tickets.length ) {
 			try {
 				await origin.react( BotConfig.request.noLinkEmoji );
 			} catch ( error ) {
@@ -60,13 +60,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 		}
 
 		if ( BotConfig.request.invalidRequestJql ) {
-			const tickets = this.getTickets( origin.content );
-			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
-				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ tickets.join( ',' ) })`,
-				fields: ['key'],
-			} );
-			const invalidTickets = searchResults.issues.map( ( { key } ) => key );
-			if ( invalidTickets.length > 0 ) {
+			if ( !await RequestsUtil.checkTicketValidity( tickets ) ) {
 				try {
 					await origin.react( BotConfig.request.invalidTicketEmoji );
 				} catch ( error ) {
@@ -100,7 +94,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			const embed = new MessageEmbed()
 				.setColor( RequestsUtil.getEmbedColor() )
 				.setAuthor( origin.author.tag, origin.author.avatarURL() )
-				.setDescription( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) )
+				.setDescription( this.replaceTicketReferencesWithRichLinks( origin.content ) )
 				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
 				.setTimestamp( new Date() );
 
@@ -116,17 +110,9 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 		}
 	};
 
-	private getTickets( content: string ): string[] {
-		let ticketMatch: RegExpExecArray;
-		const regex = MentionCommand.getTicketIdRegex();
-		const ticketMatches: string[] = [];
-		while ( ( ticketMatch = regex.exec( content ) ) !== null ) {
-			ticketMatches.push( ticketMatch[1] );
-		}
-		return ticketMatches;
-	}
+	private replaceTicketReferencesWithRichLinks( content: string ): string {
+		const regex = new RegExp( `(?:${ MentionCommand.getTicketLinkRegex().source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
 
-	private replaceTicketReferencesWithRichLinks( content: string, regex: RegExp ): string {
 		// First, escape all of the following characters with a backslash: [, ], \
 		return content.replace( /([[\]\\])/gm, '\\$1' )
 

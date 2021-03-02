@@ -17,6 +17,7 @@ export enum PrependResponseMessageType {
 export class RequestConfig {
 	public channels: string[];
 	public internalChannels: string[];
+	public testingRequestChannels: string[];
 	public logChannel: string;
 
 	public invalidTicketEmoji: string;
@@ -35,6 +36,7 @@ export class RequestConfig {
 	constructor() {
 		this.channels = getOrDefault( 'request.channels', [] );
 		this.internalChannels = this.channels.length ? config.get( 'request.internalChannels' ) : getOrDefault( 'request.internalChannels', [] );
+		this.testingRequestChannels = getOrDefault( 'request.testingRequestChannels', [] );
 		this.logChannel = config.get( 'request.logChannel' );
 
 		if ( this.channels.length !== this.internalChannels.length ) {

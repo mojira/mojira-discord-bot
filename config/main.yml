@@ -21,6 +21,9 @@ request:
     - '683038914306506841' # bedrock-pending-requests
     - '683040112191340560' # other-pending-requests
     - '692382871578607767' # dungeons-pending-requests
+  testingRequestChannels:
+    - '740188001052917801'
+    - '807240396445843516'
   logChannel: '683039388825026562'
 
 roleGroups:
