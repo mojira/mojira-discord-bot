@@ -2,7 +2,6 @@ import { Message, MessageEmbed, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
 import MentionCommand from '../../commands/MentionCommand';
-import MojiraBot from '../../MojiraBot';
 import DiscordUtil from '../../util/DiscordUtil';
 import { ReactionsUtil } from '../../util/ReactionsUtil';
 import { RequestsUtil } from '../../util/RequestsUtil';
@@ -62,7 +61,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 			if ( BotConfig.request.invalidRequestJql ) {
 				const tickets = this.getTickets( origin.content );
-				if ( !await RequestsUtil.checkTicketValidity( this.jira, tickets.join( ',' ) ) ) {
+				if ( !await RequestsUtil.checkTicketValidity( tickets.join( ',' ) ) ) {
 					try {
 						await origin.react( BotConfig.request.invalidTicketEmoji );
 					} catch ( error ) {
@@ -92,17 +91,17 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			const internalChannelId = this.internalChannels.get( origin.channel.id );
 			const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 
-		if ( internalChannel && internalChannel instanceof TextChannel ) {
-			const embed = new MessageEmbed()
-				.setColor( RequestsUtil.getEmbedColor() )
-				.setAuthor( origin.author.tag, origin.author.avatarURL() )
-				.setDescription( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) )
-				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
-				.setTimestamp( new Date() );
+			if ( internalChannel && internalChannel instanceof TextChannel ) {
+				const embed = new MessageEmbed()
+					.setColor( RequestsUtil.getEmbedColor() )
+					.setAuthor( origin.author.tag, origin.author.avatarURL() )
+					.setDescription( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) )
+					.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
+					.setTimestamp( new Date() );
 
-			const response = BotConfig.request.prependResponseMessage == PrependResponseMessageType.Always
-				? RequestsUtil.getResponseMessage( origin )
-				: '';
+				const response = BotConfig.request.prependResponseMessage == PrependResponseMessageType.Always
+					? RequestsUtil.getResponseMessage( origin )
+					: '';
 
 				const copy = await internalChannel.send( response, embed ) as Message;
 
@@ -134,7 +133,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 			if ( BotConfig.request.invalidRequestJql ) {
 				const tickets = this.getTickets( origin.content );
-				if ( !await RequestsUtil.checkTicketValidity( this.jira, tickets.join( ',' ) ) ) {
+				if ( !await RequestsUtil.checkTicketValidity( tickets.join( ',' ) ) ) {
 					if ( origin.deletable ) {
 						try {
 							await origin.delete();

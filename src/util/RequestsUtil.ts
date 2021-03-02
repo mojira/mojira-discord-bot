@@ -2,9 +2,8 @@ import { EmbedField, Message, TextChannel, User } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from '../BotConfig';
 import DiscordUtil from './DiscordUtil';
-import JiraClient from 'jira-connector';
-import * as log4js from 'log4js';
 import MentionCommand from '../commands/MentionCommand';
+import MojiraBot from '../MojiraBot';
 
 interface OriginIds {
 	channelId: string;
@@ -97,9 +96,9 @@ export class RequestsUtil {
 		return this.hashCode( resolver.tag ) & 0x00FFFFFF;
 	}
 
-	public static async checkTicketValidity( jira: JiraClient, ticketKeyString: string ): Promise<boolean> {
+	public static async checkTicketValidity( ticketKeyString: string ): Promise<boolean> {
 		try {
-			const searchResults = await jira.search.search( {
+			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
 				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ ticketKeyString })`,
 				fields: ['key'],
 			} );
