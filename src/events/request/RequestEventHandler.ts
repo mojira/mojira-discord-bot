@@ -23,6 +23,11 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 	// This syntax is used to ensure that `this` refers to the `RequestEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
+		// we need this because this method gets invoked directly on bot startup instead of via the general MessageEventHandler
+		if ( origin.type !== 'DEFAULT' ) {
+			return;
+		}
+
 		if ( origin.channel instanceof TextChannel ) {
 			this.logger.info( `${ origin.author.tag } posted request ${ origin.id } in #${ origin.channel.name }` );
 		}
