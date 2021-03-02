@@ -23,150 +23,91 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 	// This syntax is used to ensure that `this` refers to the `RequestEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
-		if ( !BotConfig.request.testingRequestChannels || !BotConfig.request.testingRequestChannels.includes( origin.channel.id ) ) {
-			if ( origin.type !== 'DEFAULT' ) {
-				return;
-			}
+		if ( origin.channel instanceof TextChannel ) {
+			this.logger.info( `${ origin.author.tag } posted request ${ origin.id } in #${ origin.channel.name }` );
+		}
 
-			if ( origin.channel instanceof TextChannel ) {
-				this.logger.info( `${ origin.author.tag } posted request ${ origin.id } in #${ origin.channel.name }` );
-			}
+		try {
+			await origin.reactions.removeAll();
+		} catch ( error ) {
+			this.logger.error( error );
+		}
 
+		const tickets = RequestsUtil.getTicketIdsFromString( origin.content );
+
+		if ( BotConfig.request.noLinkEmoji && !tickets.length ) {
 			try {
-				await origin.reactions.removeAll();
+				await origin.react( BotConfig.request.noLinkEmoji );
 			} catch ( error ) {
 				this.logger.error( error );
 			}
 
-			const regex = new RegExp( `(?:${ MentionCommand.getTicketLinkRegex().source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
+			try {
+				const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) doesn't contain any valid ticket reference. If you'd like to add it you can edit your message.` );
 
-			if ( BotConfig.request.noLinkEmoji && RequestsUtil.checkTicketLinks( origin.content ) === 0 ) {
+				const timeout = BotConfig.request.warningLifetime;
+				await warning.delete( { timeout } );
+			} catch ( error ) {
+				this.logger.error( error );
+			}
+
+			return;
+		}
+
+		if ( BotConfig.request.invalidRequestJql ) {
+			if ( !await RequestsUtil.checkTicketValidity( tickets ) ) {
 				try {
-					await origin.react( BotConfig.request.noLinkEmoji );
+					await origin.react( BotConfig.request.invalidTicketEmoji );
 				} catch ( error ) {
 					this.logger.error( error );
 				}
 
 				try {
-					const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) doesn't contain any valid ticket reference. If you'd like to add it you can edit your message.` );
+					const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) contains a ticket that is less than 24 hours old. Please wait until it is at least one day old before making a request.` );
 
 					const timeout = BotConfig.request.warningLifetime;
 					await warning.delete( { timeout } );
 				} catch ( error ) {
 					this.logger.error( error );
 				}
-
 				return;
 			}
+		}
 
-			if ( BotConfig.request.invalidRequestJql ) {
-				const tickets = this.getTickets( origin.content );
-				if ( !await RequestsUtil.checkTicketValidity( tickets.join( ',' ) ) ) {
-					try {
-						await origin.react( BotConfig.request.invalidTicketEmoji );
-					} catch ( error ) {
-						this.logger.error( error );
-					}
-
-					try {
-						const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) contains a ticket that is less than 24 hours old. Please wait until it is at least one day old before making a request.` );
-
-						const timeout = BotConfig.request.warningLifetime;
-						await warning.delete( { timeout } );
-					} catch ( error ) {
-						this.logger.error( error );
-					}
-					return;
-				}
+		if ( BotConfig.request.waitingEmoji ) {
+			try {
+				await origin.react( BotConfig.request.waitingEmoji );
+			} catch ( error ) {
+				this.logger.error( error );
 			}
+		}
 
-			if ( BotConfig.request.waitingEmoji ) {
-				try {
-					await origin.react( BotConfig.request.waitingEmoji );
-				} catch ( error ) {
-					this.logger.error( error );
-				}
-			}
+		const internalChannelId = this.internalChannels.get( origin.channel.id );
+		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 
-			const internalChannelId = this.internalChannels.get( origin.channel.id );
-			const internalChannel = await DiscordUtil.getChannel( internalChannelId );
+		if ( internalChannel && internalChannel instanceof TextChannel ) {
+			const embed = new MessageEmbed()
+				.setColor( RequestsUtil.getEmbedColor() )
+				.setAuthor( origin.author.tag, origin.author.avatarURL() )
+				.setDescription( this.replaceTicketReferencesWithRichLinks( origin.content ) )
+				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
+				.setTimestamp( new Date() );
 
-			if ( internalChannel && internalChannel instanceof TextChannel ) {
-				const embed = new MessageEmbed()
-					.setColor( RequestsUtil.getEmbedColor() )
-					.setAuthor( origin.author.tag, origin.author.avatarURL() )
-					.setDescription( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) )
-					.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
-					.setTimestamp( new Date() );
+			const response = BotConfig.request.prependResponseMessage == PrependResponseMessageType.Always
+				? RequestsUtil.getResponseMessage( origin )
+				: '';
 
-				const response = BotConfig.request.prependResponseMessage == PrependResponseMessageType.Always
-					? RequestsUtil.getResponseMessage( origin )
-					: '';
+			const copy = await internalChannel.send( response, embed ) as Message;
 
-				const copy = await internalChannel.send( response, embed ) as Message;
-
-				if ( BotConfig.request.suggestedEmoji ) {
-					await ReactionsUtil.reactToMessage( copy, [...BotConfig.request.suggestedEmoji] );
-				}
-			}
-		} else if ( !origin.guild.member( origin.author ).permissionsIn( await DiscordUtil.getChannel( BotConfig.request.logChannel ) ).has( 'VIEW_CHANNEL' ) ) {
-			if ( RequestsUtil.checkTicketLinks( origin.content ) !== 1 ) {
-				if ( origin.deletable ) {
-					try {
-						await origin.delete();
-					} catch ( error ) {
-						this.logger.error( error );
-					}
-				}
-
-				try {
-					const warning = await origin.channel.send( `${ origin.author }, your request doesn't contain exactly one ticket reference.` );
-
-					const timeout = BotConfig.request.warningLifetime;
-					await warning.delete( { timeout } );
-				} catch ( error ) {
-					this.logger.error( error );
-				}
-
-				return;
-			}
-
-			if ( BotConfig.request.invalidRequestJql ) {
-				const tickets = this.getTickets( origin.content );
-				if ( !await RequestsUtil.checkTicketValidity( tickets.join( ',' ) ) ) {
-					if ( origin.deletable ) {
-						try {
-							await origin.delete();
-						} catch ( error ) {
-							this.logger.error( error );
-						}
-					}
-
-					try {
-						const warning = await origin.channel.send( `${ origin.author }, your request contains a ticket that is less than 24 hours old. Please wait until it is at least one day old before making a request.` );
-
-						const timeout = BotConfig.request.warningLifetime;
-						await warning.delete( { timeout } );
-					} catch ( error ) {
-						this.logger.error( error );
-					}
-					return;
-				}
+			if ( BotConfig.request.suggestedEmoji ) {
+				await ReactionsUtil.reactToMessage( copy, [...BotConfig.request.suggestedEmoji] );
 			}
 		}
 	};
 
-	private getTickets( content: string ): string[] {
-		let ticketMatch: RegExpExecArray;
-		const regex = MentionCommand.getTicketIdRegex();
-		const ticketMatches: string[] = [];
-		while ( ( ticketMatch = regex.exec( content ) ) !== null ) {
-			ticketMatches.push( ticketMatch[1] );
-		}
-		return ticketMatches;
-	}
+	private replaceTicketReferencesWithRichLinks( content: string ): string {
+		const regex = new RegExp( `(?:${ MentionCommand.getTicketLinkRegex().source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
 
-	private replaceTicketReferencesWithRichLinks( content: string, regex: RegExp ): string {
 		// First, escape all of the following characters with a backslash: [, ], \
 		return content.replace( /([[\]\\])/gm, '\\$1' )
 

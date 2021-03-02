@@ -96,31 +96,26 @@ export class RequestsUtil {
 		return this.hashCode( resolver.tag ) & 0x00FFFFFF;
 	}
 
-	public static async checkTicketValidity( ticketKeyString: string ): Promise<boolean> {
+	public static async checkTicketValidity( tickets: string[] ): Promise<boolean> {
 		try {
 			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
-				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ ticketKeyString })`,
+				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ tickets.join( ',' ) })`,
 				fields: ['key'],
 			} );
 			const invalidTickets = searchResults.issues.map( ( { key } ) => key );
-			if ( invalidTickets.length > 0 ) {
-				return false;
-			} else {
-				return true;
-			}
+			return invalidTickets.length === 0;
 		} catch ( err ) {
-			this.logger.error( err );
-			return false;
+			this.logger.error( `Error while checking validity of tickets ${ tickets.join( ',' ) }`, err );
+			return true;
 		}
 	}
 
-	public static checkTicketLinks( content: string ): number {
-		const regex = new RegExp( `(?:${ MentionCommand.getTicketLinkRegex().source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
-		const matches = content.match( regex );
-		if ( matches ) {
-			return matches.length;
-		} else {
-			return 0;
-		}
+	/**
+	 * Gets all ticket IDs from a string, including ticket IDs from URLs.
+	 * @param content The string that should be searched for ticket IDs
+	 */
+	public static getTicketIdsFromString( content: string ): string[] {
+		const regex = new RegExp( `(?:${ MentionCommand.getTicketLinkRegex().source }|(${ MentionCommand.ticketPattern }))`, 'g' );
+		return content.match( regex );
 	}
 }

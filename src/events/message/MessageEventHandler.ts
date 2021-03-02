@@ -4,6 +4,7 @@ import CommandExecutor from '../../commands/CommandExecutor';
 import DiscordUtil from '../../util/DiscordUtil';
 import EventHandler from '../EventHandler';
 import RequestEventHandler from '../request/RequestEventHandler';
+import TestingRequestEventHandler from '../request/TestingRequestEventHandler';
 
 export default class MessageEventHandler implements EventHandler<'message'> {
 	public readonly eventName = 'message';
@@ -11,11 +12,13 @@ export default class MessageEventHandler implements EventHandler<'message'> {
 	private readonly botUserId: string;
 
 	private readonly requestEventHandler: RequestEventHandler;
+	private readonly testingRequestEventHandler: TestingRequestEventHandler;
 
 	constructor( botUserId: string, internalChannels: Map<string, string> ) {
 		this.botUserId = botUserId;
 
 		this.requestEventHandler = new RequestEventHandler( internalChannels );
+		this.testingRequestEventHandler = new TestingRequestEventHandler();
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageEventHandler` object
@@ -41,10 +44,10 @@ export default class MessageEventHandler implements EventHandler<'message'> {
 			return;
 		} else if ( BotConfig.request.testingRequestChannels && BotConfig.request.testingRequestChannels.includes( message.channel.id ) ) {
 			// This message is in a testing request channel
-			await this.requestEventHandler.onEvent( message );
+			await this.testingRequestEventHandler.onEvent( message );
 
-			// Don't reply in testing request channels
-			return;
+			// We want the bot to create embeds in testing channels if someone only posts only a ticket ID
+			// so that people know what the issue is about
 		}
 
 		await CommandExecutor.checkCommands( message );
