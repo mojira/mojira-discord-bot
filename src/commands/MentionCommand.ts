@@ -5,7 +5,7 @@ import BotConfig from '../BotConfig';
 
 export default class MentionCommand extends Command {
 	public static get ticketPattern(): string {
-		return `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;
+		return `(?<ticketid>(?:${ BotConfig.projects.join( '|' ) })-\\d+)`;
 	}
 
 	/**
@@ -19,7 +19,7 @@ export default class MentionCommand extends Command {
 	 * @returns A NEW regex object every time. You have to store it as a variable if you use `exec` on it, otherwise you will encounter infinite loops.
 	 */
 	public static getTicketLinkRegex(): RegExp {
-		return new RegExp( `https?://bugs\\.mojang\\.com/(?:browse|projects/\\w+/issues)/(${ MentionCommand.ticketPattern })`, 'g' );
+		return new RegExp( `https?://bugs\\.mojang\\.com/(?:browse|projects/\\w+/issues)/${ MentionCommand.ticketPattern }`, 'g' );
 	}
 
 	public test( messageText: string ): boolean | string[] {
