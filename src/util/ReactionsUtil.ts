@@ -7,8 +7,13 @@ export class ReactionsUtil {
 	public static async reactToMessage( message: Message, reactions: string[] ): Promise<void> {
 		if ( !reactions.length || message.deleted ) return;
 
+		const reaction = reactions.shift();
+
+		this.logger.debug( `Reacting to message ${ message.id } with ${ reaction }` );
+
 		try {
-			await message.react( reactions.shift() );
+			await message.react( reaction );
+			this.logger.debug( `Reacted to message ${ message.id } with ${ reaction }` );
 		} catch ( err ) {
 			this.logger.error( err );
 		}

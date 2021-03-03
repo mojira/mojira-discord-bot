@@ -111,14 +111,10 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 	};
 
 	private replaceTicketReferencesWithRichLinks( content: string ): string {
-		const regex = new RegExp( `(?:${ MentionCommand.getTicketLinkRegex().source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
+		const regex = new RegExp( `${ RequestsUtil.getTicketRequestRegex().source }(?<query>\\?[^\\s#]+)?(?<anchor>#\\S+)?`, 'g' );
 
-		// First, escape all of the following characters with a backslash: [, ], \
+		// Escape all of the following characters with a backslash: [, ], \
 		return content.replace( /([[\]\\])/gm, '\\$1' )
-
-		// Only one of the two capture groups ($1 and $2) can catch an ID at the same time.
-		// `$1$2` is used to get the ID from either of the two groups.
-		// `$3` then is the query parameter (e.g. `?focusedCommentId=<id>`).
-			.replace( regex, '[$1$2](https://bugs.mojang.com/browse/$1$2$3)' );
+			.replace( regex, '[$<ticketid>$<anchor>](https://bugs.mojang.com/browse/$<ticketid>$<query>$<anchor>)' );
 	}
 }

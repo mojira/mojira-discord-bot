@@ -37,12 +37,7 @@ export class RequestsUtil {
 	public static async getOriginIds( message: Message ): Promise<OriginIds | undefined> {
 		try {
 			const embeds = message.embeds;
-			if ( embeds.length == 0 ) {
-				const warning = await message.channel.send( `${ message.author }, this is not a valid log message.` );
-
-				const timeout = BotConfig.request.warningLifetime;
-				await warning.delete( { timeout } );
-			}
+			if ( embeds.length == 0 ) return undefined;
 
 			// Assume first embed is the actual message.
 			const fields = embeds[0].fields;
@@ -96,16 +91,28 @@ export class RequestsUtil {
 		return this.hashCode( resolver.tag ) & 0x00FFFFFF;
 	}
 
+
+	/**
+	 * This extracts a ticket ID from either a link or a standalone ticket ID.
+	 * E.g. this matches the "MC-1234" in https://bugs.mojang.browse/MC-1234 or in "This is some crazy bug:MC-1234".
+	 * @returns A NEW regex object every time. You have to store it as a variable if you use `exec` on it, otherwise you will encounter infinite loops.
+	 */
+	public static getTicketRequestRegex(): RegExp {
+		return new RegExp( `(?:https?://bugs\\.mojang\\.com/(?:browse|projects/\\w+/issues)/|\\b)${ MentionCommand.ticketPattern }`, 'g' );
+	}
+
 	public static async checkTicketValidity( tickets: string[] ): Promise<boolean> {
 		try {
+			this.logger.debug( `Checking for ticket validity of tickets ${ tickets.join( ',' ) }` );
 			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
 				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ tickets.join( ',' ) })`,
 				fields: ['key'],
 			} );
 			const invalidTickets = searchResults.issues.map( ( { key } ) => key );
+			this.logger.debug( `Invalid tickets: [${ invalidTickets.join( ',' ) }]` );
 			return invalidTickets.length === 0;
 		} catch ( err ) {
-			this.logger.error( `Error while checking validity of tickets ${ tickets.join( ',' ) }`, err );
+			this.logger.error( `Error while checking validity of tickets ${ tickets.join( ',' ) }\n`, err.message );
 			return true;
 		}
 	}
@@ -115,7 +122,13 @@ export class RequestsUtil {
 	 * @param content The string that should be searched for ticket IDs
 	 */
 	public static getTicketIdsFromString( content: string ): string[] {
-		const regex = new RegExp( `(?:${ MentionCommand.getTicketLinkRegex().source }|(${ MentionCommand.ticketPattern }))`, 'g' );
-		return content.match( regex );
+		const regex = this.getTicketRequestRegex();
+
+		const tickets: string[] = [];
+		for ( const match of content.matchAll( regex ) ) {
+			tickets.push( match.groups['ticketid'] );
+		}
+
+		return tickets;
 	}
 }
