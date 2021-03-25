@@ -17,7 +17,7 @@ export default class HelpCommand extends PrefixCommand {
 					It is not possible to invite this bot to other servers yet.
 					If you have any issues, feel free to ping violine1101.
 
-					(For help with the bug tracker, use \`!jira tips\`)`.replace( /\t/g, '' ) );
+					(For help with the bug tracker, use \`!jira tips\`)`.replace( /\t/g, '' ) )
 				.setFooter( message.author.tag, message.author.avatarURL() );
 			await message.channel.send( embed );
 		} catch {
