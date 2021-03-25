@@ -18,6 +18,7 @@ export default class HelpCommand extends PrefixCommand {
 					If you have any issues, feel free to ping violine1101.
 
 					(For help with the bug tracker, use \`!jira tips\`)`.replace( /\t/g, '' ) );
+				.setFooter( message.author.tag, message.author.avatarURL() );
 			await message.channel.send( embed );
 		} catch {
 			return false;
