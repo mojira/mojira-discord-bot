@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
 
 export default class TipsCommand extends PrefixCommand {
