@@ -14,7 +14,7 @@ export default class TipsCommand extends PrefixCommand {
 				How to use this server: 
 				Start by choosing which bug tracker projects you would like to be a part of in <#648479533246316555>.
 				Afterwards, you can use corresponding request channels in each project to make requests for changes to tickets on the bug tracker, like resolutions and adding affected versions. 
-				The moderators and helpers of the bug tracker will then be able to see the requests and resolve them.`.replace( /\t/g, '' ) );
+				The moderators and helpers of the bug tracker will then be able to see the requests and resolve them.`.replace( /\t/g, '' ) )
 				.setFooter( message.author.tag, message.author.avatarURL() );
 			await message.channel.send( embed );
 		} catch {
