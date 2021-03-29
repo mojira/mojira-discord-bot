@@ -11,9 +11,19 @@ export default class RequestResolveEventHandler implements EventHandler<'message
 
 	private logger = log4js.getLogger( 'RequestResolveEventHandler' );
 
+	private readonly botUserId: string;
+
+	constructor( botUserId: string ) {
+		this.botUserId = botUserId;
+	}
+
 	// This syntax is used to ensure that `this` refers to the `RequestResolveEventHandler` object
 	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ reaction.message.id }'` );
+
+		if ( reaction.message.author.id !== this.botUserId ) {
+			return;
+		}
 
 		TaskScheduler.clearMessageTasks( reaction.message );
 		await reaction.message.edit( reaction.message.embeds[0].setColor( RequestsUtil.getEmbedColor( user ) ) );

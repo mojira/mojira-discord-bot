@@ -16,7 +16,7 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 	private readonly botUserId: string;
 
 	private readonly roleSelectHandler = new RoleSelectEventHandler();
-	private readonly requestResolveEventHandler = new RequestResolveEventHandler();
+	private readonly requestResolveEventHandler: RequestResolveEventHandler;
 	private readonly requestReactionRemovalEventHandler = new RequestReactionRemovalEventHandler();
 	private readonly requestReopenEventHandler: RequestReopenEventHandler;
 	private readonly mentionDeleteEventHandler = new MentionDeleteEventHandler();
@@ -25,7 +25,8 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 		this.botUserId = botUserId;
 
 		const requestEventHandler = new RequestEventHandler( internalChannels );
-		this.requestReopenEventHandler = new RequestReopenEventHandler( requestEventHandler );
+		this.requestResolveEventHandler = new RequestResolveEventHandler( botUserId );
+		this.requestReopenEventHandler = new RequestReopenEventHandler( botUserId, requestEventHandler );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `ReactionAddEventHandler` object
