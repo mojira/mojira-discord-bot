@@ -90,8 +90,7 @@ export default class FilterFeedTask extends Task {
 			} );
 
 			if ( !previousTicketResults.issues ) {
-				FilterFeedTask.logger.error( 'Error: no issues returned by JIRA' );
-				return;
+				FilterFeedTask.logger.debug( 'No issues returned by JIRA' );
 			}
 
 			reopenedTickets = previousTicketResults.issues.map( ( { key } ) => key );
