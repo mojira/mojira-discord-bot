@@ -34,6 +34,9 @@ forbiddenTicketPrefix: <string>
 # When omitted or empty, no prefix is required for posting embeds.
 requiredTicketPrefix: <string>
 
+# An emoji or emoji ID which, when reacted to a bot embed, deletes it.
+embedDeletionEmoji: <string>
+
 # The projects the bot should be able to find tickets for.
 projects:
   - <string>
@@ -58,7 +61,14 @@ request:
     - <string>
     - <string>
     - ...
-  
+
+  # The IDs of the server's testing request channels.
+  # Optional; empty by default.
+  testingRequestChannels:
+    - <string>
+    - <string>
+    - ...
+
   # A channel which stores logs like `<volunteer> resolved <original message ID> as <emoji>.`
   logChannel: <string>
   
@@ -119,7 +129,10 @@ roleGroups:
       # The role's ID
     - id: <number>
 
-      # The role's description.
+      # The role's name.
+      title: <string>
+
+      # Optional; the role's description.
       desc: <string>
 
       # The ID of an emoji representing this role.
@@ -130,6 +143,10 @@ roleGroups:
     - ...
     # The prompt that should be shown for the role selection message.
     prompt: <string>
+    # Optional; Further explanation on the role selection.
+    desc: <string>
+    # Color of the role selection embed.
+    color: <string>
     # The channel ID of which the role selection message is in.
     channel: <string>
     # The message ID of this role selection message.

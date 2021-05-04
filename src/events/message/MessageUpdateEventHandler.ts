@@ -3,6 +3,7 @@ import { Message } from 'discord.js';
 import BotConfig from '../../BotConfig';
 import RequestDeleteEventHandler from '../request/RequestDeleteEventHandler';
 import RequestEventHandler from '../request/RequestEventHandler';
+import DiscordUtil from '../../util/DiscordUtil';
 
 export default class MessageUpdateEventHandler implements EventHandler<'messageUpdate'> {
 	public readonly eventName = 'messageUpdate';
@@ -21,6 +22,9 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 
 	// This syntax is used to ensure that `this` refers to the `MessageUpdateEventHandler` object
 	public onEvent = async ( oldMessage: Message, newMessage: Message ): Promise<void> => {
+		oldMessage = await DiscordUtil.fetchMessage( oldMessage );
+		newMessage = await DiscordUtil.fetchMessage( newMessage );
+
 		if (
 			// Don't handle non-default messages
 			oldMessage.type !== 'DEFAULT'
