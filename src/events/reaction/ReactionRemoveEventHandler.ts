@@ -4,6 +4,7 @@ import EventHandler from '../EventHandler';
 import RequestUnresolveEventHandler from '../request/RequestUnresolveEventHandler';
 import RoleRemoveEventHandler from '../roles/RoleRemoveEventHandler';
 import MojiraBot from '../../MojiraBot';
+import DiscordUtil from '../../util/DiscordUtil';
 
 export default class ReactionRemoveEventHandler implements EventHandler<'messageReactionRemove'> {
 	public readonly eventName = 'messageReactionRemove';
@@ -11,28 +12,30 @@ export default class ReactionRemoveEventHandler implements EventHandler<'message
 	private readonly botUserId: string;
 
 	private readonly roleRemoveHandler = new RoleRemoveEventHandler();
-	private readonly requestUnresolveEventHandler = new RequestUnresolveEventHandler();
+	private readonly requestUnresolveEventHandler: RequestUnresolveEventHandler;
 
 	constructor( botUserId: string ) {
 		this.botUserId = botUserId;
+		this.requestUnresolveEventHandler = new RequestUnresolveEventHandler( this.botUserId );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `ReactionRemoveEventHandler` object
-	public onEvent = async ( messageReaction: MessageReaction, user: User ): Promise<void> => {
+	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
 		if ( user.id === this.botUserId ) return;
 
-		if ( messageReaction.partial ) {
-			messageReaction = await messageReaction.fetch();
-		}
+		reaction = await DiscordUtil.fetchReaction( reaction );
+		user = await DiscordUtil.fetchUser( user );
 
-		MojiraBot.logger.debug( `User ${ user.tag } removed reaction ${ messageReaction.emoji } to message ${ messageReaction.message.id }` );
+		const message = await DiscordUtil.fetchMessage( reaction.message );
 
-		if ( BotConfig.roleGroups.find( g => g.message === messageReaction.message.id ) ) {
+		MojiraBot.logger.debug( `User ${ user.tag } removed reaction ${ reaction.emoji } to message ${ message.id }` );
+
+		if ( BotConfig.roleGroups.find( g => g.message === message.id ) ) {
 			// Handle role removal
-			return this.roleRemoveHandler.onEvent( messageReaction, user );
-		} else if ( BotConfig.request.internalChannels.includes( messageReaction.message.channel.id ) ) {
+			return this.roleRemoveHandler.onEvent( reaction, user );
+		} else if ( BotConfig.request.internalChannels.includes( message.channel.id ) ) {
 			// Handle unresolving user request
-			return this.requestUnresolveEventHandler.onEvent( messageReaction, user );
+			return this.requestUnresolveEventHandler.onEvent( reaction, user );
 		}
 	};
 }

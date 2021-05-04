@@ -10,29 +10,29 @@ export default class RoleSelectEventHandler implements EventHandler<'messageReac
 	private logger = log4js.getLogger( 'RoleSelectEventHandler' );
 
 	// This syntax is used to ensure that `this` refers to the `RoleSelectEventHandler` object
-	public onEvent = async ( messageReaction: MessageReaction, user: User ): Promise<void> => {
-		this.logger.info( `User ${ user.tag } added '${ messageReaction.emoji.name }' reaction to role message` );
+	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
+		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to role message` );
 
-		const group = BotConfig.roleGroups.find( searchedGroup => searchedGroup.message === messageReaction.message.id );
-		const role = group.roles.find( searchedRole => searchedRole.emoji === messageReaction.emoji.id || searchedRole.emoji === messageReaction.emoji.name );
+		const group = BotConfig.roleGroups.find( searchedGroup => searchedGroup.message === reaction.message.id );
+		const role = group.roles.find( searchedRole => searchedRole.emoji === reaction.emoji.id || searchedRole.emoji === reaction.emoji.name );
 
 		if ( !role ) {
 			try {
-				await messageReaction.users.remove( user );
+				await reaction.users.remove( user );
 			} catch ( error ) {
 				this.logger.error( error );
 			}
 			return;
 		}
 
-		const member = await DiscordUtil.getMember( messageReaction.message.guild, user.id );
+		const member = await DiscordUtil.getMember( reaction.message.guild, user.id );
 
 		if ( group.radio ) {
 			// Remove other reactions.
-			for ( const reaction of messageReaction.message.reactions.cache.values() ) {
-				if ( reaction.emoji.id !== role.emoji ) {
+			for ( const otherReaction of reaction.message.reactions.cache.values() ) {
+				if ( otherReaction.emoji.id !== role.emoji ) {
 					try {
-						await reaction.remove();
+						await otherReaction.users.remove( user );
 					} catch ( error ) {
 						this.logger.error( error );
 					}

@@ -12,13 +12,13 @@ requiredTicketPrefix: ''
 
 filterRemovalTimeout: 300000
 
+embedDeletionEmoji: '🗑️'
+
 projects:
   - BDS
   - MC
-  - MCAPI
   - MCCE
   - MCD
-  - MCE
   - MCL
   - MCPE
   - REALMS
@@ -38,7 +38,7 @@ request:
     - ❌
     - 💬
     - 📁
-  
+
   ignorePrependResponseMessageEmoji: ✅
   ignoreResolutionEmoji: 💬
   bulkEmoji: 📁
@@ -51,5 +51,5 @@ request:
     ```
     {{author}} {{url}}
     {{message}}
-    
+
     ```
