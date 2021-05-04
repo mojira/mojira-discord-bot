@@ -11,9 +11,11 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 
 	private logger = log4js.getLogger( 'RequestReopenEventHandler' );
 
-	private requestEventHandler: RequestEventHandler;
+	private readonly botUserId: string;
+	private readonly requestEventHandler: RequestEventHandler;
 
-	constructor( requestEventHandler: RequestEventHandler ) {
+	constructor( botUserId: string, requestEventHandler: RequestEventHandler ) {
+		this.botUserId = botUserId;
 		this.requestEventHandler = requestEventHandler;
 	}
 
@@ -22,6 +24,10 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 		this.logger.info( `User ${ user.tag } is reopening the request message '${ message.id }'` );
 
 		message = await DiscordUtil.fetchMessage( message );
+
+		if ( message.author.id !== this.botUserId ) {
+			return;
+		}
 
 		const requestMessage = await RequestsUtil.getOriginMessage( message );
 
