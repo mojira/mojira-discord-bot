@@ -17,6 +17,7 @@ export enum PrependResponseMessageType {
 export class RequestConfig {
 	public channels: string[];
 	public internalChannels: string[];
+	public testingRequestChannels: string[];
 	public logChannel: string;
 
 	public invalidTicketEmoji: string;
@@ -35,6 +36,7 @@ export class RequestConfig {
 	constructor() {
 		this.channels = getOrDefault( 'request.channels', [] );
 		this.internalChannels = this.channels.length ? config.get( 'request.internalChannels' ) : getOrDefault( 'request.internalChannels', [] );
+		this.testingRequestChannels = getOrDefault( 'request.testingRequestChannels', [] );
 		this.logChannel = config.get( 'request.logChannel' );
 
 		if ( this.channels.length !== this.internalChannels.length ) {
@@ -59,13 +61,16 @@ export class RequestConfig {
 
 export interface RoleConfig {
 	emoji: string;
-	desc: string;
+	title: string;
+	desc?: string;
 	id: string;
 }
 
 export interface RoleGroupConfig {
 	roles: RoleConfig[];
 	prompt: string;
+	desc?: string;
+	color: string;
 	channel: string;
 	message?: string;
 	radio?: boolean;
@@ -105,6 +110,8 @@ export default class BotConfig {
 	public static requiredTicketPrefix: string;
 	public static forbiddenTicketPrefix: string;
 
+	public static embedDeletionEmoji: string;
+
 	public static projects: string[];
 
 	public static request: RequestConfig;
@@ -126,6 +133,8 @@ export default class BotConfig {
 
 		this.forbiddenTicketPrefix = getOrDefault( 'forbiddenTicketPrefix', '' );
 		this.requiredTicketPrefix = getOrDefault( 'requiredTicketPrefix', '' );
+
+		this.embedDeletionEmoji = getOrDefault( 'embedDeletionEmoji', '' );
 
 		this.projects = config.get( 'projects' );
 

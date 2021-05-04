@@ -18,6 +18,9 @@ export default class ResolveRequestMessageTask extends MessageTask {
 	}
 
 	public async run( copy: Message ): Promise<void> {
+		// If the message has been deleted, don't do anything
+		if ( copy === undefined ) return;
+
 		const origin = await RequestsUtil.getOriginMessage( copy );
 
 		if ( copy.deletable ) {
