@@ -78,7 +78,7 @@ export default class FilterFeedTask extends Task {
 
 		try {
 			const ticketKeys = Array.from( this.knownTickets );
-			const previousTicketResults = await this.jira.search.search( {
+			const previousTicketResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
 				jql: `${ this.jqlRemoved } AND key in (${ ticketKeys.join( ',' ) })`,
 				fields: ['key'],
 			} );
