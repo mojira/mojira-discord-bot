@@ -12,10 +12,11 @@ export default class ReactionRemoveEventHandler implements EventHandler<'message
 	private readonly botUserId: string;
 
 	private readonly roleRemoveHandler = new RoleRemoveEventHandler();
-	private readonly requestUnresolveEventHandler = new RequestUnresolveEventHandler();
+	private readonly requestUnresolveEventHandler: RequestUnresolveEventHandler;
 
 	constructor( botUserId: string ) {
 		this.botUserId = botUserId;
+		this.requestUnresolveEventHandler = new RequestUnresolveEventHandler( this.botUserId );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `ReactionRemoveEventHandler` object

@@ -117,7 +117,7 @@ export default class MojiraBot {
 							this.logger.info( `Fetched ${ allMessages.length } messages from "${ internalChannel.name }"` );
 
 							// Resolve pending resolved requests
-							const handler = new RequestResolveEventHandler();
+							const handler = new RequestResolveEventHandler( this.client.user.id );
 							for ( const message of allMessages ) {
 								message.reactions.cache.forEach( async reaction => {
 									const users = await reaction.users.fetch();
