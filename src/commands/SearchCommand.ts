@@ -12,9 +12,11 @@ export default class SearchCommand extends PrefixCommand {
 			return false;
 		}
 
+		const plainArgs = args.replace( /\"|\<|\>/g, '' );
+
 		try {
 			const embed = new MessageEmbed();
-			const searchFilter = `text ~ "${ args }"`;
+			const searchFilter = `text ~ "${ plainArgs }"`;
 			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
 				jql: searchFilter,
 				maxResults: BotConfig.maxSearchResults,
@@ -22,7 +24,7 @@ export default class SearchCommand extends PrefixCommand {
 			} );
 
 			if ( !searchResults.issues ) {
-				embed.setTitle( `No results found for ${ MarkdownUtil.escape( args ) }` );
+				embed.setTitle( `No results found for ${ MarkdownUtil.escape( plainArgs ) }` );
 				await message.channel.send( embed );
 				return false;
 			}
@@ -33,12 +35,12 @@ export default class SearchCommand extends PrefixCommand {
 				embed.addField( issue.key, `[${ MarkdownUtil.escape( issue.fields.summary ) }](https://bugs.mojang.com/browse/${ issue.key })` );
 			}
 
-			const searchLink = `https://bugs.mojang.com/browse/${ searchResults.issues[0].key }?jql=text%20~%20%22${ args.replace( /\s+/ig, '%20' ) }%22`;
+			const searchLink = `https://bugs.mojang.com/browse/${ searchResults.issues[0].key }?jql=text%20~%20%22${ plainArgs.replace( /\s+/ig, '%20' ) }%22`;
 
 			await message.channel.send( searchLink, { embed } );
 		} catch {
 			const embed = new MessageEmbed();
-			embed.setTitle( `No results found for ${ MarkdownUtil.escape( args ) }` );
+			embed.setTitle( `No results found for ${ MarkdownUtil.escape( plainArgs ) }` );
 			await message.channel.send( embed );
 			return false;
 		}
