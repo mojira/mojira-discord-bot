@@ -112,6 +112,8 @@ export default class BotConfig {
 
 	public static embedDeletionEmoji: string;
 
+	public static maxSearchResults: number;
+
 	public static projects: string[];
 
 	public static request: RequestConfig;
@@ -135,6 +137,8 @@ export default class BotConfig {
 		this.requiredTicketPrefix = getOrDefault( 'requiredTicketPrefix', '' );
 
 		this.embedDeletionEmoji = getOrDefault( 'embedDeletionEmoji', '' );
+
+		this.maxSearchResults = config.get( 'maxSearchResults' )
 
 		this.projects = config.get( 'projects' );
 
