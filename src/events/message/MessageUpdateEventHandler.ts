@@ -1,7 +1,7 @@
 import EventHandler from '../EventHandler';
 import { Message } from 'discord.js';
 import BotConfig from '../../BotConfig';
-import RequestDeleteEventHandler from '../request/RequestDeleteEventHandler';
+import RequestUpdateEventHandler from '../request/RequestUpdateEventHandler';
 import RequestEventHandler from '../request/RequestEventHandler';
 import DiscordUtil from '../../util/DiscordUtil';
 
@@ -10,14 +10,12 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 
 	private readonly botUserId: string;
 
-	private readonly requestEventHandler: RequestEventHandler;
-	private readonly requestDeleteEventHandler: RequestDeleteEventHandler;
+	private readonly requestUpdateEventHandler: RequestUpdateEventHandler;
 
 	constructor( botUserId: string, internalChannels: Map<string, string> ) {
 		this.botUserId = botUserId;
 
-		this.requestEventHandler = new RequestEventHandler( internalChannels );
-		this.requestDeleteEventHandler = new RequestDeleteEventHandler( internalChannels );
+		this.requestUpdateEventHandler = new RequestUpdateEventHandler( internalChannels );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageUpdateEventHandler` object
@@ -38,8 +36,7 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 
 		if ( BotConfig.request.channels && BotConfig.request.channels.includes( oldMessage.channel.id ) ) {
 			// The updated message is in a request channel
-			await this.requestDeleteEventHandler.onEvent( oldMessage );
-			await this.requestEventHandler.onEvent( newMessage );
+			await this.requestUpdateEventHandler.onEvent( oldMessage, newMessage );
 		}
 	};
 }

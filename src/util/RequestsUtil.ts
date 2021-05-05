@@ -131,4 +131,18 @@ export class RequestsUtil {
 
 		return tickets;
 	}
+
+	public static getRequestDescription( origin: Message ): string {
+		const desc = this.replaceTicketReferencesWithRichLinks( origin.content );
+		if ( desc.length > 2048 ) return `⚠ [Request too long to be posted, click here to see the request](${ origin.url })`;
+		return desc;
+	}
+
+	public static replaceTicketReferencesWithRichLinks( content: string ): string {
+		const regex = new RegExp( `${ this.getTicketRequestRegex().source }(?<query>\\?[^\\s#]+)?(?<anchor>#\\S+)?`, 'g' );
+
+		// Escape all of the following characters with a backslash: [, ], \
+		return content.replace( /([[\]\\])/gm, '\\$1' )
+			.replace( regex, '[$<ticketid>$<anchor>](https://bugs.mojang.com/browse/$<ticketid>$<query>$<anchor>)' );
+	}
 }
