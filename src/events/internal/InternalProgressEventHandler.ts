@@ -14,6 +14,10 @@ export default class InternalProgressEventHandler implements EventHandler<'messa
 	// This syntax is used to ensure that `this` refers to the `RequestResolveEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
 		const messageId = origin.content.split( /\s/ )[0];
+		if ( !messageId.match( /[0-9]{18}/ ) ) {
+			this.logger.error( `${ messageId } is not a valid channel Id!` );
+			return;
+		}
 		try {
 			const progressedRequest = (await origin.channel.messages.fetch( messageId ));
 			TaskScheduler.addOneTimeMessageTask(

@@ -54,6 +54,9 @@ export default class MessageEventHandler implements EventHandler<'message'> {
 		} else if ( BotConfig.request.internalChannels && BotConfig.request.internalChannels.includes( message.channel.id ) ) {
 			// This message is in an internal channel
 			await this.internalProgressEventHandler.onEvent( message );
+
+			// Don't reply in internal request channels
+			return;
 		}
 
 		await CommandExecutor.checkCommands( message );
