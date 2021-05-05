@@ -1,7 +1,6 @@
-import { Message, MessageReaction, User } from 'discord.js';
+import { Message } from 'discord.js';
 import * as log4js from 'log4js';
-import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
-import MojiraBot from '../../MojiraBot';
+import BotConfig from '../../BotConfig';
 import AddProgressMessageTask from '../../tasks/AddProgressMessageTask';
 import TaskScheduler from '../../tasks/TaskScheduler';
 import EventHandler from '../EventHandler';
@@ -15,7 +14,15 @@ export default class InternalProgressEventHandler implements EventHandler<'messa
 	public onEvent = async ( origin: Message ): Promise<void> => {
 		const messageId = origin.content.split( /\s/ )[0];
 		if ( !messageId.match( /[0-9]{18}/ ) ) {
-			this.logger.error( `${ messageId } is not a valid channel Id!` );
+			try {
+				const error = await origin.channel.send( `${ origin.author.toString() } ${ messageId } is not a valid channel ID!` );
+				
+				const timeout = BotConfig.request.warningLifetime;
+				
+				await error.delete( { timeout } );
+			} catch ( err ) {
+				this.logger.error( err );
+			}
 			return;
 		}
 		try {
