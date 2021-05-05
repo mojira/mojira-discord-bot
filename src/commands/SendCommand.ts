@@ -32,9 +32,6 @@ export default class ShutdownCommand extends PrefixCommand {
 		const sendRegex = /(.*)\n(.*)\n([\S\s]*)/;
 		const matches = sendRegex.exec( args );
 
-		console.log( args );
-		console.log( matches );
-
 		if ( !matches || matches.length < 4 ) {
 			await this.sendSyntaxMessage( message.channel, 'Field was missing! ' );
 			return false;
