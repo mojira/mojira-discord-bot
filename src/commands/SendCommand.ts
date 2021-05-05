@@ -29,7 +29,7 @@ export default class ShutdownCommand extends PrefixCommand {
 			return false;
 		}
 
-		const sendRegex = RegExp( '(.*)\n(.*)\n(.*)', 'g' );
+		const sendRegex = /(.*)\n(.*)\n([\S\s]*)/;
 		const matches = sendRegex.exec( args );
 
 		console.log( args );
