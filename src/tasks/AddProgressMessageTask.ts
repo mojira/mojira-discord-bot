@@ -18,6 +18,7 @@ export default class AddProgressMessageTask extends MessageTask {
 
         const comment = origin.content;
         const date = origin.createdAt;
+        const user = origin.author;
 
 		if ( origin.deletable ) {
 			try {
@@ -30,7 +31,7 @@ export default class AddProgressMessageTask extends MessageTask {
 		if ( comment ) {
             try {
                 const embed = this.request.embeds[0];
-                embed.addField( date.toDateString(), comment );
+                embed.addField( date.toDateString(), `${ user.tag } - ${ comment.replace( `${ this.request.id } `, '' ).replace( `${ this.request.id }\n`, '' ) }` );
                 await this.request.edit( embed );
             } catch ( error ) {
                 AddProgressMessageTask.logger.error( error );
