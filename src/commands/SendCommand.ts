@@ -29,15 +29,28 @@ export default class ShutdownCommand extends PrefixCommand {
 			return false;
 		}
 
-		const sendRegex = /^(?:(.*?))?\s(?:(.*?))?\s*((?:\n.*)*)$/;
+		const sendRegex = RegExp( '(.*)\n(.*)\n(.*)', 'g' );
 		const matches = sendRegex.exec( args );
 
-		const channelName = matches ? matches[0] : '';
-		const messageType = matches[1] ? matches[2] : '';
-		const content = matches[3] ? matches[3].split( '\n' ) : '';
+		console.log( args );
+		console.log( matches );
+
+		if ( !matches || matches.length < 4 ) {
+			await this.sendSyntaxMessage( message.channel, 'Field was missing! ' );
+			return false;
+		}
+
+		const channelName = matches[1];
+		const messageType = matches[2];
+		const content = matches[3];
 		const sendChannel = message.mentions.channels.first();
 
-		if ( !channelName || !sendChannel || !messageType || !content ) {
+		if ( !sendChannel ) {
+			await this.sendSyntaxMessage( message.channel, `**Error:** ${ channelName } is not a valid channel. ` );
+			return false;
+		}
+
+		if ( !channelName || !messageType || !content ) {
 			await this.sendSyntaxMessage( message.channel, 'Field was missing! ' );
 			return false;
 		}
