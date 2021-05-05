@@ -12,7 +12,7 @@ export default class SearchCommand extends PrefixCommand {
 			return false;
 		}
 
-		const plainArgs = args.replace( /\"|\<|\>/g, '' );
+		const plainArgs = args.replace( /"|<|>/g, '' );
 
 		try {
 			const embed = new MessageEmbed();
