@@ -10,7 +10,7 @@ export default class InternalProgressEventHandler implements EventHandler<'messa
 
 	private logger = log4js.getLogger( 'InternalProgressEventHandler' );
 
-	// This syntax is used to ensure that `this` refers to the `RequestResolveEventHandler` object
+	// This syntax is used to ensure that `this` refers to the `InternalProgressEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
 		const messageId = origin.content.split( /\s/ )[0];
 		if ( !messageId.match( /[0-9]{18}/ ) ) {
