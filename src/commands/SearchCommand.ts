@@ -35,9 +35,9 @@ export default class SearchCommand extends PrefixCommand {
 				embed.addField( issue.key, `[${ MarkdownUtil.escape( issue.fields.summary ) }](https://bugs.mojang.com/browse/${ issue.key })` );
 			}
 
-			const searchLink = `https://bugs.mojang.com/browse/${ searchResults.issues[0].key }?jql=text%20~%20%22${ plainArgs.replace( /\s+/ig, '%20' ) }%22`;
+			embed.setDescription( `[__See all results__](https://bugs.mojang.com/browse/${ searchResults.issues[0].key }?jql=text%20~%20%22${ plainArgs.replace( /\s+/ig, '%20' ) }%22)` );
 
-			await message.channel.send( searchLink, { embed } );
+			await message.channel.send( embed );
 		} catch {
 			const embed = new MessageEmbed();
 			embed.setTitle( `No results found for ${ MarkdownUtil.escape( plainArgs ) }` );
