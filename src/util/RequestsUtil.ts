@@ -3,7 +3,6 @@ import * as log4js from 'log4js';
 import BotConfig from '../BotConfig';
 import MentionCommand from '../commands/MentionCommand';
 import DiscordUtil from './DiscordUtil';
-import MentionCommand from '../commands/MentionCommand';
 import MojiraBot from '../MojiraBot';
 
 interface OriginIds {

@@ -5,6 +5,7 @@ import { RequestsUtil } from '../util/RequestsUtil';
 import { EmojiUtil } from '../util/EmojiUtil';
 import BotConfig from '../BotConfig';
 import RequestResolveEventHandler from '../events/request/RequestResolveEventHandler';
+import MojiraBot from '../MojiraBot';
 
 export default class BulkCommand extends PrefixCommand {
 	public readonly aliases = ['bulk', 'filter'];
@@ -34,7 +35,7 @@ export default class BulkCommand extends PrefixCommand {
 					await bulk.reactions.cache.get( BotConfig.request.bulkEmoji ).users.remove( message.author );
 					if ( emoji ) {
 						const reaction = await bulk.react( emoji );
-						await new RequestResolveEventHandler().onEvent( reaction, message.author );
+						await new RequestResolveEventHandler( MojiraBot.client.user.id ).onEvent( reaction, message.author );
 					}
 				}
 				originMessages.forEach( origin => ticketKeys.push( ...RequestsUtil.getTickets( origin.content ) ) );
