@@ -17,7 +17,6 @@ maxSearchResults: 5
 projects:
   - BDS
   - MC
-  - MCCE
   - MCD
   - MCL
   - MCPE
