@@ -93,7 +93,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			const embed = new MessageEmbed()
 				.setColor( RequestsUtil.getEmbedColor() )
 				.setAuthor( origin.author.tag, origin.author.avatarURL() )
-				.setDescription( this.getRequestDescription( origin ) )
+				.setDescription( RequestsUtil.getRequestDescription( origin ) )
 				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
 				.setTimestamp( new Date() );
 
@@ -108,18 +108,4 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			}
 		}
 	};
-
-	private getRequestDescription( origin: Message ): string {
-		const desc = this.replaceTicketReferencesWithRichLinks( origin.content );
-		if ( desc.length > 2048 ) return `⚠ [Request too long to be posted, click here to see the request](${ origin.url })`;
-		return desc;
-	}
-
-	private replaceTicketReferencesWithRichLinks( content: string ): string {
-		const regex = new RegExp( `${ RequestsUtil.getTicketRequestRegex().source }(?<query>\\?[^\\s#]+)?(?<anchor>#\\S+)?`, 'g' );
-
-		// Escape all of the following characters with a backslash: [, ], \
-		return content.replace( /([[\]\\])/gm, '\\$1' )
-			.replace( regex, '[$<ticketid>$<anchor>](https://bugs.mojang.com/browse/$<ticketid>$<query>$<anchor>)' );
-	}
 }

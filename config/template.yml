@@ -106,6 +106,9 @@ request:
   # The amount of time in milliseconds between a volunteer reacts to the message and the bot deletes its message.
   resolveDelay: <number>
 
+  # The amount of time in milliseconds between a volunteer sends a message and the bot deletes the message and adds it to the internal request.
+  progressMessageAddDelay: <number>
+
   # If and when the message defined in `responseMessage` should be added to an entry in the internal requests channel.
   # Optional; never by default.
   prependResponseMessage: <'never' | 'whenResolved' | 'always'>
