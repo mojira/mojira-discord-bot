@@ -2,7 +2,6 @@ import EventHandler from '../EventHandler';
 import { Message } from 'discord.js';
 import BotConfig from '../../BotConfig';
 import RequestUpdateEventHandler from '../request/RequestUpdateEventHandler';
-import RequestEventHandler from '../request/RequestEventHandler';
 import DiscordUtil from '../../util/DiscordUtil';
 
 export default class MessageUpdateEventHandler implements EventHandler<'messageUpdate'> {

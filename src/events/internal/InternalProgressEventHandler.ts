@@ -16,9 +16,9 @@ export default class InternalProgressEventHandler implements EventHandler<'messa
 		if ( !messageId.match( /[0-9]{18}/ ) ) {
 			try {
 				const error = await origin.channel.send( `${ origin.author.toString() } ${ messageId } is not a valid message ID!` );
-				
+
 				const timeout = BotConfig.request.warningLifetime;
-				
+
 				await error.delete( { timeout } );
 			} catch ( err ) {
 				this.logger.error( err );
@@ -26,10 +26,10 @@ export default class InternalProgressEventHandler implements EventHandler<'messa
 			return;
 		}
 
-		let progressedRequest;
+		let progressedRequest: Message;
 
 		try {
-			progressedRequest = (await origin.channel.messages.fetch( messageId ));
+			progressedRequest = await origin.channel.messages.fetch( messageId );
 		} catch ( err ) {
 			const error = await origin.channel.send( `${ origin.author.toString() } ${ messageId } could not be found!` );
 
