@@ -39,6 +39,7 @@ request:
   ignoreResolutionEmoji: 💬
 
   resolveDelay: 10000
+  progressMessageAddDelay: 10000
   prependResponseMessage: whenResolved
   prependResponseMessageInLog: false
 

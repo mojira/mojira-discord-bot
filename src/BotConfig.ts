@@ -29,6 +29,7 @@ export class RequestConfig {
 	public ignorePrependResponseMessageEmoji: string;
 	public ignoreResolutionEmoji: string;
 	public resolveDelay: number;
+	public progressMessageAddDelay: number;
 	public prependResponseMessage: PrependResponseMessageType;
 	public prependResponseMessageInLog: boolean;
 	public responseMessage: string;
@@ -53,6 +54,7 @@ export class RequestConfig {
 		this.ignoreResolutionEmoji = config.get( 'request.ignoreResolutionEmoji' );
 
 		this.resolveDelay = config.get( 'request.resolveDelay' );
+		this.progressMessageAddDelay = config.get( 'request.progressMessageAddDelay' );
 		this.prependResponseMessage = getOrDefault( 'request.prependResponseMessage', PrependResponseMessageType.Never );
 		this.prependResponseMessageInLog = getOrDefault( 'request.prependResponseMessageInLog', false );
 		this.responseMessage = getOrDefault( 'request.responseMessage', '' );
