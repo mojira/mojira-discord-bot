@@ -30,6 +30,7 @@ export default class SearchCommand extends PrefixCommand {
 			}
 
 			embed.setTitle( '**Results:**' );
+			embed.setFooter( message.author.tag, message.author.avatarURL() );
 
 			for ( const issue of searchResults.issues ) {
 				embed.addField( issue.key, `[${ MarkdownUtil.escape( issue.fields.summary ) }](https://bugs.mojang.com/browse/${ issue.key })` );
