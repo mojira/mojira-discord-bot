@@ -32,10 +32,14 @@ export default class InternalProgressEventHandler implements EventHandler<'messa
 			progressedRequest = (await origin.channel.messages.fetch( messageId ));
 		} catch ( err ) {
 			const error = await origin.channel.send( `${ origin.author.toString() } ${ messageId } could not be found!` );
-				
+
 			const timeout = BotConfig.request.warningLifetime;
-			
+
 			await error.delete( { timeout } );
+
+			this.logger.error( err );
+
+			return;
 		}
 
 		try {
