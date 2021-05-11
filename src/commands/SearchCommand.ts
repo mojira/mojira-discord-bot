@@ -16,7 +16,7 @@ export default class SearchCommand extends PrefixCommand {
 
 		try {
 			const embed = new MessageEmbed();
-			const searchFilter = `text ~ "${ plainArgs }" AND project in (${ BotConfig.projects.join( ", " ) })`;
+			const searchFilter = `text ~ "${ plainArgs }" AND project in (${ BotConfig.projects.join( ', ' ) })`;
 			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
 				jql: searchFilter,
 				maxResults: BotConfig.maxSearchResults,
