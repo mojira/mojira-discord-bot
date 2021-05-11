@@ -12,6 +12,8 @@ requiredTicketPrefix: ''
 
 embedDeletionEmoji: '🗑️'
 
+maxSearchResults: 5
+
 projects:
   - BDS
   - MC

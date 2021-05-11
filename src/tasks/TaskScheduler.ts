@@ -9,12 +9,14 @@ export default class TaskScheduler {
 	private static readonly messageTimeouts: Map<string, NodeJS.Timeout[]> = new Map();
 
 	public static addTask( task: Task, interval: number ): void {
-		const id = setInterval( task.run.bind( task ), interval );
+		const id = setInterval( task.execute.bind( task ), interval );
+		// Run the task directly after it's been added
+		task.execute.bind( task )();
 		this.intervals.push( id );
 	}
 
 	public static addOneTimeTask( task: Task, delay: number ): void {
-		const id = setTimeout( task.run.bind( task ), delay );
+		const id = setTimeout( task.execute.bind( task ), delay );
 		this.timeouts.push( id );
 	}
 
