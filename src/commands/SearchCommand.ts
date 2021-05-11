@@ -36,7 +36,7 @@ export default class SearchCommand extends PrefixCommand {
 				embed.addField( issue.key, `[${ MarkdownUtil.escape( issue.fields.summary ) }](https://bugs.mojang.com/browse/${ issue.key })` );
 			}
 
-			embed.setDescription( `[__See all results__](https://bugs.mojang.com/browse/${ searchResults.issues[0].key }?jql=${ encodeURI( searchFilter ) })` );
+			embed.setDescription( `[__See all results__](https://bugs.mojang.com/browse/${ searchResults.issues[0].key }?jql=${ encodeURIComponent( searchFilter ) })` );
 
 			await message.channel.send( embed );
 		} catch {
