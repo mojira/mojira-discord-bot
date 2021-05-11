@@ -37,6 +37,9 @@ requiredTicketPrefix: <string>
 # An emoji or emoji ID which, when reacted to a bot embed, deletes it.
 embedDeletionEmoji: <string>
 
+# The maximum number of results returned by the jira search command.
+maxSearchResults: <number>
+
 # The projects the bot should be able to find tickets for.
 projects:
   - <string>
