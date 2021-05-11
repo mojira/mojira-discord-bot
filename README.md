@@ -86,6 +86,9 @@ Note that the bot is started in a detached screen, which means you won't see any
 
 You can stop the bot with `./stop.sh <deployment>` or restart it with `./restart.sh <deployment>`.
 
+### Minimal bot permissions
+For the bot to function properly, the minimal Discord permissions bitfield is `268790848`.
+
 ## Built with
 
 This project depends on the following projects, thanks to every developer who makes their code open-source! :heart:
