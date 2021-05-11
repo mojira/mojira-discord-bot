@@ -16,7 +16,7 @@ export default class SearchCommand extends PrefixCommand {
 
 		try {
 			const embed = new MessageEmbed();
-			const searchFilter = `text ~ "${ plainArgs }"`;
+			const searchFilter = `text ~ \"${ plainArgs }\" AND project in (${ BotConfig.projects.join( ", " ) })`;
 			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
 				jql: searchFilter,
 				maxResults: BotConfig.maxSearchResults,
@@ -36,7 +36,7 @@ export default class SearchCommand extends PrefixCommand {
 				embed.addField( issue.key, `[${ MarkdownUtil.escape( issue.fields.summary ) }](https://bugs.mojang.com/browse/${ issue.key })` );
 			}
 
-			embed.setDescription( `[__See all results__](https://bugs.mojang.com/browse/${ searchResults.issues[0].key }?jql=text%20~%20%22${ plainArgs.replace( /\s+/ig, '%20' ) }%22)` );
+			embed.setDescription( `[__See all results__](https://bugs.mojang.com/browse/${ searchResults.issues[0].key }?jql=${ encodeURI( searchFilter ) })` );
 
 			await message.channel.send( embed );
 		} catch {
