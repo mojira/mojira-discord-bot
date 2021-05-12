@@ -87,6 +87,7 @@ export interface FilterFeedConfig {
 	title: string;
 	titleSingle?: string;
 	publish?: boolean;
+	cached?: boolean;
 }
 
 export interface VersionFeedConfig {

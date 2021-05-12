@@ -169,6 +169,7 @@ filterFeeds:
   - jql: <string>
 
     # The JQL query for which tickets should be allowed to be reposted that have been posted previously.
+    # Optional; Only include if cached is set to true
     jqlRemoved: <string>
 
     # The ID of the channel in which the feed should be sent.
@@ -192,6 +193,11 @@ filterFeeds:
     # Whether the bot should automatically publish feed messages it posts, if the channel is an announcement channel.
     # Optional; false by default.
     publish: <boolean>
+
+    # Whether the bot should cache tickets in the filter feed, 
+    # If false, the property lastRun should be included in the jql, but when true, the filter feed will be less efficient.
+    # Optional; true by default.
+    cached: <boolean>
   
   - <see above>
   - ...

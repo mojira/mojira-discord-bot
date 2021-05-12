@@ -4,6 +4,7 @@ import { TextChannel, Channel } from 'discord.js';
 import * as log4js from 'log4js';
 import Task from './Task';
 import { NewsUtil } from '../util/NewsUtil';
+import { JiraUtil } from '../util/JiraUtil';
 import MojiraBot from '../MojiraBot';
 
 export default class FilterFeedTask extends Task {
@@ -16,32 +17,40 @@ export default class FilterFeedTask extends Task {
 	private title: string;
 	private titleSingle: string;
 	private publish: boolean;
+	private cached: boolean;
 
 	private knownTickets = new Set<string>();
+
+	private	lastRun: string;
 
 	constructor( feedConfig: FilterFeedConfig, channel: Channel ) {
 		super();
 
 		this.channel = channel;
 		this.jql = feedConfig.jql;
-		this.jqlRemoved = feedConfig.jqlRemoved;
+		this.jqlRemoved = feedConfig.jqlRemoved ?? '';
 		this.filterFeedEmoji = feedConfig.filterFeedEmoji;
 		this.title = feedConfig.title;
 		this.titleSingle = feedConfig.titleSingle || feedConfig.title.replace( /\{\{num\}\}/g, '1' );
 		this.publish = feedConfig.publish ?? false;
+		this.cached = feedConfig.cached ?? true;
 	}
 
 	protected async init(): Promise<void> {
-		const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
-			jql: this.jql,
-			fields: ['key'],
-		} );
+		if (this.cached) {
+			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
+				jql: this.jql,
+				fields: ['key'],
+			} );
 
-		if ( searchResults.issues ) {
-			for ( const result of searchResults.issues ) {
-				this.knownTickets.add( result.key );
+			if ( searchResults.issues ) {
+				for ( const result of searchResults.issues ) {
+					this.knownTickets.add( result.key );
+				}
 			}
 		}
+
+		this.lastRun = JiraUtil.getCurrentDateJql( new Date() );
 	}
 
 	protected async run(): Promise<void> {
@@ -52,11 +61,9 @@ export default class FilterFeedTask extends Task {
 
 		let upcomingTickets: string[];
 
-		let reopenedTickets: string[];
-
 		try {
 			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
-				jql: this.jql,
+				jql: this.jql.replace( 'lastRun', this.lastRun ), 
 				fields: ['key'],
 			} );
 
@@ -71,29 +78,37 @@ export default class FilterFeedTask extends Task {
 			return;
 		}
 
-		try {
-			const ticketKeys = Array.from( this.knownTickets );
-			const previousTicketResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
-				jql: `${ this.jqlRemoved } AND key in (${ ticketKeys.join( ',' ) })`,
-				fields: ['key'],
-			} );
+		let unknownTickets: string[];
 
-			if ( !previousTicketResults.issues ) {
-				FilterFeedTask.logger.debug( 'No issues returned by JIRA' );
+		if ( this.cached ) {
+			let reopenedTickets: string[];
+
+			try {
+				const ticketKeys = Array.from( this.knownTickets );
+				const previousTicketResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
+					jql: `${ this.jqlRemoved.replace( 'lastRun', this.lastRun ) } AND key in (${ ticketKeys.join( ',' ) })`,
+					fields: ['key'],
+				} );
+	
+				if ( !previousTicketResults.issues ) {
+					FilterFeedTask.logger.debug( 'No issues returned by JIRA' );
+				}
+	
+				reopenedTickets = previousTicketResults.issues.map( ( { key } ) => key );
+			} catch ( err ) {
+				FilterFeedTask.logger.error( err );
+				return;
+			}
+	
+			for ( const ticket of reopenedTickets ) {
+				this.knownTickets.delete( ticket );
+				FilterFeedTask.logger.debug( `Removed ${ ticket } from known tickets for filter feed task ${ this.id }` );
 			}
 
-			reopenedTickets = previousTicketResults.issues.map( ( { key } ) => key );
-		} catch ( err ) {
-			FilterFeedTask.logger.error( err );
-			return;
+			unknownTickets = upcomingTickets.filter( key => !this.knownTickets.has( key ) );
+		} else {
+			unknownTickets = upcomingTickets;
 		}
-
-		for ( const ticket of reopenedTickets ) {
-			this.knownTickets.delete( ticket );
-			FilterFeedTask.logger.debug( `Removed ${ ticket } from known tickets for filter feed task ${ this.id }` );
-		}
-
-		const unknownTickets = upcomingTickets.filter( key => !this.knownTickets.has( key ) );
 
 		if ( unknownTickets.length > 0 ) {
 			try {
@@ -124,9 +139,13 @@ export default class FilterFeedTask extends Task {
 			}
 		}
 
-		for ( const ticket of unknownTickets ) {
-			this.knownTickets.add( ticket );
-			FilterFeedTask.logger.debug( `[${ this.id }] Added ${ ticket } to known tickets for filter feed task ${ this.id }` );
+		this.lastRun = JiraUtil.getCurrentDateJql( new Date() );
+
+		if (this.cached) {
+			for ( const ticket of unknownTickets ) {
+				this.knownTickets.add( ticket );
+				FilterFeedTask.logger.debug( `[${ this.id }] Added ${ ticket } to known tickets for filter feed task ${ this.id }` );
+			}
 		}
 	}
 
