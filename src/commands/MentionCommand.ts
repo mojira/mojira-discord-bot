@@ -33,17 +33,10 @@ export default class MentionCommand extends Command {
 		}
 
 		if ( !BotConfig.quotedTicketsCauseEmbed ) {
-			const lineArray = messageText.split( '\n' );
-			const removedLines: Array<string> = [];
-			for ( const line of lineArray ) {
-				if ( line.startsWith( '> ' ) ) {
-					removedLines.push( line );
-				}
-			}
-			for ( const remove of removedLines ) {
-				lineArray.splice( lineArray.indexOf( remove ), 1 );
-			}
-			messageText = lineArray.join( '\n' );
+			messageText = messageText
+				.split( '\n' )
+				.filter( line => !line.startsWith( '> ' ) )
+				.join( '\n' );
 		}
 
 		let ticketMatch: RegExpExecArray;
