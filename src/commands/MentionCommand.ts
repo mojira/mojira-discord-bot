@@ -32,6 +32,13 @@ export default class MentionCommand extends Command {
 			);
 		}
 
+		if ( !BotConfig.quotedTicketsCauseEmbed ) {
+			messageText = messageText
+				.split( '\n' )
+				.filter( line => !line.startsWith( '> ' ) )
+				.join( '\n' );
+		}
+
 		let ticketMatch: RegExpExecArray;
 		const ticketIdRegex = MentionCommand.getTicketIdRegex();
 		const ticketMatches: Set<string> = new Set();

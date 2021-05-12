@@ -6,6 +6,8 @@ logDirectory: logs
 
 ticketUrlsCauseEmbed: false
 
+quotedTicketsCauseEmbed: false
+
 forbiddenTicketPrefix: '!'
 
 requiredTicketPrefix: ''
