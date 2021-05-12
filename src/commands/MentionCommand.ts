@@ -33,8 +33,8 @@ export default class MentionCommand extends Command {
 		}
 
 		if ( !BotConfig.quotedTicketsCauseEmbed ) {
-			let lineArray = messageText.split( '\n' );
-			let removedLines: Array<string> = new Array();
+			const lineArray = messageText.split( '\n' );
+			const removedLines: Array<string> = [];
 			for ( const line of lineArray ) {
 				if ( line.startsWith( '> ' ) ) {
 					removedLines.push( line );
