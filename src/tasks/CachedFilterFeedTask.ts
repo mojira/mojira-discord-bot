@@ -73,8 +73,6 @@ export default class CachedFilterFeedTask extends Task {
 			return;
 		}
 
-		let unknownTickets: string[];
-
 		let removableTickets: string[];
 
 		try {
@@ -99,7 +97,7 @@ export default class CachedFilterFeedTask extends Task {
 			CachedFilterFeedTask.logger.debug( `Removed ${ ticket } from known tickets for cached filter feed task ${ this.id }` );
 		}
 
-		unknownTickets = upcomingTickets.filter( key => !this.knownTickets.has( key ) );
+		const unknownTickets = upcomingTickets.filter( key => !this.knownTickets.has( key ) );
 
 		if ( unknownTickets.length > 0 ) {
 			try {
