@@ -37,9 +37,11 @@ export default class FilterFeedTask extends Task {
 	}
 
 	protected async init(): Promise<void> {
-		if (this.cached) {
+		this.lastRun = JiraUtil.getCurrentDateJql( new Date() );
+
+		if ( this.cached ) {
 			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
-				jql: this.jql,
+				jql: this.jql.replace( 'lastRun', this.lastRun ),
 				fields: ['key'],
 			} );
 
@@ -49,8 +51,6 @@ export default class FilterFeedTask extends Task {
 				}
 			}
 		}
-
-		this.lastRun = JiraUtil.getCurrentDateJql( new Date() );
 	}
 
 	protected async run(): Promise<void> {
@@ -63,7 +63,7 @@ export default class FilterFeedTask extends Task {
 
 		try {
 			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
-				jql: this.jql.replace( 'lastRun', this.lastRun ), 
+				jql: this.jql.replace( 'lastRun', this.lastRun ),
 				fields: ['key'],
 			} );
 
@@ -93,13 +93,13 @@ export default class FilterFeedTask extends Task {
 				if ( !previousTicketResults.issues ) {
 					FilterFeedTask.logger.debug( 'No issues returned by JIRA' );
 				}
-	
+
 				reopenedTickets = previousTicketResults.issues.map( ( { key } ) => key );
 			} catch ( err ) {
 				FilterFeedTask.logger.error( err );
 				return;
 			}
-	
+
 			for ( const ticket of reopenedTickets ) {
 				this.knownTickets.delete( ticket );
 				FilterFeedTask.logger.debug( `Removed ${ ticket } from known tickets for filter feed task ${ this.id }` );
@@ -141,7 +141,7 @@ export default class FilterFeedTask extends Task {
 
 		this.lastRun = JiraUtil.getCurrentDateJql( new Date() );
 
-		if (this.cached) {
+		if ( this.cached ) {
 			for ( const ticket of unknownTickets ) {
 				this.knownTickets.add( ticket );
 				FilterFeedTask.logger.debug( `[${ this.id }] Added ${ ticket } to known tickets for filter feed task ${ this.id }` );
