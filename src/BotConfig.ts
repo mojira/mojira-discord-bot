@@ -80,7 +80,7 @@ export interface RoleGroupConfig {
 
 export interface FilterFeedConfig {
 	jql: string;
-	jqlRemoved: string;
+	jqlRemoved?: string;
 	channel: string;
 	interval: number;
 	filterFeedEmoji: string;
