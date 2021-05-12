@@ -24,6 +24,9 @@ homeChannel: <string>
 # Whether the bot should send an embed when a full URL to a ticket gets posted.
 ticketUrlsCauseEmbed: <boolean>
 
+# Whether the bot should send an embed when a ticket gets posted inside of a quote.
+quotedTicketsCauseEmbed: <boolean>
+
 # A prefix that prevents the bot from posting an embed for a mentioned ticket.
 # If this prefix is longer than 1, none of the characters can be used.
 # When omitted or empty, no prefix prevents embeds.
