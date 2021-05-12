@@ -13,11 +13,22 @@ export default class HelpCommand extends PrefixCommand {
 					Currently, the following projects are supported: ${ BotConfig.projects.join( ', ' ) }
 					To prevent the bot from linking a ticket, preface the ticket number with an exclamation mark.
 
-					To check whether the bot is currently running, you can use \`!jira ping\`. This bot is continuously being worked on and this will receive more features in the future.
+					This bot is continuously being worked on and this will receive more features in the future.
 					It is not possible to invite this bot to other servers yet.
 					If you have any issues, feel free to ping violine1101.
 
-					(For help with the bug tracker, use \`!jira tips\`)`.replace( /\t/g, '' ) )
+					(For help with the bug tracker or this Discord server, use \`!jira tips\`)`.replace( /\t/g, '' ) )
+				.addField( 'Bot Commands',
+					`\`!jira help\` - Sends this message.
+
+					\`!jira moo\` - Sends an embed with a specific ticket.
+
+					\`!jira ping\` - Sends a message to check if the bot is running.
+					
+					\`!jira search <text>\` - Searches for text and returns the results from the bug tracker
+					
+					\`!jira tips\` - Sends helpful info on how to use the bug tracker and this Discord server.`
+				)
 				.setFooter( message.author.tag, message.author.avatarURL() );
 			await message.channel.send( embed );
 		} catch {
