@@ -109,6 +109,7 @@ export default class BotConfig {
 	public static homeChannel: string;
 
 	public static ticketUrlsCauseEmbed: boolean;
+	public static quotedTicketsCauseEmbed: boolean;
 	public static requiredTicketPrefix: string;
 	public static forbiddenTicketPrefix: string;
 
@@ -134,13 +135,14 @@ export default class BotConfig {
 
 		this.homeChannel = config.get( 'homeChannel' );
 		this.ticketUrlsCauseEmbed = getOrDefault( 'ticketUrlsCauseEmbed', false );
+		this.quotedTicketsCauseEmbed = getOrDefault( 'quotedTicketsCauseEmbed', false );
 
 		this.forbiddenTicketPrefix = getOrDefault( 'forbiddenTicketPrefix', '' );
 		this.requiredTicketPrefix = getOrDefault( 'requiredTicketPrefix', '' );
 
 		this.embedDeletionEmoji = getOrDefault( 'embedDeletionEmoji', '' );
 
-		this.maxSearchResults = config.get( 'maxSearchResults' )
+		this.maxSearchResults = config.get( 'maxSearchResults' );
 
 		this.projects = config.get( 'projects' );
 
