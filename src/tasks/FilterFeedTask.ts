@@ -89,7 +89,7 @@ export default class FilterFeedTask extends Task {
 					jql: `${ this.jqlRemoved.replace( 'lastRun', this.lastRun ) } AND key in (${ ticketKeys.join( ',' ) })`,
 					fields: ['key'],
 				} );
-	
+
 				if ( !previousTicketResults.issues ) {
 					FilterFeedTask.logger.debug( 'No issues returned by JIRA' );
 				}
