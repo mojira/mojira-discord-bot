@@ -21,7 +21,7 @@ export default class HelpCommand extends PrefixCommand {
 				.addField( 'Bot Commands',
 					`\`!jira help\` - Sends this message.
 
-					\`!jira moo\` - Sends an embed with a specific ticket.
+					\`!jira moo\` - Sends an embed with a specific (cow-themed) ticket.
 
 					\`!jira ping\` - Sends a message to check if the bot is running.
 					
