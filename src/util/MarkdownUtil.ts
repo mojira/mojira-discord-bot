@@ -54,13 +54,4 @@ export class MarkdownUtil {
 			// Remove table rows
 			.replace( /^[ \t]*((\|[^|]+)+\|)[ \t]*$/gm, '' );
 	}
-
-	/**
-	 * Escapes all meta characters supported by Discord's Markdown syntax.
-	 *
-	 * @param text The text that should be escaped
-	 */
-	public static escape( text: string ): string {
-		return text.replace( /([*_`~|\\])/g, '\\$1' );
-	}
 }
