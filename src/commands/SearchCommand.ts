@@ -23,7 +23,7 @@ export default class SearchCommand extends PrefixCommand {
 			} );
 
 			if ( !searchResults.issues ) {
-				embed.setTitle( `No results found for ${ Util.escapeMarkdown( plainArgs ) }` );
+				embed.setTitle( `No results found for "${ Util.escapeMarkdown( plainArgs ) }"` );
 				await message.channel.send( embed );
 				return false;
 			}
@@ -32,15 +32,16 @@ export default class SearchCommand extends PrefixCommand {
 			embed.setFooter( message.author.tag, message.author.avatarURL() );
 
 			for ( const issue of searchResults.issues ) {
-				embed.addField( issue.key, `[${ Util.escapeMarkdown( issue.fields.summary ) }](https://bugs.mojang.com/browse/${ issue.key })` );
+				embed.addField( issue.key, `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })` );
 			}
 
-			embed.setDescription( `[__See all results__](https://bugs.mojang.com/browse/${ searchResults.issues[0].key }?jql=${ encodeURIComponent( searchFilter ) })` );
+			const escapedJql = encodeURIComponent( searchFilter ).replace( '(', '%28' ).replace( ')', '%29' );
+			embed.setDescription( `__[See all results](https://bugs.mojang.com/issues/?jql=${ escapedJql })__` );
 
 			await message.channel.send( embed );
 		} catch {
 			const embed = new MessageEmbed();
-			embed.setTitle( `No results found for ${ Util.escapeMarkdown( plainArgs ) }` );
+			embed.setTitle( `No results found for "${ Util.escapeMarkdown( plainArgs ) }"` );
 			await message.channel.send( embed );
 			return false;
 		}
