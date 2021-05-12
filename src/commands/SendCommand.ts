@@ -52,12 +52,10 @@ export default class ShutdownCommand extends PrefixCommand {
 			return false;
 		}
 
-		if ( message.deletable ) {
-			try {
-				await message.delete();
-			} catch ( err ) {
-				Command.logger.error( err );
-			}
+		try {
+			await message.react( '✅' );
+		} catch ( err ) {
+			Command.logger.error( err );
 		}
 
 		if ( sendChannel instanceof TextChannel ) {
