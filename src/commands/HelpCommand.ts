@@ -25,7 +25,7 @@ export default class HelpCommand extends PrefixCommand {
 
 					\`!jira ping\` - Sends a message to check if the bot is running.
 					
-					\`!jira search <text>\` - Searches for text and returns the results from the bug tracker
+					\`!jira search <text>\` - Searches for text and returns the results from the bug tracker.
 					
 					\`!jira tips\` - Sends helpful info on how to use the bug tracker and this Discord server.`
 				)
