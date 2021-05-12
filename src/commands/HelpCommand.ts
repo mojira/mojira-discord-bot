@@ -20,9 +20,7 @@ export default class HelpCommand extends PrefixCommand {
 					(For help with the bug tracker or this Discord server, use \`!jira tips\`)`.replace( /\t/g, '' ) )
 				.addField( 'Bot Commands',
 					`\`!jira help\` - Sends this message.
-
-					\`!jira moo\` - Sends an embed with a specific (cow-themed) ticket.
-
+					
 					\`!jira ping\` - Sends a message to check if the bot is running.
 					
 					\`!jira search <text>\` - Searches for text and returns the results from the bug tracker.
