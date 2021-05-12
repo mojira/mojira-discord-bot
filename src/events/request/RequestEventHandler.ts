@@ -95,7 +95,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 				.setAuthor( origin.author.tag, origin.author.avatarURL() )
 				.setDescription( RequestsUtil.getRequestDescription( origin ) )
 				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
-				.setTimestamp( new Date() );
+				.setTimestamp( origin.createdAt );
 
 			const response = BotConfig.request.prependResponseMessage == PrependResponseMessageType.Always
 				? RequestsUtil.getResponseMessage( origin )
