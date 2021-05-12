@@ -142,7 +142,7 @@ export default class BotConfig {
 
 		this.embedDeletionEmoji = getOrDefault( 'embedDeletionEmoji', '' );
 
-		this.maxSearchResults = config.get( 'maxSearchResults' )
+		this.maxSearchResults = config.get( 'maxSearchResults' );
 
 		this.projects = config.get( 'projects' );
 
