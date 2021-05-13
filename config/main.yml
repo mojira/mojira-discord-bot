@@ -21,6 +21,11 @@ request:
     - '683038914306506841' # bedrock-pending-requests
     - '683040112191340560' # other-pending-requests
     - '692382871578607767' # dungeons-pending-requests
+  requestLimits:
+    - 30 # Limit for # java-requests
+    - 30 # Limit for # bedrock-requests
+    - 45 # Limit for # other-requests
+    - 30 # Limit for # dungeons-requests
   testingRequestChannels:
     - '740188001052917801'
     - '807240396445843516'
