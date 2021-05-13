@@ -90,7 +90,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 		if ( requestLimit && requestLimit >= 0 && internalChannel instanceof TextChannel ) {
 			const internalChannelUserMessages = internalChannel.messages.cache
-				.filter( message => message.embeds[0].author.name == origin.author.tag )
+				.filter( message => message.embeds.length > 0 && message.embeds[0].author.name == origin.author.tag )
 				.filter( message => new Date().valueOf() - message.embeds[0].timestamp.valueOf() <= 86400000 );
 			if ( internalChannelUserMessages.size >= requestLimit ) {
 				try {
