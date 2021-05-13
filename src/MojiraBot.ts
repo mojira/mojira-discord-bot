@@ -1,4 +1,4 @@
-import { ChannelLogsQueryOptions, Client, Intents, Message, TextChannel } from 'discord.js';
+import { ChannelLogsQueryOptions, Client, Intents, Message, MessageReaction, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import { Client as JiraClient } from 'jira.js';
 import BotConfig from './BotConfig';
@@ -116,17 +116,47 @@ export default class MojiraBot {
 							}
 							this.logger.info( `Fetched ${ allMessages.length } messages from "${ internalChannel.name }"` );
 
-							// Resolve pending resolved requests
+							// Resolve pending resolved requests and refresh suggested emojis
 							const handler = new RequestResolveEventHandler( this.client.user.id );
 							for ( const message of allMessages ) {
+								const suggestedEmojis = [];
+								let reactionsSize = message.reactions.cache.size;
 								message.reactions.cache.forEach( async reaction => {
 									const users = await reaction.users.fetch();
 									const user = users.array().find( v => v.id !== this.client.user.id );
+									const bot = users.array().find( v => v.id == this.client.user.id );
 									if ( user ) {
 										try {
 											await handler.onEvent( reaction, user );
 										} catch ( error ) {
 											MojiraBot.logger.error( error );
+										}
+									} else {
+										if ( message.embeds.length == 1 && bot ) {
+											const reactedEmoji = reaction.emoji.toString();
+											if ( !BotConfig.request.suggestedEmoji.includes( reactedEmoji ) ) {
+												try {
+													reactionsSize -= 1;
+													await reaction.users.remove( this.client.user );
+												} catch ( error ) {
+													MojiraBot.logger.error( error );
+												}
+											} else {
+												suggestedEmojis.push( reaction );
+											}
+										}
+									}
+
+									if ( suggestedEmojis.length == reactionsSize ) {
+										if ( message.embeds.length == 1 && suggestedEmojis.length != BotConfig.request.suggestedEmoji.length ) {
+											const missingEmoji = BotConfig.request.suggestedEmoji.filter( e => !suggestedEmojis.includes( e ) );
+											for ( const emoji of missingEmoji ) {
+												try {
+													await message.react( emoji );
+												} catch ( error ) {
+													MojiraBot.logger.error( error );
+												}
+											}
 										}
 									}
 								} );
