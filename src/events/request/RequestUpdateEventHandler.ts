@@ -34,6 +34,7 @@ export default class RequestUpdateEventHandler implements EventHandler<'messageU
 				if ( result.channelId === oldMessage.channel.id && result.messageId === oldMessage.id ) {
 					try {
 						const embed = internalMessage.embeds[0];
+						embed.setAuthor( oldMessage.author.tag, oldMessage.author.avatarURL() );
 						embed.setDescription( RequestsUtil.getRequestDescription( newMessage ) );
 						await internalMessage.edit( embed );
 					} catch ( error ) {
