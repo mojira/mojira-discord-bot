@@ -43,15 +43,8 @@ export default class RequestUnresolveEventHandler implements EventHandler<'messa
 				this.logger.info( `Cleared message task for request message '${ message.id }'` );
 				TaskScheduler.clearMessageTasks( message );
 			}
-		} else if ( BulkCommand.currentBulkReactions.has( user.tag ) ) {
-			const currentMessages = BulkCommand.currentBulkReactions.get( user.tag );
-			for ( let i = 0; i <= currentMessages.length; i++ ) {
-				const currentMessage = currentMessages[i];
-				if ( currentMessage.id === message.id ) {
-					currentMessages.splice( i, 1 );
-					break;
-				}
-			}
+		} else if ( BulkCommand.currentBulkReactions.has( user ) ) {
+			BulkCommand.currentBulkReactions.set( user, BulkCommand.currentBulkReactions.get( user ).filter( stored => stored != message ) );
 		}
 	};
 }

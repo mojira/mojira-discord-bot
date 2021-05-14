@@ -51,14 +51,10 @@ export default class RequestResolveEventHandler implements EventHandler<'message
 				);
 			}
 		} else {
-			try {
-				if ( !BulkCommand.currentBulkReactions.has( user.tag ) ) {
-					BulkCommand.currentBulkReactions.set( user.tag, [ reaction.message ] );
-				} else {
-					BulkCommand.currentBulkReactions.get( user.tag ).push( reaction.message );
-				}
-			} catch ( error ) {
-				this.logger.error( error );
+			if ( !BulkCommand.currentBulkReactions.has( user ) ) {
+				BulkCommand.currentBulkReactions.set( user, [ reaction.message ] );
+			} else {
+				BulkCommand.currentBulkReactions.get( user ).push( reaction.message );
 			}
 		}
 	};

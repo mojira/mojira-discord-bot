@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { Message, MessageReaction, User } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
 import Command from './Command';
 import { RequestsUtil } from '../util/RequestsUtil';
@@ -10,7 +10,7 @@ import MojiraBot from '../MojiraBot';
 export default class BulkCommand extends PrefixCommand {
 	public readonly aliases = ['bulk', 'filter'];
 
-	public static currentBulkReactions = new Map<string, Message[]>();
+	public static currentBulkReactions = new Map<User, Message[]>();
 
 	public async run( message: Message, args: string ): Promise<boolean> {
 		let emoji: string;
@@ -27,46 +27,54 @@ export default class BulkCommand extends PrefixCommand {
 		let firstMentioned: string;
 
 		try {
-			const bulkMessages = BulkCommand.currentBulkReactions.get( message.author.tag );
+			const bulkMessages = BulkCommand.currentBulkReactions.get( message.author );
 			const originMessages: Message[] = [];
 			if ( bulkMessages ) {
 				for ( const bulk of bulkMessages ) {
 					originMessages.push( await RequestsUtil.getOriginMessage( bulk ) );
-					await bulk.reactions.cache.get( BotConfig.request.bulkEmoji ).users.remove( message.author );
+
 					if ( emoji ) {
-						const reaction = await bulk.react( emoji );
-						await new RequestResolveEventHandler( MojiraBot.client.user.id ).onEvent( reaction, message.author );
+						let reaction: MessageReaction;
+						if ( bulk.reactions.cache.has( emoji ) ) {
+							reaction = bulk.reactions.cache.get( emoji );
+						} else {
+							reaction = await bulk.react( emoji );
+						}
+						if ( emoji != BotConfig.request.bulkEmoji ) {
+							await new RequestResolveEventHandler( MojiraBot.client.user.id ).onEvent( reaction, message.author );
+							return true;
+						} else {
+							await bulk.reactions.cache.get( BotConfig.request.bulkEmoji ).users.remove( message.author );
+						}
 					}
 				}
 				originMessages.forEach( origin => ticketKeys.push( ...RequestsUtil.getTickets( origin.content ) ) );
 				firstMentioned = ticketKeys[0];
-				BulkCommand.currentBulkReactions.delete( message.author.tag );
+				if ( emoji == BotConfig.request.bulkEmoji ) { 
+					BulkCommand.currentBulkReactions.delete( message.author );
+					return true;
+				}
 			} else {
 				return false;
 			}
-		} catch {
+		} catch ( err ) {
+			Command.logger.error( err );
 			return false;
 		}
 
 		const filter = `https://bugs.mojang.com/browse/${ firstMentioned }?jql=key%20in(${ ticketKeys.join( '%2C' ) })`;
 
 		try {
-			const filterMessage = await message.channel.send( `${ message.author.toString() } ${ filter }` );
-
-			const timeout = BotConfig.filterRemovalTimeout;
-			if ( timeout ) {
-				await filterMessage.delete( { timeout } );
-			}
-		} catch {
+			await message.channel.send( `${ message.author.toString() } ${ filter }` );
+		} catch ( err ) {
+			Command.logger.error( err );
 			return false;
 		}
 
-		if ( message.deletable ) {
-			try {
-				await message.delete();
-			} catch ( err ) {
-				Command.logger.error( err );
-			}
+		try {
+			await message.react( '✅' );
+		} catch ( err ) {
+			Command.logger.error( err );
 		}
 
 		return true;
