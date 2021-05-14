@@ -6,6 +6,8 @@ logDirectory: logs
 
 ticketUrlsCauseEmbed: false
 
+quotedTicketsCauseEmbed: false
+
 forbiddenTicketPrefix: '!'
 
 requiredTicketPrefix: ''
@@ -14,10 +16,11 @@ filterRemovalTimeout: 300000
 
 embedDeletionEmoji: '🗑️'
 
+maxSearchResults: 5
+
 projects:
   - BDS
   - MC
-  - MCCE
   - MCD
   - MCL
   - MCPE
@@ -44,6 +47,7 @@ request:
   bulkEmoji: 📁
 
   resolveDelay: 10000
+  progressMessageAddDelay: 10000
   prependResponseMessage: whenResolved
   prependResponseMessageInLog: false
 

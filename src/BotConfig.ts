@@ -30,6 +30,7 @@ export class RequestConfig {
 	public ignoreResolutionEmoji: string;
 	public bulkEmoji: string;
 	public resolveDelay: number;
+	public progressMessageAddDelay: number;
 	public prependResponseMessage: PrependResponseMessageType;
 	public prependResponseMessageInLog: boolean;
 	public responseMessage: string;
@@ -55,6 +56,7 @@ export class RequestConfig {
 		this.bulkEmoji = config.get( 'request.bulkEmoji' );
 
 		this.resolveDelay = config.get( 'request.resolveDelay' );
+		this.progressMessageAddDelay = config.get( 'request.progressMessageAddDelay' );
 		this.prependResponseMessage = getOrDefault( 'request.prependResponseMessage', PrependResponseMessageType.Never );
 		this.prependResponseMessageInLog = getOrDefault( 'request.prependResponseMessageInLog', false );
 		this.responseMessage = getOrDefault( 'request.responseMessage', '' );
@@ -109,12 +111,15 @@ export default class BotConfig {
 	public static homeChannel: string;
 
 	public static ticketUrlsCauseEmbed: boolean;
+	public static quotedTicketsCauseEmbed: boolean;
 	public static requiredTicketPrefix: string;
 	public static forbiddenTicketPrefix: string;
 
 	public static filterRemovalTimeout: number;
 
 	public static embedDeletionEmoji: string;
+
+	public static maxSearchResults: number;
 
 	public static projects: string[];
 
@@ -134,6 +139,7 @@ export default class BotConfig {
 
 		this.homeChannel = config.get( 'homeChannel' );
 		this.ticketUrlsCauseEmbed = getOrDefault( 'ticketUrlsCauseEmbed', false );
+		this.quotedTicketsCauseEmbed = getOrDefault( 'quotedTicketsCauseEmbed', false );
 
 		this.forbiddenTicketPrefix = getOrDefault( 'forbiddenTicketPrefix', '' );
 		this.requiredTicketPrefix = getOrDefault( 'requiredTicketPrefix', '' );
@@ -141,6 +147,8 @@ export default class BotConfig {
 		this.filterRemovalTimeout = config.get( 'filterRemovalTimeout' );
 
 		this.embedDeletionEmoji = getOrDefault( 'embedDeletionEmoji', '' );
+
+		this.maxSearchResults = config.get( 'maxSearchResults' );
 
 		this.projects = config.get( 'projects' );
 

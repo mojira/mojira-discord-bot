@@ -24,6 +24,9 @@ homeChannel: <string>
 # Whether the bot should send an embed when a full URL to a ticket gets posted.
 ticketUrlsCauseEmbed: <boolean>
 
+# Whether the bot should send an embed when a ticket gets posted inside of a quote.
+quotedTicketsCauseEmbed: <boolean>
+
 # A prefix that prevents the bot from posting an embed for a mentioned ticket.
 # If this prefix is longer than 1, none of the characters can be used.
 # When omitted or empty, no prefix prevents embeds.
@@ -39,6 +42,9 @@ filterRemovalTimeout: <number>
 
 # An emoji or emoji ID which, when reacted to a bot embed, deletes it.
 embedDeletionEmoji: <string>
+
+# The maximum number of results returned by the jira search command.
+maxSearchResults: <number>
 
 # The projects the bot should be able to find tickets for.
 projects:
@@ -108,6 +114,9 @@ request:
 
   # The amount of time in milliseconds between a volunteer reacts to the message and the bot deletes its message.
   resolveDelay: <number>
+
+  # The amount of time in milliseconds between a volunteer sends a message and the bot deletes the message and adds it to the internal request.
+  progressMessageAddDelay: <number>
 
   # If and when the message defined in `responseMessage` should be added to an entry in the internal requests channel.
   # Optional; never by default.

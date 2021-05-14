@@ -117,6 +117,20 @@ filterFeeds:
     titleSingle: This ticket has just been confirmed!
 
 versionFeeds:
+  #version-feed-test
+  - projects:
+      - MC
+    channel: '816267831993040926'
+    publish: true
+    interval: 30000
+    scope: 5
+    versionFeedEmoji: '🎉'
+    actions:
+      - released
+      - unreleased
+      - renamed
+
+    #feed-test
   - projects:
       - MC
       - MCD

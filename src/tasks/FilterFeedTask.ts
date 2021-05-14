@@ -8,7 +8,6 @@ import MojiraBot from '../MojiraBot';
 
 export default class FilterFeedTask extends Task {
 	private static logger = log4js.getLogger( 'FilterFeedTask' );
-	private static maxId = 0;
 
 	private channel: Channel;
 	private jql: string;
@@ -19,14 +18,8 @@ export default class FilterFeedTask extends Task {
 
 	private knownTickets = new Set<string>();
 
-	private initialized = false;
-	private id = 0;
-
 	constructor( feedConfig: FilterFeedConfig, channel: Channel ) {
 		super();
-
-		this.id = FilterFeedTask.maxId++;
-		FilterFeedTask.logger.debug( `Initializing filter feed task ${ this.id } with settings ${ JSON.stringify( feedConfig ) }` );
 
 		this.channel = channel;
 		this.jql = feedConfig.jql;
@@ -34,24 +27,26 @@ export default class FilterFeedTask extends Task {
 		this.title = feedConfig.title;
 		this.titleSingle = feedConfig.titleSingle || feedConfig.title.replace( /\{\{num\}\}/g, '1' );
 		this.publish = feedConfig.publish ?? false;
-
-		this.run().then(
-			async () => {
-				this.initialized = true;
-				FilterFeedTask.logger.debug( `Filter feed task ${ this.id } has been initialized` );
-
-				await this.run();
-			}
-		).catch( FilterFeedTask.logger.error );
 	}
 
-	public async run(): Promise<void> {
-		if ( !this.initialized ) {
-			FilterFeedTask.logger.debug( `Filter feed task ${ this.id } was run but did not execute because it has not been initialized yet` );
+	protected async init(): Promise<void> {
+		const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
+			jql: this.jql,
+			fields: ['key'],
+		} );
+
+		if ( searchResults.issues ) {
+			for ( const result of searchResults.issues ) {
+				this.knownTickets.add( result.key );
+			}
+		}
+	}
+
+	protected async run(): Promise<void> {
+		if ( !( this.channel instanceof TextChannel ) ) {
+			FilterFeedTask.logger.error( `[${ this.id }] Expected ${ this.channel } to be a TextChannel` );
 			return;
 		}
-
-		FilterFeedTask.logger.debug( `Running filter feed task ${ this.id }` );
 
 		let upcomingTickets: string[];
 
@@ -62,13 +57,13 @@ export default class FilterFeedTask extends Task {
 			} );
 
 			if ( !searchResults.issues ) {
-				FilterFeedTask.logger.error( 'Error: no issues returned by JIRA' );
+				FilterFeedTask.logger.error( `[${ this.id }] Error: no issues returned by JIRA` );
 				return;
 			}
 
 			upcomingTickets = searchResults.issues.map( ( { key } ) => key );
 		} catch ( err ) {
-			FilterFeedTask.logger.error( err );
+			FilterFeedTask.logger.error( `[${ this.id }] Error when searching for issues`, err );
 			return;
 		}
 
@@ -88,32 +83,28 @@ export default class FilterFeedTask extends Task {
 					message = this.titleSingle;
 				}
 
-				if ( this.channel instanceof TextChannel ) {
-					try {
-						const filterFeedMessage = await this.channel.send( message, embed );
+				const filterFeedMessage = await this.channel.send( message, embed );
 
-						if ( this.publish ) {
-							await NewsUtil.publishMessage( filterFeedMessage );
-						}
-
-						if ( this.filterFeedEmoji !== undefined ) {
-							await filterFeedMessage.react( this.filterFeedEmoji );
-						}
-					} catch ( error ) {
-						FilterFeedTask.logger.error( error );
-					}
-				} else {
-					throw new Error( `Expected ${ this.channel } to be a TextChannel` );
+				if ( this.publish ) {
+					await NewsUtil.publishMessage( filterFeedMessage );
 				}
-			} catch ( err ) {
-				FilterFeedTask.logger.error( err );
+
+				if ( this.filterFeedEmoji !== undefined ) {
+					await filterFeedMessage.react( this.filterFeedEmoji );
+				}
+			} catch ( error ) {
+				FilterFeedTask.logger.error( `[${ this.id }] Could not send Discord message`, error );
 				return;
 			}
 		}
 
 		for ( const ticket of unknownTickets ) {
 			this.knownTickets.add( ticket );
-			FilterFeedTask.logger.debug( `Added ${ ticket } to known tickets for filter feed task ${ this.id }` );
+			FilterFeedTask.logger.debug( `[${ this.id }] Added ${ ticket } to known tickets for filter feed task ${ this.id }` );
 		}
+	}
+
+	public asString(): string {
+		return `FilterFeedTask[#${ this.id }]`;
 	}
 }
