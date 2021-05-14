@@ -133,7 +133,7 @@ export default class MojiraBot {
 										}
 									} else {
 										if ( message.embeds.length == 1 && bot ) {
-											const reactedEmoji = reaction.emoji.toString();
+											const reactedEmoji = reaction.emoji.name;
 											if ( !BotConfig.request.suggestedEmoji.includes( reactedEmoji ) ) {
 												try {
 													reactionsSize -= 1;
