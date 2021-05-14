@@ -50,7 +50,7 @@ export default class BulkCommand extends PrefixCommand {
 				}
 				originMessages.forEach( origin => ticketKeys.push( ...RequestsUtil.getTickets( origin.content ) ) );
 				firstMentioned = ticketKeys[0];
-				if ( emoji == BotConfig.request.bulkEmoji ) { 
+				if ( emoji == BotConfig.request.bulkEmoji ) {
 					BulkCommand.currentBulkReactions.delete( message.author );
 					return true;
 				}

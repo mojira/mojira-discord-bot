@@ -82,7 +82,7 @@ export class RequestsUtil {
 			ticketMatches.push( ticketMatch[1] );
 		}
 		return ticketMatches;
-  }
+	}
 
 	// https://stackoverflow.com/a/3426956
 	private static hashCode( str: string ): number {
