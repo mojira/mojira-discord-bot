@@ -12,6 +12,8 @@ forbiddenTicketPrefix: '!'
 
 requiredTicketPrefix: ''
 
+filterRemovalTimeout: 300000
+
 embedDeletionEmoji: '🗑️'
 
 maxSearchResults: 5
@@ -38,9 +40,11 @@ request:
     - ☑️
     - ❌
     - 💬
+    - 📁
 
   ignorePrependResponseMessageEmoji: ✅
   ignoreResolutionEmoji: 💬
+  bulkEmoji: 📁
 
   resolveDelay: 10000
   progressMessageAddDelay: 10000

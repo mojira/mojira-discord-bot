@@ -1,13 +1,12 @@
 import PrefixCommand from './PrefixCommand';
 import { Message, TextChannel, DMChannel, MessageEmbed, NewsChannel } from 'discord.js';
 import Command from './Command';
-import emojiRegex = require( 'emoji-regex/text.js' );
+import { EmojiUtil } from '../util/EmojiUtil';
 import PermissionRegistry from '../permissions/PermissionRegistry';
 import { ReactionsUtil } from '../util/ReactionsUtil';
 
 interface PollOption {
 	emoji: string;
-	emojiName?: string;
 	rawEmoji: string;
 	text: string;
 }
@@ -103,26 +102,16 @@ export default class PollCommand extends PrefixCommand {
 
 			const optionArgs = /^\s*(\S+)\s+(.+)\s*$/.exec( option );
 
-			const customEmoji = /^<a?:(\w+):(\d+)>/;
-			const unicodeEmoji = emojiRegex();
-
 			if ( !optionArgs ) {
 				await this.sendSyntaxMessage( message.channel, 'Invalid options' );
 				return false;
 			}
 
 			const emoji = optionArgs[1];
-			if ( customEmoji.test( emoji ) || unicodeEmoji.test( emoji ) ) {
-				let emojiName = emoji;
-				let rawEmoji = emoji;
-				const emojiMatch = customEmoji.exec( emoji );
-				if ( emojiMatch ) {
-					emojiName = emojiMatch[1];
-					rawEmoji = emojiMatch[2];
-				}
+			const rawEmoji = EmojiUtil.getEmoji( emoji );
+			if ( rawEmoji ) {
 				options.push( {
 					emoji: emoji,
-					emojiName: emojiName,
 					rawEmoji: rawEmoji,
 					text: optionArgs[2],
 				} );

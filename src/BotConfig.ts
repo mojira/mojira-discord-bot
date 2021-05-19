@@ -28,6 +28,7 @@ export class RequestConfig {
 	public suggestedEmoji: string[];
 	public ignorePrependResponseMessageEmoji: string;
 	public ignoreResolutionEmoji: string;
+	public bulkEmoji: string;
 	public resolveDelay: number;
 	public progressMessageAddDelay: number;
 	public prependResponseMessage: PrependResponseMessageType;
@@ -52,6 +53,7 @@ export class RequestConfig {
 		this.suggestedEmoji = getOrDefault( 'request.suggestedEmoji', [] );
 		this.ignorePrependResponseMessageEmoji = config.get( 'request.ignorePrependResponseMessageEmoji' );
 		this.ignoreResolutionEmoji = config.get( 'request.ignoreResolutionEmoji' );
+		this.bulkEmoji = config.get( 'request.bulkEmoji' );
 
 		this.resolveDelay = config.get( 'request.resolveDelay' );
 		this.progressMessageAddDelay = config.get( 'request.progressMessageAddDelay' );
@@ -113,6 +115,8 @@ export default class BotConfig {
 	public static requiredTicketPrefix: string;
 	public static forbiddenTicketPrefix: string;
 
+	public static filterRemovalTimeout: number;
+
 	public static embedDeletionEmoji: string;
 
 	public static maxSearchResults: number;
@@ -139,6 +143,8 @@ export default class BotConfig {
 
 		this.forbiddenTicketPrefix = getOrDefault( 'forbiddenTicketPrefix', '' );
 		this.requiredTicketPrefix = getOrDefault( 'requiredTicketPrefix', '' );
+
+		this.filterRemovalTimeout = config.get( 'filterRemovalTimeout' );
 
 		this.embedDeletionEmoji = getOrDefault( 'embedDeletionEmoji', '' );
 

@@ -4,17 +4,20 @@ import DiscordUtil from '../util/DiscordUtil';
 import { RequestsUtil } from '../util/RequestsUtil';
 import MessageTask from './MessageTask';
 import * as log4js from 'log4js';
+import BulkCommand from '../commands/BulkCommand';
 
 export default class ResolveRequestMessageTask extends MessageTask {
 	private static logger = log4js.getLogger( 'ResolveRequestMessageTask' );
 
 	private readonly emoji: EmojiResolvable;
 	private readonly user: User;
+	private readonly botUserId: string;
 
-	constructor( emoji: EmojiResolvable, user: User ) {
+	constructor( emoji: EmojiResolvable, user: User, botUserId: string ) {
 		super();
 		this.emoji = emoji;
 		this.user = user;
+		this.botUserId = botUserId;
 	}
 
 	public async run( copy: Message ): Promise<void> {
@@ -33,6 +36,16 @@ export default class ResolveRequestMessageTask extends MessageTask {
 
 		if ( origin ) {
 			try {
+				await origin.reactions.cache.forEach( async reaction => {
+					if ( reaction.emoji.name == BotConfig.request.bulkEmoji ) {
+						const users = await reaction.users.fetch();
+						users.forEach( user => {
+							if ( user.id != this.botUserId ) {
+								BulkCommand.currentBulkReactions.set( user, BulkCommand.currentBulkReactions.get( user ).filter( message => origin != message ) );
+							}
+						} );
+					}
+				} );
 				await origin.reactions.removeAll();
 			} catch ( error ) {
 				ResolveRequestMessageTask.logger.error( error );

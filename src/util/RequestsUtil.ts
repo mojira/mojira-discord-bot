@@ -1,8 +1,8 @@
 import { EmbedField, Message, TextChannel, User } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from '../BotConfig';
-import DiscordUtil from './DiscordUtil';
 import MentionCommand from '../commands/MentionCommand';
+import DiscordUtil from './DiscordUtil';
 import MojiraBot from '../MojiraBot';
 
 interface OriginIds {
@@ -72,6 +72,16 @@ export class RequestsUtil {
 			.replace( '{{author}}', `@${ message.author.tag }` )
 			.replace( '{{url}}', message.url )
 			.replace( '{{message}}', message.content.replace( /(^|\n)/g, '$1> ' ) );
+	}
+
+	public static getTickets( content: string ): string[] {
+		let ticketMatch: RegExpExecArray;
+		const regex = MentionCommand.getTicketIdRegex();
+		const ticketMatches: string[] = [];
+		while ( ( ticketMatch = regex.exec( content ) ) !== null ) {
+			ticketMatches.push( ticketMatch[1] );
+		}
+		return ticketMatches;
 	}
 
 	// https://stackoverflow.com/a/3426956

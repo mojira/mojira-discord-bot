@@ -1,6 +1,7 @@
 import { MessageReaction, User } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
+import BulkCommand from '../../commands/BulkCommand';
 import TaskScheduler from '../../tasks/TaskScheduler';
 import DiscordUtil from '../../util/DiscordUtil';
 import { RequestsUtil } from '../../util/RequestsUtil';
@@ -28,19 +29,22 @@ export default class RequestUnresolveEventHandler implements EventHandler<'messa
 
 		this.logger.info( `User ${ user.tag } removed '${ emoji.name }' reaction from request message '${ message.id }'` );
 
-		await message.edit( message.embeds[0].setColor( RequestsUtil.getEmbedColor() ) );
-
-		if ( BotConfig.request.prependResponseMessage == PrependResponseMessageType.WhenResolved ) {
-			try {
-				await message.edit( '' );
-			} catch ( error ) {
-				this.logger.error( error );
+		if ( BotConfig.request.bulkEmoji !== emoji.name ) {
+			await message.edit( message.embeds[0].setColor( RequestsUtil.getEmbedColor() ) );
+			if ( BotConfig.request.prependResponseMessage == PrependResponseMessageType.WhenResolved ) {
+				try {
+					await message.edit( '' );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
 			}
-		}
 
-		if ( message.reactions.cache.size <= BotConfig.request.suggestedEmoji.length ) {
-			this.logger.info( `Cleared message task for request message '${ message.id }'` );
-			TaskScheduler.clearMessageTasks( message );
+			if ( message.reactions.cache.size <= BotConfig.request.suggestedEmoji.length ) {
+				this.logger.info( `Cleared message task for request message '${ message.id }'` );
+				TaskScheduler.clearMessageTasks( message );
+			}
+		} else if ( BulkCommand.currentBulkReactions.has( user ) ) {
+			BulkCommand.currentBulkReactions.set( user, BulkCommand.currentBulkReactions.get( user ).filter( stored => stored != message ) );
 		}
 	};
 }

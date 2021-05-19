@@ -37,6 +37,9 @@ forbiddenTicketPrefix: <string>
 # When omitted or empty, no prefix is required for posting embeds.
 requiredTicketPrefix: <string>
 
+# The time (in milliseconds) the bot will wait before removing a '!jira bulk' filter
+filterRemovalTimeout: <number>
+
 # An emoji or emoji ID which, when reacted to a bot embed, deletes it.
 embedDeletionEmoji: <string>
 
@@ -105,6 +108,9 @@ request:
   
   # An emoji or emoji ID which, when used, doesn't trigger the response template message.
   ignorePrependResponseMessageEmoji: <string>
+
+  # An emoji or emoji ID which indicates a request message to be added to a bulk action.
+  bulkEmoji: <string>
 
   # The amount of time in milliseconds between a volunteer reacts to the message and the bot deletes its message.
   resolveDelay: <number>
