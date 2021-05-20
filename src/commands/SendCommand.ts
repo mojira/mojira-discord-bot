@@ -3,7 +3,7 @@ import PrefixCommand from './PrefixCommand';
 import PermissionRegistry from '../permissions/PermissionRegistry';
 import Command from './Command';
 
-export default class ShutdownCommand extends PrefixCommand {
+export default class SendCommand extends PrefixCommand {
 	public readonly permissionLevel = PermissionRegistry.OWNER_PERMISSION;
 
 	public readonly aliases = ['send', 'message'];
