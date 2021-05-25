@@ -43,6 +43,9 @@ embedDeletionEmoji: <string>
 # The maximum number of results returned by the jira search command.
 maxSearchResults: <number>
 
+# The ticket ID in which users can leave a special token on to verify and link their Discord and Jira accounts
+verificationTicket: <string>
+
 # The projects the bot should be able to find tickets for.
 projects:
   - <string>

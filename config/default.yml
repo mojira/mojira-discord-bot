@@ -16,6 +16,9 @@ embedDeletionEmoji: '🗑️'
 
 maxSearchResults: 5
 
+verificationTicket: MC-194393
+# WEB-XXXX
+
 projects:
   - BDS
   - MC

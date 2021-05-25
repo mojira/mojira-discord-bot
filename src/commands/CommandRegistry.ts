@@ -8,6 +8,7 @@ import SendCommand from './SendCommand';
 import SearchCommand from './SearchCommand';
 import ShutdownCommand from './ShutdownCommand';
 import TipsCommand from './TipsCommand';
+import VerifyCommand from './VerifyCommand';
 
 export default class CommandRegistry {
 	public static BUG_COMMAND = new BugCommand();
@@ -20,4 +21,5 @@ export default class CommandRegistry {
 	public static SEARCH_COMMAND = new SearchCommand();
 	public static SHUTDOWN_COMMAND = new ShutdownCommand();
 	public static TIPS_COMMAND = new TipsCommand();
+	public static VERIFY_COMMAND = new VerifyCommand();
 }
