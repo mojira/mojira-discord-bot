@@ -43,9 +43,6 @@ embedDeletionEmoji: <string>
 # The maximum number of results returned by the jira search command.
 maxSearchResults: <number>
 
-# The ticket ID in which users can leave a special token on to verify and link their Discord and Jira accounts
-verificationTicket: <string>
-
 # The projects the bot should be able to find tickets for.
 projects:
   - <string>
@@ -225,3 +222,18 @@ versionFeeds:
   
   - <see above>
   - ...
+
+# The ticket ID in which users can leave a special token on to verify and link their Discord and Jira accounts.
+verificationTicket: <string>
+
+# The channel that holds the pending verification request information.
+pendingVerificationChannel: <string>
+
+# The channel that holds the linked account information after accounts have been linked.
+verificationLogChannel: <string>
+
+# The role that is given to verified users.
+verifiedRole: <string>
+
+# The amount of time that a verification request can remain open until it expires, in milliseconds.
+verificationInvalidationTime: <number>

@@ -114,3 +114,9 @@ versionFeeds:
       - released
       - unreleased
       - renamed
+
+verificationTicket: '' # Add a Mojira ticket ID here!
+pendingVerificationChannel: '' # Add a pending channel here!
+verificationLogChannel: '' # Add a log channel here!
+verifiedRole: '' # Add a role here!
+verificationInvalidationTime: 900000

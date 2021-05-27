@@ -118,6 +118,10 @@ export default class BotConfig {
 	public static maxSearchResults: number;
 
 	public static verificationTicket: string;
+	public static pendingVerificationChannel: string;
+	public static verificationLogChannel: string;
+	public static verifiedRole: string;
+	public static verificationInvalidationTime: number;
 
 	public static projects: string[];
 
@@ -147,6 +151,10 @@ export default class BotConfig {
 		this.maxSearchResults = config.get( 'maxSearchResults' );
 
 		this.verificationTicket = config.get( 'verificationTicket' );
+		this.pendingVerificationChannel = config.get( 'pendingVerificationChannel' );
+		this.verificationLogChannel = config.get( 'verificationLogChannel' )
+		this.verifiedRole = config.get( 'verifiedRole' )
+		this.verificationInvalidationTime = config.get( 'verificationInvalidationTime' )
 
 		this.projects = config.get( 'projects' );
 
