@@ -20,7 +20,7 @@ export default class VerifyCommand extends PrefixCommand {
 
 			let foundUser = false;
 
-			const allMessages = await pendingChannel.messages.fetch( { limit: 100 } );
+			const allMessages = pendingChannel.messages.cache;
 
 			allMessages.forEach( async thisMessage => {
 				if ( thisMessage.embeds === undefined ) return undefined;

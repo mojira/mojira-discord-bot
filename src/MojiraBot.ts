@@ -86,6 +86,30 @@ export default class MojiraBot {
 			const requestChannels: TextChannel[] = [];
 			const internalChannels = new Map<string, string>();
 
+			if ( BotConfig.verification.pendingVerificationChannel ) {
+				const pendingChannel = await DiscordUtil.getChannel( BotConfig.verification.pendingVerificationChannel );
+				if ( pendingChannel instanceof TextChannel ) {
+					// https://stackoverflow.com/questions/55153125/fetch-more-than-100-messages
+					const allMessages: Message[] = [];
+					let lastId: string | undefined;
+					let continueSearch = true;
+
+					while ( continueSearch ) {
+						const options: ChannelLogsQueryOptions = { limit: 50 };
+						if ( lastId ) {
+							options.before = lastId;
+						}
+						const messages = await pendingChannel.messages.fetch( options );
+						allMessages.push( ...messages.array() );
+						lastId = messages.last()?.id;
+						if ( messages.size !== 50 || !lastId ) {
+							continueSearch = false;
+						}
+					}
+					this.logger.info( `Fetched ${ allMessages.length } messages from "${ pendingChannel.name }"` );
+				}
+			}
+
 			if ( BotConfig.request.channels ) {
 				for ( let i = 0; i < BotConfig.request.channels.length; i++ ) {
 					const requestChannelId = BotConfig.request.channels[i];
