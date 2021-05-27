@@ -17,38 +17,38 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
             return;
         }
 
-        const username = args[1]
+        const username = args[1];
 
         try {
             const allComments = new Map<string, string>();
-			const comments = await MojiraBot.jira.issueComments.getComments( { issueIdOrKey: BotConfig.verificationTicket } );
+			const comments = await MojiraBot.jira.issueComments.getComments( { issueIdOrKey: BotConfig.verification.verificationTicket } );
             for ( const comment of comments.comments ) {
 				allComments.set( comment.author.name, comment.body );
 			}
 
-            const pendingChannel = await DiscordUtil.getChannel( BotConfig.pendingVerificationChannel );
-            const logChannel = await DiscordUtil.getChannel( BotConfig.verificationLogChannel );
+            const pendingChannel = await DiscordUtil.getChannel( BotConfig.verification.pendingVerificationChannel );
+            const logChannel = await DiscordUtil.getChannel( BotConfig.verification.verificationLogChannel );
 
-            if (pendingChannel instanceof TextChannel && logChannel instanceof TextChannel) {
+            if ( pendingChannel instanceof TextChannel && logChannel instanceof TextChannel ) {
 
-                let foundEmbed = false
+                let foundEmbed = false;
 
-                const allMessages = await pendingChannel.messages.fetch({ limit: 100 })
+                const allMessages = await pendingChannel.messages.fetch( { limit: 100 } );
 
                 allMessages.forEach( async message => {
 
-                    const embeds = message.embeds
+                    const embeds = message.embeds;
                     if ( embeds.length == 0 ) return undefined;
 
-                    const userId = embeds[0].fields[0].value.replace(/[<>@!]/g, "")
+                    const userId = embeds[0].fields[0].value.replace(/[<>@!]/g, "");
                     if ( userId !== origin.author.id ) return false;
 
-                    const enteredComment = allComments.get( username )
+                    const enteredComment = allComments.get( username );
 
-                    if ( enteredComment === embeds[0].fields[1].value ) {
+                    if ( enteredComment == embeds[0].fields[1].value ) {
 
-                        this.logger.info( `Successfully verified user ${ origin.author.tag }` )
-                        foundEmbed = true
+                        this.logger.info( `Successfully verified user ${ origin.author.tag }` );
+                        foundEmbed = true;
 
                         if ( message.deletable ) {
                             try {
@@ -74,11 +74,11 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
                         await origin.author.send( userEmbed );
 
                         try {
-                            const role = await logChannel.guild.roles.fetch( BotConfig.verifiedRole );
-                            const targetUser = message.guild.members.fetch( origin.author.id );
+                            const role = await logChannel.guild.roles.fetch( BotConfig.verification.verifiedRole );
+                            const targetUser = await message.guild.members.fetch( origin.author.id );
 
-                            (await targetUser).roles.add( role );
-                            this.logger.info( `Added role ${ BotConfig.verifiedRole } to user ${ origin.author.tag }` )
+                            targetUser.roles.add( role );
+                            this.logger.info( `Added role ${ BotConfig.verification.verifiedRole } to user ${ origin.author.tag }` )
                         } catch ( error ) {
                             this.logger.error( error )
                         }

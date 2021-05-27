@@ -223,17 +223,19 @@ versionFeeds:
   - <see above>
   - ...
 
-# The ticket ID in which users can leave a special token on to verify and link their Discord and Jira accounts.
-verificationTicket: <string>
+# Settings for user verification on Jira.
+verification:
+  # The ticket ID in which users can leave a special token on to verify and link their Discord and Jira accounts.
+  verificationTicket: <string>
 
-# The channel that holds the pending verification request information.
-pendingVerificationChannel: <string>
+  # The channel that holds the pending verification request information.
+  pendingVerificationChannel: <string>
 
-# The channel that holds the linked account information after accounts have been linked.
-verificationLogChannel: <string>
+  # The channel that holds the linked account information after accounts have been linked.
+  verificationLogChannel: <string>
 
-# The role that is given to verified users.
-verifiedRole: <string>
+  # The role that is given to verified users.
+  verifiedRole: <string>
 
-# The amount of time that a verification request can remain open until it expires, in milliseconds.
-verificationInvalidationTime: <number>
+  # The amount of time that a verification request can remain open until it expires, in milliseconds.
+  verificationInvalidationTime: <number>

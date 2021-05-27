@@ -61,6 +61,22 @@ export class RequestConfig {
 	}
 }
 
+export class VerificationConfig {
+	public verificationTicket: string;
+	public pendingVerificationChannel: string;
+	public verificationLogChannel: string;
+	public verifiedRole: string;
+	public verificationInvalidationTime: number;
+
+	constructor() {
+		this.verificationTicket = config.get( 'verification.verificationTicket' );
+		this.pendingVerificationChannel = config.get( 'verification.pendingVerificationChannel' );
+		this.verificationLogChannel = config.get( 'verification.verificationLogChannel' )
+		this.verifiedRole = config.get( 'verification.verifiedRole' )
+		this.verificationInvalidationTime = config.get( 'verification.verificationInvalidationTime' )
+	}
+}
+
 export interface RoleConfig {
 	emoji: string;
 	title: string;
@@ -117,15 +133,11 @@ export default class BotConfig {
 
 	public static maxSearchResults: number;
 
-	public static verificationTicket: string;
-	public static pendingVerificationChannel: string;
-	public static verificationLogChannel: string;
-	public static verifiedRole: string;
-	public static verificationInvalidationTime: number;
-
 	public static projects: string[];
 
 	public static request: RequestConfig;
+
+	public static verification: VerificationConfig;
 
 	public static roleGroups: RoleGroupConfig[];
 
@@ -150,11 +162,7 @@ export default class BotConfig {
 
 		this.maxSearchResults = config.get( 'maxSearchResults' );
 
-		this.verificationTicket = config.get( 'verificationTicket' );
-		this.pendingVerificationChannel = config.get( 'pendingVerificationChannel' );
-		this.verificationLogChannel = config.get( 'verificationLogChannel' )
-		this.verifiedRole = config.get( 'verifiedRole' )
-		this.verificationInvalidationTime = config.get( 'verificationInvalidationTime' )
+		this.verification = new VerificationConfig();
 
 		this.projects = config.get( 'projects' );
 

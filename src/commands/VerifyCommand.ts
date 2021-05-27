@@ -14,7 +14,7 @@ export default class VerifyCommand extends PrefixCommand {
 			return false;
 		}
 
-		const pendingChannel = await DiscordUtil.getChannel( BotConfig.pendingVerificationChannel );
+		const pendingChannel = await DiscordUtil.getChannel( BotConfig.verification.pendingVerificationChannel );
 
 		if ( pendingChannel instanceof TextChannel ) {
 
@@ -24,16 +24,16 @@ export default class VerifyCommand extends PrefixCommand {
 
 			allMessages.forEach( async thisMessage => {
 				if ( thisMessage.embeds === undefined ) return undefined;
-				if ( thisMessage.embeds[0].fields[0].value.replace( /[<>@!]/g, '' ) === message.author.id ) {
+				if ( thisMessage.embeds[0].fields[0].value.replace( /[<>@!]/g, '' ) == message.author.id ) {
 					foundUser = true;
 				}
 			} );
 
 			try {
-				const role = await pendingChannel.guild.roles.fetch( BotConfig.verifiedRole );
-				const targetUser = message.guild.members.fetch( message.author.id );
+				const role = await pendingChannel.guild.roles.fetch( BotConfig.verification.verifiedRole );
+				const targetUser = await message.guild.members.fetch( message.author.id );
 
-				if ( ( await targetUser ).roles.cache.has( role.id ) ) {
+				if ( targetUser.roles.cache.has( role.id ) ) {
 					await message.channel.send( `${ message.author }, your account has already been verified!` );
 					await message.react( '❌' );
 					return false;
@@ -54,7 +54,7 @@ export default class VerifyCommand extends PrefixCommand {
 			const token = this.randomString( 15, '23456789abcdeghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ' );
 
 			const userEmbed = new MessageEmbed()
-				.setDescription( `In order to verify, please comment the following token on the ticket [${ BotConfig.verificationTicket }](https://bugs.mojang.com/browse/${ BotConfig.verificationTicket }) using your Jira account. Make sure you only have added one comment to the ticket!\n\nToken: **${ token }**` );
+				.setDescription( `In order to verify, please comment the following token on the ticket [${ BotConfig.verification.verificationTicket }](https://bugs.mojang.com/browse/${ BotConfig.verification.verificationTicket }) using your Jira account. Make sure you only have added one comment to the ticket!\nAfter you are done, please send \`link <jira-username>\` here and I will verify the account!\n\nToken: **${ token }**` );
 
 			await message.author.send( userEmbed );
 
@@ -67,13 +67,13 @@ export default class VerifyCommand extends PrefixCommand {
 					.addField( 'Token', token, true )
 					.setTimestamp( new Date() );
 
-				const internalEmbed = await pendingChannel.send( pendingEmbed ) as Message;
+				const internalEmbed = await pendingChannel.send( pendingEmbed );
 
 				try {
 					TaskScheduler.addOneTimeMessageTask(
 						internalEmbed,
 						new RemovePendingVerificationTask(),
-						BotConfig.verificationInvalidationTime
+						BotConfig.verification.verificationInvalidationTime
 					);
 				} catch ( error ) {
 					Command.logger.error( error );
