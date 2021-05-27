@@ -44,17 +44,17 @@ export default class VerifyCommand extends PrefixCommand {
 
 			if ( foundUser ) {
 				await message.channel.send( `${ message.author }, you already have a pending verification request!` );
-				await message.react( '❌' )
+				await message.react( '❌' );
 				return false;
 			}
 
 		}
 
 		try {
-			const userEmbed = new MessageEmbed();
 			const token = this.randomString( 15, '23456789abcdeghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ' );
 
-			userEmbed.setDescription( `In order to verify, please comment the following token on the ticket [${ BotConfig.verificationTicket }](https://bugs.mojang.com/browse/${ BotConfig.verificationTicket }) using your Jira account. Make sure you only have added one comment to the ticket!\n\nToken: **${ token }**` );
+			const userEmbed = new MessageEmbed()
+				.setDescription( `In order to verify, please comment the following token on the ticket [${ BotConfig.verificationTicket }](https://bugs.mojang.com/browse/${ BotConfig.verificationTicket }) using your Jira account. Make sure you only have added one comment to the ticket!\n\nToken: **${ token }**` );
 
 			message.author.send( userEmbed );
 
@@ -90,8 +90,8 @@ export default class VerifyCommand extends PrefixCommand {
 
 	// https://stackoverflow.com/questions/10726909/random-alpha-numeric-string-in-javascript
 	private randomString( length: number, chars: string ): string {
-		var result = '';
-		for ( var i = length; i > 0; --i ) result += chars[Math.floor( Math.random() * chars.length )];
+		let result = '';
+		for ( let i = length; i > 0; --i ) result += chars[Math.floor( Math.random() * chars.length )];
 		return result;
 	}
 
