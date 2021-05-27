@@ -1,4 +1,4 @@
-import { Guild, Message, MessageEmbed, TextChannel } from 'discord.js';
+import { Message, MessageEmbed, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from '../../BotConfig';
 import EventHandler from '../EventHandler';
@@ -49,7 +49,7 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
 
                         this.logger.info( `Successfully verified user ${ origin.author.tag }` )
                         foundEmbed = true
-                        
+
                         if ( message.deletable ) {
                             try {
                                 await message.delete();
@@ -65,18 +65,18 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
                             .setAuthor( origin.author.tag, origin.author.avatarURL() )
                             .addField( 'Discord', origin.author, true )
                             .addField( 'Mojira', `[${ username }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ username })`, true );
-                        logChannel.send( logEmbed );
+                        await logChannel.send( logEmbed );
 
                         const userEmbed = new MessageEmbed()
                             .setColor( 'GREEN' )
                             .setTitle( 'Your account has been verified!' )
                             .setDescription( 'You have successfully linked your Mojira and Discord accounts.' );
-                        origin.author.send( userEmbed );
+                        await origin.author.send( userEmbed );
 
                         try {
                             const role = await logChannel.guild.roles.fetch( BotConfig.verifiedRole );
                             const targetUser = message.guild.members.fetch( origin.author.id );
-                            
+
                             (await targetUser).roles.add( role );
                             this.logger.info( `Added role ${ BotConfig.verifiedRole } to user ${ origin.author.tag }` )
                         } catch ( error ) {
@@ -86,7 +86,7 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
                     } else {
                         this.logger.info( `Failed to verify user ${ origin.author.tag }: Not a match` )
                         try {
-                        origin.author.send( `Failed to verify your account!` )
+                            await origin.author.send( `Failed to verify your account!` )
                         } catch ( error ) {
                             this.logger.error( error )
                         }
@@ -96,15 +96,12 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
 
                 if ( !foundEmbed ) {
                     try {
-                        origin.author.send( 'Failed to verify your account! Did you send `jira verify` first?' )
+                        await origin.author.send( 'Failed to verify your account! Did you send `jira verify` first?' )
                     } catch ( error ) {
                         this.logger.error( error )
                     }
                 }
-
             }
-
-
         } catch ( error ) {
 			this.logger.error( error );
 		}

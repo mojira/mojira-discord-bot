@@ -56,7 +56,7 @@ export default class VerifyCommand extends PrefixCommand {
 			const userEmbed = new MessageEmbed()
 				.setDescription( `In order to verify, please comment the following token on the ticket [${ BotConfig.verificationTicket }](https://bugs.mojang.com/browse/${ BotConfig.verificationTicket }) using your Jira account. Make sure you only have added one comment to the ticket!\n\nToken: **${ token }**` );
 
-			message.author.send( userEmbed );
+			await message.author.send( userEmbed );
 
 			if ( pendingChannel instanceof TextChannel ) {
 
