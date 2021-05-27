@@ -82,7 +82,7 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
                         } catch ( error ) {
                             this.logger.error( error )
                         }
-                        
+
                     } else {
                         this.logger.info( `Failed to verify user ${ origin.author.tag }: Not a match` )
                         try {

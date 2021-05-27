@@ -80,10 +80,10 @@ export default class VerifyCommand extends PrefixCommand {
 				}
 			}
 
-			message.react( '✅' )
+			await message.react( '✅' );
 
 		} catch ( error ) {
-			Command.logger.error( error )
+			Command.logger.error( error );
 		}
 		return true;
 	}
