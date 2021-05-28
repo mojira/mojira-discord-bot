@@ -35,24 +35,24 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
 
 				const allMessages = await pendingChannel.messages.fetch( { limit: 100 } );
 
-				allMessages.forEach( async message => {
+				allMessages.forEach( async thisMessage => {
 
-					const embeds = message.embeds;
+					const embeds = thisMessage.embeds;
 					if ( embeds.length == 0 ) return undefined;
 
 					const userId = embeds[0].fields[0].value.replace( /[<>@!]/g, '' );
 					if ( userId !== origin.author.id ) return false;
 
-					const enteredComment = allComments.get( username );
+					const enteredComment = allComments.get( username ).replace( /\*/g, '' );
 
 					if ( enteredComment == embeds[0].fields[1].value ) {
 
 						this.logger.info( `Successfully verified user ${ origin.author.tag }` );
 						foundEmbed = true;
 
-						if ( message.deletable ) {
+						if ( thisMessage.deletable ) {
 							try {
-								await message.delete();
+								await thisMessage.delete();
 							} catch ( error ) {
 								this.logger.error( error );
 							}
@@ -76,7 +76,7 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
 
 						try {
 							const role = await logChannel.guild.roles.fetch( BotConfig.verification.verifiedRole );
-							const targetUser = await message.guild.members.fetch( origin.author.id );
+							const targetUser = await thisMessage.guild.members.fetch( thisMessage.author.id );
 
 							await targetUser.roles.add( role );
 							this.logger.info( `Added role ${ BotConfig.verification.verifiedRole } to user ${ origin.author.tag }` );
