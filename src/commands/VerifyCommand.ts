@@ -51,7 +51,7 @@ export default class VerifyCommand extends PrefixCommand {
 		}
 
 		try {
-			const token = this.randomString( 15, '23456789abcdeghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ' );
+			const token = 'DISCORD-VERIFICATION-' + this.randomString( 15, '23456789abcdeghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ' );
 
 			const userEmbed = new MessageEmbed()
 				.setDescription( `In order to verify, please comment the following token on the ticket [${ BotConfig.verification.verificationTicket }](https://bugs.mojang.com/browse/${ BotConfig.verification.verificationTicket }) using your Jira account. Make sure you only have added one comment to the ticket!\nAfter you are done, please send \`link <jira-username>\` here and I will verify the account!\n\nToken: **${ token }**` );
