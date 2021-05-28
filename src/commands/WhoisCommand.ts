@@ -1,4 +1,4 @@
-import { ChannelLogsQueryOptions, Message, MessageEmbed, TextChannel } from 'discord.js';
+import { Message, MessageEmbed, TextChannel } from 'discord.js';
 import BotConfig from '../BotConfig';
 import DiscordUtil from '../util/DiscordUtil';
 import PrefixCommand from './PrefixCommand';
@@ -17,72 +17,41 @@ export default class WhoisCommand extends PrefixCommand {
 			fromDiscordWhois = true;
 		}
 
-		if ( message.deletable ) {
+		const logChannel = await DiscordUtil.getChannel( BotConfig.verification.verificationLogChannel );
+
+		if ( logChannel instanceof TextChannel ) {
 			try {
-				await message.delete();
+				logChannel.messages.cache.forEach( async thisMessage => {
+					const content = thisMessage.embeds;
+					if ( content.length == 0 ) return false;
+					const discordId = content[0].fields[0].value;
+					const discordMember = await DiscordUtil.getMember( logChannel.guild, discordId.replace( /[<>!@]/g, '' ) );
+					const mojiraMember = content[0].fields[1].value;
+
+					const embed = new MessageEmbed()
+						.setTitle( 'User information' );
+
+					if ( fromDiscordWhois ) {
+						if ( discordId.replace( /[<>!@]/g, '' ) != args.replace( /[<>!@]/g, '' ) ) return false;
+
+						embed.setDescription( `${ discordMember.user }'s Mojira account is ${ mojiraMember } ` )
+							.setFooter( message.author.tag, message.author.avatarURL() );
+						await message.channel.send( embed );
+
+						return true;
+					} else {
+						if ( mojiraMember.split( '?name=' )[1].split( ')' )[0] != args ) return false;
+
+						embed.setDescription( `${ mojiraMember }'s Discord account is ${ discordId }` )
+							.setFooter( message.author.tag, message.author.avatarURL() );
+						await message.channel.send( embed );
+
+						return true;
+					}
+				} );
 			} catch ( error ) {
 				Command.logger.error( error );
 			}
-		} else {
-			Command.logger.log( 'Message not deletable' );
-		}
-
-
-		const logChannel = await DiscordUtil.getChannel( BotConfig.verification.verificationLogChannel );
-		const allMessages: Message[] = [];
-		let lastId: string | undefined;
-		let continueSearch = true;
-
-		try {
-			while ( continueSearch ) {
-				const options: ChannelLogsQueryOptions = { limit: 50 };
-				if ( lastId ) {
-					options.before = lastId;
-				}
-				if ( logChannel instanceof TextChannel ) {
-
-					const messages = await logChannel.messages.fetch( options );
-					allMessages.push( ...messages.array() );
-					lastId = messages.last()?.id;
-					if ( messages.size !== 50 || !lastId ) {
-						continueSearch = false;
-
-						for ( let i = 0; i < allMessages.length; i++ ) {
-							const content = allMessages[i].embeds;
-							if ( content === undefined ) continue;
-
-							const discordId = content[0].fields[0].value;
-							const discordMember = await DiscordUtil.getMember( logChannel.guild, discordId.replace( /[<>!@]/g, '' ) );
-							const mojiraMember = content[0].fields[1].value;
-
-							if ( fromDiscordWhois ) {
-								if ( discordId.replace( /[<>!@]/g, '' ) != args.replace( /[<>!@]/g, '' ) ) continue;
-
-								const embed = new MessageEmbed()
-									.setTitle( 'User information' )
-									.setDescription( `${ discordMember.user }'s Mojira account is ${ mojiraMember } ` )
-									.setFooter( message.author.tag, message.author.avatarURL() );
-								await message.channel.send( embed );
-
-								return true;
-							} else {
-								if ( mojiraMember.split( '?name=' )[1].split( ')' )[0] != args ) continue;
-
-								const embed = new MessageEmbed()
-									.setTitle( 'User information' )
-									.setDescription( `${ mojiraMember }'s Discord account is ${ discordId }` )
-									.setFooter( message.author.tag, message.author.avatarURL() );
-								await message.channel.send( embed );
-
-								return true;
-							}
-						}
-						await message.channel.send( `${ args } has not been verified!` );
-					}
-				}
-			}
-		} catch {
-			return false;
 		}
 		return true;
 	}

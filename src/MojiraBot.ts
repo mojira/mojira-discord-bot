@@ -110,6 +110,30 @@ export default class MojiraBot {
 				}
 			}
 
+			if ( BotConfig.verification.verificationLogChannel ) {
+				const verificationLogChannel = await DiscordUtil.getChannel( BotConfig.verification.verificationLogChannel );
+				if ( verificationLogChannel instanceof TextChannel ) {
+					// https://stackoverflow.com/questions/55153125/fetch-more-than-100-messages
+					const allMessages: Message[] = [];
+					let lastId: string | undefined;
+					let continueSearch = true;
+
+					while ( continueSearch ) {
+						const options: ChannelLogsQueryOptions = { limit: 50 };
+						if ( lastId ) {
+							options.before = lastId;
+						}
+						const messages = await verificationLogChannel.messages.fetch( options );
+						allMessages.push( ...messages.array() );
+						lastId = messages.last()?.id;
+						if ( messages.size !== 50 || !lastId ) {
+							continueSearch = false;
+						}
+					}
+					this.logger.info( `Fetched ${ allMessages.length } messages from "${ verificationLogChannel.name }"` );
+				}
+			}
+
 			if ( BotConfig.request.channels ) {
 				for ( let i = 0; i < BotConfig.request.channels.length; i++ ) {
 					const requestChannelId = BotConfig.request.channels[i];
