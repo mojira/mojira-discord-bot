@@ -10,7 +10,7 @@ export default class RemovePendingVerificationTask extends MessageTask {
 		// If the message is undefined or has been deleted, don't do anything
 		if ( message === undefined || message.deleted ) return;
 
-		const user = DiscordUtil.getMember( message.guild, message.embeds[0].fields[0].value.replace( /[<>@!]/g, '' ) );
+		const user = await DiscordUtil.getMember( message.guild, message.embeds[0].fields[0].value.replace( /[<>@!]/g, '' ) );
 
 		if ( message.deletable ) {
 			try {

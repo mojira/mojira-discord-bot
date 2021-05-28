@@ -9,6 +9,7 @@ import SearchCommand from './SearchCommand';
 import ShutdownCommand from './ShutdownCommand';
 import TipsCommand from './TipsCommand';
 import VerifyCommand from './VerifyCommand';
+import WhoisCommand from './WhoisCommand';
 
 export default class CommandRegistry {
 	public static BUG_COMMAND = new BugCommand();
@@ -22,4 +23,5 @@ export default class CommandRegistry {
 	public static SHUTDOWN_COMMAND = new ShutdownCommand();
 	public static TIPS_COMMAND = new TipsCommand();
 	public static VERIFY_COMMAND = new VerifyCommand();
+	public static WHOIS_COMMAND = new WhoisCommand();
 }
