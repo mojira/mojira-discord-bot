@@ -121,3 +121,5 @@ verification:
   verificationLogChannel: '' # Add a log channel here!
   verifiedRole: '' # Add a role here!
   verificationInvalidationTime: 900000
+  removeLinkEmoji: '✂️'
+  removeLinkWaitTime: 5000

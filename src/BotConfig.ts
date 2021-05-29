@@ -67,13 +67,17 @@ export class VerificationConfig {
 	public verificationLogChannel: string;
 	public verifiedRole: string;
 	public verificationInvalidationTime: number;
+	public removeLinkEmoji: string;
+	public removeLinkWaitTime: number;
 
 	constructor() {
 		this.verificationTicket = config.get( 'verification.verificationTicket' );
 		this.pendingVerificationChannel = config.get( 'verification.pendingVerificationChannel' );
-		this.verificationLogChannel = config.get( 'verification.verificationLogChannel' )
-		this.verifiedRole = config.get( 'verification.verifiedRole' )
-		this.verificationInvalidationTime = config.get( 'verification.verificationInvalidationTime' )
+		this.verificationLogChannel = config.get( 'verification.verificationLogChannel' );
+		this.verifiedRole = config.get( 'verification.verifiedRole' );
+		this.verificationInvalidationTime = config.get( 'verification.verificationInvalidationTime' );
+		this.removeLinkEmoji = config.get( 'verification.removeLinkEmoji' );
+		this.removeLinkWaitTime = config.get( 'verification.removeLinkWaitTime' );
 	}
 }
 

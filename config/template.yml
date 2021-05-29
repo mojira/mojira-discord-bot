@@ -239,3 +239,9 @@ verification:
 
   # The amount of time that a verification request can remain open until it expires, in milliseconds.
   verificationInvalidationTime: <number>
+
+  # The emoji which, when used to react to a verification link embed, removes the link.
+  removeLinkEmoji: <string>
+
+  # The amount of time before a verification link is removed, when the message is reacted to with the remove link emoji.
+  removeLinkWaitTime: <number>
