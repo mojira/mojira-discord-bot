@@ -65,6 +65,7 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
 							.setAuthor( origin.author.tag, origin.author.avatarURL() )
 							.addField( 'Discord', origin.author, true )
 							.addField( 'Mojira', `[${ username }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ username })`, true )
+							.setFooter( 'Verified' )
 							.setTimestamp( new Date );
 						await logChannel.send( logEmbed );
 
@@ -76,10 +77,10 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
 
 						try {
 							const role = await logChannel.guild.roles.fetch( BotConfig.verification.verifiedRole );
-							const targetUser = await thisMessage.guild.members.fetch( thisMessage.author.id );
+							const targetUser = await thisMessage.guild.members.fetch( origin.author.id );
 
 							await targetUser.roles.add( role );
-							this.logger.info( `Added role ${ BotConfig.verification.verifiedRole } to user ${ origin.author.tag }` );
+							this.logger.info( `Added role '${ role.name }' to user ${ origin.author.tag }` );
 						} catch ( error ) {
 							this.logger.error( error );
 						}

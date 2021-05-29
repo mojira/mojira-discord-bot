@@ -1,4 +1,4 @@
-import { DMChannel, Message } from 'discord.js';
+import { Message } from 'discord.js';
 import BotConfig from '../../BotConfig';
 import CommandExecutor from '../../commands/CommandExecutor';
 import DiscordUtil from '../../util/DiscordUtil';
@@ -60,10 +60,10 @@ export default class MessageEventHandler implements EventHandler<'message'> {
 
 			// Don't reply in internal request channels
 			return;
-		} else if ( message.channel.type === "dm" ) {
+		} else if ( message.channel.type === 'dm' ) {
 			// This message is a direct message
 			await this.verificationMessageEventHandler.onEvent( message );
-			
+
 			return;
 		}
 

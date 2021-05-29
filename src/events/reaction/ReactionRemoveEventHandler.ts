@@ -3,6 +3,7 @@ import BotConfig from '../../BotConfig';
 import EventHandler from '../EventHandler';
 import RequestUnresolveEventHandler from '../request/RequestUnresolveEventHandler';
 import RoleRemoveEventHandler from '../roles/RoleRemoveEventHandler';
+import ReplaceVerificationEventHandler from '../verification/ReplaceVerificationEventHandler';
 import MojiraBot from '../../MojiraBot';
 import DiscordUtil from '../../util/DiscordUtil';
 
@@ -13,6 +14,7 @@ export default class ReactionRemoveEventHandler implements EventHandler<'message
 
 	private readonly roleRemoveHandler = new RoleRemoveEventHandler();
 	private readonly requestUnresolveEventHandler: RequestUnresolveEventHandler;
+	private readonly replaceVerificationEventHandler = new ReplaceVerificationEventHandler();
 
 	constructor( botUserId: string ) {
 		this.botUserId = botUserId;
@@ -36,6 +38,9 @@ export default class ReactionRemoveEventHandler implements EventHandler<'message
 		} else if ( BotConfig.request.internalChannels.includes( message.channel.id ) ) {
 			// Handle unresolving user request
 			return this.requestUnresolveEventHandler.onEvent( reaction, user );
+		} else if ( BotConfig.verification.verificationLogChannel.includes( message.channel.id ) ) {
+			// Handle replacing Verified role
+			return this.replaceVerificationEventHandler.onEvent( reaction, user );
 		}
 	};
 }

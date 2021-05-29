@@ -65,6 +65,7 @@ export default class VerifyCommand extends PrefixCommand {
 					.setAuthor( message.author.tag, message.author.avatarURL() )
 					.addField( 'User', message.author, true )
 					.addField( 'Token', token, true )
+					.setFooter( 'Pending verification' )
 					.setTimestamp( new Date() );
 
 				const internalEmbed = await pendingChannel.send( pendingEmbed );

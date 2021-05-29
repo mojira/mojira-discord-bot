@@ -7,6 +7,7 @@ import RequestResolveEventHandler from '../request/RequestResolveEventHandler';
 import RequestReactionRemovalEventHandler from '../request/RequestReactionRemovalEventHandler';
 import RoleSelectEventHandler from '../roles/RoleSelectEventHandler';
 import MentionDeleteEventHandler from '../mention/MentionDeleteEventHandler';
+import RemoveVerificationEventHandler from '../verification/RemoveVerificationEventHandler';
 import MojiraBot from '../../MojiraBot';
 import DiscordUtil from '../../util/DiscordUtil';
 
@@ -20,6 +21,7 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 	private readonly requestReactionRemovalEventHandler = new RequestReactionRemovalEventHandler();
 	private readonly requestReopenEventHandler: RequestReopenEventHandler;
 	private readonly mentionDeleteEventHandler = new MentionDeleteEventHandler();
+	private readonly removeVerificationEventHandler = new RemoveVerificationEventHandler();
 
 	constructor( botUserId: string, internalChannels: Map<string, string> ) {
 		this.botUserId = botUserId;
@@ -56,6 +58,9 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 		} else if ( reaction.message.author.id === this.botUserId && reaction.emoji.name === BotConfig.embedDeletionEmoji ) {
 			// Handle deleting bot embed
 			return this.mentionDeleteEventHandler.onEvent( reaction, user );
+		} else if ( BotConfig.verification.verificationLogChannel.includes( message.channel.id ) ) {
+			// Handle removal of Verified role
+			return this.removeVerificationEventHandler.onEvent( reaction, user );
 		}
 	};
 }
