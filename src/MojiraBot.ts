@@ -14,6 +14,7 @@ import RequestResolveEventHandler from './events/request/RequestResolveEventHand
 import FilterFeedTask from './tasks/FilterFeedTask';
 import TaskScheduler from './tasks/TaskScheduler';
 import VersionFeedTask from './tasks/VersionFeedTask';
+import RemovePendingVerificationTask from './tasks/RemovePendingVerificationTask';
 import DiscordUtil from './util/DiscordUtil';
 import { RoleSelectionUtil } from './util/RoleSelectionUtil';
 
@@ -107,6 +108,23 @@ export default class MojiraBot {
 						}
 					}
 					this.logger.info( `Fetched ${ allMessages.length } messages from "${ pendingChannel.name }"` );
+
+					// Schedule invalidation of pending verification requests
+					const handler = new RemovePendingVerificationTask();
+					for ( const message of allMessages ) {
+						const expiration = BotConfig.verification.verificationInvalidationTime - ( Date.now() - message.createdTimestamp );
+						if ( expiration > 0 ) {
+							this.logger.info( `Scheduling deletion of message ${ message.id } in ${ expiration } ms` );
+							TaskScheduler.addOneTimeMessageTask(
+								message,
+								handler,
+								expiration
+							);
+						} else {
+							this.logger.info( `Deleted pending verification request ${ message.id } (scheduled to be deleted ${ -expiration } ms ago)` );
+							await message.delete();
+						}
+					}
 				}
 			}
 
