@@ -4,6 +4,7 @@ import BotConfig from '../../BotConfig';
 import EventHandler from '../EventHandler';
 import MojiraBot from '../../MojiraBot';
 import DiscordUtil from '../../util/DiscordUtil';
+import TaskScheduler from '../../tasks/TaskScheduler';
 
 export default class VerificationMessageEventHandler implements EventHandler<'message'> {
 	public readonly eventName = 'message';
@@ -33,7 +34,7 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
 
 				let foundEmbed = false;
 
-				const allMessages = await pendingChannel.messages.fetch( { limit: 100 } );
+				const allMessages = pendingChannel.messages.cache;
 
 				allMessages.forEach( async thisMessage => {
 
@@ -49,6 +50,8 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
 
 						this.logger.info( `Successfully verified user ${ origin.author.tag }` );
 						foundEmbed = true;
+
+						TaskScheduler.clearMessageTasks( thisMessage );
 
 						if ( thisMessage.deletable ) {
 							try {
