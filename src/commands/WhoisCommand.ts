@@ -23,10 +23,9 @@ export default class WhoisCommand extends PrefixCommand {
 
 		if ( logChannel instanceof TextChannel ) {
 			const cachedMessages = logChannel.messages.cache;
-			let loop = 0;
 			try {
-				for ( loop = 0; loop < cachedMessages.size; loop++ ) {
-					const thisMessage = cachedMessages[loop];
+				for ( const loop of cachedMessages ) {
+					const thisMessage = loop[1];
 					const content = thisMessage.embeds;
 					if ( content.length == 0 ) continue;
 					const discordId = content[0].fields[0].value;
@@ -43,8 +42,6 @@ export default class WhoisCommand extends PrefixCommand {
 						embed.setDescription( `${ discordMember.user }'s Mojira account is ${ mojiraMember } ` )
 							.setFooter( origin.author.tag, origin.author.avatarURL() );
 						await origin.channel.send( embed );
-
-						return;
 					} else {
 						if ( mojiraMember.split( '?name=' )[1].split( ')' )[0] != args ) continue;
 						foundEmbed = true;
@@ -52,10 +49,18 @@ export default class WhoisCommand extends PrefixCommand {
 						embed.setDescription( `${ mojiraMember }'s Discord account is ${ discordId }` )
 							.setFooter( origin.author.tag, origin.author.avatarURL() );
 						await origin.channel.send( embed );
-
-						return;
 					}
 				}
+
+				if ( !foundEmbed ) {
+					const embed = new MessageEmbed()
+						.setTitle( 'User information' )
+						.setDescription( `User ${ args } not found` );
+					await origin.channel.send( embed );
+					return false;
+				}
+
+				return true;
 			} catch ( error ) {
 				Command.logger.error( error );
 			}
