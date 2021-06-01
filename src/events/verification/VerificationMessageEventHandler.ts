@@ -75,13 +75,14 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
 						const userEmbed = new MessageEmbed()
 							.setColor( 'GREEN' )
 							.setTitle( 'Your account has been verified!' )
-							.setDescription( 'You have successfully linked your Mojira and Discord accounts.' );
+							.setDescription( 'You have successfully linked your Mojira and Discord accounts.' )
+							.addField( 'Discord', origin.author, true )
+							.addField( 'Mojira', `[${ username }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ username })`, true );
 						await origin.author.send( userEmbed );
 
 						try {
 							const role = await logChannel.guild.roles.fetch( BotConfig.verification.verifiedRole );
 							const targetUser = await thisMessage.guild.members.fetch( origin.author.id );
-
 							await targetUser.roles.add( role );
 							this.logger.info( `Added role '${ role.name }' to user ${ origin.author.tag }` );
 						} catch ( error ) {
@@ -96,7 +97,7 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
 
 				if ( !foundEmbed ) {
 					try {
-						await origin.author.send( 'Failed to verify your account! Did you send `jira verify` first?' );
+						await origin.author.send( 'Failed to verify your account! Did you send `jira verify` first? Did you type your username correctly? (It\'s case-sensitive!)' );
 					} catch ( error ) {
 						this.logger.error( error );
 					}
