@@ -15,12 +15,15 @@ export default class VerifyCommand extends PrefixCommand {
 		}
 
 		const pendingChannel = await DiscordUtil.getChannel( BotConfig.verification.pendingVerificationChannel );
+		const logChannel = await DiscordUtil.getChannel( BotConfig.verification.verificationLogChannel );
 
-		if ( pendingChannel instanceof TextChannel ) {
+		if ( pendingChannel instanceof TextChannel && logChannel instanceof TextChannel ) {
 
 			let foundUser = false;
+			let isVerified = false;
 
 			const allMessages = pendingChannel.messages.cache;
+			const verifications = logChannel.messages.cache;
 
 			allMessages.forEach( async thisMessage => {
 				if ( thisMessage.embeds === undefined ) return undefined;
@@ -29,12 +32,19 @@ export default class VerifyCommand extends PrefixCommand {
 				}
 			} );
 
+			verifications.forEach( async thisMessage => {
+				if ( thisMessage.embeds === undefined ) return undefined;
+				if ( thisMessage.embeds[0].fields[0].value.replace( /[<>@!]/g, '' ) == message.author.id ) {
+					isVerified = true;
+				}
+			} );
+
 			try {
 				const role = await pendingChannel.guild.roles.fetch( BotConfig.verification.verifiedRole );
 				const targetUser = await message.guild.members.fetch( message.author.id );
 
-				if ( targetUser.roles.cache.has( role.id ) ) {
-					await message.channel.send( `${ message.author }, your account has already been verified!` );
+				if ( targetUser.roles.cache.has( role.id ) || isVerified ) {
+					await message.channel.send( `${ message.author }, you have already linked your accounts!` );
 					await message.react( '❌' );
 					return false;
 				}
