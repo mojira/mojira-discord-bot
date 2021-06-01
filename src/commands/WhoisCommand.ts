@@ -7,10 +7,12 @@ import Command from './Command';
 export default class WhoisCommand extends PrefixCommand {
 	public readonly aliases = ['who', 'whois'];
 
-	public async run( message: Message, args: string ): Promise<boolean> {
+	public async run( origin: Message, args: string ): Promise<boolean> {
 		if ( !args.length ) {
 			return false;
 		}
+
+		let foundEmbed = false;
 
 		let fromDiscordWhois = false;
 		if ( args.startsWith( '<@' ) ) {
@@ -20,10 +22,13 @@ export default class WhoisCommand extends PrefixCommand {
 		const logChannel = await DiscordUtil.getChannel( BotConfig.verification.verificationLogChannel );
 
 		if ( logChannel instanceof TextChannel ) {
+			const cachedMessages = logChannel.messages.cache;
+			let loop = 0;
 			try {
-				logChannel.messages.cache.forEach( async thisMessage => {
+				for ( loop = 0; loop < cachedMessages.size; loop++ ) {
+					const thisMessage = cachedMessages[loop];
 					const content = thisMessage.embeds;
-					if ( content.length == 0 ) return false;
+					if ( content.length == 0 ) continue;
 					const discordId = content[0].fields[0].value;
 					const discordMember = await DiscordUtil.getMember( logChannel.guild, discordId.replace( /[<>!@]/g, '' ) );
 					const mojiraMember = content[0].fields[1].value;
@@ -32,23 +37,25 @@ export default class WhoisCommand extends PrefixCommand {
 						.setTitle( 'User information' );
 
 					if ( fromDiscordWhois ) {
-						if ( discordId.replace( /[<>!@]/g, '' ) != args.replace( /[<>!@]/g, '' ) ) return false;
+						if ( discordId.replace( /[<>!@]/g, '' ) != args.replace( /[<>!@]/g, '' ) ) continue;
+						foundEmbed = true;
 
 						embed.setDescription( `${ discordMember.user }'s Mojira account is ${ mojiraMember } ` )
-							.setFooter( message.author.tag, message.author.avatarURL() );
-						await message.channel.send( embed );
+							.setFooter( origin.author.tag, origin.author.avatarURL() );
+						await origin.channel.send( embed );
 
-						return true;
+						return;
 					} else {
-						if ( mojiraMember.split( '?name=' )[1].split( ')' )[0] != args ) return false;
+						if ( mojiraMember.split( '?name=' )[1].split( ')' )[0] != args ) continue;
+						foundEmbed = true;
 
 						embed.setDescription( `${ mojiraMember }'s Discord account is ${ discordId }` )
-							.setFooter( message.author.tag, message.author.avatarURL() );
-						await message.channel.send( embed );
+							.setFooter( origin.author.tag, origin.author.avatarURL() );
+						await origin.channel.send( embed );
 
-						return true;
+						return;
 					}
-				} );
+				}
 			} catch ( error ) {
 				Command.logger.error( error );
 			}
