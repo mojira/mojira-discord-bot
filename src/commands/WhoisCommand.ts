@@ -55,7 +55,8 @@ export default class WhoisCommand extends PrefixCommand {
 				if ( !foundEmbed ) {
 					const embed = new MessageEmbed()
 						.setTitle( 'User information' )
-						.setDescription( `User ${ args } not found` );
+						.setDescription( `User ${ args } not found` )
+						.setFooter( origin.author.tag, origin.author.avatarURL() );
 					await origin.channel.send( embed );
 					return false;
 				}
