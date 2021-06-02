@@ -54,7 +54,7 @@ export default class MentionCommand extends Command {
 		if ( BotConfig.forbiddenTicketText ) {
 			if ( message.content.includes( BotConfig.forbiddenTicketText ) ) return false;
 		}
-		
+
 		const mention = MentionRegistry.getMention( args );
 
 		let embed: MessageEmbed;
