@@ -21,9 +21,9 @@ export default abstract class Task {
 				MojiraBot.logger.info( `Initialized ${ this.asString() }` );
 			} catch ( error ) {
 				MojiraBot.logger.error( `Could not initialize ${ this.asString() }. Information:
-										\tStatus code: ${ error.response?.status || undefined }
-										\tStatus text: ${ error.response?.statusText || undefined }
-										\tError messages: ${ error.response?.data.errorMessages || undefined }`.replace( /\t/g, '' ).replace( /(?<=\n).*/g, '\t$&' ) );
+										Status code: ${ error.response?.status || undefined }
+										Status text: ${ error.response?.statusText || undefined }
+										Error messages: ${ error.response?.data.errorMessages || undefined }`.replace( /\t/g, '' ).replace( /(?<=\n).*/g, '\t$&' ) );
 			}
 		}
 

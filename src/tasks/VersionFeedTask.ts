@@ -227,9 +227,9 @@ export default class VersionFeedTask extends Task {
 			} );
 		} catch ( error ) {
 			VersionFeedTask.logger.error( `Error information:
-										\tStatus code: ${ error.response?.status || undefined }
-										\tStatus text: ${ error.response?.statusText || undefined }
-										\tError messages: ${ error.response?.data.errorMessages || undefined }`.replace( /\t/g, '' ).replace( /(?<=\n).*/g, '\t$&' ) );
+										Status code: ${ error.response?.status || undefined }
+										Status text: ${ error.response?.statusText || undefined }
+										Error messages: ${ error.response?.data.errorMessages || undefined }`.replace( /\t/g, '' ).replace( /(?<=\n).*/g, '\t$&' ) );
 			return undefined;
 		}
 
