@@ -226,7 +226,10 @@ export default class VersionFeedTask extends Task {
 				id: version.id,
 			} );
 		} catch ( error ) {
-			VersionFeedTask.logger.error( error );
+			VersionFeedTask.logger.error( `Error information:
+										\tStatus code: ${ error.response?.status || undefined }
+										\tStatus text: ${ error.response?.statusText || undefined }
+										\tError messages: ${ error.response?.data.errorMessages || undefined }`.replace( /\t/g, '' ).replace( /(?<=\n).*/g, '\t$&' ) );
 			return undefined;
 		}
 

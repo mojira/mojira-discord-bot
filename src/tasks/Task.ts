@@ -20,7 +20,10 @@ export default abstract class Task {
 				this.initialized = true;
 				MojiraBot.logger.info( `Initialized ${ this.asString() }` );
 			} catch ( error ) {
-				MojiraBot.logger.error( `Could not initialize ${ this.asString() }`, error );
+				MojiraBot.logger.error( `Could not initialize ${ this.asString() }. Information:
+										\tStatus code: ${ error.response?.status || undefined }
+										\tStatus text: ${ error.response?.statusText || undefined }
+										\tError messages: ${ error.response?.data.errorMessages || undefined }`.replace( /\t/g, '' ).replace( /(?<=\n).*/g, '\t$&' ) );
 			}
 		}
 
