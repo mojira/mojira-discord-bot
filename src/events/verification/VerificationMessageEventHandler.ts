@@ -33,69 +33,89 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
 			if ( pendingChannel instanceof TextChannel && logChannel instanceof TextChannel ) {
 
 				let foundEmbed = false;
+				let foundUser = false;
 
 				const allMessages = pendingChannel.messages.cache;
+				const logMessages = logChannel.messages.cache;
 
-				allMessages.forEach( async thisMessage => {
-
+				for ( const loop of logMessages ) {
+					const thisMessage = loop[1];
 					const embeds = thisMessage.embeds;
-					if ( embeds.length == 0 ) return undefined;
+					if ( embeds.length == 0 ) continue;
 
-					const userId = embeds[0].fields[0].value.replace( /[<>@!]/g, '' );
-					if ( userId !== origin.author.id ) return false;
+					const jiraAccount = embeds[0].fields[1].value.split( '?name=' )[1].split( ')' )[0];
+					if ( jiraAccount == username ) {
+						await origin.author.send( 'There is already a Discord account linked to this Mojira account!' );
+						foundUser = true;
+					}
+				}
+				if ( !foundUser ) {
+					allMessages.forEach( async thisMessage => {
 
-					const enteredComment = allComments.get( username ).replace( /\*/g, '' );
+						const embeds = thisMessage.embeds;
+						if ( embeds.length == 0 ) return undefined;
 
-					if ( enteredComment == embeds[0].fields[1].value ) {
+						const userId = embeds[0].fields[0].value.replace( /[<>@!]/g, '' );
+						if ( userId !== origin.author.id ) return false;
 
-						this.logger.info( `Successfully verified user ${ origin.author.tag }` );
-						foundEmbed = true;
+						let enteredComment = allComments.get( username );
+						if ( enteredComment !== undefined ) {
+							enteredComment = enteredComment.replace( /[*\s]/g, '' );
+						} else {
+							return false;
+						}
 
-						TaskScheduler.clearMessageTasks( thisMessage );
+						if ( enteredComment == embeds[0].fields[1].value ) {
 
-						if ( thisMessage.deletable ) {
+							this.logger.info( `Successfully verified user ${ origin.author.tag }` );
+							foundEmbed = true;
+
+							TaskScheduler.clearMessageTasks( thisMessage );
+
+							if ( thisMessage.deletable ) {
+								try {
+									await thisMessage.delete();
+								} catch ( error ) {
+									this.logger.error( error );
+								}
+							} else {
+								this.logger.log( 'Failed to delete message' );
+							}
+
+							const logEmbed = new MessageEmbed()
+								.setColor( 'GREEN' )
+								.setAuthor( origin.author.tag, origin.author.avatarURL() )
+								.addField( 'Discord', origin.author, true )
+								.addField( 'Mojira', `[${ username }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ username })`, true )
+								.setFooter( 'Verified' )
+								.setTimestamp( new Date );
+							await logChannel.send( logEmbed );
+
+							const userEmbed = new MessageEmbed()
+								.setColor( 'GREEN' )
+								.setTitle( 'Your account has been verified!' )
+								.setDescription( 'You have successfully linked your Mojira and Discord accounts.' )
+								.addField( 'Discord', origin.author, true )
+								.addField( 'Mojira', `[${ username }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ username })`, true );
+							await origin.author.send( userEmbed );
+
 							try {
-								await thisMessage.delete();
+								const role = await logChannel.guild.roles.fetch( BotConfig.verification.verifiedRole );
+								const targetUser = await thisMessage.guild.members.fetch( origin.author.id );
+								await targetUser.roles.add( role );
+								this.logger.info( `Added role '${ role.name }' to user ${ origin.author.tag }` );
 							} catch ( error ) {
 								this.logger.error( error );
 							}
+
 						} else {
-							this.logger.log( 'Failed to delete message' );
+							this.logger.info( `Failed to verify user ${ origin.author.tag }: Not a match` );
+							return false;
 						}
+					} );
+				}
 
-						const logEmbed = new MessageEmbed()
-							.setColor( 'GREEN' )
-							.setAuthor( origin.author.tag, origin.author.avatarURL() )
-							.addField( 'Discord', origin.author, true )
-							.addField( 'Mojira', `[${ username }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ username })`, true )
-							.setFooter( 'Verified' )
-							.setTimestamp( new Date );
-						await logChannel.send( logEmbed );
-
-						const userEmbed = new MessageEmbed()
-							.setColor( 'GREEN' )
-							.setTitle( 'Your account has been verified!' )
-							.setDescription( 'You have successfully linked your Mojira and Discord accounts.' )
-							.addField( 'Discord', origin.author, true )
-							.addField( 'Mojira', `[${ username }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ username })`, true );
-						await origin.author.send( userEmbed );
-
-						try {
-							const role = await logChannel.guild.roles.fetch( BotConfig.verification.verifiedRole );
-							const targetUser = await thisMessage.guild.members.fetch( origin.author.id );
-							await targetUser.roles.add( role );
-							this.logger.info( `Added role '${ role.name }' to user ${ origin.author.tag }` );
-						} catch ( error ) {
-							this.logger.error( error );
-						}
-
-					} else {
-						this.logger.info( `Failed to verify user ${ origin.author.tag }: Not a match` );
-						return false;
-					}
-				} );
-
-				if ( !foundEmbed ) {
+				if ( !foundUser && !foundEmbed ) {
 					try {
 						await origin.author.send( 'Failed to verify your account! Did you send `jira verify` first? Did you type your username correctly? (It\'s case-sensitive!)' );
 					} catch ( error ) {
