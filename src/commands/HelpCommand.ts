@@ -25,7 +25,9 @@ export default class HelpCommand extends PrefixCommand {
 					
 					\`!jira search <text>\` - Searches for text and returns the results from the bug tracker.
 					
-					\`!jira tips\` - Sends helpful info on how to use the bug tracker and this Discord server.`
+					\`!jira tips\` - Sends helpful info on how to use the bug tracker and this Discord server.
+					
+					\`!jira verify\` - Begins a process to link your Discord account with your Mojira account.`
 				)
 				.setFooter( message.author.tag, message.author.avatarURL() );
 			await message.channel.send( embed );
