@@ -20,21 +20,23 @@ export default class RequestResolveEventHandler implements EventHandler<'message
 	// This syntax is used to ensure that `this` refers to the `RequestResolveEventHandler` object
 	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
 		if ( reaction.message.author.id !== this.botUserId ) {
-			this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to non-bot message '${ reaction.message.id }. Ignored'` );
+			this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to non-bot message '${ reaction.message.id }'. Ignored` );
 			return;
 		}
 
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ reaction.message.id }'` );
 
 		TaskScheduler.clearMessageTasks( reaction.message );
-		await reaction.message.edit( reaction.message.embeds[0].setColor( RequestsUtil.getEmbedColor( user ) ) );
+
+		const embed = reaction.message.embeds[0].setColor( RequestsUtil.getEmbedColor( user ) );
+		await reaction.message.edit( embed );
 
 		if ( BotConfig.request.prependResponseMessage == PrependResponseMessageType.WhenResolved
 			&& BotConfig.request.ignorePrependResponseMessageEmoji !== reaction.emoji.name ) {
 			const origin = await RequestsUtil.getOriginMessage( reaction.message );
 			if ( origin ) {
 				try {
-					await reaction.message.edit( RequestsUtil.getResponseMessage( origin ) );
+					await reaction.message.edit( RequestsUtil.getResponseMessage( origin ), embed );
 				} catch ( error ) {
 					this.logger.error( error );
 				}
