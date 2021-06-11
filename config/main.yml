@@ -74,13 +74,15 @@ roleGroups:
         emoji: '🇴'
 
 filterFeeds:
-  - jql: project = MC AND resolved > -1m AND resolution = Fixed AND fixVersion in unreleasedVersions()
+  - jql: project = MC AND resolved > lastRun AND resolution = Fixed AND fixVersion in unreleasedVersions()
+    jqlRemoved: resolution = Unresolved
     channel: '666349583227682819'
     publish: true
     interval: 30000
     filterFeedEmoji: '🎉'
     title: '{{num}} tickets have just been resolved as Fixed!'
     titleSingle: This ticket has just been resolved as Fixed!
+    cached: false
 
 versionFeeds:
     #java-fixes
