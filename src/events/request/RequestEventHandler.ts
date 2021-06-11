@@ -101,6 +101,26 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 				? RequestsUtil.getResponseMessage( origin )
 				: '';
 
+			const thisUser = await DiscordUtil.getMember( origin.guild, origin.author.id );
+			if ( thisUser.roles.cache.has( BotConfig.verification.verifiedRole ) ) {
+				const verificationLog = await DiscordUtil.getChannel( BotConfig.verification.verificationLogChannel );
+				if ( !( verificationLog instanceof TextChannel ) ) return;
+				const verificationMessages = verificationLog.messages.cache;
+
+				for ( const loop of verificationMessages ) {
+					const message = loop[1];
+
+					if ( message.embeds.length == 0 ) continue;
+
+					const discordMemberId = message.embeds[0].fields[0].value.replace( /[<>@!]/g, '' );
+					if ( discordMemberId !== origin.author.id ) continue;
+
+					const mojiraMember = message.embeds[0].fields[1].value.split( '?name=' )[1].split( ')' )[0];
+					embed.setFooter( mojiraMember );
+					break;
+				}
+			}
+
 			const copy = await internalChannel.send( response, embed ) as Message;
 
 			if ( BotConfig.request.suggestedEmoji ) {
