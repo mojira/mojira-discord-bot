@@ -50,19 +50,20 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
 					}
 				}
 				if ( !foundUser ) {
-					allMessages.forEach( async thisMessage => {
+					for ( const loop of allMessages ) {
 
+						const thisMessage = loop[1];
 						const embeds = thisMessage.embeds;
-						if ( embeds.length == 0 ) return undefined;
+						if ( embeds.length == 0 ) continue;
 
 						const userId = embeds[0].fields[0].value.replace( /[<>@!]/g, '' );
-						if ( userId !== origin.author.id ) return false;
+						if ( userId !== origin.author.id ) continue;
 
 						let enteredComment = allComments.get( username );
 						if ( enteredComment !== undefined ) {
 							enteredComment = enteredComment.replace( /[*\s]/g, '' );
 						} else {
-							return false;
+							continue;
 						}
 
 						if ( enteredComment == embeds[0].fields[1].value ) {
@@ -107,12 +108,13 @@ export default class VerificationMessageEventHandler implements EventHandler<'me
 							} catch ( error ) {
 								this.logger.error( error );
 							}
+							break;
 
 						} else {
 							this.logger.info( `Failed to verify user ${ origin.author.tag }: Not a match` );
-							return false;
+							continue;
 						}
-					} );
+					}
 				}
 
 				if ( !foundUser && !foundEmbed ) {

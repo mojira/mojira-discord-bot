@@ -25,19 +25,23 @@ export default class VerifyCommand extends PrefixCommand {
 			const allMessages = pendingChannel.messages.cache;
 			const verifications = logChannel.messages.cache;
 
-			allMessages.forEach( async thisMessage => {
-				if ( thisMessage.embeds.length == 0 ) return undefined;
+			for ( const loop of allMessages ) {
+				const thisMessage = loop[1];
+				if ( thisMessage.embeds.length == 0 ) continue;
 				if ( thisMessage.embeds[0].fields[0].value.replace( /[<>@!]/g, '' ) == message.author.id ) {
 					foundUser = true;
+					break;
 				}
-			} );
+			}
 
-			verifications.forEach( async thisMessage => {
-				if ( thisMessage.embeds.length == 0 ) return undefined;
+			for ( const loop of verifications ) {
+				const thisMessage = loop[1];
+				if ( thisMessage.embeds.length == 0 ) continue;
 				if ( thisMessage.embeds[0].fields[0].value.replace( /[<>@!]/g, '' ) == message.author.id ) {
 					isVerified = true;
+					break;
 				}
-			} );
+			}
 
 			try {
 				const role = await pendingChannel.guild.roles.fetch( BotConfig.verification.verifiedRole );
