@@ -26,14 +26,14 @@ export default class VerifyCommand extends PrefixCommand {
 			const verifications = logChannel.messages.cache;
 
 			allMessages.forEach( async thisMessage => {
-				if ( thisMessage.embeds === undefined ) return undefined;
+				if ( thisMessage.embeds.length == 0 ) return undefined;
 				if ( thisMessage.embeds[0].fields[0].value.replace( /[<>@!]/g, '' ) == message.author.id ) {
 					foundUser = true;
 				}
 			} );
 
 			verifications.forEach( async thisMessage => {
-				if ( thisMessage.embeds === undefined ) return undefined;
+				if ( thisMessage.embeds.length == 0 ) return undefined;
 				if ( thisMessage.embeds[0].fields[0].value.replace( /[<>@!]/g, '' ) == message.author.id ) {
 					isVerified = true;
 				}

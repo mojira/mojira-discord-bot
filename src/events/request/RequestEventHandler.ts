@@ -116,7 +116,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 					if ( discordMemberId !== origin.author.id ) continue;
 
 					const mojiraMember = message.embeds[0].fields[1].value.split( '?name=' )[1].split( ')' )[0];
-					embed.setFooter( mojiraMember );
+					embed.addField( 'Mojira', `[${ mojiraMember }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ mojiraMember })` );
 					break;
 				}
 			}
