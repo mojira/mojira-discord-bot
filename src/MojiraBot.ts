@@ -12,6 +12,7 @@ import ReactionRemoveEventHandler from './events/reaction/ReactionRemoveEventHan
 import RequestEventHandler from './events/request/RequestEventHandler';
 import RequestResolveEventHandler from './events/request/RequestResolveEventHandler';
 import FilterFeedTask from './tasks/FilterFeedTask';
+import CachedFilterFeedTask from './tasks/CachedFilterFeedTask';
 import TaskScheduler from './tasks/TaskScheduler';
 import VersionFeedTask from './tasks/VersionFeedTask';
 import RemovePendingVerificationTask from './tasks/RemovePendingVerificationTask';
@@ -261,10 +262,17 @@ export default class MojiraBot {
 			// #region Schedule tasks.
 			// Filter feed tasks.
 			for ( const config of BotConfig.filterFeeds ) {
-				TaskScheduler.addTask(
-					new FilterFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
-					config.interval
-				);
+				if ( config.cached ) {
+					TaskScheduler.addTask(
+						new CachedFilterFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
+						config.interval
+					);
+				} else {
+					TaskScheduler.addTask(
+						new FilterFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
+						config.interval
+					);
+				}
 			}
 
 			// Version feed tasks.
