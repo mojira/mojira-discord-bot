@@ -100,7 +100,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 				}
 
 				try {
-					const warning = await origin.channel.send( `${ origin.author }, you currently have created more requests than the daily limit for this channel, please wait until tomorrow before creating more requests.` );
+					const warning = await origin.channel.send( `${ origin.author }, you have posted a lot of requests today that are still pending. Please wait for these requests to be resolved before posting more.` );
 
 					const timeout = BotConfig.request.warningLifetime;
 					await warning.delete( { timeout } );
