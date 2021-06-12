@@ -14,8 +14,8 @@
     "bot": "tsc && node bin",
     "build": "tsc",
     "validate": "tsc --noEmit",
-    "lint": "eslint src/**/*.ts",
-    "lintfix": "eslint src/**/*.ts --fix"
+    "lint": "eslint 'src/**/*.ts' --max-warnings 0",
+    "lintfix": "eslint 'src/**/*.ts' --fix"
   },
   "dependencies": {
     "config": "^3.3.4",
