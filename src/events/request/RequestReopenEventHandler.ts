@@ -37,8 +37,9 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 				.setColor( 'ORANGE' )
 				.setAuthor( requestMessage.author.tag, requestMessage.author.avatarURL() )
 				.setDescription( requestMessage.content )
-				.addField( 'Channel', requestMessage.channel.toString(), true )
 				.addField( 'Message', `[Here](${ requestMessage.url })`, true )
+				.addField( 'Channel', requestMessage.channel.toString(), true )
+				.addField( 'Created', requestMessage.createdAt.toUTCString(), false )
 				.setFooter( `${ user.tag } reopened this request`, user.avatarURL() )
 				.setTimestamp( new Date() );
 
