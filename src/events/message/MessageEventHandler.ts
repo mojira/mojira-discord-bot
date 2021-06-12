@@ -16,10 +16,10 @@ export default class MessageEventHandler implements EventHandler<'message'> {
 	private readonly testingRequestEventHandler: TestingRequestEventHandler;
 	private readonly internalProgressEventHandler: InternalProgressEventHandler;
 
-	constructor( botUserId: string, internalChannels: Map<string, string> ) {
+	constructor( botUserId: string, internalChannels: Map<string, string>, requestLimits: Map<string, number> ) {
 		this.botUserId = botUserId;
 
-		this.requestEventHandler = new RequestEventHandler( internalChannels );
+		this.requestEventHandler = new RequestEventHandler( internalChannels, requestLimits );
 		this.testingRequestEventHandler = new TestingRequestEventHandler();
 		this.internalProgressEventHandler = new InternalProgressEventHandler();
 	}
