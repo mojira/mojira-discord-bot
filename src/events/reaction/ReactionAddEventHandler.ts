@@ -21,10 +21,10 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 	private readonly requestReopenEventHandler: RequestReopenEventHandler;
 	private readonly mentionDeleteEventHandler = new MentionDeleteEventHandler();
 
-	constructor( botUserId: string, internalChannels: Map<string, string> ) {
+	constructor( botUserId: string, internalChannels: Map<string, string>, requestLimits: Map<string, number> ) {
 		this.botUserId = botUserId;
 
-		const requestEventHandler = new RequestEventHandler( internalChannels );
+		const requestEventHandler = new RequestEventHandler( internalChannels, requestLimits );
 		this.requestResolveEventHandler = new RequestResolveEventHandler( botUserId );
 		this.requestReopenEventHandler = new RequestReopenEventHandler( botUserId, requestEventHandler );
 	}
