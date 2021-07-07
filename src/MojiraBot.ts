@@ -99,7 +99,7 @@ export default class MojiraBot {
 						if ( requestChannel instanceof TextChannel && internalChannel instanceof TextChannel ) {
 							requestChannels.push( requestChannel );
 							internalChannels.set( requestChannelId, internalChannelId );
-							requestLimits.set( requestChannelId, requestLimit )
+							requestLimits.set( requestChannelId, requestLimit );
 
 							// https://stackoverflow.com/questions/55153125/fetch-more-than-100-messages
 							const allMessages: Message[] = [];
