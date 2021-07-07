@@ -9,7 +9,7 @@
 <br/>
 <p align="center">
   <a href="https://bugs.mojang.com/">
-    <img src="mojira-logo.png" alt="MojiraBot" width="80" height="80">
+    <img src="mojirabot-logo.png" alt="MojiraBot" width="80" height="80">
   </a>
 
   <h3 align="center">MojiraBot</h3>

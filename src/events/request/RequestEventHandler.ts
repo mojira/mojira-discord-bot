@@ -16,8 +16,14 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 	 */
 	private readonly internalChannels: Map<string, string>;
 
-	constructor( internalChannels: Map<string, string> ) {
+	/**
+	 * A map from request channel IDs to request limit numbers.
+	 */
+	private readonly requestLimits: Map<string, number>;
+
+	constructor( internalChannels: Map<string, string>, requestLimits: Map<string, number> ) {
 		this.internalChannels = internalChannels;
+		this.requestLimits = requestLimits;
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestEventHandler` object
@@ -78,6 +84,33 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			}
 		}
 
+		const requestLimit = this.requestLimits.get( origin.channel.id );
+		const internalChannelId = this.internalChannels.get( origin.channel.id );
+		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
+
+		if ( requestLimit && requestLimit >= 0 && internalChannel instanceof TextChannel ) {
+			const internalChannelUserMessages = internalChannel.messages.cache
+				.filter( message => message.embeds.length > 0 && message.embeds[0].author.name == origin.author.tag )
+				.filter( message => new Date().valueOf() - message.embeds[0].timestamp.valueOf() <= 86400000 );
+			if ( internalChannelUserMessages.size >= requestLimit ) {
+				try {
+					await origin.react( BotConfig.request.invalidTicketEmoji );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
+
+				try {
+					const warning = await origin.channel.send( `${ origin.author }, you have posted a lot of requests today that are still pending. Please wait for these requests to be resolved before posting more.` );
+
+					const timeout = BotConfig.request.warningLifetime;
+					await warning.delete( { timeout } );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
+				return;
+			}
+		}
+
 		if ( BotConfig.request.waitingEmoji ) {
 			try {
 				await origin.react( BotConfig.request.waitingEmoji );
@@ -85,9 +118,6 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 				this.logger.error( error );
 			}
 		}
-
-		const internalChannelId = this.internalChannels.get( origin.channel.id );
-		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 
 		if ( internalChannel && internalChannel instanceof TextChannel ) {
 			const embed = new MessageEmbed()
