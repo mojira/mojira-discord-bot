@@ -106,7 +106,7 @@ export default class BotConfig {
 	public static debug: boolean;
 	public static logDirectory: false | string;
 
-	static #token: string;
+	private static token: string;
 	public static owners: string[];
 
 	public static homeChannel: string;
@@ -133,7 +133,7 @@ export default class BotConfig {
 		this.debug = getOrDefault( 'debug', false );
 		this.logDirectory = getOrDefault( 'logDirectory', false );
 
-		this.#token = config.get( 'token' );
+		this.token = config.get( 'token' );
 		this.owners = getOrDefault( 'owners', [] );
 
 		this.homeChannel = config.get( 'homeChannel' );
@@ -159,7 +159,7 @@ export default class BotConfig {
 
 	public static async login( client: Client ): Promise<boolean> {
 		try {
-			await client.login( this.#token );
+			await client.login( this.token );
 		} catch ( err ) {
 			MojiraBot.logger.error( err );
 			return false;
