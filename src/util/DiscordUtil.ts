@@ -48,10 +48,14 @@ export default class DiscordUtil {
 	}
 
 	public static deleteWithDelay( message: Message, timeout: number ): Promise<void> {
-		return new Promise( resolve => {
+		return new Promise( ( resolve, reject ) => {
 			setTimeout( async () => {
-				await message.delete();
-				resolve();
+				try {
+					await message.delete();
+					resolve();
+				} catch ( e ) {
+					reject( e );
+				}
 			}, timeout );
 		} );
 	}
