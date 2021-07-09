@@ -1,4 +1,4 @@
-import { EmbedField, Message, TextChannel, User } from 'discord.js';
+import { EmbedField, Message, PartialMessage, Snowflake, TextChannel, User } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from '../BotConfig';
 import DiscordUtil from './DiscordUtil';
@@ -6,8 +6,8 @@ import MentionCommand from '../commands/MentionCommand';
 import MojiraBot from '../MojiraBot';
 
 interface OriginIds {
-	channelId: string;
-	messageId: string;
+	channelId: Snowflake;
+	messageId: Snowflake;
 }
 
 export class RequestsUtil {
@@ -20,8 +20,8 @@ export class RequestsUtil {
 			const messageUrl = url.match( /\((.*)\)/ )[1];
 			const parts = messageUrl.split( '/' );
 
-			const channelId = parts[parts.length - 2];
-			const messageId = parts[parts.length - 1];
+			const channelId = parts[parts.length - 2] as Snowflake;
+			const messageId = parts[parts.length - 1] as Snowflake;
 
 			if ( channelId && messageId ) {
 				return { channelId, messageId };
@@ -34,7 +34,7 @@ export class RequestsUtil {
 		}
 	}
 
-	public static async getOriginIds( message: Message ): Promise<OriginIds | undefined> {
+	public static async getOriginIds( message: Message | PartialMessage ): Promise<OriginIds | undefined> {
 		try {
 			const embeds = message.embeds;
 			if ( embeds.length == 0 ) return undefined;
@@ -49,7 +49,7 @@ export class RequestsUtil {
 		}
 	}
 
-	public static async getOriginMessage( internalMessage: Message ): Promise<Message | undefined> {
+	public static async getOriginMessage( internalMessage: Message | PartialMessage ): Promise<Message | undefined> {
 		const ids = await this.getOriginIds( internalMessage );
 
 		if ( !ids ) {

@@ -61,7 +61,7 @@ export default class ResolveRequestMessageTask extends MessageTask {
 						.setTimestamp( new Date() );
 
 					try {
-						await logChannel.send( response, log );
+						await logChannel.send( { content: response, embeds: [log] } );
 					} catch ( error ) {
 						ResolveRequestMessageTask.logger.error( error );
 					}

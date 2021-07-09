@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, TextChannel, DMChannel, NewsChannel } from 'discord.js';
+import { Message, MessageEmbed, TextChannel, DMChannel, NewsChannel, ThreadChannel } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
 import PermissionRegistry from '../permissions/PermissionRegistry';
 import Command from './Command';
@@ -8,7 +8,7 @@ export default class SendCommand extends PrefixCommand {
 
 	public readonly aliases = ['send', 'message'];
 
-	private async sendSyntaxMessage( channel: TextChannel | DMChannel | NewsChannel, additionalInfo?: string ): Promise<void> {
+	private async sendSyntaxMessage( channel: TextChannel | DMChannel | NewsChannel | ThreadChannel, additionalInfo?: string ): Promise<void> {
 		try {
 			await channel.send(
 				`${ additionalInfo }Command syntax:
@@ -69,7 +69,7 @@ export default class SendCommand extends PrefixCommand {
 				try {
 					const embed = new MessageEmbed();
 					embed.setDescription( content );
-					await sendChannel.send( embed );
+					await sendChannel.send( { embeds: [embed] } );
 				} catch {
 					return false;
 				}

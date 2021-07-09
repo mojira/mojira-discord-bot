@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, TextChannel } from 'discord.js';
+import { Message, MessageEmbed, Snowflake, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
 import DiscordUtil from '../../util/DiscordUtil';
@@ -14,14 +14,14 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 	/**
 	 * A map from request channel IDs to internal channel objects.
 	 */
-	private readonly internalChannels: Map<string, string>;
+	private readonly internalChannels: Map<Snowflake, Snowflake>;
 
 	/**
 	 * A map from request channel IDs to request limit numbers.
 	 */
-	private readonly requestLimits: Map<string, number>;
+	private readonly requestLimits: Map<Snowflake, number>;
 
-	constructor( internalChannels: Map<string, string>, requestLimits: Map<string, number> ) {
+	constructor( internalChannels: Map<Snowflake, Snowflake>, requestLimits: Map<Snowflake, number> ) {
 		this.internalChannels = internalChannels;
 		this.requestLimits = requestLimits;
 	}
@@ -54,9 +54,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 			try {
 				const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) doesn't contain any valid ticket reference. If you'd like to add it you can edit your message.` );
-
-				const timeout = BotConfig.request.warningLifetime;
-				await warning.delete( { timeout } );
+				await DiscordUtil.deleteWithDelay( warning, BotConfig.request.warningLifetime );
 			} catch ( error ) {
 				this.logger.error( error );
 			}
@@ -74,9 +72,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 				try {
 					const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) contains a ticket that is less than 24 hours old. Please wait until it is at least one day old before making a request.` );
-
-					const timeout = BotConfig.request.warningLifetime;
-					await warning.delete( { timeout } );
+					await DiscordUtil.deleteWithDelay( warning, BotConfig.request.warningLifetime );
 				} catch ( error ) {
 					this.logger.error( error );
 				}
@@ -101,9 +97,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 				try {
 					const warning = await origin.channel.send( `${ origin.author }, you have posted a lot of requests today that are still pending. Please wait for these requests to be resolved before posting more.` );
-
-					const timeout = BotConfig.request.warningLifetime;
-					await warning.delete( { timeout } );
+					await DiscordUtil.deleteWithDelay( warning, BotConfig.request.warningLifetime );
 				} catch ( error ) {
 					this.logger.error( error );
 				}
@@ -131,7 +125,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 				? RequestsUtil.getResponseMessage( origin )
 				: '';
 
-			const copy = await internalChannel.send( response, embed ) as Message;
+			const copy = await internalChannel.send( { content: response, embeds: [embed] } );
 
 			if ( BotConfig.request.suggestedEmoji ) {
 				await ReactionsUtil.reactToMessage( copy, [...BotConfig.request.suggestedEmoji] );

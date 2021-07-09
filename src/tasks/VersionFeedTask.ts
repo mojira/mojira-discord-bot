@@ -89,7 +89,7 @@ export default class VersionFeedTask extends Task {
 
 		for ( const change of changes ) {
 			try {
-				const versionFeedMessage = await this.channel.send( change.message, { embed: change.embed } );
+				const versionFeedMessage = await this.channel.send( { content: change.message, embeds: [change.embed] } );
 
 				if ( this.publish ) {
 					await NewsUtil.publishMessage( versionFeedMessage );
