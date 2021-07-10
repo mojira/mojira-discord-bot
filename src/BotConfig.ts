@@ -106,8 +106,7 @@ export default class BotConfig {
 	public static debug: boolean;
 	public static logDirectory: false | string;
 
-	// TODO: make private again when /crosspost api endpoint is implemented into discord.js
-	public static token: string;
+	private static token: string;
 	public static owners: string[];
 
 	public static homeChannel: string;
