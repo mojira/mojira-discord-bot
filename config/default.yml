@@ -28,6 +28,7 @@ projects:
 request:
   invalidTicketEmoji: ⏸
   noLinkEmoji: ⛔
+  duplicateRequestEmoji: '🔁'
   warningLifetime: 5000
   waitingEmoji: ⌛
 

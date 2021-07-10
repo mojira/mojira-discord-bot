@@ -64,7 +64,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			return;
 		}
 
-		if ( BotConfig.request.invalidRequestJql ) {
+		if ( BotConfig.request.invalidTicketEmoji && BotConfig.request.invalidRequestJql ) {
 			if ( !await RequestsUtil.checkTicketValidity( tickets ) ) {
 				try {
 					await origin.react( BotConfig.request.invalidTicketEmoji );
@@ -87,6 +87,30 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 		const requestLimit = this.requestLimits.get( origin.channel.id );
 		const internalChannelId = this.internalChannels.get( origin.channel.id );
 		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
+
+		if ( BotConfig.request.duplicateRequestEmoji ) {
+			const match = RequestsUtil.findExactMatchInPendingRequests( origin, internalChannel );
+
+			if ( match != origin ) {
+				const parent = await RequestsUtil.getOriginMessage( match );
+
+				try {
+					await origin.react( BotConfig.request.duplicateRequestEmoji );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
+
+				try {
+					const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) has already been requested at <${ parent.url }>.` );
+
+					const timeout = BotConfig.request.warningLifetime;
+					await warning.delete( { timeout } );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
+				return;
+			}
+		}
 
 		if ( requestLimit && requestLimit >= 0 && internalChannel instanceof TextChannel ) {
 			const internalChannelUserMessages = internalChannel.messages.cache
