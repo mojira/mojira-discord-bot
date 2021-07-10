@@ -49,7 +49,7 @@ export class RequestConfig {
 
 		this.invalidTicketEmoji = config.get( 'request.invalidTicketEmoji' );
 		this.noLinkEmoji = config.get( 'request.noLinkEmoji' );
-		this.duplicateRequestEmoji = config.get( 'duplicateRequestEmoji' );
+		this.duplicateRequestEmoji = config.get( 'request.duplicateRequestEmoji' );
 		this.warningLifetime = config.get( 'request.warningLifetime' );
 		this.invalidRequestJql = config.get( 'request.invalidRequestJql' );
 		this.waitingEmoji = config.get( 'request.waitingEmoji' );

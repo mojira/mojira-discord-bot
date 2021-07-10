@@ -149,8 +149,8 @@ export class RequestsUtil {
 	public static findExactMatchInPendingRequests( origin: Message, internalChannel: Channel ): Message {
 		const matcher = this.replaceTicketReferencesWithRichLinks( origin.content );
 		if ( internalChannel instanceof TextChannel ) {
-			const matches = internalChannel.messages.cache.filter( message => message.embeds[0].description == matcher );
-			return matches.size > 0 ? matches[0] : origin;
+			const matches = internalChannel.messages.cache.filter( message => message.embeds.length > 0 && message.embeds[0].description == matcher);
+			return matches.size > 0 ? matches.first() : origin;
 		} else {
 			return origin;
 		}
