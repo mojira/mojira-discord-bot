@@ -1,6 +1,7 @@
 import { Client } from 'discord.js';
 import config from 'config';
 import MojiraBot from './MojiraBot';
+import Sqlite3 from 'better-sqlite3';
 import { VersionChangeType } from './tasks/VersionFeedTask';
 
 function getOrDefault<T>( configPath: string, defaultValue: T ): T {
@@ -111,6 +112,9 @@ export default class BotConfig {
 
 	public static homeChannel: string;
 
+	public static modmailEnabled: boolean;
+	public static modmailChannel: string;
+
 	public static ticketUrlsCauseEmbed: boolean;
 	public static quotedTicketsCauseEmbed: boolean;
 	public static requiredTicketPrefix: string;
@@ -129,6 +133,8 @@ export default class BotConfig {
 	public static filterFeeds: FilterFeedConfig[];
 	public static versionFeeds: VersionFeedConfig[];
 
+	public static database: Sqlite3.Database;
+
 	public static init(): void {
 		this.debug = getOrDefault( 'debug', false );
 		this.logDirectory = getOrDefault( 'logDirectory', false );
@@ -137,6 +143,10 @@ export default class BotConfig {
 		this.owners = getOrDefault( 'owners', [] );
 
 		this.homeChannel = config.get( 'homeChannel' );
+
+		this.modmailEnabled = getOrDefault( 'modmailEnabled', false );
+		this.modmailChannel = getOrDefault( 'modmailChannel', '' );
+
 		this.ticketUrlsCauseEmbed = getOrDefault( 'ticketUrlsCauseEmbed', false );
 		this.quotedTicketsCauseEmbed = getOrDefault( 'quotedTicketsCauseEmbed', false );
 
@@ -155,6 +165,8 @@ export default class BotConfig {
 
 		this.filterFeeds = config.get( 'filterFeeds' );
 		this.versionFeeds = config.get( 'versionFeeds' );
+
+		this.database = new Sqlite3( './db.sqlite' );
 	}
 
 	public static async login( client: Client ): Promise<boolean> {
