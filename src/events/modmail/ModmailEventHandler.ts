@@ -18,6 +18,7 @@ export default class ModmailEventHandler implements EventHandler<'message'> {
 		if ( modmailChannel instanceof TextChannel && banStatus === undefined ) {
 			try {
 				await modmailChannel.send( `${ origin.author }: ${ origin.content }` );
+				await origin.react( '📬' );0
 			} catch ( e ) {
 				this.logger.error( e );
 
@@ -26,6 +27,7 @@ export default class ModmailEventHandler implements EventHandler<'message'> {
 		} else if ( banStatus !== undefined ) {
 			try {
 				await origin.channel.send( 'We\'re sorry, but you have been banned from sending any further modmail messages.' );
+				await origin.react( '❌' );
 			} catch ( e ) {
 				this.logger.error( e );
 
