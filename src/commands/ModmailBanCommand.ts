@@ -9,7 +9,7 @@ export default class ModmailBanCommand extends PrefixCommand {
 	public readonly aliases = ['modmailban', 'ban'];
 
 	public async run( message: Message, args: string ): Promise<boolean> {
-		BotConfig.database.exec("CREATE TABLE IF NOT EXISTS modmail_bans ('user' varchar)");
+		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_bans (\'user\' varchar)' );
 
 		if ( !args.length ) {
 			return false;
