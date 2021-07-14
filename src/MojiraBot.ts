@@ -1,5 +1,6 @@
-import { ChannelLogsQueryOptions, Client, Message, TextChannel } from 'discord.js';
+import { ChannelLogsQueryOptions, Client, Intents, Message, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
+import { Client as JiraClient } from 'jira.js';
 import BotConfig from './BotConfig';
 import ErrorEventHandler from './events/discord/ErrorEventHandler';
 import EventRegistry from './events/EventRegistry';
@@ -11,6 +12,7 @@ import ReactionRemoveEventHandler from './events/reaction/ReactionRemoveEventHan
 import RequestEventHandler from './events/request/RequestEventHandler';
 import RequestResolveEventHandler from './events/request/RequestResolveEventHandler';
 import FilterFeedTask from './tasks/FilterFeedTask';
+import CachedFilterFeedTask from './tasks/CachedFilterFeedTask';
 import TaskScheduler from './tasks/TaskScheduler';
 import VersionFeedTask from './tasks/VersionFeedTask';
 import DiscordUtil from './util/DiscordUtil';
@@ -25,8 +27,17 @@ import { RoleSelectionUtil } from './util/RoleSelectionUtil';
 export default class MojiraBot {
 	public static logger = log4js.getLogger( 'MojiraBot' );
 
-	public static client: Client = new Client( { partials: ['REACTION'] } );
+	public static client: Client = new Client( {
+		partials: ['MESSAGE', 'REACTION', 'USER'],
+		ws: {
+			intents: Intents.NON_PRIVILEGED,
+		},
+	} );
 	private static running = false;
+
+	public static jira = new JiraClient( {
+		host: 'https://bugs.mojang.com',
+	} );
 
 	public static async start(): Promise<void> {
 		if ( this.running ) {
@@ -62,14 +73,11 @@ export default class MojiraBot {
 				const channel = await DiscordUtil.getChannel( group.channel );
 				if ( channel && channel instanceof TextChannel ) {
 					try {
-						if ( !group.message ) {
-							try {
-								await RoleSelectionUtil.sendRoleSelectionMessage( channel, group );
-							} catch ( error ) {
-								MojiraBot.logger.error( error );
-							}
+						try {
+							await RoleSelectionUtil.updateRoleSelectionMessage( group );
+						} catch ( error ) {
+							MojiraBot.logger.error( error );
 						}
-						await DiscordUtil.getMessage( channel, group.message );
 					} catch ( err ) {
 						this.logger.error( err );
 					}
@@ -78,22 +86,27 @@ export default class MojiraBot {
 
 			const requestChannels: TextChannel[] = [];
 			const internalChannels = new Map<string, string>();
+			const requestLimits = new Map<string, number>();
 
 			if ( BotConfig.request.channels ) {
 				for ( let i = 0; i < BotConfig.request.channels.length; i++ ) {
 					const requestChannelId = BotConfig.request.channels[i];
 					const internalChannelId = BotConfig.request.internalChannels[i];
+					const requestLimit = BotConfig.request.requestLimits[i];
 					try {
 						const requestChannel = await DiscordUtil.getChannel( requestChannelId );
 						const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 						if ( requestChannel instanceof TextChannel && internalChannel instanceof TextChannel ) {
 							requestChannels.push( requestChannel );
 							internalChannels.set( requestChannelId, internalChannelId );
+							requestLimits.set( requestChannelId, requestLimit );
+
 							// https://stackoverflow.com/questions/55153125/fetch-more-than-100-messages
 							const allMessages: Message[] = [];
 							let lastId: string | undefined;
-							// eslint-disable-next-line no-constant-condition
-							while ( true ) {
+							let continueSearch = true;
+
+							while ( continueSearch ) {
 								const options: ChannelLogsQueryOptions = { limit: 50 };
 								if ( lastId ) {
 									options.before = lastId;
@@ -102,13 +115,13 @@ export default class MojiraBot {
 								allMessages.push( ...messages.array() );
 								lastId = messages.last()?.id;
 								if ( messages.size !== 50 || !lastId ) {
-									break;
+									continueSearch = false;
 								}
 							}
 							this.logger.info( `Fetched ${ allMessages.length } messages from "${ internalChannel.name }"` );
 
 							// Resolve pending resolved requests
-							const handler = new RequestResolveEventHandler();
+							const handler = new RequestResolveEventHandler( this.client.user.id );
 							for ( const message of allMessages ) {
 								message.reactions.cache.forEach( async reaction => {
 									const users = await reaction.users.fetch();
@@ -128,7 +141,7 @@ export default class MojiraBot {
 					}
 				}
 
-				const newRequestHandler = new RequestEventHandler( internalChannels );
+				const newRequestHandler = new RequestEventHandler( internalChannels, requestLimits );
 				for ( const requestChannel of requestChannels ) {
 					this.logger.info( `Catching up on requests from #${ requestChannel.name }...` );
 
@@ -177,19 +190,26 @@ export default class MojiraBot {
 				this.logger.info( 'Fully caught up on requests.' );
 			}
 
-			EventRegistry.add( new ReactionAddEventHandler( this.client.user.id, internalChannels ) );
+			EventRegistry.add( new ReactionAddEventHandler( this.client.user.id, internalChannels, requestLimits ) );
 			EventRegistry.add( new ReactionRemoveEventHandler( this.client.user.id ) );
-			EventRegistry.add( new MessageEventHandler( this.client.user.id, internalChannels ) );
+			EventRegistry.add( new MessageEventHandler( this.client.user.id, internalChannels, requestLimits ) );
 			EventRegistry.add( new MessageUpdateEventHandler( this.client.user.id, internalChannels ) );
 			EventRegistry.add( new MessageDeleteEventHandler( this.client.user.id, internalChannels ) );
 
 			// #region Schedule tasks.
 			// Filter feed tasks.
 			for ( const config of BotConfig.filterFeeds ) {
-				TaskScheduler.addTask(
-					new FilterFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
-					config.interval
-				);
+				if ( config.cached ) {
+					TaskScheduler.addTask(
+						new CachedFilterFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
+						config.interval
+					);
+				} else {
+					TaskScheduler.addTask(
+						new FilterFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
+						config.interval
+					);
+				}
 			}
 
 			// Version feed tasks.

@@ -5,15 +5,21 @@ import BotConfig from '../BotConfig';
 
 export default class MentionCommand extends Command {
 	public static get ticketPattern(): string {
-		return `(?:${ BotConfig.projects.join( '|' ) })-\\d+`;
+		return `(?<ticketid>(?:${ BotConfig.projects.join( '|' ) })-\\d+)`;
 	}
 
-	public static get ticketIdRegex(): RegExp {
+	/**
+	 * @returns A NEW regex object every time. You have to store it as a variable if you use `exec` on it, otherwise you will encounter infinite loops.
+	 */
+	public static getTicketIdRegex(): RegExp {
 		return new RegExp( `(?<=^|[^${ BotConfig.forbiddenTicketPrefix }])(?<=${ BotConfig.requiredTicketPrefix })(${ MentionCommand.ticketPattern })`, 'g' );
 	}
 
-	public static get ticketLinkRegex(): RegExp {
-		return new RegExp( `https?://bugs\\.mojang\\.com/(?:browse|projects/\\w+/issues)/(${ MentionCommand.ticketPattern })`, 'g' );
+	/**
+	 * @returns A NEW regex object every time. You have to store it as a variable if you use `exec` on it, otherwise you will encounter infinite loops.
+	 */
+	public static getTicketLinkRegex(): RegExp {
+		return new RegExp( `https?://bugs\\.mojang\\.com/(?:browse|projects/\\w+/issues)/${ MentionCommand.ticketPattern }`, 'g' );
 	}
 
 	public test( messageText: string ): boolean | string[] {
@@ -21,13 +27,20 @@ export default class MentionCommand extends Command {
 		// replace all issues posted in the form of a link from the search either with a mention or remove them
 		if ( !BotConfig.ticketUrlsCauseEmbed || BotConfig.requiredTicketPrefix ) {
 			messageText = messageText.replace(
-				MentionCommand.ticketLinkRegex,
+				MentionCommand.getTicketLinkRegex(),
 				BotConfig.ticketUrlsCauseEmbed ? `${ BotConfig.requiredTicketPrefix }$1` : ''
 			);
 		}
 
+		if ( !BotConfig.quotedTicketsCauseEmbed ) {
+			messageText = messageText
+				.split( '\n' )
+				.filter( line => !line.startsWith( '> ' ) )
+				.join( '\n' );
+		}
+
 		let ticketMatch: RegExpExecArray;
-		const ticketIdRegex = MentionCommand.ticketIdRegex;
+		const ticketIdRegex = MentionCommand.getTicketIdRegex();
 		const ticketMatches: Set<string> = new Set();
 
 		while ( ( ticketMatch = ticketIdRegex.exec( messageText ) ) !== null ) {
@@ -43,11 +56,12 @@ export default class MentionCommand extends Command {
 		let embed: MessageEmbed;
 		try {
 			embed = await mention.getEmbed();
-		} catch ( err ) {
+		} catch ( jiraError ) {
 			try {
-				await message.channel.send( err );
-			} catch ( err ) {
-				Command.logger.log( err );
+				Command.logger.info( `Error when retreiving issue information: ${ jiraError.message }` );
+				await message.channel.send( `${ message.author } ${ jiraError.message }` );
+			} catch ( discordError ) {
+				Command.logger.error( discordError );
 			}
 			return false;
 		}

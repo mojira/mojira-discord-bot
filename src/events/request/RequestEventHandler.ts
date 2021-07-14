@@ -1,7 +1,6 @@
 import { Message, MessageEmbed, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
-import MentionCommand from '../../commands/MentionCommand';
 import DiscordUtil from '../../util/DiscordUtil';
 import { ReactionsUtil } from '../../util/ReactionsUtil';
 import { RequestsUtil } from '../../util/RequestsUtil';
@@ -17,12 +16,19 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 	 */
 	private readonly internalChannels: Map<string, string>;
 
-	constructor( internalChannels: Map<string, string> ) {
+	/**
+	 * A map from request channel IDs to request limit numbers.
+	 */
+	private readonly requestLimits: Map<string, number>;
+
+	constructor( internalChannels: Map<string, string>, requestLimits: Map<string, number> ) {
 		this.internalChannels = internalChannels;
+		this.requestLimits = requestLimits;
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
+		// we need this because this method gets invoked directly on bot startup instead of via the general MessageEventHandler
 		if ( origin.type !== 'DEFAULT' ) {
 			return;
 		}
@@ -37,9 +43,9 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			this.logger.error( error );
 		}
 
-		const regex = new RegExp( `(?:${ MentionCommand.ticketLinkRegex.source }|(${ MentionCommand.ticketPattern }))(\\?\\S+)?`, 'g' );
+		const tickets = RequestsUtil.getTicketIdsFromString( origin.content );
 
-		if ( BotConfig.request.noLinkEmoji && !origin.content.match( regex ) ) {
+		if ( BotConfig.request.noLinkEmoji && !tickets.length ) {
 			try {
 				await origin.react( BotConfig.request.noLinkEmoji );
 			} catch ( error ) {
@@ -49,13 +55,60 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			try {
 				const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) doesn't contain any valid ticket reference. If you'd like to add it you can edit your message.` );
 
-				const timeout = BotConfig.request.noLinkWarningLifetime;
+				const timeout = BotConfig.request.warningLifetime;
 				await warning.delete( { timeout } );
 			} catch ( error ) {
 				this.logger.error( error );
 			}
 
 			return;
+		}
+
+		if ( BotConfig.request.invalidRequestJql ) {
+			if ( !await RequestsUtil.checkTicketValidity( tickets ) ) {
+				try {
+					await origin.react( BotConfig.request.invalidTicketEmoji );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
+
+				try {
+					const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) contains a ticket that is less than 24 hours old. Please wait until it is at least one day old before making a request.` );
+
+					const timeout = BotConfig.request.warningLifetime;
+					await warning.delete( { timeout } );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
+				return;
+			}
+		}
+
+		const requestLimit = this.requestLimits.get( origin.channel.id );
+		const internalChannelId = this.internalChannels.get( origin.channel.id );
+		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
+
+		if ( requestLimit && requestLimit >= 0 && internalChannel instanceof TextChannel ) {
+			const internalChannelUserMessages = internalChannel.messages.cache
+				.filter( message => message.embeds.length > 0 && message.embeds[0].author.name == origin.author.tag )
+				.filter( message => new Date().valueOf() - message.embeds[0].timestamp.valueOf() <= 86400000 );
+			if ( internalChannelUserMessages.size >= requestLimit ) {
+				try {
+					await origin.react( BotConfig.request.invalidTicketEmoji );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
+
+				try {
+					const warning = await origin.channel.send( `${ origin.author }, you have posted a lot of requests today that are still pending. Please wait for these requests to be resolved before posting more.` );
+
+					const timeout = BotConfig.request.warningLifetime;
+					await warning.delete( { timeout } );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
+				return;
+			}
 		}
 
 		if ( BotConfig.request.waitingEmoji ) {
@@ -66,18 +119,13 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			}
 		}
 
-		const internalChannelId = this.internalChannels.get( origin.channel.id );
-		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
-
 		if ( internalChannel && internalChannel instanceof TextChannel ) {
 			const embed = new MessageEmbed()
-				.setColor( 'BLUE' )
+				.setColor( RequestsUtil.getEmbedColor() )
 				.setAuthor( origin.author.tag, origin.author.avatarURL() )
-				.setDescription( this.replaceTicketReferencesWithRichLinks( origin.content, regex ) )
+				.setDescription( RequestsUtil.getRequestDescription( origin ) )
 				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
-				.addField( 'Channel', origin.channel.id, true )
-				.addField( 'Message', origin.id, true )
-				.setTimestamp( new Date() );
+				.setTimestamp( origin.createdAt );
 
 			const response = BotConfig.request.prependResponseMessage == PrependResponseMessageType.Always
 				? RequestsUtil.getResponseMessage( origin )
@@ -90,10 +138,4 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			}
 		}
 	};
-
-	private replaceTicketReferencesWithRichLinks( content: string, regex: RegExp ): string {
-		// Only one of the two capture groups ($1 and $2) can catch an ID at the same time.
-		// `$1$2` is used to get the ID from either of the two groups.
-		return content.replace( /([[\]])/gm, '\\$1' ).replace( regex, '[$1$2](https://bugs.mojang.com/browse/$1$2$3)' );
-	}
 }

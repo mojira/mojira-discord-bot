@@ -24,6 +24,9 @@ homeChannel: <string>
 # Whether the bot should send an embed when a full URL to a ticket gets posted.
 ticketUrlsCauseEmbed: <boolean>
 
+# Whether the bot should send an embed when a ticket gets posted inside of a quote.
+quotedTicketsCauseEmbed: <boolean>
+
 # A prefix that prevents the bot from posting an embed for a mentioned ticket.
 # If this prefix is longer than 1, none of the characters can be used.
 # When omitted or empty, no prefix prevents embeds.
@@ -33,6 +36,12 @@ forbiddenTicketPrefix: <string>
 # If this prefix is longer than 1, the entire string needs to prefix any mentioned ticket.
 # When omitted or empty, no prefix is required for posting embeds.
 requiredTicketPrefix: <string>
+
+# An emoji or emoji ID which, when reacted to a bot embed, deletes it.
+embedDeletionEmoji: <string>
+
+# The maximum number of results returned by the jira search command.
+maxSearchResults: <number>
 
 # The projects the bot should be able to find tickets for.
 projects:
@@ -58,15 +67,38 @@ request:
     - <string>
     - <string>
     - ...
-  
+
+  # The number of allowed requests per user per day.
+  # If the number of requests created by a single user exceeds this amount, new requests will not be forwarded to the internal channels.
+  # The length of this array MUST be the same as the length of `channels`.
+  # Setting to a negative number will remove the request limit
+  # Optional; empty by default.
+  requestLimits:
+    - <number>
+    - <number>
+    - ...
+
+  # The IDs of the server's testing request channels.
+  # Optional; empty by default.
+  testingRequestChannels:
+    - <string>
+    - <string>
+    - ...
+
   # A channel which stores logs like `<volunteer> resolved <original message ID> as <emoji>.`
   logChannel: <string>
   
   # An emoji or emoji ID which means that the request doesn't contain any valid ticket ID or ticket link.
   noLinkEmoji: <string>
 
+  # An emoji or emoji ID which means that the request contains a ticket that is invalid.
+  invalidTicketEmoji: <string>
+
   # The lifetime of the warning about an invalid request, in milliseconds.
-  noLinkWarningLifetime: <number>
+  warningLifetime: <number>
+
+  # Jira search jql that marks a ticket as invalid to make requests for.
+  invalidRequestJql: <string>
 
   # An emoji or emoji ID which means that the request is waiting to be handled.
   # The bot will react to every user's request with this emoji.
@@ -83,6 +115,9 @@ request:
   
   # An emoji or emoji ID which, when used, doesn't trigger the response template message.
   ignorePrependResponseMessageEmoji: <string>
+  
+  # An emoji or emoji ID which, when used, doesn't resolve the request.
+  ignoreResolutionEmoji: <string>
 
   # The ID of the role that signifies users that get notifications from some of their resolved requests.
   # This includes only the ignorePrependResponseMessageEmoji resolution.
@@ -109,6 +144,9 @@ request:
   # The amount of time in milliseconds between a volunteer reacts to the message and the bot deletes its message.
   resolveDelay: <number>
 
+  # The amount of time in milliseconds between a volunteer sends a message and the bot deletes the message and adds it to the internal request.
+  progressMessageAddDelay: <number>
+
   # If and when the message defined in `responseMessage` should be added to an entry in the internal requests channel.
   # Optional; never by default.
   prependResponseMessage: <'never' | 'whenResolved' | 'always'>
@@ -132,7 +170,10 @@ roleGroups:
       # The role's ID
     - id: <number>
 
-      # The role's description.
+      # The role's name.
+      title: <string>
+
+      # Optional; the role's description.
       desc: <string>
 
       # The ID of an emoji representing this role.
@@ -143,6 +184,10 @@ roleGroups:
     - ...
     # The prompt that should be shown for the role selection message.
     prompt: <string>
+    # Optional; Further explanation on the role selection.
+    desc: <string>
+    # Color of the role selection embed.
+    color: <string>
     # The channel ID of which the role selection message is in.
     channel: <string>
     # The message ID of this role selection message.
@@ -154,6 +199,10 @@ roleGroups:
 filterFeeds:
     # The filter's JQL query.
   - jql: <string>
+
+    # The JQL query for which tickets should be allowed to be reposted that have been posted previously.
+    # Optional; Only include if cached is set to true
+    jqlRemoved: <string>
 
     # The ID of the channel in which the feed should be sent.
     channel: <string>
@@ -176,6 +225,11 @@ filterFeeds:
     # Whether the bot should automatically publish feed messages it posts, if the channel is an announcement channel.
     # Optional; false by default.
     publish: <boolean>
+
+    # Whether the bot should cache tickets in the filter feed, 
+    # If false, the property lastRun should be included in the jql, but when true, the filter feed will be less efficient.
+    # Optional; true by default.
+    cached: <boolean>
   
   - <see above>
   - ...

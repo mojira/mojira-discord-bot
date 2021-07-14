@@ -12,64 +12,70 @@ homeChannel: '646317855234850818'
 
 request:
   channels:
-    - '648555618994618378'
-    - '648555751438155776'
-    - '648555873836335124'
-    - '651161365091844116'
-    - '692382286103969843'
+    - '648555618994618378' # java-requests
+    - '648555751438155776' # bedrock-requests
+    - '651161365091844116' # other-requests
+    - '692382286103969843' # dungeons-requests
   internalChannels:
-    - '683038862024638474'
-    - '683038914306506841'
-    - '683039615837536380'
-    - '683040112191340560'
-    - '692382871578607767'
+    - '683038862024638474' # java-pending-requests
+    - '683038914306506841' # bedrock-pending-requests
+    - '683040112191340560' # other-pending-requests
+    - '692382871578607767' # dungeons-pending-requests
+  requestLimits:
+    - 30 # Limit for # java-requests
+    - 30 # Limit for # bedrock-requests
+    - 45 # Limit for # other-requests
+    - 30 # Limit for # dungeons-requests
+  testingRequestChannels:
+    - '740188001052917801'
+    - '807240396445843516'
   logChannel: '683039388825026562'
 
 roleGroups:
-  - prompt: Please select the project(s) you are interested in, so that we can add you to the appropriate channels.
+  - prompt: Please select the project(s) you are interested in.
+    desc: This will give you access to the appropriate channels.
+    color: GREEN
     channel: '648479533246316555'
     message: '692405794305736816'
     radio: false
     roles:
       - id: '648536573675044865'
-        desc: |-
-          Java Edition
-          _PC, Mac and Linux_
+        title: Java Edition (MC)
+        desc: _Windows, macOS and Linux_
         emoji: '648525192414494730'
       - id: '648536590481752074'
+        title: Bedrock Edition (MCPE)
         desc: |-
-          Bedrock Edition
-          _Android, iOS, Windows 10, Xbox One, Nintendo Switch and Playstation 4_
+          _Android, iOS, Windows 10 (from the Microsoft Store),
+          Xbox, Nintendo Switch, Playstation, Fire OS, and Gear VR_
         emoji: '648474430158405642'
-      - id: '648536605094707201'
-        desc: 'Minecraft: Earth'
-        emoji: '648524067359686678'
       - id: '692398773762261023'
-        desc: 'Minecraft: Dungeons'
+        title: Minecraft Dungeons (MCD)
+        desc: _Action-adventure title set in the Minecraft universe_
         emoji: '692399397232836758'
       - id: '648536618113826847'
-        desc: Other projects
+        title: Other projects
+        desc: (BDS, MCL, REALMS, WEB)
         emoji: '648521149390520320'
-  - prompt: |-
-      Please select the pronoun(s) that you'd like to go by.
-      This is not mandatory, but we encourage people to use the appropriate pronouns when referring to each other.
+  - prompt: Please select the pronoun(s) that you'd like to go by.
+    desc: This is not mandatory, but we encourage people to use the appropriate pronouns when referring to each other.
+    color: BLUE
     channel: '648479533246316555'
     message: '753757208575082556'
     radio: false # Some people might go by multiple pronouns? So why I implemented the radio feature 😅
     roles:
       - id: '753741802829381765'
-        desc: He/Him
+        title: He/Him
         emoji: '🇭'
       - id: '753741949474832434'
-        desc: She/Her
+        title: She/Her
         emoji: '🇸'
       - id: '753742065971757167'
-        desc: They/Them
+        title: They/Them
         emoji: '🇹'
       - id: '753745759148572801'
-        desc: |-
-          Other Pronoun
-          (please indicate in your nickname)
+        title: Other Pronoun
+        desc: (please indicate in your nickname)
         emoji: '🇴'
   - prompt: |-
       Request Notifications (1/2)
@@ -102,18 +108,22 @@ roleGroups:
 
 
 filterFeeds:
-  - jql: project = MC AND resolved > -1m AND resolution = Fixed AND fixVersion in unreleasedVersions()
+  - jql: project = MC AND resolved > lastRun AND resolution = Fixed AND fixVersion in unreleasedVersions()
+    jqlRemoved: resolution = Unresolved
     channel: '666349583227682819'
+    publish: true
     interval: 30000
     filterFeedEmoji: '🎉'
     title: '{{num}} tickets have just been resolved as Fixed!'
     titleSingle: This ticket has just been resolved as Fixed!
+    cached: false
 
 versionFeeds:
     #java-fixes
   - projects:
       - MC
     channel: '666349583227682819'
+    publish: true
     interval: 30000
     scope: 5
     versionFeedEmoji: '🎉'
@@ -121,13 +131,12 @@ versionFeeds:
       - released
       - unreleased
       - renamed
-  
+
     #version-log
   - projects:
       - BDS
       - MC
       - MCD
-      - MCE
       - MCL
       - MCPE
       - REALMS

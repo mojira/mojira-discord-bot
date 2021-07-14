@@ -18,6 +18,9 @@ export default class ResolveRequestMessageTask extends MessageTask {
 	}
 
 	public async run( copy: Message ): Promise<void> {
+		// If the message has been deleted, don't do anything
+		if ( copy === undefined ) return;
+
 		const origin = await RequestsUtil.getOriginMessage( copy );
 
 		if ( copy.deletable ) {
@@ -129,8 +132,9 @@ export default class ResolveRequestMessageTask extends MessageTask {
 						.setColor( 'GREEN' )
 						.setAuthor( origin.author.tag, origin.author.avatarURL() )
 						.setDescription( origin.content )
-						.addField( 'Channel', origin.channel.toString(), true )
 						.addField( 'Message', `[Here](${ origin.url })`, true )
+						.addField( 'Channel', origin.channel.toString(), true )
+						.addField( 'Created', origin.createdAt.toUTCString(), false )
 						.setFooter( `${ this.user.tag } resolved as ${ this.emoji }`, this.user.avatarURL() )
 						.setTimestamp( new Date() );
 

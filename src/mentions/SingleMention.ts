@@ -1,23 +1,16 @@
-import { MessageEmbed } from 'discord.js';
-import JiraClient from 'jira-connector';
+import { MessageEmbed, Util } from 'discord.js';
 import moment from 'moment';
+import MojiraBot from '../MojiraBot';
 import { MarkdownUtil } from '../util/MarkdownUtil';
 import { Mention } from './Mention';
 
 export class SingleMention extends Mention {
-	private jira: JiraClient;
-
 	private ticket: string;
 
 	constructor( ticket: string ) {
 		super();
 
 		this.ticket = ticket;
-
-		this.jira = new JiraClient( {
-			host: 'bugs.mojang.com',
-			strictSSL: true,
-		} );
 	}
 
 	public async getEmbed(): Promise<MessageEmbed> {
@@ -25,34 +18,31 @@ export class SingleMention extends Mention {
 		let ticketResult: any;
 
 		try {
-			ticketResult = await this.jira.issue.getIssue( {
-				issueId: this.ticket,
+			ticketResult = await MojiraBot.jira.issues.getIssue( {
+				issueIdOrKey: this.ticket,
 			} );
 		} catch ( err ) {
-			const exception = JSON.parse( err );
-			if ( !exception ) {
-				Mention.logger.error( err );
-				return;
+			let errorMessage = `An error occurred while retrieving ticket ${ this.ticket }: ${ err.message }`;
+
+			if ( err.response ) {
+				const exception = err.response;
+
+				if ( exception.status === 404 ) {
+					errorMessage = `${ this.ticket } doesn't seem to exist.`;
+				} else if ( exception.status === 401 ) {
+					errorMessage = `${ this.ticket } is private or has been deleted.`;
+				} else if ( exception?.data?.errorMessages ) {
+					for ( const msg of exception.data.errorMessages ) {
+						errorMessage += `\n${ msg }`;
+					}
+				}
 			}
 
-			Mention.logger.error( 'Error: status code ' + exception.statusCode );
-
-			// TODO clean up
-			let errorMessage = `An error occurred while retrieving this ticket: ${ exception.body.errorMessages[0] }`;
-
-			if ( exception.statusCode === 404 ) {
-				errorMessage = 'This ticket doesn\'t seem to exist.';
-			} else if ( exception.statusCode === 401 ) {
-				errorMessage = 'This ticket is private or has been deleted.';
-			}
-
-			throw errorMessage;
+			throw new Error( errorMessage );
 		}
 
 		if ( !ticketResult.fields ) {
-			Mention.logger.error( 'Error: no fields returned by JIRA' );
-
-			throw 'An error occurred while retrieving this ticket: No fields were returned by the JIRA API.';
+			throw new Error( 'No fields were returned by the JIRA API.' );
 		}
 
 		let status = ticketResult.fields.status.name;
@@ -93,7 +83,7 @@ export class SingleMention extends Mention {
 
 		const embed = new MessageEmbed();
 		embed.setAuthor( ticketResult.fields.reporter.displayName, ticketResult.fields.reporter.avatarUrls['48x48'], 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) )
-			.setTitle( `[${ ticketResult.key }] ${ ticketResult.fields.summary }` )
+			.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ Util.escapeMarkdown( ticketResult.fields.summary ) }` ) )
 			.setDescription( description.substring( 0, 2048 ) )
 			.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
 			.addField( 'Status', status, !largeStatus )
@@ -123,11 +113,11 @@ export class SingleMention extends Mention {
 
 		if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
 			const fixVersions = ticketResult.fields.fixVersions.map( v => v.name );
-			embed.addField( 'Fix version' + ( fixVersions.length > 1 ? 's' : '' ), fixVersions.join( ', ' ), true );
+			embed.addField( 'Fix version' + ( fixVersions.length > 1 ? 's' : '' ), Util.escapeMarkdown( fixVersions.join( ', ' ) ), true );
 		}
 
 		if ( ticketResult.fields.assignee ) {
-			embed.addField( 'Assignee', `[${ ticketResult.fields.assignee.displayName }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.assignee.name ) })`, true );
+			embed.addField( 'Assignee', `[${ Util.escapeMarkdown( ticketResult.fields.assignee.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.assignee.name ) })`, true );
 		}
 
 		if ( ticketResult.fields.votes.votes ) {
@@ -144,11 +134,17 @@ export class SingleMention extends Mention {
 		}
 
 		if ( ticketResult.fields.creator.key !== ticketResult.fields.reporter.key ) {
-			embed.addField( 'Created by', `[${ ticketResult.fields.creator.displayName }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.creator.name ) })`, true );
+			embed.addField( 'Created by', `[${ Util.escapeMarkdown( ticketResult.fields.creator.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.creator.name ) })`, true );
 		}
 
 		embed.addField( 'Created', moment( ticketResult.fields.created ).fromNow(), true );
 
 		return embed;
+	}
+	private ensureLength( input: string ): string {
+		if ( input.length > 251 ) {
+			return input.substring( 0, 251 ) + '...';
+		}
+		return input;
 	}
 }

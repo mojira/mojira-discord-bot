@@ -6,33 +6,39 @@ logDirectory: logs
 
 ticketUrlsCauseEmbed: false
 
+quotedTicketsCauseEmbed: false
+
 forbiddenTicketPrefix: '!'
 
 requiredTicketPrefix: ''
 
+embedDeletionEmoji: '🗑️'
+
+maxSearchResults: 5
+
 projects:
   - BDS
   - MC
-  - MCAPI
-  - MCCE
   - MCD
-  - MCE
   - MCL
   - MCPE
   - REALMS
   - WEB
 
 request:
+  invalidTicketEmoji: ⏸
   noLinkEmoji: ⛔
-  noLinkWarningLifetime: 5000
+  warningLifetime: 5000
   waitingEmoji: ⌛
+
+  invalidRequestJql: created > -24h
 
   suggestedEmoji:
     - ✅
     - ☑️
     - ❌
     - 💬
-  
+
   ignorePrependResponseMessageEmoji: ✅
   ignoreResolutionEmoji: 💬
 
@@ -44,6 +50,7 @@ request:
   longNotificationsTimeDifference: 604800000 # 1 week
 
   resolveDelay: 10000
+  progressMessageAddDelay: 10000
   prependResponseMessage: whenResolved
   prependResponseMessageInLog: false
 
@@ -51,5 +58,5 @@ request:
     ```
     {{author}} {{url}}
     {{message}}
-    
+
     ```

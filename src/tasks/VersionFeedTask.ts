@@ -1,8 +1,8 @@
 import { Channel, MessageEmbed, TextChannel } from 'discord.js';
-import JiraClient from 'jira-connector';
 import * as log4js from 'log4js';
 import { VersionFeedConfig } from '../BotConfig';
 import { NewsUtil } from '../util/NewsUtil';
+import MojiraBot from '../MojiraBot';
 import Task from './Task';
 
 interface JiraVersion {
@@ -14,18 +14,21 @@ interface JiraVersion {
 	project: string;
 }
 
+export type VersionChangeType = 'created' | 'released' | 'unreleased' | 'archived' | 'unarchived' | 'renamed';
+
 interface JiraVersionChange {
+	type: VersionChangeType;
+	versionId: string;
 	message: string;
 	embed?: MessageEmbed;
 }
 
-export type VersionChangeType = 'created' | 'released' | 'unreleased' | 'archived' | 'unarchived' | 'renamed';
+interface JiraVersionMap {
+	[id: string]: JiraVersion;
+}
 
 export default class VersionFeedTask extends Task {
 	private static logger = log4js.getLogger( 'VersionFeedTask' );
-	private static maxId = 0;
-
-	private jira: JiraClient;
 
 	private channel: Channel;
 	private projects: string[];
@@ -34,16 +37,10 @@ export default class VersionFeedTask extends Task {
 	private actions: VersionChangeType[];
 	private publish: boolean;
 
-	private cachedVersions: JiraVersion[] = [];
-
-	private initialized = false;
-	private id = 0;
+	private cachedVersions: JiraVersionMap = {};
 
 	constructor( feedConfig: VersionFeedConfig, channel: Channel ) {
 		super();
-
-		this.id = VersionFeedTask.maxId++;
-		VersionFeedTask.logger.debug( `Initializing version feed task ${ this.id } with settings ${ JSON.stringify( feedConfig ) }` );
 
 		this.channel = channel;
 		this.projects = feedConfig.projects;
@@ -51,43 +48,42 @@ export default class VersionFeedTask extends Task {
 		this.scope = feedConfig.scope;
 		this.actions = feedConfig.actions;
 		this.publish = feedConfig.publish ?? false;
-
-		this.jira = new JiraClient( {
-			host: 'bugs.mojang.com',
-			strictSSL: true,
-		} );
-
-		this.getVersions().then(
-			async versions => {
-				this.cachedVersions = versions;
-				this.initialized = true;
-
-				VersionFeedTask.logger.debug( `Version feed task ${ this.id } has been initialized` );
-
-				await this.run();
-			}
-		).catch(
-			error => {
-				VersionFeedTask.logger.error( error );
-			}
-		);
 	}
 
-	public async run(): Promise<void> {
-		if ( !this.initialized ) {
-			VersionFeedTask.logger.debug( `Version feed task ${ this.id } was run but did not execute because it has not been initialized yet` );
-			return;
+	protected async init(): Promise<void> {
+		try {
+			for ( const project of this.projects ) {
+				const results = await MojiraBot.jira.projectVersions.getProjectVersions( {
+					projectIdOrKey: project,
+					expand: 'id,name,archived,released',
+				} );
+
+				for ( const value of results ) {
+					this.cachedVersions[value.id] = {
+						id: value.id,
+						name: value.name,
+						archived: value.archived,
+						released: value.released,
+						releaseDate: value.releaseDate,
+						project,
+					};
+				}
+			}
+		} catch ( error ) {
+			// If any request fails, our cache cannot be used. Return error.
+			this.cachedVersions = {};
+			throw error;
 		}
+	}
 
-		VersionFeedTask.logger.debug( `Running version feed task ${ this.id }` );
-
+	protected async run(): Promise<void> {
 		if ( !( this.channel instanceof TextChannel ) ) {
-			VersionFeedTask.logger.error( `Expected ${ this.channel } to be a TextChannel` );
+			VersionFeedTask.logger.error( `[${ this.id }] Expected ${ this.channel } to be a TextChannel` );
 			return;
 		}
 
-		const currentVersions = await this.getVersions();
-		const changes = await this.getVersionChanges( this.cachedVersions, currentVersions );
+		const changes = await this.getAllVersionChanges();
+		VersionFeedTask.logger.debug( `[${ this.id }] Gotten ${ changes.length } relevant version changes: ${ VersionFeedTask.stringifyChanges( changes ) }` );
 
 		for ( const change of changes ) {
 			try {
@@ -101,98 +97,113 @@ export default class VersionFeedTask extends Task {
 					await versionFeedMessage.react( this.versionFeedEmoji );
 				}
 			} catch ( error ) {
-				VersionFeedTask.logger.error( error );
+				VersionFeedTask.logger.error( `[${ this.id }] Could not send Discord message`, error );
 			}
 		}
-
-		if ( changes.length ) {
-			this.cachedVersions = currentVersions;
-			VersionFeedTask.logger.debug( `Cached versions for version feed task ${ this.id }: ${ JSON.stringify( this.cachedVersions ) }` );
-		}
 	}
 
-	private async getVersions(): Promise<JiraVersion[]> {
-		let versions: JiraVersion[] = [...this.cachedVersions];
+	private async getAllVersionChanges(): Promise<JiraVersionChange[]> {
+		const changes: JiraVersionChange[] = [];
 
 		for ( const project of this.projects ) {
-			versions = await this.updateVersionsForProject( project, versions );
+			changes.push( ...await this.getVersionChangesForProject( project ) );
 		}
 
-		return versions;
+		return changes.filter( change => this.actions.includes( change.type ) );
 	}
 
-	private async updateVersionsForProject( project: string, versions: JiraVersion[] ): Promise<JiraVersion[]> {
-		const results = await this.jira.project.getVersionsPaginated( {
+	private async getVersionChangesForProject( project: string ): Promise<JiraVersionChange[]> {
+		const results = await MojiraBot.jira.projectVersions.getProjectVersionsPaginated( {
 			projectIdOrKey: project,
 			maxResults: this.scope,
 			orderBy: '-sequence',
 		} );
 
+		VersionFeedTask.logger.debug( `[${ this.id }] Received ${ results.values.length } versions for project ${ project }` );
+
+		const changes: JiraVersionChange[] = [];
+
 		for ( const value of results.values ) {
-			const version: JiraVersion = {
-				id: value.id,
-				name: value.name,
-				archived: value.archived,
-				released: value.released,
-				releaseDate: value.releaseDate,
-				project,
-			};
+			try {
+				const version: JiraVersion = {
+					id: value.id,
+					name: value.name,
+					archived: value.archived,
+					released: value.released,
+					releaseDate: value.releaseDate,
+					project,
+				};
 
-			const replaceId = versions.findIndex( it => value.id === it.id );
+				const versionChanges = await this.getVersionChanges( this.cachedVersions[value.id], version );
 
-			if ( replaceId < 0 ) {
-				versions.push( version );
-			} else {
-				versions[replaceId] = version;
+				if ( versionChanges.length ) {
+					this.cachedVersions[value.id] = version;
+					changes.push( ...versionChanges );
+				}
+			} catch ( error ) {
+				VersionFeedTask.logger.error( error );
 			}
 		}
 
-		return versions;
+		VersionFeedTask.logger.debug( `[${ this.id }] Found ${ changes.length } version changes for project ${ project }: ${ VersionFeedTask.stringifyChanges( changes ) }` );
+
+		return changes;
 	}
 
-	private async getVersionChanges( previous: JiraVersion[], current: JiraVersion[] ): Promise<JiraVersionChange[]> {
+	private async getVersionChanges( previous: JiraVersion, current: JiraVersion ): Promise<JiraVersionChange[]> {
 		const changes: JiraVersionChange[] = [];
 
-		for ( const version of current ) {
-			const previousVersion = previous.find( it => it.id === version.id );
-
-			if ( previousVersion === undefined ) {
-				if ( !this.actions.includes( 'created' ) ) break;
-
+		if ( previous === undefined ) {
+			changes.push( {
+				type: 'created',
+				versionId: current.id,
+				message: `Version **${ current.name }** has been created.`,
+			} );
+		} else {
+			if ( previous.name !== current.name ) {
 				changes.push( {
-					message: `Version **${ version.name }** has been created.`,
-					embed: await this.getVersionEmbed( version ),
+					type: 'renamed',
+					versionId: current.id,
+					message: `Version **${ previous.name }** has been renamed to **${ current.name }**.`,
 				} );
-			} else {
-				if ( previousVersion.name !== version.name ) {
-					if ( !this.actions.includes( 'renamed' ) ) break;
+			}
 
+			if ( previous.archived !== current.archived ) {
+				if ( current.archived ) {
 					changes.push( {
-						message: `Version **${ previousVersion.name }** has been renamed to **${ version.name }**.`,
-						embed: await this.getVersionEmbed( version ),
+						type: 'archived',
+						versionId: current.id,
+						message: `Version **${ current.name }** has been archived.`,
 					} );
-				}
-
-				if ( previousVersion.archived !== version.archived ) {
-					if ( version.archived === true && !this.actions.includes( 'archived' ) ) break;
-					if ( version.archived === false && !this.actions.includes( 'unarchived' ) ) break;
-
+				} else {
 					changes.push( {
-						message: `Version **${ version.name }** has been ${ version.archived ? '' : 'un' }archived.`,
-						embed: await this.getVersionEmbed( version ),
-					} );
-				}
-
-				if ( previousVersion.released !== version.released ) {
-					if ( version.released === true && !this.actions.includes( 'released' ) ) break;
-					if ( version.released === false && !this.actions.includes( 'unreleased' ) ) break;
-
-					changes.push( {
-						message: `Version **${ version.name }** has been ${ version.released ? '' : 'un' }released.`,
-						embed: await this.getVersionEmbed( version ),
+						type: 'unarchived',
+						versionId: current.id,
+						message: `Version **${ current.name }** has been unarchived.`,
 					} );
 				}
 			}
+
+			if ( previous.released !== current.released ) {
+				if ( current.released ) {
+					changes.push( {
+						type: 'released',
+						versionId: current.id,
+						message: `Version **${ current.name }** has been released.`,
+					} );
+				} else {
+					changes.push( {
+						type: 'unreleased',
+						versionId: current.id,
+						message: `Version **${ current.name }** has been unreleased.`,
+					} );
+				}
+			}
+		}
+
+		const versionEmbed = await this.getVersionEmbed( current );
+		for ( const change of changes ) {
+			change.embed = versionEmbed;
 		}
 
 		return changes;
@@ -209,8 +220,8 @@ export default class VersionFeedTask extends Task {
 		};
 
 		try {
-			versionIssueCounts = await this.jira.version.getRelatedIssueCounts( {
-				versionId: version.id,
+			versionIssueCounts = await MojiraBot.jira.projectVersions.getVersionsRelatedIssuesCount( {
+				id: version.id,
 			} );
 		} catch ( error ) {
 			VersionFeedTask.logger.error( error );
@@ -243,5 +254,13 @@ export default class VersionFeedTask extends Task {
 		}
 
 		return embed;
+	}
+
+	private static stringifyChanges( changes: JiraVersionChange[] ): string {
+		return `[${ changes.map( change => `${ change.type }:${ change.versionId }` ).join( ',' ) }]`;
+	}
+
+	public asString(): string {
+		return `VersionFeedTask[#${ this.id }]`;
 	}
 }

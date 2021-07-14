@@ -9,7 +9,7 @@
 <br/>
 <p align="center">
   <a href="https://bugs.mojang.com/">
-    <img src="mojira-logo.png" alt="MojiraBot" width="80" height="80">
+    <img src="mojirabot-logo.png" alt="MojiraBot" width="80" height="80">
   </a>
 
   <h3 align="center">MojiraBot</h3>
@@ -86,18 +86,20 @@ Note that the bot is started in a detached screen, which means you won't see any
 
 You can stop the bot with `./stop.sh <deployment>` or restart it with `./restart.sh <deployment>`.
 
+### Minimal bot permissions
+For the bot to function properly, the minimal Discord permissions bitfield is `268790848`.
+
 ## Built with
 
 This project depends on the following projects, thanks to every developer who makes their code open-source! :heart:
 
 - [discord.js](https://github.com/discordjs/discord.js/)
 - [ESLint](https://github.com/eslint/eslint)
-- [jira-connector](https://github.com/floralvikings/jira-connector)
+- [jira.js](https://github.com/MrRefactoring/jira.js)
 - [JS-YAML](https://github.com/nodeca/js-yaml)
 - [log4js](https://github.com/log4js-node/log4js-node)
 - [moment](https://github.com/moment/moment)
 - [node-config](https://github.com/lorenwest/node-config)
-- [node-fetch](https://github.com/node-fetch/node-fetch)
 - [TypeScript](https://github.com/Microsoft/TypeScript/)
 - [TypeScript ESLint](https://github.com/typescript-eslint/typescript-eslint/)
 
