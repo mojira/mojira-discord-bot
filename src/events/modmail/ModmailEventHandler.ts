@@ -13,6 +13,8 @@ export default class ModmailEventHandler implements EventHandler<'message'> {
 	public onEvent = async ( origin: Message ): Promise<void> => {
 		const modmailChannel = await DiscordUtil.getChannel( BotConfig.modmailChannel );
 
+		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_bans (\'user\' varchar)' );
+
 		const banStatus = BotConfig.database.prepare( 'SELECT user FROM modmail_bans WHERE user = ?' ).get( origin.author.toString() );
 
 		if ( modmailChannel instanceof TextChannel && banStatus === undefined ) {
