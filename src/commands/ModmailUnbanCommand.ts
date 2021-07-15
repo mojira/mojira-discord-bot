@@ -4,7 +4,7 @@ import PermissionRegistry from '../permissions/PermissionRegistry';
 import PrefixCommand from './PrefixCommand';
 
 export default class ModmailUnbanCommand extends PrefixCommand {
-	public readonly permissionLevel = PermissionRegistry.OWNER_PERMISSION;
+	public readonly permissionLevel = PermissionRegistry.ADMIN_PERMISSION;
 
 	public readonly aliases = ['modmailunban', 'unban'];
 
