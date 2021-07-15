@@ -2,6 +2,7 @@ import { Message, MessageEmbed } from 'discord.js';
 import Command from './Command';
 import { MentionRegistry } from '../mentions/MentionRegistry';
 import BotConfig from '../BotConfig';
+import { ChannelConfigUtil } from '../util/ChannelConfigUtil';
 
 export default class MentionCommand extends Command {
 	public static get ticketPattern(): string {
@@ -51,7 +52,9 @@ export default class MentionCommand extends Command {
 	}
 
 	public async run( message: Message, args: string[] ): Promise<boolean> {
-		const mention = MentionRegistry.getMention( args );
+		if ( ChannelConfigUtil.mentionsDisabled( message.channel ) ) return false;
+
+		const mention = MentionRegistry.getMention( args, message.channel );
 
 		let embed: MessageEmbed;
 		try {

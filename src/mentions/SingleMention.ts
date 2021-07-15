@@ -1,16 +1,19 @@
-import { MessageEmbed, Util } from 'discord.js';
+import { Channel, MessageEmbed, Util } from 'discord.js';
 import moment from 'moment';
 import MojiraBot from '../MojiraBot';
+import { ChannelConfigUtil } from '../util/ChannelConfigUtil';
 import { MarkdownUtil } from '../util/MarkdownUtil';
 import { Mention } from './Mention';
 
 export class SingleMention extends Mention {
 	private ticket: string;
+	private channel: Channel;
 
-	constructor( ticket: string ) {
+	constructor( ticket: string, channel: Channel ) {
 		super();
 
 		this.ticket = ticket;
+		this.channel = channel;
 	}
 
 	public async getEmbed(): Promise<MessageEmbed> {
@@ -82,62 +85,71 @@ export class SingleMention extends Mention {
 		description = description.split( '\n' ).slice( 0, 2 ).join( '\n' );
 
 		const embed = new MessageEmbed();
-		embed.setAuthor( ticketResult.fields.reporter.displayName, ticketResult.fields.reporter.avatarUrls['48x48'], 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) )
-			.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ Util.escapeMarkdown( ticketResult.fields.summary ) }` ) )
-			.setDescription( description.substring( 0, 2048 ) )
+
+		if ( ChannelConfigUtil.limitedInfo( this.channel ) ) {
+			embed.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ Util.escapeMarkdown( ticketResult.fields.summary ) }` ) )
+			.setDescription( description.substring( 0, 1024 ) )
 			.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
-			.addField( 'Status', status, !largeStatus )
 			.setColor( 'RED' );
+		} else {
+			embed.setAuthor( ticketResult.fields.reporter.displayName, ticketResult.fields.reporter.avatarUrls['48x48'], 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) )
+				.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ Util.escapeMarkdown( ticketResult.fields.summary ) }` ) )
+				.setDescription( description.substring( 0, 2048 ) )
+				.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
+				.addField( 'Status', status, !largeStatus )
+				.setColor( 'RED' );
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		function findThumbnail( attachments: any[] ): string {
-			const allowedMimes = [
-				'image/png', 'image/jpeg',
-			];
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			function findThumbnail( attachments: any[] ): string {
+				const allowedMimes = [
+					'image/png', 'image/jpeg',
+				];
 
-			attachments.sort( ( a, b ) => {
-				return new Date( a.created ).valueOf() - new Date( b.created ).valueOf();
-			} );
+				attachments.sort( ( a, b ) => {
+					return new Date( a.created ).valueOf() - new Date( b.created ).valueOf();
+				} );
 
-			for ( const attachment of attachments ) {
-				if ( allowedMimes.includes( attachment.mimeType ) ) return attachment.content;
+				for ( const attachment of attachments ) {
+					if ( allowedMimes.includes( attachment.mimeType ) ) return attachment.content;
+				}
+
+				return undefined;
 			}
 
-			return undefined;
+			// Assigned to, Reported by, Created on, Category, Resolution, Resolved on, Since version, (Latest) affected version, Fixed version(s)
+
+			const thumbnail = findThumbnail( ticketResult.fields.attachment );
+			if ( thumbnail !== undefined ) embed.setThumbnail( thumbnail );
+
+			if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
+				const fixVersions = ticketResult.fields.fixVersions.map( v => v.name );
+				embed.addField( 'Fix version' + ( fixVersions.length > 1 ? 's' : '' ), Util.escapeMarkdown( fixVersions.join( ', ' ) ), true );
+			}
+
+			if ( ticketResult.fields.assignee ) {
+				embed.addField( 'Assignee', `[${ Util.escapeMarkdown( ticketResult.fields.assignee.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.assignee.name ) })`, true );
+			}
+
+			if ( ticketResult.fields.votes.votes ) {
+				embed.addField( 'Votes', ticketResult.fields.votes.votes, true );
+			}
+
+			if ( ticketResult.fields.comment.total ) {
+				embed.addField( 'Comments', ticketResult.fields.comment.total, true );
+			}
+
+			const duplicates = ticketResult.fields.issuelinks.filter( relation => relation.type.id === '10102' && relation.inwardIssue );
+			if ( duplicates.length ) {
+				embed.addField( 'Duplicates', duplicates.length, true );
+			}
+
+			if ( ticketResult.fields.creator.key !== ticketResult.fields.reporter.key ) {
+				embed.addField( 'Created by', `[${ Util.escapeMarkdown( ticketResult.fields.creator.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.creator.name ) })`, true );
+			}
+
+			embed.addField( 'Created', moment( ticketResult.fields.created ).fromNow(), true );
+
 		}
-
-		// Assigned to, Reported by, Created on, Category, Resolution, Resolved on, Since version, (Latest) affected version, Fixed version(s)
-
-		const thumbnail = findThumbnail( ticketResult.fields.attachment );
-		if ( thumbnail !== undefined ) embed.setThumbnail( thumbnail );
-
-		if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
-			const fixVersions = ticketResult.fields.fixVersions.map( v => v.name );
-			embed.addField( 'Fix version' + ( fixVersions.length > 1 ? 's' : '' ), Util.escapeMarkdown( fixVersions.join( ', ' ) ), true );
-		}
-
-		if ( ticketResult.fields.assignee ) {
-			embed.addField( 'Assignee', `[${ Util.escapeMarkdown( ticketResult.fields.assignee.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.assignee.name ) })`, true );
-		}
-
-		if ( ticketResult.fields.votes.votes ) {
-			embed.addField( 'Votes', ticketResult.fields.votes.votes, true );
-		}
-
-		if ( ticketResult.fields.comment.total ) {
-			embed.addField( 'Comments', ticketResult.fields.comment.total, true );
-		}
-
-		const duplicates = ticketResult.fields.issuelinks.filter( relation => relation.type.id === '10102' && relation.inwardIssue );
-		if ( duplicates.length ) {
-			embed.addField( 'Duplicates', duplicates.length, true );
-		}
-
-		if ( ticketResult.fields.creator.key !== ticketResult.fields.reporter.key ) {
-			embed.addField( 'Created by', `[${ Util.escapeMarkdown( ticketResult.fields.creator.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.creator.name ) })`, true );
-		}
-
-		embed.addField( 'Created', moment( ticketResult.fields.created ).fromNow(), true );
 
 		return embed;
 	}
