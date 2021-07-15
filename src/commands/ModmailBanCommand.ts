@@ -19,7 +19,7 @@ export default class ModmailBanCommand extends PrefixCommand {
 			BotConfig.database.prepare(
 				`INSERT INTO modmail_bans (user)
 				VALUES (?)`
-			).run( args );
+			).run( args.replace( '!', '' ) );
 		} catch {
 			return false;
 		}
@@ -34,6 +34,6 @@ export default class ModmailBanCommand extends PrefixCommand {
 	}
 
 	public asString( args: string ): string {
-		return `!jira modmailban ${ args }`;
+		return `!jira modmailban ${ args.replace( '!', '' ) }`;
 	}
 }

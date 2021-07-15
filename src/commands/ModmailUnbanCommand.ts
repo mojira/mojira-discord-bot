@@ -19,7 +19,7 @@ export default class ModmailUnbanCommand extends PrefixCommand {
 			const unban = BotConfig.database.prepare(
 				`DELETE FROM modmail_bans
 				WHERE user = ?`
-			).run( args );
+			).run( args.replace( '!', '' ) );
 			if ( unban.changes == 0 ) {
 				await message.channel.send( 'User was never banned.' );
 
@@ -41,6 +41,6 @@ export default class ModmailUnbanCommand extends PrefixCommand {
 	}
 
 	public asString( args: string ): string {
-		return `!jira modmailunban ${ args }`;
+		return `!jira modmailunban ${ args.replace( '!', '' ) }`;
 	}
 }
