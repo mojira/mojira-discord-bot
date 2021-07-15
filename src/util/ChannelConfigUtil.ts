@@ -10,7 +10,7 @@ export class ChannelConfigUtil {
 		return false;
 	}
 
-	// Indicates in the channel's description that commands (including mentions) are disabled in that channel.
+	// Indicates in the channel's description that commands are disabled in that channel.
 	// Tag: ~no-command
 	public static commandsDisabled( channel: Channel ): boolean {
 		if ( channel instanceof TextChannel || channel instanceof NewsChannel ) {

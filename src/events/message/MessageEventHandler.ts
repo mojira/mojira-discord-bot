@@ -51,7 +51,7 @@ export default class MessageEventHandler implements EventHandler<'message'> {
 			await this.internalProgressEventHandler.onEvent( message );
 		}
 
-		if ( ChannelConfigUtil.commandsDisabled( message.channel ) ) return;
+		if ( ChannelConfigUtil.commandsDisabled( message.channel ) && message.content.startsWith( '!jira' ) ) return;
 
 		await CommandExecutor.checkCommands( message );
 	};
