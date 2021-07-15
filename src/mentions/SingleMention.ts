@@ -88,9 +88,9 @@ export class SingleMention extends Mention {
 
 		if ( ChannelConfigUtil.limitedInfo( this.channel ) ) {
 			embed.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ Util.escapeMarkdown( ticketResult.fields.summary ) }` ) )
-			.setDescription( description.substring( 0, 1024 ) )
-			.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
-			.setColor( 'RED' );
+				.setDescription( description.substring( 0, 1024 ) )
+				.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
+				.setColor( 'RED' );
 		} else {
 			embed.setAuthor( ticketResult.fields.reporter.displayName, ticketResult.fields.reporter.avatarUrls['48x48'], 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) )
 				.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ Util.escapeMarkdown( ticketResult.fields.summary ) }` ) )
@@ -99,26 +99,9 @@ export class SingleMention extends Mention {
 				.addField( 'Status', status, !largeStatus )
 				.setColor( 'RED' );
 
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			function findThumbnail( attachments: any[] ): string {
-				const allowedMimes = [
-					'image/png', 'image/jpeg',
-				];
-
-				attachments.sort( ( a, b ) => {
-					return new Date( a.created ).valueOf() - new Date( b.created ).valueOf();
-				} );
-
-				for ( const attachment of attachments ) {
-					if ( allowedMimes.includes( attachment.mimeType ) ) return attachment.content;
-				}
-
-				return undefined;
-			}
-
 			// Assigned to, Reported by, Created on, Category, Resolution, Resolved on, Since version, (Latest) affected version, Fixed version(s)
 
-			const thumbnail = findThumbnail( ticketResult.fields.attachment );
+			const thumbnail = this.findThumbnail( ticketResult.fields.attachment );
 			if ( thumbnail !== undefined ) embed.setThumbnail( thumbnail );
 
 			if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
@@ -153,6 +136,24 @@ export class SingleMention extends Mention {
 
 		return embed;
 	}
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private findThumbnail( attachments: any[] ): string {
+		const allowedMimes = [
+			'image/png', 'image/jpeg',
+		];
+
+		attachments.sort( ( a, b ) => {
+			return new Date( a.created ).valueOf() - new Date( b.created ).valueOf();
+		} );
+
+		for ( const attachment of attachments ) {
+			if ( allowedMimes.includes( attachment.mimeType ) ) return attachment.content;
+		}
+
+		return undefined;
+	}
+
 	private ensureLength( input: string ): string {
 		if ( input.length > 251 ) {
 			return input.substring( 0, 251 ) + '...';
