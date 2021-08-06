@@ -100,7 +100,6 @@ This project depends on the following projects, thanks to every developer who ma
 - [log4js](https://github.com/log4js-node/log4js-node)
 - [moment](https://github.com/moment/moment)
 - [node-config](https://github.com/lorenwest/node-config)
-- [node-fetch](https://github.com/node-fetch/node-fetch)
 - [TypeScript](https://github.com/Microsoft/TypeScript/)
 - [TypeScript ESLint](https://github.com/typescript-eslint/typescript-eslint/)
 
