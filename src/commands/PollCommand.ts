@@ -67,7 +67,7 @@ export default class PollCommand extends PrefixCommand {
 			embed.addField( option.emoji, option.text, true );
 		}
 
-		let poll = await message.channel.send( { embeds: [embed], allowedMentions: {} } );
+		let poll = await message.channel.send( { embeds: [embed], allowedMentions: { parse: [] } } );
 
 		if ( poll instanceof Array ) {
 			if ( poll.length == 0 ) {
