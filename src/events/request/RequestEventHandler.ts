@@ -123,7 +123,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 			const response = BotConfig.request.prependResponseMessage == PrependResponseMessageType.Always
 				? RequestsUtil.getResponseMessage( origin )
-				: '';
+				: ' ';
 
 			const copy = await internalChannel.send( { content: response, embeds: [embed] } );
 
