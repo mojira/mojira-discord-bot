@@ -7,8 +7,8 @@ import RequestEventHandler from '../request/RequestEventHandler';
 import TestingRequestEventHandler from '../request/TestingRequestEventHandler';
 import InternalProgressEventHandler from '../internal/InternalProgressEventHandler';
 
-export default class MessageEventHandler implements EventHandler<'message'> {
-	public readonly eventName = 'message';
+export default class MessageEventHandler implements EventHandler<'messageCreate'> {
+	public readonly eventName = 'messageCreate';
 
 	private readonly botUserId: Snowflake;
 

@@ -32,7 +32,7 @@ export default class MojiraBot {
 		intents: [
 			Intents.FLAGS.GUILDS,
 			Intents.FLAGS.GUILD_BANS,
-			Intents.FLAGS.GUILD_EMOJIS,
+			Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
 			Intents.FLAGS.GUILD_INTEGRATIONS,
 			Intents.FLAGS.GUILD_WEBHOOKS,
 			Intents.FLAGS.GUILD_INVITES,
@@ -128,7 +128,7 @@ export default class MojiraBot {
 									options.before = lastId;
 								}
 								const messages = await internalChannel.messages.fetch( options );
-								allMessages.push( ...messages.array() );
+								allMessages.push( ...messages.values() );
 								lastId = messages.last()?.id;
 								if ( messages.size !== 50 || !lastId ) {
 									continueSearch = false;
@@ -141,7 +141,7 @@ export default class MojiraBot {
 							for ( const message of allMessages ) {
 								message.reactions.cache.forEach( async reaction => {
 									const users = await reaction.users.fetch();
-									const user = users.array().find( v => v.id !== this.botUser.id );
+									const user = [...users.values()].find( v => v.id !== this.botUser.id );
 									if ( user ) {
 										try {
 											await handler.onEvent( reaction, user );
