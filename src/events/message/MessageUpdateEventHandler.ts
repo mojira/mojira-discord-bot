@@ -24,7 +24,7 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 
 		if (
 			// Don't handle non-default messages
-			oldMessage.type !== 'DEFAULT'
+			( oldMessage.type !== 'DEFAULT' && oldMessage.type !== 'REPLY' )
 
 			// Don't handle webhooks
 			|| oldMessage.webhookId

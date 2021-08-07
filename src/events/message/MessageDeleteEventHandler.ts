@@ -23,7 +23,7 @@ export default class MessageDeleteEventHandler implements EventHandler<'messageD
 
 		if (
 			// Don't handle non-default messages
-			message.type !== 'DEFAULT'
+			( message.type !== 'DEFAULT' && message.type !== 'REPLY' )
 
 			// Don't handle webhooks
 			|| message.webhookId
