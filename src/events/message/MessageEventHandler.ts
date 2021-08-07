@@ -36,7 +36,7 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 			|| message.author.id === this.botUserId
 
 			// Don't reply to non-default messages
-			|| message.type !== 'DEFAULT'
+			|| ( message.type !== 'DEFAULT' && message.type !== 'REPLY' )
 		) return;
 
 		if ( BotConfig.request.channels && BotConfig.request.channels.includes( message.channel.id ) ) {
