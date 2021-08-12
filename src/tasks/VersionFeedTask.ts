@@ -4,6 +4,7 @@ import { VersionFeedConfig } from '../BotConfig';
 import { NewsUtil } from '../util/NewsUtil';
 import MojiraBot from '../MojiraBot';
 import Task from './Task';
+import { LoggerUtil } from '../util/LoggerUtil';
 
 interface JiraVersion {
 	id: string;
@@ -226,10 +227,7 @@ export default class VersionFeedTask extends Task {
 				id: version.id,
 			} );
 		} catch ( error ) {
-			VersionFeedTask.logger.error( `Error information:
-										Status code: ${ error.response?.status || undefined }
-										Status text: ${ error.response?.statusText || undefined }
-										Error messages: ${ error.response?.data.errorMessages || undefined }`.replace( /\t/g, '' ).replace( /(?<=\n).*/g, '\t$&' ) );
+			VersionFeedTask.logger.error( LoggerUtil.shortenJiraError( error ) );
 			return undefined;
 		}
 
