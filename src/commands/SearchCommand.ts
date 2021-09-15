@@ -35,7 +35,7 @@ export default class SearchCommand extends PrefixCommand {
 				embed.addField( issue.key, `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })` );
 			}
 
-			const escapedJql = encodeURIComponent( searchFilter ).replace( '(', '%28' ).replace( ')', '%29' );
+			const escapedJql = encodeURIComponent( searchFilter ).replace( '/(/g', '%28' ).replace( '/)/g', '%29' );
 			embed.setDescription( `__[See all results](https://bugs.mojang.com/issues/?jql=${ escapedJql })__` );
 
 			await message.channel.send( embed );
