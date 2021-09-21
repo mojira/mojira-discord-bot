@@ -1,9 +1,9 @@
-import { Channel, NewsChannel, TextChannel } from 'discord.js';
+import { Channel, NewsChannel, TextChannel, TextBasedChannels } from 'discord.js';
 
 export class ChannelConfigUtil {
 	// Indicates in the channel's description that mentions are disabled in that channel.
 	// Tag: ~no-mention
-	public static mentionsDisabled( channel: Channel ): boolean {
+	public static mentionsDisabled( channel: TextBasedChannels ): boolean {
 		if ( channel instanceof TextChannel || channel instanceof NewsChannel ) {
 			return channel.topic.includes( '~no-mention' );
 		}
@@ -12,7 +12,7 @@ export class ChannelConfigUtil {
 
 	// Indicates in the channel's description that commands are disabled in that channel.
 	// Tag: ~no-command
-	public static commandsDisabled( channel: Channel ): boolean {
+	public static commandsDisabled( channel: TextBasedChannels ): boolean {
 		if ( channel instanceof TextChannel || channel instanceof NewsChannel ) {
 			return channel.topic.includes( '~no-command' );
 		}
@@ -21,7 +21,7 @@ export class ChannelConfigUtil {
 
 	// Indicates in the channel's description that mention embeds will have limited information.
 	// Tag: ~limited-info
-	public static limitedInfo( channel: Channel ): boolean {
+	public static limitedInfo( channel: TextBasedChannels ): boolean {
 		if ( channel instanceof TextChannel || channel instanceof NewsChannel ) {
 			return channel.topic.includes( '~limited-info' );
 		}
