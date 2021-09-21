@@ -113,7 +113,7 @@ export default class CachedFilterFeedTask extends Task {
 					message = this.titleSingle;
 				}
 
-				const filterFeedMessage = await this.channel.send( { content: message, embeds: [embed] } );
+				const filterFeedMessage = await this.channel.send( message, embed );
 
 				if ( this.publish ) {
 					await NewsUtil.publishMessage( filterFeedMessage );

@@ -1,4 +1,4 @@
-import { MessageReaction, Snowflake, User } from 'discord.js';
+import { MessageReaction, User } from 'discord.js';
 import BotConfig from '../../BotConfig';
 import DiscordEventHandler from '../EventHandler';
 import RequestEventHandler from '../request/RequestEventHandler';
@@ -13,7 +13,7 @@ import DiscordUtil from '../../util/DiscordUtil';
 export default class ReactionAddEventHandler implements DiscordEventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';
 
-	private readonly botUserId: Snowflake;
+	private readonly botUserId: string;
 
 	private readonly roleSelectHandler = new RoleSelectEventHandler();
 	private readonly requestResolveEventHandler: RequestResolveEventHandler;
@@ -21,7 +21,7 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 	private readonly requestReopenEventHandler: RequestReopenEventHandler;
 	private readonly mentionDeleteEventHandler = new MentionDeleteEventHandler();
 
-	constructor( botUserId: Snowflake, internalChannels: Map<Snowflake, Snowflake>, requestLimits: Map<Snowflake, number> ) {
+	constructor( botUserId: string, internalChannels: Map<string, string>, requestLimits: Map<string, number> ) {
 		this.botUserId = botUserId;
 
 		const requestEventHandler = new RequestEventHandler( internalChannels, requestLimits );

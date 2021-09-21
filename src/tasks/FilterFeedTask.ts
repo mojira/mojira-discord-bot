@@ -16,7 +16,7 @@ export default class FilterFeedTask extends Task {
 	private titleSingle: string;
 	private publish: boolean;
 
-	private lastRun: number;
+	private	lastRun: number;
 
 	constructor( feedConfig: FilterFeedConfig, channel: Channel ) {
 		super();
@@ -72,7 +72,7 @@ export default class FilterFeedTask extends Task {
 					message = this.titleSingle;
 				}
 
-				const filterFeedMessage = await this.channel.send( { content: message, embeds: [embed] } );
+				const filterFeedMessage = await this.channel.send( message, embed );
 
 				if ( this.publish ) {
 					await NewsUtil.publishMessage( filterFeedMessage );
