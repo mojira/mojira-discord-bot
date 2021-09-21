@@ -1,5 +1,5 @@
 import EventHandler from '../EventHandler';
-import { Message, Snowflake } from 'discord.js';
+import { Message } from 'discord.js';
 import BotConfig from '../../BotConfig';
 import RequestUpdateEventHandler from '../request/RequestUpdateEventHandler';
 import DiscordUtil from '../../util/DiscordUtil';
@@ -11,7 +11,7 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 
 	private readonly requestUpdateEventHandler: RequestUpdateEventHandler;
 
-	constructor( botUserId: string, internalChannels: Map<Snowflake, Snowflake> ) {
+	constructor( botUserId: string, internalChannels: Map<string, string> ) {
 		this.botUserId = botUserId;
 
 		this.requestUpdateEventHandler = new RequestUpdateEventHandler( internalChannels );
@@ -24,10 +24,10 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 
 		if (
 			// Don't handle non-default messages
-			( oldMessage.type !== 'DEFAULT' && oldMessage.type !== 'REPLY' )
+			oldMessage.type !== 'DEFAULT'
 
 			// Don't handle webhooks
-			|| oldMessage.webhookId
+			|| oldMessage.webhookID
 
 			// Don't handle own messages
 			|| oldMessage.author.id === this.botUserId

@@ -72,7 +72,7 @@ export default class MentionCommand extends Command {
 			.setTimestamp( message.createdAt );
 
 		try {
-			await message.channel.send( { embeds: [embed] } );
+			await message.channel.send( embed );
 		} catch ( err ) {
 			Command.logger.error( err );
 			return false;
