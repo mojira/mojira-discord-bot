@@ -5,7 +5,7 @@ export class ChannelConfigUtil {
 	// Tag: ~no-mention
 	public static mentionsDisabled( channel: TextBasedChannels ): boolean {
 		if ( channel instanceof TextChannel || channel instanceof NewsChannel ) {
-			return channel.topic.includes( '~no-mention' );
+			return channel.topic != null && channel.topic.includes( '~no-mention' );
 		}
 		return false;
 	}
@@ -14,7 +14,7 @@ export class ChannelConfigUtil {
 	// Tag: ~no-command
 	public static commandsDisabled( channel: TextBasedChannels ): boolean {
 		if ( channel instanceof TextChannel || channel instanceof NewsChannel ) {
-			return channel.topic.includes( '~no-command' );
+			return channel.topic != null && channel.topic.includes( '~no-command' );
 		}
 		return false;
 	}
@@ -23,7 +23,7 @@ export class ChannelConfigUtil {
 	// Tag: ~limited-info
 	public static limitedInfo( channel: TextBasedChannels ): boolean {
 		if ( channel instanceof TextChannel || channel instanceof NewsChannel ) {
-			return channel.topic.includes( '~limited-info' );
+			return channel.topic != null && channel.topic.includes( '~limited-info' );
 		}
 		return false;
 	}
