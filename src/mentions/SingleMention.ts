@@ -1,4 +1,4 @@
-import { Channel, MessageEmbed, Util } from 'discord.js';
+import { TextBasedChannels, MessageEmbed, Util } from 'discord.js';
 import moment from 'moment';
 import MojiraBot from '../MojiraBot';
 import { ChannelConfigUtil } from '../util/ChannelConfigUtil';
@@ -7,7 +7,7 @@ import { Mention } from './Mention';
 
 export class SingleMention extends Mention {
 	private ticket: string;
-	private channel: Channel;
+	private channel: TextBasedChannels;
 
 	constructor( ticket: string, channel: TextBasedChannels ) {
 		super();
