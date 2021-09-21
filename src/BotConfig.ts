@@ -1,4 +1,4 @@
-import { Client } from 'discord.js';
+import { Client, ColorResolvable, Snowflake } from 'discord.js';
 import { Client as JiraClient } from 'jira.js';
 import config from 'config';
 import MojiraBot from './MojiraBot';
@@ -16,11 +16,11 @@ export enum PrependResponseMessageType {
 }
 
 export class RequestConfig {
-	public channels: string[];
-	public internalChannels: string[];
+	public channels: Snowflake[];
+	public internalChannels: Snowflake[];
 	public requestLimits: number[];
-	public testingRequestChannels: string[];
-	public logChannel: string;
+	public testingRequestChannels: Snowflake[];
+	public logChannel: Snowflake;
 
 	public invalidTicketEmoji: string;
 	public noLinkEmoji: string;
@@ -65,28 +65,28 @@ export class RequestConfig {
 }
 
 export interface RoleConfig {
-	emoji: string;
+	emoji: Snowflake;
 	title: string;
 	desc?: string;
-	id: string;
+	id: Snowflake;
 }
 
 export interface RoleGroupConfig {
 	roles: RoleConfig[];
 	prompt: string;
 	desc?: string;
-	color: string;
-	channel: string;
-	message?: string;
+	color: ColorResolvable;
+	channel: Snowflake;
+	message?: Snowflake;
 	radio?: boolean;
 }
 
 export interface FilterFeedConfig {
 	jql: string;
 	jqlRemoved?: string;
-	channel: string;
+	channel: Snowflake;
 	interval: number;
-	filterFeedEmoji: string;
+	filterFeedEmoji: string | Snowflake;
 	title: string;
 	titleSingle?: string;
 	publish?: boolean;
@@ -95,9 +95,9 @@ export interface FilterFeedConfig {
 
 export interface VersionFeedConfig {
 	projects: string[];
-	channel: string;
+	channel: Snowflake;
 	interval: number;
-	versionFeedEmoji: string;
+	versionFeedEmoji: string | Snowflake;
 	scope: number;
 	actions: VersionChangeType[];
 	publish?: boolean;
@@ -107,13 +107,14 @@ export default class BotConfig {
 	public static debug: boolean;
 	public static logDirectory: false | string;
 
-	private static token: string;
-	private static jiraUsername: string;
+	// TODO: make private again when /crosspost api endpoint is implemented into discord.js
+	public static token: string;
+	public static owners: Snowflake[];
+
+  private static jiraUsername: string;
 	private static jiraPassword: string;
 
-	public static owners: string[];
-
-	public static homeChannel: string;
+	public static homeChannel: Snowflake;
 
 	public static ticketUrlsCauseEmbed: boolean;
 	public static quotedTicketsCauseEmbed: boolean;
