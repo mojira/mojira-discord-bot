@@ -111,7 +111,7 @@ export default class BotConfig {
 	public static token: string;
 	public static owners: Snowflake[];
 
-  	private static jiraUsername: string;
+	private static jiraUsername: string;
 	private static jiraPassword: string;
 
 	public static homeChannel: Snowflake;
