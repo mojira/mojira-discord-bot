@@ -84,7 +84,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 		const internalChannelId = this.internalChannels.get( origin.channel.id );
 		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 
-		if ( BotConfig.request.duplicateRequestEmoji ) {
+		if ( BotConfig.request.duplicateRequestEmoji && internalChannel instanceof TextChannel ) {
 			const match = RequestsUtil.findExactMatchInPendingRequests( origin, internalChannel );
 
 			if ( match != origin ) {
