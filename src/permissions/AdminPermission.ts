@@ -1,4 +1,4 @@
-import { GuildMember } from 'discord.js';
+import { GuildMember, Permissions } from 'discord.js';
 import Permission from './Permission';
 
 /**
@@ -7,6 +7,6 @@ import Permission from './Permission';
  */
 export default class AdminPermission extends Permission {
 	public checkPermission( member?: GuildMember ): boolean {
-		return member?.hasPermission( 'BAN_MEMBERS' );
+		return member?.permissions.has( Permissions.FLAGS.BAN_MEMBERS );
 	}
 }
