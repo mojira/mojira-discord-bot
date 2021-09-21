@@ -28,7 +28,7 @@ export default class MojiraBot {
 	public static logger = log4js.getLogger( 'MojiraBot' );
 
 	public static client: Client = new Client( {
-		partials: ['MESSAGE', 'REACTION', 'USER'],
+		partials: ['MESSAGE', 'REACTION', 'USER', 'CHANNEL'],
 		intents: [
 			Intents.FLAGS.GUILDS,
 			Intents.FLAGS.GUILD_BANS,
@@ -93,6 +93,33 @@ export default class MojiraBot {
 					} catch ( err ) {
 						this.logger.error( err );
 					}
+				}
+			}
+
+			if ( BotConfig.modmailEnabled && BotConfig.modmailChannel ) {
+				try {
+					const modmailChannel = await DiscordUtil.getChannel( BotConfig.modmailChannel );
+					if ( modmailChannel instanceof TextChannel ) {
+						const allMessages: Message[] = [];
+						let lastId: Snowflake | undefined;
+						let continueSearch = true;
+
+						while ( continueSearch ) {
+							const options: ChannelLogsQueryOptions = { limit: 50 };
+							if ( lastId ) {
+								options.before = lastId;
+							}
+							const messages = await modmailChannel.messages.fetch( options );
+							allMessages.push( ...messages.values() );
+							lastId = messages.last()?.id;
+							if ( messages.size !== 50 || !lastId ) {
+								continueSearch = false;
+							}
+						}
+						this.logger.info( `Fetched ${ allMessages.length } messages from "${ modmailChannel.name }"` );
+					}
+				} catch ( error ) {
+					this.logger.error( error );
 				}
 			}
 

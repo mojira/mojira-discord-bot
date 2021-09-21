@@ -114,7 +114,7 @@ export default class BotConfig {
 	public static homeChannel: Snowflake;
 
 	public static modmailEnabled: boolean;
-	public static modmailChannel: string;
+	public static modmailChannel: Snowflake;
 
 	public static ticketUrlsCauseEmbed: boolean;
 	public static quotedTicketsCauseEmbed: boolean;
