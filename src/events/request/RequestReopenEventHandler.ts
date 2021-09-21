@@ -44,7 +44,7 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 				.setTimestamp( new Date() );
 
 			try {
-				await logChannel.send( log );
+				await logChannel.send( { embeds: [log] } );
 			} catch ( error ) {
 				this.logger.error( error );
 			}
