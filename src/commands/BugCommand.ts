@@ -46,7 +46,7 @@ export default class BugCommand extends PrefixCommand {
 			.setTimestamp( message.createdAt );
 
 		try {
-			await message.channel.send( embed );
+			await message.channel.send( { embeds: [embed] } );
 		} catch ( err ) {
 			Command.logger.error( err );
 			return false;

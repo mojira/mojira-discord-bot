@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { Message, Snowflake } from 'discord.js';
 import BotConfig from '../../BotConfig';
 import CommandExecutor from '../../commands/CommandExecutor';
 import DiscordUtil from '../../util/DiscordUtil';
@@ -8,16 +8,16 @@ import TestingRequestEventHandler from '../request/TestingRequestEventHandler';
 import InternalProgressEventHandler from '../internal/InternalProgressEventHandler';
 import { ChannelConfigUtil } from '../../util/ChannelConfigUtil';
 
-export default class MessageEventHandler implements EventHandler<'message'> {
-	public readonly eventName = 'message';
+export default class MessageEventHandler implements EventHandler<'messageCreate'> {
+	public readonly eventName = 'messageCreate';
 
-	private readonly botUserId: string;
+	private readonly botUserId: Snowflake;
 
 	private readonly requestEventHandler: RequestEventHandler;
 	private readonly testingRequestEventHandler: TestingRequestEventHandler;
 	private readonly internalProgressEventHandler: InternalProgressEventHandler;
 
-	constructor( botUserId: string, internalChannels: Map<string, string>, requestLimits: Map<string, number> ) {
+	constructor( botUserId: Snowflake, internalChannels: Map<Snowflake, Snowflake>, requestLimits: Map<Snowflake, number> ) {
 		this.botUserId = botUserId;
 
 		this.requestEventHandler = new RequestEventHandler( internalChannels, requestLimits );
@@ -31,13 +31,13 @@ export default class MessageEventHandler implements EventHandler<'message'> {
 
 		if (
 			// Don't reply to webhooks
-			message.webhookID
+			message.webhookId
 
 			// Don't reply to own messages
 			|| message.author.id === this.botUserId
 
 			// Don't reply to non-default messages
-			|| message.type !== 'DEFAULT'
+			|| ( message.type !== 'DEFAULT' && message.type !== 'REPLY' )
 		) return;
 
 		if ( BotConfig.request.channels && BotConfig.request.channels.includes( message.channel.id ) ) {
