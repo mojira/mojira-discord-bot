@@ -44,10 +44,10 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 			// Don't reply to non-default messages
 			|| ( message.type !== 'DEFAULT' && message.type !== 'REPLY' )
 		) return;
-		
+
 		// Only true if the message is in a DM channel
 		if ( message.partial ) {
-			message.fetch();
+			await message.fetch();
 		}
 
 		if ( BotConfig.request.channels && BotConfig.request.channels.includes( message.channel.id ) ) {
