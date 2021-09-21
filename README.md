@@ -9,7 +9,7 @@
 <br/>
 <p align="center">
   <a href="https://bugs.mojang.com/">
-    <img src="mojira-logo.png" alt="MojiraBot" width="80" height="80">
+    <img src="mojirabot-logo.png" alt="MojiraBot" width="80" height="80">
   </a>
 
   <h3 align="center">MojiraBot</h3>
@@ -100,7 +100,6 @@ This project depends on the following projects, thanks to every developer who ma
 - [log4js](https://github.com/log4js-node/log4js-node)
 - [moment](https://github.com/moment/moment)
 - [node-config](https://github.com/lorenwest/node-config)
-- [node-fetch](https://github.com/node-fetch/node-fetch)
 - [TypeScript](https://github.com/Microsoft/TypeScript/)
 - [TypeScript ESLint](https://github.com/typescript-eslint/typescript-eslint/)
 

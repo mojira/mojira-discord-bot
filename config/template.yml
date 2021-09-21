@@ -68,6 +68,16 @@ request:
     - <string>
     - ...
 
+  # The number of allowed requests per user per day.
+  # If the number of requests created by a single user exceeds this amount, new requests will not be forwarded to the internal channels.
+  # The length of this array MUST be the same as the length of `channels`.
+  # Setting to a negative number will remove the request limit
+  # Optional; empty by default.
+  requestLimits:
+    - <number>
+    - <number>
+    - ...
+
   # The IDs of the server's testing request channels.
   # Optional; empty by default.
   testingRequestChannels:

@@ -1,4 +1,4 @@
-import { ChannelLogsQueryOptions, Client, Intents, Message, TextChannel } from 'discord.js';
+import { ChannelLogsQueryOptions, Client, Intents, Message, Snowflake, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import { Client as JiraClient } from 'jira.js';
 import BotConfig from './BotConfig';
@@ -30,9 +30,21 @@ export default class MojiraBot {
 
 	public static client: Client = new Client( {
 		partials: ['MESSAGE', 'REACTION', 'USER'],
-		ws: {
-			intents: Intents.NON_PRIVILEGED,
-		},
+		intents: [
+			Intents.FLAGS.GUILDS,
+			Intents.FLAGS.GUILD_BANS,
+			Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
+			Intents.FLAGS.GUILD_INTEGRATIONS,
+			Intents.FLAGS.GUILD_WEBHOOKS,
+			Intents.FLAGS.GUILD_INVITES,
+			Intents.FLAGS.GUILD_VOICE_STATES,
+			Intents.FLAGS.GUILD_MESSAGES,
+			Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+			Intents.FLAGS.GUILD_MESSAGE_TYPING,
+			Intents.FLAGS.DIRECT_MESSAGES,
+			Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
+			Intents.FLAGS.DIRECT_MESSAGE_TYPING,
+		],
 	} );
 	private static running = false;
 
@@ -86,7 +98,8 @@ export default class MojiraBot {
 			}
 
 			const requestChannels: TextChannel[] = [];
-			const internalChannels = new Map<string, string>();
+			const internalChannels = new Map<Snowflake, Snowflake>();
+			const requestLimits = new Map<Snowflake, number>();
 
 			if ( BotConfig.verification.pendingVerificationChannel ) {
 				const pendingChannel = await DiscordUtil.getChannel( BotConfig.verification.pendingVerificationChannel );
@@ -157,16 +170,18 @@ export default class MojiraBot {
 				for ( let i = 0; i < BotConfig.request.channels.length; i++ ) {
 					const requestChannelId = BotConfig.request.channels[i];
 					const internalChannelId = BotConfig.request.internalChannels[i];
+					const requestLimit = BotConfig.request.requestLimits[i];
 					try {
 						const requestChannel = await DiscordUtil.getChannel( requestChannelId );
 						const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 						if ( requestChannel instanceof TextChannel && internalChannel instanceof TextChannel ) {
 							requestChannels.push( requestChannel );
 							internalChannels.set( requestChannelId, internalChannelId );
+							requestLimits.set( requestChannelId, requestLimit );
 
 							// https://stackoverflow.com/questions/55153125/fetch-more-than-100-messages
 							const allMessages: Message[] = [];
-							let lastId: string | undefined;
+							let lastId: Snowflake | undefined;
 							let continueSearch = true;
 
 							while ( continueSearch ) {
@@ -175,7 +190,7 @@ export default class MojiraBot {
 									options.before = lastId;
 								}
 								const messages = await internalChannel.messages.fetch( options );
-								allMessages.push( ...messages.array() );
+								allMessages.push( ...messages.values() );
 								lastId = messages.last()?.id;
 								if ( messages.size !== 50 || !lastId ) {
 									continueSearch = false;
@@ -188,7 +203,7 @@ export default class MojiraBot {
 							for ( const message of allMessages ) {
 								message.reactions.cache.forEach( async reaction => {
 									const users = await reaction.users.fetch();
-									const user = users.array().find( v => v.id !== this.client.user.id );
+									const user = [...users.values()].find( v => v.id !== this.client.user.id );
 									if ( user ) {
 										try {
 											await handler.onEvent( reaction, user );
@@ -204,11 +219,11 @@ export default class MojiraBot {
 					}
 				}
 
-				const newRequestHandler = new RequestEventHandler( internalChannels );
+				const newRequestHandler = new RequestEventHandler( internalChannels, requestLimits );
 				for ( const requestChannel of requestChannels ) {
 					this.logger.info( `Catching up on requests from #${ requestChannel.name }...` );
 
-					let lastId: string | undefined = undefined;
+					let lastId: Snowflake | undefined = undefined;
 
 					let pendingRequests: Message[] = [];
 
@@ -253,9 +268,9 @@ export default class MojiraBot {
 				this.logger.info( 'Fully caught up on requests.' );
 			}
 
-			EventRegistry.add( new ReactionAddEventHandler( this.client.user.id, internalChannels ) );
+			EventRegistry.add( new ReactionAddEventHandler( this.client.user.id, internalChannels, requestLimits ) );
 			EventRegistry.add( new ReactionRemoveEventHandler( this.client.user.id ) );
-			EventRegistry.add( new MessageEventHandler( this.client.user.id, internalChannels ) );
+			EventRegistry.add( new MessageEventHandler( this.client.user.id, internalChannels, requestLimits ) );
 			EventRegistry.add( new MessageUpdateEventHandler( this.client.user.id, internalChannels ) );
 			EventRegistry.add( new MessageDeleteEventHandler( this.client.user.id, internalChannels ) );
 

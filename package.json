@@ -1,41 +1,34 @@
 {
   "name": "mojira-discord-bot",
-  "version": "0.0.1",
-  "description": "A work-in-progress bot used to link to Mojira bug reports directly from Discord.",
+  "description": "A Discord bot used to link to Mojira bug reports and do various server moderation tasks.",
   "license": "GPL-3.0",
-  "author": "violine1101",
-  "contributors": [
-    "NeunEinser",
-    "SPGoding",
-    "urielsalis"
-  ],
   "repository": "https://github.com/mojira/mojira-discord-bot",
   "scripts": {
     "bot": "tsc && node bin",
     "build": "tsc",
     "validate": "tsc --noEmit",
-    "lint": "eslint src/**/*.ts",
-    "lintfix": "eslint src/**/*.ts --fix"
+    "lint": "eslint 'src/**/*.ts' --max-warnings 0",
+    "lintfix": "eslint 'src/**/*.ts' --fix"
   },
   "dependencies": {
     "config": "^3.3.4",
-    "discord.js": "^12.5.1",
+    "discord.js": "13.0.0",
     "emoji-regex": "^8.0.0",
     "escape-string-regexp": "^1.0.5",
     "jira.js": "^1.8.0",
     "js-yaml": "^3.14.1",
     "log4js": "^6.3.0",
-    "moment": "^2.29.1",
-    "node-fetch": "^2.6.1"
+    "moment": "^2.29.1"
   },
   "devDependencies": {
     "@types/config": "0.0.36",
     "@types/emoji-regex": "^8.0.0",
     "@types/node": "^12.20.4",
+
     "@types/node-fetch": "^2.5.8",
-    "@typescript-eslint/eslint-plugin": "^2.34.0",
-    "@typescript-eslint/parser": "^2.34.0",
-    "eslint": "^6.8.0",
-    "typescript": "^3.9.9"
+    "@typescript-eslint/eslint-plugin": "^4.28.2",
+    "@typescript-eslint/parser": "^4.28.2",
+    "eslint": "^7.30.0",
+    "typescript": "^4.3.5"
   }
 }

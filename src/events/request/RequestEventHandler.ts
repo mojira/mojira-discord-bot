@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, TextChannel } from 'discord.js';
+import { Message, MessageEmbed, Snowflake, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
 import DiscordUtil from '../../util/DiscordUtil';
@@ -14,10 +14,16 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 	/**
 	 * A map from request channel IDs to internal channel objects.
 	 */
-	private readonly internalChannels: Map<string, string>;
+	private readonly internalChannels: Map<Snowflake, Snowflake>;
 
-	constructor( internalChannels: Map<string, string> ) {
+	/**
+	 * A map from request channel IDs to request limit numbers.
+	 */
+	private readonly requestLimits: Map<Snowflake, number>;
+
+	constructor( internalChannels: Map<Snowflake, Snowflake>, requestLimits: Map<Snowflake, number> ) {
 		this.internalChannels = internalChannels;
+		this.requestLimits = requestLimits;
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestEventHandler` object
@@ -48,9 +54,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 			try {
 				const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) doesn't contain any valid ticket reference. If you'd like to add it you can edit your message.` );
-
-				const timeout = BotConfig.request.warningLifetime;
-				await warning.delete( { timeout } );
+				await DiscordUtil.deleteWithDelay( warning, BotConfig.request.warningLifetime );
 			} catch ( error ) {
 				this.logger.error( error );
 			}
@@ -68,9 +72,32 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 				try {
 					const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) contains a ticket that is less than 24 hours old. Please wait until it is at least one day old before making a request.` );
+					await DiscordUtil.deleteWithDelay( warning, BotConfig.request.warningLifetime );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
+				return;
+			}
+		}
 
-					const timeout = BotConfig.request.warningLifetime;
-					await warning.delete( { timeout } );
+		const requestLimit = this.requestLimits.get( origin.channel.id );
+		const internalChannelId = this.internalChannels.get( origin.channel.id );
+		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
+
+		if ( requestLimit && requestLimit >= 0 && internalChannel instanceof TextChannel ) {
+			const internalChannelUserMessages = internalChannel.messages.cache
+				.filter( message => message.embeds.length > 0 && message.embeds[0].author.name == origin.author.tag )
+				.filter( message => new Date().valueOf() - message.embeds[0].timestamp.valueOf() <= 86400000 );
+			if ( internalChannelUserMessages.size >= requestLimit ) {
+				try {
+					await origin.react( BotConfig.request.invalidTicketEmoji );
+				} catch ( error ) {
+					this.logger.error( error );
+				}
+
+				try {
+					const warning = await origin.channel.send( `${ origin.author }, you have posted a lot of requests today that are still pending. Please wait for these requests to be resolved before posting more.` );
+					await DiscordUtil.deleteWithDelay( warning, BotConfig.request.warningLifetime );
 				} catch ( error ) {
 					this.logger.error( error );
 				}
@@ -86,9 +113,6 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 			}
 		}
 
-		const internalChannelId = this.internalChannels.get( origin.channel.id );
-		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
-
 		if ( internalChannel && internalChannel instanceof TextChannel ) {
 			const embed = new MessageEmbed()
 				.setColor( RequestsUtil.getEmbedColor() )
@@ -99,7 +123,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 			const response = BotConfig.request.prependResponseMessage == PrependResponseMessageType.Always
 				? RequestsUtil.getResponseMessage( origin )
-				: '';
+				: ' ';
 
 			const thisUser = await DiscordUtil.getMember( origin.guild, origin.author.id );
 			if ( thisUser.roles.cache.has( BotConfig.verification.verifiedRole ) ) {
@@ -121,7 +145,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 				}
 			}
 
-			const copy = await internalChannel.send( response, embed ) as Message;
+			const copy = await internalChannel.send( { content: response, embeds: [embed] } ) as Message;
 
 			if ( BotConfig.request.suggestedEmoji ) {
 				await ReactionsUtil.reactToMessage( copy, [...BotConfig.request.suggestedEmoji] );

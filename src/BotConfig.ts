@@ -1,4 +1,4 @@
-import { Client } from 'discord.js';
+import { Client, ColorResolvable, Snowflake } from 'discord.js';
 import config from 'config';
 import MojiraBot from './MojiraBot';
 import { VersionChangeType } from './tasks/VersionFeedTask';
@@ -15,10 +15,11 @@ export enum PrependResponseMessageType {
 }
 
 export class RequestConfig {
-	public channels: string[];
-	public internalChannels: string[];
-	public testingRequestChannels: string[];
-	public logChannel: string;
+	public channels: Snowflake[];
+	public internalChannels: Snowflake[];
+	public requestLimits: number[];
+	public testingRequestChannels: Snowflake[];
+	public logChannel: Snowflake;
 
 	public invalidTicketEmoji: string;
 	public noLinkEmoji: string;
@@ -37,6 +38,7 @@ export class RequestConfig {
 	constructor() {
 		this.channels = getOrDefault( 'request.channels', [] );
 		this.internalChannels = this.channels.length ? config.get( 'request.internalChannels' ) : getOrDefault( 'request.internalChannels', [] );
+		this.requestLimits = this.channels.length ? config.get( 'request.requestLimits' ) : getOrDefault( 'request.requestLimits', [] );
 		this.testingRequestChannels = getOrDefault( 'request.testingRequestChannels', [] );
 		this.logChannel = config.get( 'request.logChannel' );
 
@@ -82,28 +84,28 @@ export class VerificationConfig {
 }
 
 export interface RoleConfig {
-	emoji: string;
+	emoji: Snowflake;
 	title: string;
 	desc?: string;
-	id: string;
+	id: Snowflake;
 }
 
 export interface RoleGroupConfig {
 	roles: RoleConfig[];
 	prompt: string;
 	desc?: string;
-	color: string;
-	channel: string;
-	message?: string;
+	color: ColorResolvable;
+	channel: Snowflake;
+	message?: Snowflake;
 	radio?: boolean;
 }
 
 export interface FilterFeedConfig {
 	jql: string;
 	jqlRemoved?: string;
-	channel: string;
+	channel: Snowflake;
 	interval: number;
-	filterFeedEmoji: string;
+	filterFeedEmoji: string | Snowflake;
 	title: string;
 	titleSingle?: string;
 	publish?: boolean;
@@ -112,9 +114,9 @@ export interface FilterFeedConfig {
 
 export interface VersionFeedConfig {
 	projects: string[];
-	channel: string;
+	channel: Snowflake;
 	interval: number;
-	versionFeedEmoji: string;
+	versionFeedEmoji: string | Snowflake;
 	scope: number;
 	actions: VersionChangeType[];
 	publish?: boolean;
@@ -126,9 +128,9 @@ export default class BotConfig {
 
 	// TODO: make private again when /crosspost api endpoint is implemented into discord.js
 	public static token: string;
-	public static owners: string[];
+	public static owners: Snowflake[];
 
-	public static homeChannel: string;
+	public static homeChannel: Snowflake;
 
 	public static ticketUrlsCauseEmbed: boolean;
 	public static quotedTicketsCauseEmbed: boolean;

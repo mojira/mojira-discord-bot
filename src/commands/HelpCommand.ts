@@ -30,7 +30,7 @@ export default class HelpCommand extends PrefixCommand {
 					\`!jira verify\` - Begins a process to link your Discord account with your Mojira account.`
 				)
 				.setFooter( message.author.tag, message.author.avatarURL() );
-			await message.channel.send( embed );
+			await message.channel.send( { embeds: [embed] } );
 		} catch {
 			return false;
 		}
