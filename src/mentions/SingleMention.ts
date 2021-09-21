@@ -9,7 +9,7 @@ export class SingleMention extends Mention {
 	private ticket: string;
 	private channel: Channel;
 
-	constructor( ticket: string, channel: Channel ) {
+	constructor( ticket: string, channel: TextBasedChannels ) {
 		super();
 
 		this.ticket = ticket;
