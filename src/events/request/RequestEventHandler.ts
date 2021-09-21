@@ -98,9 +98,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 				try {
 					const warning = await origin.channel.send( `${ origin.author }, your request (<${ origin.url }>) has already been requested at <${ parent.url }>.` );
-
-					const timeout = BotConfig.request.warningLifetime;
-					await warning.delete( { timeout } );
+					await DiscordUtil.deleteWithDelay( warning, BotConfig.request.warningLifetime );
 				} catch ( error ) {
 					this.logger.error( error );
 				}
