@@ -10,6 +10,9 @@ owners:
 
 homeChannel: '646317855234850818'
 
+modmailEnabled: true
+modmailChannel: ''
+
 request:
   channels:
     - '648555618994618378' # java-requests

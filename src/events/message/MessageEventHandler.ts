@@ -1,4 +1,4 @@
-import { Message, Snowflake } from 'discord.js';
+import { DMChannel, Message, Snowflake } from 'discord.js';
 import BotConfig from '../../BotConfig';
 import CommandExecutor from '../../commands/CommandExecutor';
 import DiscordUtil from '../../util/DiscordUtil';
@@ -6,6 +6,8 @@ import EventHandler from '../EventHandler';
 import RequestEventHandler from '../request/RequestEventHandler';
 import TestingRequestEventHandler from '../request/TestingRequestEventHandler';
 import InternalProgressEventHandler from '../internal/InternalProgressEventHandler';
+import ModmailEventHandler from '../modmail/ModmailEventHandler';
+import ModmailReplyEventHandler from '../modmail/ModmailReplyEventHandler';
 
 export default class MessageEventHandler implements EventHandler<'messageCreate'> {
 	public readonly eventName = 'messageCreate';
@@ -15,6 +17,8 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 	private readonly requestEventHandler: RequestEventHandler;
 	private readonly testingRequestEventHandler: TestingRequestEventHandler;
 	private readonly internalProgressEventHandler: InternalProgressEventHandler;
+	private readonly modmailEventHandler: ModmailEventHandler;
+	private readonly modmailReplyEventHandler: ModmailReplyEventHandler;
 
 	constructor( botUserId: Snowflake, internalChannels: Map<Snowflake, Snowflake>, requestLimits: Map<Snowflake, number> ) {
 		this.botUserId = botUserId;
@@ -22,6 +26,8 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 		this.requestEventHandler = new RequestEventHandler( internalChannels, requestLimits );
 		this.testingRequestEventHandler = new TestingRequestEventHandler();
 		this.internalProgressEventHandler = new InternalProgressEventHandler();
+		this.modmailEventHandler = new ModmailEventHandler();
+		this.modmailReplyEventHandler = new ModmailReplyEventHandler();
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageEventHandler` object
@@ -38,6 +44,11 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 			// Don't reply to non-default messages
 			|| ( message.type !== 'DEFAULT' && message.type !== 'REPLY' )
 		) return;
+
+		// Only true if the message is in a DM channel
+		if ( message.partial ) {
+			await message.fetch();
+		}
 
 		if ( BotConfig.request.channels && BotConfig.request.channels.includes( message.channel.id ) ) {
 			// This message is in a request channel
@@ -56,6 +67,20 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 			await this.internalProgressEventHandler.onEvent( message );
 
 			// Don't reply in internal request channels
+			return;
+		} else if ( message.channel instanceof DMChannel && BotConfig.modmailEnabled ) {
+			// This message is in a DM channel and modmail is enabled
+			await this.modmailEventHandler.onEvent( message );
+
+			// Don't reply in DM channels
+			return;
+		} else if ( message.channelId == BotConfig.modmailChannel && BotConfig.modmailEnabled ) {
+			if ( message.type == 'REPLY' ) {
+				// This message is in the modmail channel and is a reply
+				await this.modmailReplyEventHandler.onEvent( message );
+			}
+
+			// Don't reply in modmail channels
 			return;
 		}
 

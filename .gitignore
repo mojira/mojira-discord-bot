@@ -9,3 +9,5 @@ node_modules
 settings.json
 config/local.yml
 config/local-*.yml
+
+db.sqlite
