@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, TextChannel, Util } from 'discord.js';
+import { Message, MessageEmbed, Util } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
 import BotConfig from '../BotConfig';
 import MojiraBot from '../MojiraBot';
@@ -19,18 +19,18 @@ export default class SearchCommand extends PrefixCommand {
 		try {
 			const embed = new MessageEmbed();
 			let searchFilter = `project in (${ BotConfig.projects.join( ', ' ) })`;
-			
+
 			if ( modifiers ) {
 				for ( const modifier of modifiers ) {
 					if ( modifier == ':query' ) {
 						searchFilter = textArgs;
 						break;
 					}
-					if ([ 'project', 'creator', 'reporter', 'assignee', 'version', 'resolution', 'status', 'fixversion', 'confirmation', 'gamemode', 'id', 'labels', 'key', 'priority', 'mp' ].includes( modifier.split( /_|\s/g )[1] ) ) searchFilter += ` AND ${ modifier.split( /_|\s/g )[1].toLowerCase().replace( 'confirmation', '"Confirmation Status"' ).replace( 'gamemode', '"Game Mode"' ).replace( 'mp', '"Mojang Priority"' ) } = ${ modifier.split( /\s/g ).slice( 1 ).join( ' ' ) }`;
-					if ([ 'comment', 'summary', 'description', 'environment' ].includes( modifier.split( /_|\s/g )[1] ) ) searchFilter += ` AND ${ modifier.split( /_|\s/g )[1].toLowerCase() } ~ ${ modifier.split( /\s/g ).slice( 1 ).join( ' ' ) }`
+					if ( [ 'project', 'creator', 'reporter', 'assignee', 'version', 'resolution', 'status', 'fixversion', 'confirmation', 'gamemode', 'id', 'labels', 'key', 'priority', 'mp' ].includes( modifier.split( /_|\s/g )[1] ) ) searchFilter += ` AND ${ modifier.split( /_|\s/g )[1].toLowerCase().replace( 'confirmation', '"Confirmation Status"' ).replace( 'gamemode', '"Game Mode"' ).replace( 'mp', '"Mojang Priority"' ) } = ${ modifier.split( /\s/g ).slice( 1 ).join( ' ' ) }`;
+					if ( [ 'comment', 'summary', 'description', 'environment' ].includes( modifier.split( /_|\s/g )[1] ) ) searchFilter += ` AND ${ modifier.split( /_|\s/g )[1].toLowerCase() } ~ ${ modifier.split( /\s/g ).slice( 1 ).join( ' ' ) }`;
 				}
 			}
-			if ( textArgs && !modifiers.includes( ':query' ) ) searchFilter += ` AND text ~ "${ textArgs }"`
+			if ( textArgs && !modifiers.includes( ':query' ) ) searchFilter += ` AND text ~ "${ textArgs }"`;
 
 			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
 				jql: searchFilter,
