@@ -1,4 +1,4 @@
-import { EmbedField, Message, PartialMessage, Snowflake, TextChannel, User } from 'discord.js';
+import { EmbedField, Message, PartialMessage, Snowflake, TextChannel, User, TextBasedChannels } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from '../BotConfig';
 import DiscordUtil from './DiscordUtil';
@@ -144,5 +144,15 @@ export class RequestsUtil {
 		// Escape all of the following characters with a backslash: [, ], \
 		return content.replace( /([[\]\\])/gm, '\\$1' )
 			.replace( regex, '[$<ticketid>$<anchor>](https://bugs.mojang.com/browse/$<ticketid>$<query>$<anchor>)' );
+	}
+
+	public static findExactMatchInPendingRequests( origin: Message, internalChannel: TextBasedChannels ): Message {
+		const matcher = this.replaceTicketReferencesWithRichLinks( origin.content );
+		if ( internalChannel instanceof TextChannel ) {
+			const matches = internalChannel.messages.cache.filter( message => message.embeds.length > 0 && message.embeds[0].description == matcher );
+			return matches.size > 0 ? matches.first() : origin;
+		} else {
+			return origin;
+		}
 	}
 }

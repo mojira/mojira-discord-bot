@@ -23,6 +23,7 @@ export class RequestConfig {
 
 	public invalidTicketEmoji: string;
 	public noLinkEmoji: string;
+	public duplicateRequestEmoji: string;
 	public warningLifetime: number;
 	public invalidRequestJql: string;
 	public waitingEmoji: string;
@@ -48,6 +49,7 @@ export class RequestConfig {
 
 		this.invalidTicketEmoji = config.get( 'request.invalidTicketEmoji' );
 		this.noLinkEmoji = config.get( 'request.noLinkEmoji' );
+		this.duplicateRequestEmoji = config.get( 'request.duplicateRequestEmoji' );
 		this.warningLifetime = config.get( 'request.warningLifetime' );
 		this.invalidRequestJql = config.get( 'request.invalidRequestJql' );
 		this.waitingEmoji = config.get( 'request.waitingEmoji' );

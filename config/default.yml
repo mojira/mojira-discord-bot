@@ -28,7 +28,8 @@ projects:
 request:
   invalidTicketEmoji: ⏸
   noLinkEmoji: ⛔
-  warningLifetime: 5000
+  duplicateRequestEmoji: 🔁
+  warningLifetime: 7500
   waitingEmoji: ⌛
 
   invalidRequestJql: created > -24h
