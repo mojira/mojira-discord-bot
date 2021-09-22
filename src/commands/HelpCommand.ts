@@ -1,6 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
 import BotConfig from '../BotConfig';
+import DiscordUtil from '../util/DiscordUtil';
 
 export default class HelpCommand extends PrefixCommand {
 	public readonly aliases = ['help'];
@@ -28,7 +29,7 @@ export default class HelpCommand extends PrefixCommand {
 					\`!jira tips\` - Sends helpful info on how to use the bug tracker and this Discord server.`
 				)
 				.setFooter( message.author.tag, message.author.avatarURL() );
-			await message.channel.send( { embeds: [embed] } );
+			await DiscordUtil.sendMentionMessage( message, { embeds: [embed] } );
 		} catch {
 			return false;
 		}
