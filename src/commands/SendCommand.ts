@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, TextChannel, TextBasedChannels } from 'discord.js';
+import { Message, MessageEmbed, TextChannel, NewsChannel, TextBasedChannels } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
 import PermissionRegistry from '../permissions/PermissionRegistry';
 import Command from './Command';
@@ -58,7 +58,7 @@ export default class SendCommand extends PrefixCommand {
 			Command.logger.error( err );
 		}
 
-		if ( sendChannel instanceof TextChannel ) {
+		if ( sendChannel instanceof TextChannel || sendChannel instanceof NewsChannel ) {
 			if ( messageType === 'text' ) {
 				try {
 					await sendChannel.send( content );
