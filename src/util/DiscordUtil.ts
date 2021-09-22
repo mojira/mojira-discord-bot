@@ -1,7 +1,10 @@
+import * as log4js from 'log4js';
 import MojiraBot from '../MojiraBot';
-import { TextChannel, Message, Channel, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage } from 'discord.js';
+import { TextChannel, Message, Channel, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage, MessageOptions } from 'discord.js';
 
 export default class DiscordUtil {
+	private static logger = log4js.getLogger( 'DiscordUtil' );
+
 	public static async getChannel( channelId: Snowflake ): Promise<Channel> {
 		if ( MojiraBot.client.channels.cache.has( channelId ) ) {
 			return MojiraBot.client.channels.cache.get( channelId );
@@ -58,5 +61,23 @@ export default class DiscordUtil {
 				}
 			}, timeout );
 		} );
+	}
+
+	public static async sendMentionMessage( origin: Message, content: MessageOptions ): Promise<void> {
+		try {
+			if ( origin.reference?.messageId ) {
+				const replyTo = await origin.fetchReference();
+				if ( replyTo === undefined || replyTo.deleted ) return;
+				if ( origin.mentions.users.first()?.id == replyTo.author.id ) {
+					await replyTo.reply( { ...content, allowedMentions: { repliedUser: true } } );
+				} else {
+					await replyTo.reply( { ...content, allowedMentions: { repliedUser: false } } );
+				}
+			} else {
+				await origin.channel.send( content );
+			}
+		} catch ( e ) {
+			this.logger.error( e );
+		}
 	}
 }

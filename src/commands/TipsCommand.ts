@@ -1,4 +1,5 @@
 import { Message, MessageEmbed } from 'discord.js';
+import DiscordUtil from '../util/DiscordUtil';
 import PrefixCommand from './PrefixCommand';
 
 export default class TipsCommand extends PrefixCommand {
@@ -16,7 +17,7 @@ export default class TipsCommand extends PrefixCommand {
 				Afterwards, you can use corresponding request channels in each project to make requests for changes to tickets on the bug tracker, like resolutions and adding affected versions. 
 				The moderators and helpers of the bug tracker will then be able to see the requests and resolve them.`.replace( /\t/g, '' ) )
 				.setFooter( message.author.tag, message.author.avatarURL() );
-			await message.channel.send( { embeds: [embed] } );
+			await DiscordUtil.sendMentionMessage( message, { embeds: [embed] } );
 		} catch {
 			return false;
 		}
