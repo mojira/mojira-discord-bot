@@ -1,4 +1,4 @@
-import { Channel, MessageEmbed, TextChannel } from 'discord.js';
+import { Channel, MessageEmbed, TextChannel, NewsChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import { VersionFeedConfig } from '../BotConfig';
 import { NewsUtil } from '../util/NewsUtil';
@@ -79,7 +79,7 @@ export default class VersionFeedTask extends Task {
 	}
 
 	protected async run(): Promise<void> {
-		if ( !( this.channel instanceof TextChannel ) ) {
+		if ( !( this.channel instanceof TextChannel || this.channel instanceof NewsChannel ) ) {
 			VersionFeedTask.logger.error( `[${ this.id }] Expected ${ this.channel } to be a TextChannel` );
 			return;
 		}
