@@ -1,4 +1,4 @@
-import { Client, ColorResolvable, Snowflake } from 'discord.js';
+import { Client } from 'discord.js';
 import config from 'config';
 import MojiraBot from './MojiraBot';
 import { VersionChangeType } from './tasks/VersionFeedTask';
@@ -15,11 +15,11 @@ export enum PrependResponseMessageType {
 }
 
 export class RequestConfig {
-	public channels: Snowflake[];
-	public internalChannels: Snowflake[];
+	public channels: string[];
+	public internalChannels: string[];
 	public requestLimits: number[];
-	public testingRequestChannels: Snowflake[];
-	public logChannel: Snowflake;
+	public testingRequestChannels: string[];
+	public logChannel: string;
 
 	public invalidTicketEmoji: string;
 	public noLinkEmoji: string;
@@ -64,28 +64,28 @@ export class RequestConfig {
 }
 
 export interface RoleConfig {
-	emoji: Snowflake;
+	emoji: string;
 	title: string;
 	desc?: string;
-	id: Snowflake;
+	id: string;
 }
 
 export interface RoleGroupConfig {
 	roles: RoleConfig[];
 	prompt: string;
 	desc?: string;
-	color: ColorResolvable;
-	channel: Snowflake;
-	message?: Snowflake;
+	color: string;
+	channel: string;
+	message?: string;
 	radio?: boolean;
 }
 
 export interface FilterFeedConfig {
 	jql: string;
 	jqlRemoved?: string;
-	channel: Snowflake;
+	channel: string;
 	interval: number;
-	filterFeedEmoji: string | Snowflake;
+	filterFeedEmoji: string;
 	title: string;
 	titleSingle?: string;
 	publish?: boolean;
@@ -94,9 +94,9 @@ export interface FilterFeedConfig {
 
 export interface VersionFeedConfig {
 	projects: string[];
-	channel: Snowflake;
+	channel: string;
 	interval: number;
-	versionFeedEmoji: string | Snowflake;
+	versionFeedEmoji: string;
 	scope: number;
 	actions: VersionChangeType[];
 	publish?: boolean;
@@ -106,11 +106,10 @@ export default class BotConfig {
 	public static debug: boolean;
 	public static logDirectory: false | string;
 
-	// TODO: make private again when /crosspost api endpoint is implemented into discord.js
-	public static token: string;
-	public static owners: Snowflake[];
+	private static token: string;
+	public static owners: string[];
 
-	public static homeChannel: Snowflake;
+	public static homeChannel: string;
 
 	public static ticketUrlsCauseEmbed: boolean;
 	public static quotedTicketsCauseEmbed: boolean;
