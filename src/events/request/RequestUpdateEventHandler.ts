@@ -1,4 +1,4 @@
-import { Message, Snowflake, TextChannel } from 'discord.js';
+import { Message, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import EventHandler from '../EventHandler';
 import { RequestsUtil } from '../../util/RequestsUtil';
@@ -12,9 +12,9 @@ export default class RequestUpdateEventHandler implements EventHandler<'messageU
 	/**
 	 * A map from request channel IDs to internal channel objects.
 	 */
-	private readonly internalChannels: Map<Snowflake, Snowflake>;
+	private readonly internalChannels: Map<string, string>;
 
-	constructor( internalChannels: Map<Snowflake, Snowflake> ) {
+	constructor( internalChannels: Map<string, string> ) {
 		this.internalChannels = internalChannels;
 	}
 
@@ -36,7 +36,7 @@ export default class RequestUpdateEventHandler implements EventHandler<'messageU
 						const embed = internalMessage.embeds[0];
 						embed.setAuthor( oldMessage.author.tag, oldMessage.author.avatarURL() );
 						embed.setDescription( RequestsUtil.getRequestDescription( newMessage ) );
-						await internalMessage.edit( { embeds: [embed] } );
+						await internalMessage.edit( embed );
 					} catch ( error ) {
 						this.logger.error( error );
 					}

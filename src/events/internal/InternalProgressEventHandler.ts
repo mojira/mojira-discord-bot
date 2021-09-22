@@ -1,9 +1,8 @@
-import { Message, Snowflake } from 'discord.js';
+import { Message } from 'discord.js';
 import * as log4js from 'log4js';
 import BotConfig from '../../BotConfig';
 import AddProgressMessageTask from '../../tasks/AddProgressMessageTask';
 import TaskScheduler from '../../tasks/TaskScheduler';
-import DiscordUtil from '../../util/DiscordUtil';
 import EventHandler from '../EventHandler';
 
 export default class InternalProgressEventHandler implements EventHandler<'message'> {
@@ -11,17 +10,16 @@ export default class InternalProgressEventHandler implements EventHandler<'messa
 
 	private logger = log4js.getLogger( 'InternalProgressEventHandler' );
 
-	private isValidId( id: string ): id is Snowflake {
-		return !!id.match( /[0-9]{18}/ );
-	}
-
 	// This syntax is used to ensure that `this` refers to the `InternalProgressEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
 		const messageId = origin.content.split( /\s/ )[0];
-		if ( !this.isValidId( messageId ) ) {
+		if ( !messageId.match( /[0-9]{18}/ ) ) {
 			try {
 				const error = await origin.channel.send( `${ origin.author.toString() } ${ messageId } is not a valid message ID!` );
-				await DiscordUtil.deleteWithDelay( error, BotConfig.request.warningLifetime );
+
+				const timeout = BotConfig.request.warningLifetime;
+
+				await error.delete( { timeout } );
 			} catch ( err ) {
 				this.logger.error( err );
 			}
@@ -35,7 +33,9 @@ export default class InternalProgressEventHandler implements EventHandler<'messa
 		} catch ( err ) {
 			const error = await origin.channel.send( `${ origin.author.toString() } ${ messageId } could not be found!` );
 
-			await DiscordUtil.deleteWithDelay( error, BotConfig.request.warningLifetime );
+			const timeout = BotConfig.request.warningLifetime;
+
+			await error.delete( { timeout } );
 
 			this.logger.error( err );
 
