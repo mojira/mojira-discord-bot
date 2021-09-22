@@ -1,4 +1,4 @@
-import { NewsChannel, TextChannel, TextBasedChannels } from 'discord.js';
+import { NewsChannel, TextChannel, ThreadChannel, TextBasedChannels } from 'discord.js';
 
 export class ChannelConfigUtil {
 	// Indicates in the channel's description that mentions are disabled in that channel.
