@@ -28,7 +28,7 @@ export default class RequestUnresolveEventHandler implements EventHandler<'messa
 
 		this.logger.info( `User ${ user.tag } removed '${ emoji.name }' reaction from request message '${ message.id }'` );
 
-		await message.edit( '', message.embeds[0].setColor( RequestsUtil.getEmbedColor() ) );
+		await message.edit( { embeds: [message.embeds[0].setColor( RequestsUtil.getEmbedColor() )] } );
 
 		if ( message.reactions.cache.size <= BotConfig.request.suggestedEmoji.length ) {
 			this.logger.info( `Cleared message task for request message '${ message.id }'` );
