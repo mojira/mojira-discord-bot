@@ -1,6 +1,6 @@
 import { MentionRegistry } from '../mentions/MentionRegistry';
 import { FilterFeedConfig } from '../BotConfig';
-import { TextChannel, Channel } from 'discord.js';
+import { TextChannel, Channel, NewsChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import Task from './Task';
 import { NewsUtil } from '../util/NewsUtil';
@@ -16,7 +16,7 @@ export default class FilterFeedTask extends Task {
 	private titleSingle: string;
 	private publish: boolean;
 
-	private	lastRun: number;
+	private lastRun: number;
 
 	constructor( feedConfig: FilterFeedConfig, channel: Channel ) {
 		super();
@@ -34,7 +34,7 @@ export default class FilterFeedTask extends Task {
 	}
 
 	protected async run(): Promise<void> {
-		if ( !( this.channel instanceof TextChannel ) ) {
+		if ( !( this.channel instanceof TextChannel || this.channel instanceof NewsChannel ) ) {
 			FilterFeedTask.logger.error( `[${ this.id }] Expected ${ this.channel } to be a TextChannel` );
 			return;
 		}
@@ -72,7 +72,7 @@ export default class FilterFeedTask extends Task {
 					message = this.titleSingle;
 				}
 
-				const filterFeedMessage = await this.channel.send( message, embed );
+				const filterFeedMessage = await this.channel.send( { content: message, embeds: [embed] } );
 
 				if ( this.publish ) {
 					await NewsUtil.publishMessage( filterFeedMessage );

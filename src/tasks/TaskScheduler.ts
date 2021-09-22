@@ -1,5 +1,5 @@
 import Task from './Task';
-import { Message } from 'discord.js';
+import { Message, PartialMessage } from 'discord.js';
 import MessageTask from './MessageTask';
 
 export default class TaskScheduler {
@@ -20,21 +20,21 @@ export default class TaskScheduler {
 		this.timeouts.push( id );
 	}
 
-	public static addMessageTask( message: Message, task: MessageTask, interval: number ): void {
+	public static addMessageTask( message: Message | PartialMessage, task: MessageTask, interval: number ): void {
 		const id = setInterval( task.run.bind( task ), interval, message );
 		const ids = this.messageIntervals.get( message.id ) || [];
 		ids.push( id );
 		this.messageIntervals.set( message.id, ids );
 	}
 
-	public static addOneTimeMessageTask( message: Message, task: MessageTask, delay: number ): void {
+	public static addOneTimeMessageTask( message: Message | PartialMessage, task: MessageTask, delay: number ): void {
 		const id = setTimeout( task.run.bind( task ), delay, message );
 		const ids = this.messageTimeouts.get( message.id ) || [];
 		ids.push( id );
 		this.messageTimeouts.set( message.id, ids );
 	}
 
-	public static clearMessageTasks( message: Message ): void {
+	public static clearMessageTasks( message: Message | PartialMessage ): void {
 		const intervalIds = this.messageIntervals.get( message.id );
 		if ( intervalIds ) {
 			for ( const id of intervalIds ) {

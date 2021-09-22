@@ -27,14 +27,14 @@ export default class RequestResolveEventHandler implements EventHandler<'message
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ reaction.message.id }'` );
 
 		const embed = reaction.message.embeds[0].setColor( RequestsUtil.getEmbedColor( user ) );
-		await reaction.message.edit( embed );
+		await reaction.message.edit( { embeds: [embed] } );
 
 		if ( BotConfig.request.prependResponseMessage == PrependResponseMessageType.WhenResolved
 			&& BotConfig.request.ignorePrependResponseMessageEmoji !== reaction.emoji.name ) {
 			const origin = await RequestsUtil.getOriginMessage( reaction.message );
 			if ( origin ) {
 				try {
-					await reaction.message.edit( RequestsUtil.getResponseMessage( origin ), embed );
+					await reaction.message.edit( { content: RequestsUtil.getResponseMessage( origin ), embeds: [embed] } );
 				} catch ( error ) {
 					this.logger.error( error );
 				}

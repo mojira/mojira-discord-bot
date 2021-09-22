@@ -32,7 +32,7 @@ export class RoleSelectionUtil {
 		let message = await DiscordUtil.getMessage( channel, groupConfig.message );
 
 		if ( groupConfig.message === undefined || message === undefined ) {
-			message = await channel.send( embed );
+			message = await channel.send( { embeds: [embed] } );
 
 			// TODO: Ideally we would like to save the message ID automagically.
 			this.logger.warn( `Please set the 'message' for role selection group '${ groupConfig.prompt }' to '${ message.id }' in the config.` );
@@ -45,7 +45,7 @@ export class RoleSelectionUtil {
 				}
 			}
 
-			await message.edit( embed );
+			await message.edit( { embeds: [embed] } );
 		}
 
 		await ReactionsUtil.reactToMessage( message, groupConfig.roles.map( role => role.emoji ) );

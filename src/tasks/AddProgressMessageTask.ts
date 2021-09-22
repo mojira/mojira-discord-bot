@@ -32,7 +32,7 @@ export default class AddProgressMessageTask extends MessageTask {
 			try {
 				const embed = this.request.embeds[0];
 				embed.addField( date.toDateString(), `${ user } - ${ comment.replace( `${ this.request.id } `, '' ).replace( `${ this.request.id }\n`, '' ) }` );
-				await this.request.edit( embed );
+				await this.request.edit( { embeds: [embed] } );
 			} catch ( error ) {
 				AddProgressMessageTask.logger.error( error );
 			}

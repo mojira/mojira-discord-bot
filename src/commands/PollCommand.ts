@@ -1,5 +1,5 @@
 import PrefixCommand from './PrefixCommand';
-import { Message, TextChannel, DMChannel, MessageEmbed, NewsChannel } from 'discord.js';
+import { Message, MessageEmbed, TextBasedChannels } from 'discord.js';
 import Command from './Command';
 import emojiRegex = require( 'emoji-regex/text.js' );
 import PermissionRegistry from '../permissions/PermissionRegistry';
@@ -17,7 +17,7 @@ export default class PollCommand extends PrefixCommand {
 
 	public readonly aliases = ['poll', 'vote'];
 
-	private async sendSyntaxMessage( channel: TextChannel | DMChannel | NewsChannel, additionalInfo?: string ): Promise<void> {
+	private async sendSyntaxMessage( channel: TextBasedChannels, additionalInfo?: string ): Promise<void> {
 		try {
 			if ( additionalInfo != undefined ) {
 				additionalInfo += '\n';
@@ -67,7 +67,7 @@ export default class PollCommand extends PrefixCommand {
 			embed.addField( option.emoji, option.text, true );
 		}
 
-		let poll = await message.channel.send( { embed: embed, disableMentions: 'all' } );
+		let poll = await message.channel.send( { embeds: [embed], allowedMentions: { parse: [] } } );
 
 		if ( poll instanceof Array ) {
 			if ( poll.length == 0 ) {

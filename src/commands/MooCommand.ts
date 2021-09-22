@@ -15,7 +15,7 @@ export default class MooCommand extends PrefixCommand {
 			const mention = new SingleMention( 'MC-772' );
 			const embed = await mention.getEmbed();
 			embed.setFooter( message.author.tag, message.author.avatarURL() );
-			await message.channel.send( embed );
+			await message.channel.send( { embeds: [embed] } );
 			await ReactionsUtil.reactToMessage( message, ['🐮', '🐄', '🥛'] );
 		} catch {
 			return false;
