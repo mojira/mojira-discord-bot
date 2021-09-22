@@ -3,11 +3,14 @@ import Command from './Command';
 import PrefixCommand from './PrefixCommand';
 import { MentionRegistry } from '../mentions/MentionRegistry';
 import BotConfig from '../BotConfig';
+import { ChannelConfigUtil } from '../util/ChannelConfigUtil';
 
 export default class BugCommand extends PrefixCommand {
 	public readonly aliases = ['bug', 'bugs', 'mention'];
 
 	public async run( message: Message, args: string ): Promise<boolean> {
+		if ( ChannelConfigUtil.mentionsDisabled( message.channel ) ) return false;
+
 		const tickets = args.split( /\s+/ig );
 
 		const ticketRegex = new RegExp( `\\s*((?:${ BotConfig.projects.join( '|' ) })-\\d+)\\s*` );
@@ -23,7 +26,7 @@ export default class BugCommand extends PrefixCommand {
 			}
 		}
 
-		const mention = MentionRegistry.getMention( tickets );
+		const mention = MentionRegistry.getMention( tickets, message.channel );
 
 		let embed: MessageEmbed;
 		try {
