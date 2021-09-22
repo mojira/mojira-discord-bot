@@ -1,6 +1,6 @@
 # 1. Copy this file
 # 2. Rename the copy to `local.yml`
-# 3. Change the bot token and save the file
+# 3. Change the bot token and the Jira username and password if desired, and save the file
 #
 # You can add more configs if you want to.
 #
@@ -11,3 +11,5 @@
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 token: <your bot token>
+jiraUsername: <your username>
+jiraPassword: <your password>

@@ -1,4 +1,5 @@
 import { Client, ColorResolvable, Snowflake } from 'discord.js';
+import { Client as JiraClient } from 'jira.js';
 import config from 'config';
 import MojiraBot from './MojiraBot';
 import { VersionChangeType } from './tasks/VersionFeedTask';
@@ -110,6 +111,9 @@ export default class BotConfig {
 	public static token: string;
 	public static owners: Snowflake[];
 
+	private static jiraUsername: string;
+	private static jiraPassword: string;
+
 	public static homeChannel: Snowflake;
 
 	public static ticketUrlsCauseEmbed: boolean;
@@ -135,6 +139,8 @@ export default class BotConfig {
 		this.logDirectory = getOrDefault( 'logDirectory', false );
 
 		this.token = config.get( 'token' );
+		this.jiraUsername = getOrDefault( 'jiraUsername', '' );
+		this.jiraPassword = getOrDefault( 'jiraPassword', '' );
 		this.owners = getOrDefault( 'owners', [] );
 
 		this.homeChannel = config.get( 'homeChannel' );
@@ -166,5 +172,17 @@ export default class BotConfig {
 			return false;
 		}
 		return true;
+	}
+
+	public static jiraLogin(): void {
+		MojiraBot.jira = new JiraClient( {
+			host: 'https://bugs.mojang.com',
+			authentication: !this?.jiraUsername || !this?.jiraPassword ? null : {
+				basic: {
+					username: this.jiraUsername,
+					password: this.jiraPassword,
+				},
+			},
+		} );
 	}
 }

@@ -11,6 +11,14 @@ logDirectory: <string | false>
 # Your bot token used to log in to Discord with the bot.
 token: <string>
 
+# The username used to sign into the bug tracker.
+# Optional; empty by default.
+jiraUsername: <string>
+
+# The password used to sign into the bug tracker.
+# Optional; empty by default.
+jiraPassword: <string>
+
 # A list of user IDs for owner only commands.
 # Optional; empty by default.
 owners:
