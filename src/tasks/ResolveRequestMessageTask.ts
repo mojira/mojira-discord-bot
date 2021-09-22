@@ -47,9 +47,6 @@ export default class ResolveRequestMessageTask extends MessageTask {
 			if ( BotConfig.request.logChannel ) {
 				const logChannel = await DiscordUtil.getChannel( BotConfig.request.logChannel );
 				if ( logChannel && logChannel instanceof TextChannel ) {
-					const response = BotConfig.request.prependResponseMessageInLog ?
-						RequestsUtil.getResponseMessage( origin ) : '';
-
 					const log = new MessageEmbed()
 						.setColor( 'GREEN' )
 						.setAuthor( origin.author.tag, origin.author.avatarURL() )
@@ -61,7 +58,12 @@ export default class ResolveRequestMessageTask extends MessageTask {
 						.setTimestamp( new Date() );
 
 					try {
-						await logChannel.send( { content: response, embeds: [log] } );
+						if ( BotConfig.request.prependResponseMessageInLog ) {
+							const response = RequestsUtil.getResponseMessage( origin );
+							await logChannel.send( { content: response, embeds: [log] } );
+						} else {
+							await logChannel.send( { embeds: [log] } );
+						}
 					} catch ( error ) {
 						ResolveRequestMessageTask.logger.error( error );
 					}
