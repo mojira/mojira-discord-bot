@@ -1,4 +1,4 @@
-import { MessageReaction, TextChannel, User } from 'discord.js';
+import { MessageReaction, User } from 'discord.js';
 import * as log4js from 'log4js';
 import DiscordUtil from '../../util/DiscordUtil';
 import EventHandler from '../EventHandler';
@@ -13,9 +13,9 @@ export default class RequestReactionRemovalEventHandler implements EventHandler<
 		const message = await DiscordUtil.fetchMessage( reaction.message );
 
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ message.id }'` );
-		const guildMember = message.guild.members.resolve( user );
+		const guildMember = message.guild.member( user );
 
-		if ( !guildMember.permissionsIn( message.channel as TextChannel ).has( 'ADD_REACTIONS' ) ) {
+		if ( !guildMember.permissionsIn( message.channel ).has( 'ADD_REACTIONS' ) ) {
 			await reaction.users.remove( user );
 		}
 	};

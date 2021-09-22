@@ -1,8 +1,8 @@
 import MojiraBot from '../MojiraBot';
-import { TextChannel, Message, Channel, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage } from 'discord.js';
+import { TextChannel, Message, Channel, Guild, GuildMember, MessageReaction, User } from 'discord.js';
 
 export default class DiscordUtil {
-	public static async getChannel( channelId: Snowflake ): Promise<Channel> {
+	public static async getChannel( channelId: string ): Promise<Channel> {
 		if ( MojiraBot.client.channels.cache.has( channelId ) ) {
 			return MojiraBot.client.channels.cache.get( channelId );
 		}
@@ -10,7 +10,7 @@ export default class DiscordUtil {
 		return await MojiraBot.client.channels.fetch( channelId );
 	}
 
-	public static async getMessage( channel: TextChannel, messageId: Snowflake ): Promise<Message> {
+	public static async getMessage( channel: TextChannel, messageId: string ): Promise<Message> {
 		if ( channel.messages.cache.has( messageId ) ) {
 			return channel.messages.cache.get( messageId );
 		}
@@ -18,7 +18,7 @@ export default class DiscordUtil {
 		return await channel.messages.fetch( messageId );
 	}
 
-	public static async getMember( guild: Guild, userId: Snowflake ): Promise<GuildMember> {
+	public static async getMember( guild: Guild, userId: string ): Promise<GuildMember> {
 		if ( guild.members.cache.has( userId ) ) {
 			return guild.members.cache.get( userId );
 		}
@@ -26,11 +26,11 @@ export default class DiscordUtil {
 		return await guild.members.fetch( userId );
 	}
 
-	public static async fetchMessage( message: Message | PartialMessage ): Promise<Message> {
+	public static async fetchMessage( message: Message ): Promise<Message> {
 		if ( message.partial ) {
 			message = await message.fetch();
 		}
-		return message as Message;
+		return message;
 	}
 
 	public static async fetchReaction( reaction: MessageReaction ): Promise<MessageReaction> {
@@ -45,18 +45,5 @@ export default class DiscordUtil {
 			user = await user.fetch();
 		}
 		return user;
-	}
-
-	public static deleteWithDelay( message: Message, timeout: number ): Promise<void> {
-		return new Promise( ( resolve, reject ) => {
-			setTimeout( async () => {
-				try {
-					await message.delete();
-					resolve();
-				} catch ( e ) {
-					reject( e );
-				}
-			}, timeout );
-		} );
 	}
 }

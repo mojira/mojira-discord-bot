@@ -121,16 +121,16 @@ export class SingleMention extends Mention {
 		}
 
 		if ( ticketResult.fields.votes.votes ) {
-			embed.addField( 'Votes', ticketResult.fields.votes.votes.toString(), true );
+			embed.addField( 'Votes', ticketResult.fields.votes.votes, true );
 		}
 
 		if ( ticketResult.fields.comment.total ) {
-			embed.addField( 'Comments', ticketResult.fields.comment.total.toString(), true );
+			embed.addField( 'Comments', ticketResult.fields.comment.total, true );
 		}
 
 		const duplicates = ticketResult.fields.issuelinks.filter( relation => relation.type.id === '10102' && relation.inwardIssue );
 		if ( duplicates.length ) {
-			embed.addField( 'Duplicates', duplicates.length.toString(), true );
+			embed.addField( 'Duplicates', duplicates.length, true );
 		}
 
 		if ( ticketResult.fields.creator.key !== ticketResult.fields.reporter.key ) {
