@@ -6,6 +6,7 @@ import EventHandler from '../EventHandler';
 import RequestEventHandler from '../request/RequestEventHandler';
 import TestingRequestEventHandler from '../request/TestingRequestEventHandler';
 import InternalProgressEventHandler from '../internal/InternalProgressEventHandler';
+import VerificationMessageEventHandler from '../verification/VerificationMessageEventHandler';
 
 export default class MessageEventHandler implements EventHandler<'messageCreate'> {
 	public readonly eventName = 'messageCreate';
@@ -15,6 +16,7 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 	private readonly requestEventHandler: RequestEventHandler;
 	private readonly testingRequestEventHandler: TestingRequestEventHandler;
 	private readonly internalProgressEventHandler: InternalProgressEventHandler;
+	private readonly verificationMessageEventHandler: VerificationMessageEventHandler;
 
 	constructor( botUserId: Snowflake, internalChannels: Map<Snowflake, Snowflake>, requestLimits: Map<Snowflake, number> ) {
 		this.botUserId = botUserId;
@@ -22,6 +24,7 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 		this.requestEventHandler = new RequestEventHandler( internalChannels, requestLimits );
 		this.testingRequestEventHandler = new TestingRequestEventHandler();
 		this.internalProgressEventHandler = new InternalProgressEventHandler();
+		this.verificationMessageEventHandler = new VerificationMessageEventHandler();
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageEventHandler` object
@@ -56,6 +59,11 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 			await this.internalProgressEventHandler.onEvent( message );
 
 			// Don't reply in internal request channels
+			return;
+		} else if ( message.channel.type === 'dm' ) {
+			// This message is a direct message
+			await this.verificationMessageEventHandler.onEvent( message );
+
 			return;
 		}
 

@@ -15,6 +15,7 @@ import FilterFeedTask from './tasks/FilterFeedTask';
 import CachedFilterFeedTask from './tasks/CachedFilterFeedTask';
 import TaskScheduler from './tasks/TaskScheduler';
 import VersionFeedTask from './tasks/VersionFeedTask';
+import RemovePendingVerificationTask from './tasks/RemovePendingVerificationTask';
 import DiscordUtil from './util/DiscordUtil';
 import { RoleSelectionUtil } from './util/RoleSelectionUtil';
 
@@ -99,6 +100,71 @@ export default class MojiraBot {
 			const requestChannels: TextChannel[] = [];
 			const internalChannels = new Map<Snowflake, Snowflake>();
 			const requestLimits = new Map<Snowflake, number>();
+
+			if ( BotConfig.verification.pendingVerificationChannel ) {
+				const pendingChannel = await DiscordUtil.getChannel( BotConfig.verification.pendingVerificationChannel );
+				if ( pendingChannel instanceof TextChannel ) {
+					// https://stackoverflow.com/questions/55153125/fetch-more-than-100-messages
+					const allMessages: Message[] = [];
+					let lastId: string | undefined;
+					let continueSearch = true;
+
+					while ( continueSearch ) {
+						const options: ChannelLogsQueryOptions = { limit: 50 };
+						if ( lastId ) {
+							options.before = lastId;
+						}
+						const messages = await pendingChannel.messages.fetch( options );
+						allMessages.push( ...messages.array() );
+						lastId = messages.last()?.id;
+						if ( messages.size !== 50 || !lastId ) {
+							continueSearch = false;
+						}
+					}
+					this.logger.info( `Fetched ${ allMessages.length } messages from "${ pendingChannel.name }"` );
+
+					// Schedule invalidation of pending verification requests
+					const handler = new RemovePendingVerificationTask();
+					for ( const message of allMessages ) {
+						const expiration = BotConfig.verification.verificationInvalidationTime - ( Date.now() - message.createdTimestamp );
+						if ( expiration > 0 ) {
+							this.logger.info( `Scheduling deletion of message ${ message.id } in ${ expiration } ms` );
+							TaskScheduler.addOneTimeMessageTask(
+								message,
+								handler,
+								expiration
+							);
+						} else {
+							this.logger.info( `Deleted pending verification request ${ message.id } (scheduled to be deleted ${ -expiration } ms ago)` );
+							await message.delete();
+						}
+					}
+				}
+			}
+
+			if ( BotConfig.verification.verificationLogChannel ) {
+				const verificationLogChannel = await DiscordUtil.getChannel( BotConfig.verification.verificationLogChannel );
+				if ( verificationLogChannel instanceof TextChannel ) {
+					// https://stackoverflow.com/questions/55153125/fetch-more-than-100-messages
+					const allMessages: Message[] = [];
+					let lastId: string | undefined;
+					let continueSearch = true;
+
+					while ( continueSearch ) {
+						const options: ChannelLogsQueryOptions = { limit: 50 };
+						if ( lastId ) {
+							options.before = lastId;
+						}
+						const messages = await verificationLogChannel.messages.fetch( options );
+						allMessages.push( ...messages.array() );
+						lastId = messages.last()?.id;
+						if ( messages.size !== 50 || !lastId ) {
+							continueSearch = false;
+						}
+					}
+					this.logger.info( `Fetched ${ allMessages.length } messages from "${ verificationLogChannel.name }"` );
+				}
+			}
 
 			if ( BotConfig.request.channels ) {
 				for ( let i = 0; i < BotConfig.request.channels.length; i++ ) {

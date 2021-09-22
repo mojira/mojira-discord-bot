@@ -63,6 +63,26 @@ export class RequestConfig {
 	}
 }
 
+export class VerificationConfig {
+	public verificationTicket: string;
+	public pendingVerificationChannel: string;
+	public verificationLogChannel: string;
+	public verifiedRole: string;
+	public verificationInvalidationTime: number;
+	public removeLinkEmoji: string;
+	public removeLinkWaitTime: number;
+
+	constructor() {
+		this.verificationTicket = config.get( 'verification.verificationTicket' );
+		this.pendingVerificationChannel = config.get( 'verification.pendingVerificationChannel' );
+		this.verificationLogChannel = config.get( 'verification.verificationLogChannel' );
+		this.verifiedRole = config.get( 'verification.verifiedRole' );
+		this.verificationInvalidationTime = config.get( 'verification.verificationInvalidationTime' );
+		this.removeLinkEmoji = config.get( 'verification.removeLinkEmoji' );
+		this.removeLinkWaitTime = config.get( 'verification.removeLinkWaitTime' );
+	}
+}
+
 export interface RoleConfig {
 	emoji: Snowflake;
 	title: string;
@@ -125,6 +145,8 @@ export default class BotConfig {
 
 	public static request: RequestConfig;
 
+	public static verification: VerificationConfig;
+
 	public static roleGroups: RoleGroupConfig[];
 
 	public static filterFeeds: FilterFeedConfig[];
@@ -147,6 +169,8 @@ export default class BotConfig {
 		this.embedDeletionEmoji = getOrDefault( 'embedDeletionEmoji', '' );
 
 		this.maxSearchResults = config.get( 'maxSearchResults' );
+
+		this.verification = new VerificationConfig();
 
 		this.projects = config.get( 'projects' );
 
