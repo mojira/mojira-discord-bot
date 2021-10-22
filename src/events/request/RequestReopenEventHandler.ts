@@ -54,6 +54,6 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 			}
 		}
 
-		await this.requestEventHandler.onEvent( requestMessage );
+		await this.requestEventHandler.onEvent( requestMessage, true );
 	};
 }

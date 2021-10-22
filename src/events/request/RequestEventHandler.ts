@@ -27,7 +27,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestEventHandler` object
-	public onEvent = async ( origin: Message ): Promise<void> => {
+	public onEvent = async ( origin: Message, forced?: boolean ): Promise<void> => {
 		// we need this because this method gets invoked directly on bot startup instead of via the general MessageEventHandler
 		if ( origin.type !== 'DEFAULT' ) {
 			return;
@@ -88,7 +88,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 		const internalChannelId = this.internalChannels.get( origin.channel.id );
 		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 
-		if ( requestLimit && requestLimit >= 0 && internalChannel instanceof TextChannel ) {
+		if ( !forced && requestLimit && requestLimit >= 0 && internalChannel instanceof TextChannel ) {
 			const internalChannelUserMessages = internalChannel.messages.cache
 				.filter( message => message.embeds.length > 0 && message.embeds[0].author?.name === origin.author.tag )
 				.filter( message => message.embeds[0].timestamp !== null && new Date().valueOf() - message.embeds[0].timestamp.valueOf() <= 86400000 );
