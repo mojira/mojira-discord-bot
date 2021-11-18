@@ -31,6 +31,10 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 
 		const requestMessage = await RequestsUtil.getOriginMessage( message );
 
+		if ( !requestMessage ) {
+			this.logger.error( `Could not find origin message for request message '${ message.id }'` );
+		}
+
 		const logChannel = await DiscordUtil.getChannel( BotConfig.request.logChannel );
 		if ( logChannel && logChannel instanceof TextChannel ) {
 			const log = new MessageEmbed()

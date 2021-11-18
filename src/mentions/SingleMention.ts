@@ -89,7 +89,7 @@ export class SingleMention extends Mention {
 			.setColor( 'RED' );
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		function findThumbnail( attachments: any[] ): string {
+		function findThumbnail( attachments: any[] ): string | undefined {
 			const allowedMimes = [
 				'image/png', 'image/jpeg',
 			];

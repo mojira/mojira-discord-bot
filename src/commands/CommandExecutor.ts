@@ -7,7 +7,7 @@ export default class CommandExecutor {
 		for ( const commandName in CommandRegistry ) {
 			const command = CommandRegistry[commandName] as Command;
 
-			if ( command.checkPermission( message.member ) ) {
+			if ( message.member && command.checkPermission( message.member ) ) {
 				const commandTestResult = command.test( message.content );
 
 				if ( commandTestResult === false ) continue;
