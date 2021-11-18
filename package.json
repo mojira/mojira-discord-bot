@@ -17,8 +17,7 @@
     "escape-string-regexp": "^1.0.5",
     "jira.js": "^1.8.0",
     "js-yaml": "^3.14.1",
-    "log4js": "^6.3.0",
-    "moment": "^2.29.1"
+    "log4js": "^6.3.0"
   },
   "devDependencies": {
     "@types/config": "0.0.36",
