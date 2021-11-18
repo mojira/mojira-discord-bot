@@ -3,7 +3,8 @@
         "target": "ES2016",
         "module": "commonjs",
         "lib": [
-            "es2020"
+            "es2020",
+            "dom"
         ],
         "outDir": "./bin",
         "esModuleInterop": true

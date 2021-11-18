@@ -220,7 +220,7 @@ export default class VersionFeedTask extends Task {
 		};
 
 		try {
-			versionIssueCounts = await MojiraBot.jira.projectVersions.getVersionsRelatedIssuesCount( {
+			versionIssueCounts = await MojiraBot.jira.projectVersions.getVersionRelatedIssues( {
 				id: version.id,
 			} );
 		} catch ( error ) {
