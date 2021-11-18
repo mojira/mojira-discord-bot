@@ -98,7 +98,6 @@ This project depends on the following projects, thanks to every developer who ma
 - [jira.js](https://github.com/MrRefactoring/jira.js)
 - [JS-YAML](https://github.com/nodeca/js-yaml)
 - [log4js](https://github.com/log4js-node/log4js-node)
-- [moment](https://github.com/moment/moment)
 - [node-config](https://github.com/lorenwest/node-config)
 - [TypeScript](https://github.com/Microsoft/TypeScript/)
 - [TypeScript ESLint](https://github.com/typescript-eslint/typescript-eslint/)
