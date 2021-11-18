@@ -42,7 +42,7 @@ export default class FilterFeedTask extends Task {
 		let unknownTickets: string[];
 
 		try {
-			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
+			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
 				jql: this.jql.replace( 'lastRun', this.lastRun.toString() ),
 				fields: ['key'],
 			} );

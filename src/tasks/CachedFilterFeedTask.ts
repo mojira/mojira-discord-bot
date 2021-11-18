@@ -36,7 +36,7 @@ export default class CachedFilterFeedTask extends Task {
 	protected async init(): Promise<void> {
 		this.lastRun = new Date().valueOf();
 
-		const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
+		const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
 			jql: this.jql.replace( 'lastRun', this.lastRun.toString() ),
 			fields: ['key'],
 		} );
@@ -57,7 +57,7 @@ export default class CachedFilterFeedTask extends Task {
 		let upcomingTickets: string[];
 
 		try {
-			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
+			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
 				jql: this.jql.replace( 'lastRun', this.lastRun.toString() ),
 				fields: ['key'],
 			} );
@@ -77,7 +77,7 @@ export default class CachedFilterFeedTask extends Task {
 
 		try {
 			const ticketKeys = Array.from( this.knownTickets );
-			const previousTicketResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
+			const previousTicketResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
 				jql: `${ this.jqlRemoved.replace( 'lastRun', this.lastRun.toString() ) } AND key in (${ ticketKeys.join( ',' ) })`,
 				fields: ['key'],
 			} );

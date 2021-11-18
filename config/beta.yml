@@ -107,12 +107,12 @@ roleGroups:
         emoji: '🇴'
 
 filterFeeds:
-  - jql: created > -1m
+  - jql: created > lastRun
     channel: '665904688616701953'
     interval: 10000
     title: '{{num}} tickets have been created!'
     titleSingle: This ticket has just been created!
-  - jql: CHK > -2h
+  - jql: CHK > lastRun
     channel: '665904688616701953'
     interval: 10000
     title: '{{num}} tickets have been confirmed!'

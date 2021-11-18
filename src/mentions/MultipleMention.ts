@@ -20,7 +20,7 @@ export class MultipleMention extends Mention {
 		let searchResults: any;
 
 		try {
-			searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
+			searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
 				jql: `id IN (${ this.tickets.join( ',' ) }) ORDER BY key ASC`,
 				maxResults: 10,
 				fields: [ 'key', 'summary' ],
