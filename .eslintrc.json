@@ -16,6 +16,7 @@
 		"comma-style": "warn",
 		"curly": ["warn", "multi-line", "consistent"],
 		"dot-location": ["warn", "property"],
+		"eol-last": "warn",
 		"@typescript-eslint/indent": ["warn", "tab"],
 		"keyword-spacing": ["warn"],
 		"max-nested-callbacks": ["warn", { "max": 4 }],
