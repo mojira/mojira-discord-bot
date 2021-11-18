@@ -59,6 +59,7 @@ export default class VersionFeedTask extends Task {
 				} );
 
 				for ( const value of results ) {
+					if ( value == undefined ) continue;
 					this.cachedVersions[value.id] = {
 						id: value.id,
 						name: value.name,
@@ -87,7 +88,7 @@ export default class VersionFeedTask extends Task {
 
 		for ( const change of changes ) {
 			try {
-				const versionFeedMessage = await this.channel.send( change.message, change.embed );
+				const versionFeedMessage = await this.channel.send( change.message, { embed: change.embed } );
 
 				if ( this.publish ) {
 					await NewsUtil.publishMessage( versionFeedMessage );
@@ -119,9 +120,10 @@ export default class VersionFeedTask extends Task {
 			orderBy: '-sequence',
 		} );
 
-		VersionFeedTask.logger.debug( `[${ this.id }] Received ${ results.values.length } versions for project ${ project }` );
-
 		const changes: JiraVersionChange[] = [];
+
+		VersionFeedTask.logger.debug( `[${ this.id }] Received ${ results.values?.length } versions for project ${ project }` );
+		if ( !results.values ) return changes;
 
 		for ( const value of results.values ) {
 			try {
@@ -209,7 +211,7 @@ export default class VersionFeedTask extends Task {
 		return changes;
 	}
 
-	private async getVersionEmbed( version: JiraVersion ): Promise<MessageEmbed> {
+	private async getVersionEmbed( version: JiraVersion ): Promise<MessageEmbed | undefined> {
 		const embed = new MessageEmbed()
 			.setTitle( version.name )
 			.setColor( 'PURPLE' );

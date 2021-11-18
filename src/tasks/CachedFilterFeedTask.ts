@@ -11,7 +11,7 @@ export default class CachedFilterFeedTask extends Task {
 
 	private channel: Channel;
 	private jql: string;
-	private jqlRemoved: string;
+	private jqlRemoved?: string;
 	private filterFeedEmoji: string;
 	private title: string;
 	private titleSingle: string;
@@ -73,28 +73,30 @@ export default class CachedFilterFeedTask extends Task {
 			return;
 		}
 
-		let removableTickets: string[];
+		if ( this.jqlRemoved !== undefined ) {
+			let removableTickets: string[];
 
-		try {
-			const ticketKeys = Array.from( this.knownTickets );
-			const previousTicketResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
-				jql: `${ this.jqlRemoved.replace( 'lastRun', this.lastRun.toString() ) } AND key in (${ ticketKeys.join( ',' ) })`,
-				fields: ['key'],
-			} );
+			try {
+				const ticketKeys = Array.from( this.knownTickets );
+				const previousTicketResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
+					jql: `${ this.jqlRemoved.replace( 'lastRun', this.lastRun.toString() ) } AND key in (${ ticketKeys.join( ',' ) })`,
+					fields: ['key'],
+				} );
 
-			if ( !previousTicketResults.issues ) {
-				CachedFilterFeedTask.logger.debug( 'No issues returned by JIRA' );
+				if ( previousTicketResults?.issues ) {
+					removableTickets = previousTicketResults.issues.map( ( { key } ) => key );
+				} else {
+					CachedFilterFeedTask.logger.debug( 'No issues returned by JIRA' );
+				}
+			} catch ( err ) {
+				CachedFilterFeedTask.logger.error( err );
+				return;
 			}
 
-			removableTickets = previousTicketResults.issues.map( ( { key } ) => key );
-		} catch ( err ) {
-			CachedFilterFeedTask.logger.error( err );
-			return;
-		}
-
-		for ( const ticket of removableTickets ) {
-			this.knownTickets.delete( ticket );
-			CachedFilterFeedTask.logger.debug( `Removed ${ ticket } from known tickets for cached filter feed task ${ this.id }` );
+			for ( const ticket of removableTickets ) {
+				this.knownTickets.delete( ticket );
+				CachedFilterFeedTask.logger.debug( `Removed ${ ticket } from known tickets for cached filter feed task ${ this.id }` );
+			}
 		}
 
 		const unknownTickets = upcomingTickets.filter( key => !this.knownTickets.has( key ) );

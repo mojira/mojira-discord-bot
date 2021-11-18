@@ -4,6 +4,6 @@ import BotConfig from '../BotConfig';
 
 export default class OwnerPermission extends Permission {
 	public checkPermission( member?: GuildMember ): boolean {
-		return BotConfig.owners.includes( member?.id );
+		return member ? BotConfig.owners.includes( member.id ) : false;
 	}
 }

@@ -16,7 +16,9 @@ export default class TestingRequestEventHandler implements EventHandler<'message
 			this.logger.info( `${ request.author.tag } posted request ${ request.id } in #${ request.channel.name }` );
 		}
 
-		if ( !request.guild.member( request.author ).permissionsIn( await DiscordUtil.getChannel( BotConfig.request.logChannel ) ).has( 'VIEW_CHANNEL' ) ) {
+		const guildMember = request.guild?.member( request.author );
+
+		if ( guildMember && !guildMember.permissionsIn( await DiscordUtil.getChannel( BotConfig.request.logChannel ) ).has( 'VIEW_CHANNEL' ) ) {
 			const tickets = RequestsUtil.getTicketIdsFromString( request.content );
 
 			if ( tickets.length !== 1 ) {

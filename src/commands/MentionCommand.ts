@@ -39,7 +39,7 @@ export default class MentionCommand extends Command {
 				.join( '\n' );
 		}
 
-		let ticketMatch: RegExpExecArray;
+		let ticketMatch: RegExpExecArray | null;
 		const ticketIdRegex = MentionCommand.getTicketIdRegex();
 		const ticketMatches: Set<string> = new Set();
 

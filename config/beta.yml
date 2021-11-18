@@ -11,7 +11,7 @@ request:
   channels:
     - '672114750477303837'
   internalChannels:
-    - '681145724364259438'
+    - '911003147588223016'
   requestLimits:
     - 5
   logChannel: '681145896247099618'

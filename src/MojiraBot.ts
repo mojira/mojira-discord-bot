@@ -1,4 +1,4 @@
-import { ChannelLogsQueryOptions, Client, Intents, Message, TextChannel } from 'discord.js';
+import { ChannelLogsQueryOptions, Client, ClientUser, Intents, Message, TextChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import { Version2Client as JiraClient } from 'jira.js';
 import BotConfig from './BotConfig';
@@ -33,7 +33,9 @@ export default class MojiraBot {
 			intents: Intents.NON_PRIVILEGED,
 		},
 	} );
+
 	private static running = false;
+	private static botUser: ClientUser;
 
 	public static jira = new JiraClient( {
 		host: 'https://bugs.mojang.com',
@@ -61,10 +63,11 @@ export default class MojiraBot {
 
 		try {
 			const loginResult = await BotConfig.login( this.client );
-			if ( !loginResult ) return;
+			if ( !loginResult || !this.client.user ) return;
 
+			this.botUser = this.client.user;
 			this.running = true;
-			this.logger.info( `MojiraBot has been started successfully. Logged in as ${ this.client.user.tag }` );
+			this.logger.info( `MojiraBot has been started successfully. Logged in as ${ this.botUser.tag }` );
 
 			// Register events.
 			EventRegistry.setClient( this.client );
@@ -122,11 +125,11 @@ export default class MojiraBot {
 							this.logger.info( `Fetched ${ allMessages.length } messages from "${ internalChannel.name }"` );
 
 							// Resolve pending resolved requests
-							const handler = new RequestResolveEventHandler( this.client.user.id );
+							const handler = new RequestResolveEventHandler( this.botUser.id );
 							for ( const message of allMessages ) {
 								message.reactions.cache.forEach( async reaction => {
 									const users = await reaction.users.fetch();
-									const user = users.array().find( v => v.id !== this.client.user.id );
+									const user = users.array().find( v => v.id !== this.botUser.id );
 									if ( user ) {
 										try {
 											await handler.onEvent( reaction, user );
@@ -191,11 +194,11 @@ export default class MojiraBot {
 				this.logger.info( 'Fully caught up on requests.' );
 			}
 
-			EventRegistry.add( new ReactionAddEventHandler( this.client.user.id, internalChannels, requestLimits ) );
-			EventRegistry.add( new ReactionRemoveEventHandler( this.client.user.id ) );
-			EventRegistry.add( new MessageEventHandler( this.client.user.id, internalChannels, requestLimits ) );
-			EventRegistry.add( new MessageUpdateEventHandler( this.client.user.id, internalChannels ) );
-			EventRegistry.add( new MessageDeleteEventHandler( this.client.user.id, internalChannels ) );
+			EventRegistry.add( new ReactionAddEventHandler( this.botUser.id, internalChannels, requestLimits ) );
+			EventRegistry.add( new ReactionRemoveEventHandler( this.botUser.id ) );
+			EventRegistry.add( new MessageEventHandler( this.botUser.id, internalChannels, requestLimits ) );
+			EventRegistry.add( new MessageUpdateEventHandler( this.botUser.id, internalChannels ) );
+			EventRegistry.add( new MessageDeleteEventHandler( this.botUser.id, internalChannels ) );
 
 			// #region Schedule tasks.
 			// Filter feed tasks.
@@ -224,7 +227,7 @@ export default class MojiraBot {
 
 			// TODO Change to custom status when discord.js#3552 is merged into current version of package
 			try {
-				await this.client.user.setActivity( '!jira help' );
+				await this.botUser.setActivity( '!jira help' );
 			} catch ( error ) {
 				MojiraBot.logger.error( error );
 			}

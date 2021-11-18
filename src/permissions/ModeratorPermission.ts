@@ -7,6 +7,6 @@ import Permission from './Permission';
  */
 export default class ModeratorPermission extends Permission {
 	public checkPermission( member?: GuildMember ): boolean {
-		return member?.hasPermission( 'MANAGE_MESSAGES' );
+		return member?.hasPermission( 'MANAGE_MESSAGES' ) ?? false;
 	}
 }
