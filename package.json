@@ -11,7 +11,7 @@
     "lintfix": "eslint 'src/**/*.ts' --fix"
   },
   "dependencies": {
-    "config": "^3.3.4",
+    "config": "^3.3.6",
     "discord.js": "^12.5.1",
     "emoji-regex": "^8.0.0",
     "escape-string-regexp": "^1.0.5",
@@ -20,7 +20,7 @@
     "log4js": "^6.3.0"
   },
   "devDependencies": {
-    "@types/config": "0.0.36",
+    "@types/config": "0.0.40",
     "@types/emoji-regex": "^8.0.0",
     "@types/node": "^12.20.4",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
