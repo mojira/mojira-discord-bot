@@ -101,7 +101,6 @@ versionFeeds:
     actions:
       - released
       - unreleased
-      - renamed
 
     #version-feed
   - projects:
