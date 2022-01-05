@@ -7,26 +7,25 @@
     "bot": "tsc && node bin",
     "build": "tsc",
     "validate": "tsc --noEmit",
-    "lint": "eslint 'src/**/*.ts' --max-warnings 0",
-    "lintfix": "eslint 'src/**/*.ts' --fix"
+    "lint": "eslint . --ext .ts --max-warnings 0",
+    "lintfix": "eslint . --ext .ts --fix"
   },
   "dependencies": {
-    "config": "^3.3.4",
+    "config": "^3.3.6",
     "discord.js": "^12.5.1",
     "emoji-regex": "^8.0.0",
     "escape-string-regexp": "^1.0.5",
     "jira.js": "^1.8.0",
-    "js-yaml": "^3.14.1",
-    "log4js": "^6.3.0",
-    "moment": "^2.29.1"
+    "js-yaml": "^4.1.0",
+    "log4js": "^6.3.0"
   },
   "devDependencies": {
-    "@types/config": "0.0.36",
+    "@types/config": "0.0.40",
     "@types/emoji-regex": "^8.0.0",
     "@types/node": "^12.20.4",
-    "@typescript-eslint/eslint-plugin": "^2.34.0",
-    "@typescript-eslint/parser": "^2.34.0",
-    "eslint": "^6.8.0",
-    "typescript": "^3.9.9"
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
+    "eslint": "^8.2.0",
+    "typescript": "^4.5.2"
   }
 }

@@ -103,7 +103,7 @@ versionFeeds:
       - unreleased
       - renamed
 
-    #version-log
+    #version-feed
   - projects:
       - BDS
       - MC
@@ -112,6 +112,7 @@ versionFeeds:
       - MCPE
       - REALMS
     channel: '741600360619049000'
+    publish: true
     interval: 300000
     scope: 5
     actions:

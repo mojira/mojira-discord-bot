@@ -1,11 +1,7 @@
 {
 	"parser": "@typescript-eslint/parser",
 	"plugins": ["@typescript-eslint"],
-	"extends": [
-		"eslint:recommended",
-		"plugin:@typescript-eslint/eslint-recommended",
-		"plugin:@typescript-eslint/recommended"
-	],
+	"extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
 	"env": {
 		"node": true
 	},
@@ -31,7 +27,6 @@
 		"no-lonely-if": "warn",
 		"no-multi-spaces": "warn",
 		"no-multiple-empty-lines": ["warn", { "max": 2, "maxEOF": 1, "maxBOF": 0 }],
-		"no-shadow": ["error", { "allow": ["err", "resolve", "reject"] }],
 		"no-trailing-spaces": ["warn"],
 		"no-var": "error",
 		"object-curly-spacing": ["warn", "always"],

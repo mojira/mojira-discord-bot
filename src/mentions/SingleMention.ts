@@ -1,5 +1,4 @@
 import { MessageEmbed, Util } from 'discord.js';
-import moment from 'moment';
 import MojiraBot from '../MojiraBot';
 import { MarkdownUtil } from '../util/MarkdownUtil';
 import { Mention } from './Mention';
@@ -48,7 +47,7 @@ export class SingleMention extends Mention {
 		let status = ticketResult.fields.status.name;
 		let largeStatus = false;
 		if ( ticketResult.fields.resolution ) {
-			const resolutionDate = moment( ticketResult.fields.resolutiondate ).fromNow();
+			const resolutionDate = MarkdownUtil.timestamp( new Date( ticketResult.fields.resolutiondate ), 'R' );
 			status = `Resolved as **${ ticketResult.fields.resolution.name }** ${ resolutionDate }`;
 
 			if ( ticketResult.fields.resolution.id === '3' ) {
@@ -113,7 +112,7 @@ export class SingleMention extends Mention {
 
 		if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
 			const fixVersions = ticketResult.fields.fixVersions.map( v => v.name );
-			embed.addField( 'Fix version' + ( fixVersions.length > 1 ? 's' : '' ), Util.escapeMarkdown( fixVersions.join( ', ' ) ), true );
+			embed.addField( 'Fix Version' + ( fixVersions.length > 1 ? 's' : '' ), Util.escapeMarkdown( fixVersions.join( ', ' ) ), true );
 		}
 
 		if ( ticketResult.fields.assignee ) {
@@ -134,10 +133,10 @@ export class SingleMention extends Mention {
 		}
 
 		if ( ticketResult.fields.creator.key !== ticketResult.fields.reporter.key ) {
-			embed.addField( 'Created by', `[${ Util.escapeMarkdown( ticketResult.fields.creator.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.creator.name ) })`, true );
+			embed.addField( 'Creator', `[${ Util.escapeMarkdown( ticketResult.fields.creator.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.creator.name ) })`, true );
 		}
 
-		embed.addField( 'Created', moment( ticketResult.fields.created ).fromNow(), true );
+		embed.addField( 'Created', MarkdownUtil.timestamp( new Date( ticketResult.fields.created ), 'R' ), true );
 
 		return embed;
 	}
