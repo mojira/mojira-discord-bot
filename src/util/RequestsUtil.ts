@@ -98,7 +98,7 @@ export class RequestsUtil {
 	 * @returns A NEW regex object every time. You have to store it as a variable if you use `exec` on it, otherwise you will encounter infinite loops.
 	 */
 	public static getTicketRequestRegex(): RegExp {
-		return new RegExp( `(?:https?://bugs\\.mojang\\.com/(?:browse|projects/\\w+/issues)/|\\b)${ MentionCommand.ticketPattern }`, 'g' );
+		return new RegExp( `<?(?:https?://bugs\\.mojang\\.com/(?:browse|projects/\\w+/issues)/|\\b)${ MentionCommand.ticketPattern }>?`, 'g' );
 	}
 
 	public static async checkTicketValidity( tickets: string[] ): Promise<boolean> {
@@ -141,8 +141,8 @@ export class RequestsUtil {
 	public static replaceTicketReferencesWithRichLinks( content: string ): string {
 		const regex = new RegExp( `${ this.getTicketRequestRegex().source }(?<query>\\?[^\\s#]+)?(?<anchor>#\\S+)?`, 'g' );
 
-		// Escape all of the following characters with a backslash: [, ], \
-		return content.replace( /([[\]\\])/gm, '\\$1' )
+		// Escape all of the following characters with a backslash: [, ], \, <, >
+		return content.replace( /([[\]\\]<>)/gm, '\\$1' )
 			.replace( regex, '[$<ticketid>$<anchor>](https://bugs.mojang.com/browse/$<ticketid>$<query>$<anchor>)' );
 	}
 }
