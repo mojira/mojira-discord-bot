@@ -142,7 +142,7 @@ export class RequestsUtil {
 		const regex = new RegExp( `${ this.getTicketRequestRegex().source }(?<query>\\?[^\\s#]+)?(?<anchor>#\\S+)?`, 'g' );
 
 		// Escape all of the following characters with a backslash: [, ], \, <, >
-		return content.replace( /([[\]\\]<>)/gm, '\\$1' )
+		return content.replace( /([[\]\\<>])/gm, '\\$1' )
 			.replace( regex, '[$<ticketid>$<anchor>](https://bugs.mojang.com/browse/$<ticketid>$<query>$<anchor>)' );
 	}
 }
