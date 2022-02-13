@@ -139,10 +139,10 @@ export class RequestsUtil {
 	}
 
 	public static replaceTicketReferencesWithRichLinks( content: string ): string {
-		const regex = new RegExp( `${ this.getTicketRequestRegex().source }(?<query>\\?[^\\s#]+)?(?<anchor>#\\S+)?`, 'g' );
+		const regex = new RegExp( `${ this.getTicketRequestRegex().source }(?<query>\\?[^\\s#>]+)?(?<anchor>#[^\\s>]+)?>?`, 'g' );
 
-		// Escape all of the following characters with a backslash: [, ], \, <, >
-		return content.replace( /([[\]\\<>])/gm, '\\$1' )
+		// Escape all of the following characters with a backslash: [, ], \
+		return content.replace( /([[\]\\])/gm, '\\$1' )
 			.replace( regex, '[$<ticketid>$<anchor>](https://bugs.mojang.com/browse/$<ticketid>$<query>$<anchor>)' );
 	}
 }
