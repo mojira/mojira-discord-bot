@@ -42,7 +42,7 @@ export default class PollCommand extends PrefixCommand {
 	private async sendPollMessage( message: Message, title: string, options: PollOption[] ): Promise<void> {
 		const embed = new MessageEmbed();
 		embed.setTitle( 'Poll' )
-			.setFooter( message.author.tag, message.author.avatarURL() )
+		.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() } )
 			.setTimestamp( message.createdAt )
 			.setColor( 'GREEN' );
 

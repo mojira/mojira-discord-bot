@@ -52,6 +52,7 @@ export default class MojiraBot {
 	public static jira = new JiraClient( {
 		host: 'https://bugs.mojang.com',
 		telemetry: false,
+		newErrorHandling: true
 	} );
 
 	public static async start(): Promise<void> {

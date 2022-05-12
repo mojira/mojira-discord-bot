@@ -29,7 +29,7 @@ export default class SearchCommand extends PrefixCommand {
 			}
 
 			embed.setTitle( '**Results:**' );
-			embed.setFooter( message.author.tag, message.author.avatarURL() );
+			embed.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() } );
 
 			for ( const issue of searchResults.issues ) {
 				embed.addField( issue.key, `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })` );

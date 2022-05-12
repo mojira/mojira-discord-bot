@@ -15,7 +15,7 @@ export default class DiscordUtil {
 	}
 
 	public static async fetchMessage( message: Message | PartialMessage ): Promise<Message> {
-		if ( !message.deleted && message.partial ) {
+		if ( message !== undefined && message.partial ) {
 			message = await message.fetch();
 		}
 		return message as Message;

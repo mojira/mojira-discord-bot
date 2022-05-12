@@ -68,7 +68,7 @@ export default class MentionCommand extends Command {
 
 		if ( embed === undefined ) return false;
 
-		embed.setFooter( message.author.tag, message.author.avatarURL() )
+		embed.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() } )
 			.setTimestamp( message.createdAt );
 
 		try {

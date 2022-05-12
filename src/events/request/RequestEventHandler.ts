@@ -116,7 +116,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 		if ( internalChannel && internalChannel instanceof TextChannel ) {
 			const embed = new MessageEmbed()
 				.setColor( RequestsUtil.getEmbedColor() )
-				.setAuthor( origin.author.tag, origin.author.avatarURL() )
+				.setAuthor( { name: origin.author.tag, iconURL: origin.author.avatarURL() } )
 				.setDescription( RequestsUtil.getRequestDescription( origin ) )
 				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
 				.setTimestamp( origin.createdAt );

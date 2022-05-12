@@ -14,7 +14,7 @@ export default class AddProgressMessageTask extends MessageTask {
 
 	public async run( origin: Message ): Promise<void> {
 		// If the message is undefined or has been deleted, don't do anything
-		if ( origin === undefined || origin.deleted ) return;
+		if ( origin === undefined ) return;
 
 		const comment = origin.content;
 		const date = origin.createdAt;

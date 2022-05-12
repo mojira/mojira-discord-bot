@@ -81,7 +81,7 @@ export class SingleMention extends Mention {
 		description = description.split( '\n' ).slice( 0, 2 ).join( '\n' );
 
 		const embed = new MessageEmbed();
-		embed.setAuthor( ticketResult.fields.reporter.displayName, ticketResult.fields.reporter.avatarUrls['48x48'], 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) )
+		embed.setAuthor( { name: ticketResult.fields.reporter.displayName, iconURL: ticketResult.fields.reporter.avatarUrls['48x48'], url: 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) } )
 			.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ Util.escapeMarkdown( ticketResult.fields.summary ) }` ) )
 			.setDescription( description.substring( 0, 2048 ) )
 			.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )

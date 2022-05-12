@@ -39,7 +39,7 @@ export default class BugCommand extends PrefixCommand {
 
 		if ( embed === undefined ) return false;
 
-		embed.setFooter( message.author.tag, message.author.avatarURL() )
+		embed.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() } )
 			.setTimestamp( message.createdAt );
 
 		try {
