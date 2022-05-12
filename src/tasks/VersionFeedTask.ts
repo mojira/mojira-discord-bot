@@ -4,6 +4,7 @@ import { VersionFeedConfig } from '../BotConfig';
 import { NewsUtil } from '../util/NewsUtil';
 import MojiraBot from '../MojiraBot';
 import Task from './Task';
+import { LoggerUtil } from '../util/LoggerUtil';
 
 interface JiraVersion {
 	id: string;
@@ -226,7 +227,7 @@ export default class VersionFeedTask extends Task {
 				id: version.id,
 			} );
 		} catch ( error ) {
-			VersionFeedTask.logger.error( error );
+			VersionFeedTask.logger.error( `[${ this.id }] Error getting versionRelatedIssues: ${ LoggerUtil.shortenJiraError( error ) }` );
 			return undefined;
 		}
 
