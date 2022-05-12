@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, TextChannel, NewsChannel, TextBasedChannels } from 'discord.js';
+import { Message, MessageEmbed, TextChannel, NewsChannel, TextBasedChannel } from 'discord.js';
 import PrefixCommand from './PrefixCommand';
 import PermissionRegistry from '../permissions/PermissionRegistry';
 import Command from './Command';
@@ -8,7 +8,7 @@ export default class SendCommand extends PrefixCommand {
 
 	public readonly aliases = ['send', 'message'];
 
-	private async sendSyntaxMessage( channel: TextBasedChannels, additionalInfo?: string ): Promise<void> {
+	private async sendSyntaxMessage( channel: TextBasedChannel, additionalInfo?: string ): Promise<void> {
 		try {
 			await channel.send(
 				`${ additionalInfo }Command syntax:

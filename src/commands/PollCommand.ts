@@ -1,5 +1,5 @@
 import PrefixCommand from './PrefixCommand';
-import { Message, MessageEmbed, TextBasedChannels } from 'discord.js';
+import { Message, MessageEmbed, TextBasedChannel } from 'discord.js';
 import Command from './Command';
 import emojiRegex = require( 'emoji-regex/text.js' );
 import PermissionRegistry from '../permissions/PermissionRegistry';
@@ -17,7 +17,7 @@ export default class PollCommand extends PrefixCommand {
 
 	public readonly aliases = ['poll', 'vote'];
 
-	private async sendSyntaxMessage( channel: TextBasedChannels, additionalInfo?: string ): Promise<void> {
+	private async sendSyntaxMessage( channel: TextBasedChannel, additionalInfo?: string ): Promise<void> {
 		try {
 			if ( additionalInfo != undefined ) {
 				additionalInfo += '\n';
