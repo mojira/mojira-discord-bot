@@ -107,26 +107,24 @@ versionFeeds:
       - MC
     channel: '666349583227682819'
     publish: true
-    interval: 30000
+    interval: 10000
     scope: 5
     versionFeedEmoji: '🎉'
     actions:
       - released
       - unreleased
-      - renamed
 
     #bedrock-fixes
   - projects:
       - MCPE
     channel: '974302728719314974'
     publish: true
-    interval: 30000
+    interval: 10000
     scope: 5
     versionFeedEmoji: '🎉'
     actions:
       - released
       - unreleased
-      - renamed
 
     #version-feed
   - projects:
@@ -138,7 +136,7 @@ versionFeeds:
       - REALMS
     channel: '741600360619049000'
     publish: true
-    interval: 300000
+    interval: 10000
     scope: 5
     actions:
       - created
