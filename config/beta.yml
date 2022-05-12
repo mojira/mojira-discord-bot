@@ -12,6 +12,8 @@ request:
     - '672114750477303837'
   internalChannels:
     - '681145724364259438'
+  requestLimits:
+    - 5
   logChannel: '681145896247099618'
 
 roleGroups:
