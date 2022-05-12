@@ -49,10 +49,10 @@ export default class MojiraBot {
 	private static running = false;
 	private static botUser: ClientUser;
 
+	// TODO: integrate newErrorHandling from Jira.js
 	public static jira = new JiraClient( {
 		host: 'https://bugs.mojang.com',
 		telemetry: false,
-		newErrorHandling: true,
 	} );
 
 	public static async start(): Promise<void> {
