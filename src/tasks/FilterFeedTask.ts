@@ -1,6 +1,6 @@
 import { MentionRegistry } from '../mentions/MentionRegistry';
 import { FilterFeedConfig } from '../BotConfig';
-import { TextChannel, Channel, NewsChannel } from 'discord.js';
+import { AnyChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import Task from './Task';
 import { NewsUtil } from '../util/NewsUtil';
@@ -10,7 +10,7 @@ import { LoggerUtil } from '../util/LoggerUtil';
 export default class FilterFeedTask extends Task {
 	private static logger = log4js.getLogger( 'FilterFeedTask' );
 
-	private channel: Channel;
+	private channel: AnyChannel;
 	private jql: string;
 	private filterFeedEmoji: string;
 	private title: string;
@@ -19,7 +19,7 @@ export default class FilterFeedTask extends Task {
 
 	private lastRun: number;
 
-	constructor( feedConfig: FilterFeedConfig, channel: Channel ) {
+	constructor( feedConfig: FilterFeedConfig, channel: AnyChannel ) {
 		super();
 
 		this.channel = channel;
@@ -35,7 +35,7 @@ export default class FilterFeedTask extends Task {
 	}
 
 	protected async run(): Promise<void> {
-		if ( !( this.channel instanceof TextChannel || this.channel instanceof NewsChannel ) ) {
+		if ( !this.channel.isText() ) {
 			FilterFeedTask.logger.error( `[${ this.id }] Expected ${ this.channel } to be a TextChannel` );
 			return;
 		}
