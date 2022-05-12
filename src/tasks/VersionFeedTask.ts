@@ -227,7 +227,7 @@ export default class VersionFeedTask extends Task {
 				id: version.id,
 			} );
 		} catch ( error ) {
-			VersionFeedTask.logger.error( LoggerUtil.shortenJiraError( error ) );
+			VersionFeedTask.logger.error( `[${ this.id }] Error getting versionRelatedIssues: ${ LoggerUtil.shortenJiraError( error ) }` );
 			return undefined;
 		}
 
