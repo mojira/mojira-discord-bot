@@ -49,7 +49,6 @@ export default class MojiraBot {
 	private static running = false;
 	private static botUser: ClientUser;
 
-	// TODO: integrate newErrorHandling from Jira.js
 	public static jira: JiraClient;
 
 	public static async start(): Promise<void> {
