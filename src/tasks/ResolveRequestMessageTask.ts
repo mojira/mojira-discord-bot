@@ -47,21 +47,23 @@ export default class ResolveRequestMessageTask extends MessageTask {
 			if ( BotConfig.request.logChannel ) {
 				const logChannel = await DiscordUtil.getChannel( BotConfig.request.logChannel );
 				if ( logChannel && logChannel instanceof TextChannel ) {
-					const response = BotConfig.request.prependResponseMessageInLog ?
-						RequestsUtil.getResponseMessage( origin ) : '';
-
 					const log = new MessageEmbed()
 						.setColor( 'GREEN' )
-						.setAuthor( origin.author.tag, origin.author.avatarURL() )
+						.setAuthor( { name: origin.author.tag, iconURL: origin.author.avatarURL() } )
 						.setDescription( origin.content )
 						.addField( 'Message', `[Here](${ origin.url })`, true )
 						.addField( 'Channel', origin.channel.toString(), true )
 						.addField( 'Created', origin.createdAt.toUTCString(), false )
-						.setFooter( `${ this.user.tag } resolved as ${ this.emoji }`, this.user.avatarURL() )
+						.setFooter( { text: `${ this.user.tag } resolved as ${ this.emoji }`, iconURL: this.user.avatarURL() } )
 						.setTimestamp( new Date() );
 
 					try {
-						await logChannel.send( response, log );
+						if ( BotConfig.request.prependResponseMessageInLog ) {
+							const response = RequestsUtil.getResponseMessage( origin );
+							await logChannel.send( { content: response, embeds: [log] } );
+						} else {
+							await logChannel.send( { embeds: [log] } );
+						}
 					} catch ( error ) {
 						ResolveRequestMessageTask.logger.error( error );
 					}

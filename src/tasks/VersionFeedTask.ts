@@ -1,4 +1,4 @@
-import { Channel, MessageEmbed, TextChannel } from 'discord.js';
+import { MessageEmbed, AnyChannel } from 'discord.js';
 import * as log4js from 'log4js';
 import { VersionFeedConfig } from '../BotConfig';
 import { NewsUtil } from '../util/NewsUtil';
@@ -31,7 +31,7 @@ interface JiraVersionMap {
 export default class VersionFeedTask extends Task {
 	private static logger = log4js.getLogger( 'VersionFeedTask' );
 
-	private channel: Channel;
+	private channel: AnyChannel;
 	private projects: string[];
 	private versionFeedEmoji: string;
 	private scope: number;
@@ -40,7 +40,7 @@ export default class VersionFeedTask extends Task {
 
 	private cachedVersions: JiraVersionMap = {};
 
-	constructor( feedConfig: VersionFeedConfig, channel: Channel ) {
+	constructor( feedConfig: VersionFeedConfig, channel: AnyChannel ) {
 		super();
 
 		this.channel = channel;
@@ -79,7 +79,7 @@ export default class VersionFeedTask extends Task {
 	}
 
 	protected async run(): Promise<void> {
-		if ( !( this.channel instanceof TextChannel ) ) {
+		if ( !this.channel.isText() ) {
 			VersionFeedTask.logger.error( `[${ this.id }] Expected ${ this.channel } to be a TextChannel` );
 			return;
 		}
@@ -89,7 +89,7 @@ export default class VersionFeedTask extends Task {
 
 		for ( const change of changes ) {
 			try {
-				const versionFeedMessage = await this.channel.send( change.message, { embed: change.embed } );
+				const versionFeedMessage = await this.channel.send( { content: change.message, embeds: [change.embed] } );
 
 				if ( this.publish ) {
 					await NewsUtil.publishMessage( versionFeedMessage );

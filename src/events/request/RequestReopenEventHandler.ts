@@ -39,16 +39,16 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 		if ( logChannel && logChannel instanceof TextChannel ) {
 			const log = new MessageEmbed()
 				.setColor( 'ORANGE' )
-				.setAuthor( requestMessage.author.tag, requestMessage.author.avatarURL() )
+				.setAuthor( { name: requestMessage.author.tag, iconURL: requestMessage.author.avatarURL() } )
 				.setDescription( requestMessage.content )
 				.addField( 'Message', `[Here](${ requestMessage.url })`, true )
 				.addField( 'Channel', requestMessage.channel.toString(), true )
 				.addField( 'Created', requestMessage.createdAt.toUTCString(), false )
-				.setFooter( `${ user.tag } reopened this request`, user.avatarURL() )
+				.setFooter( { text: `${ user.tag } reopened this request`, iconURL: user.avatarURL() } )
 				.setTimestamp( new Date() );
 
 			try {
-				await logChannel.send( log );
+				await logChannel.send( { embeds: [log] } );
 			} catch ( error ) {
 				this.logger.error( error );
 			}

@@ -24,12 +24,12 @@ export default class SearchCommand extends PrefixCommand {
 
 			if ( !searchResults.issues ) {
 				embed.setTitle( `No results found for "${ Util.escapeMarkdown( plainArgs ) }"` );
-				await message.channel.send( embed );
+				await message.channel.send( { embeds: [embed] } );
 				return false;
 			}
 
 			embed.setTitle( '**Results:**' );
-			embed.setFooter( message.author.tag, message.author.avatarURL() );
+			embed.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() } );
 
 			for ( const issue of searchResults.issues ) {
 				embed.addField( issue.key, `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })` );
@@ -38,11 +38,11 @@ export default class SearchCommand extends PrefixCommand {
 			const escapedJql = encodeURIComponent( searchFilter ).replace( /\(/g, '%28' ).replace( /\)/g, '%29' );
 			embed.setDescription( `__[See all results](https://bugs.mojang.com/issues/?jql=${ escapedJql })__` );
 
-			await message.channel.send( embed );
+			await message.channel.send( { embeds: [embed] } );
 		} catch {
 			const embed = new MessageEmbed();
 			embed.setTitle( `No results found for "${ Util.escapeMarkdown( plainArgs ) }"` );
-			await message.channel.send( embed );
+			await message.channel.send( { embeds: [embed] } );
 			return false;
 		}
 

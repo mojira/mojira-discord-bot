@@ -14,7 +14,7 @@ export default class AddProgressMessageTask extends MessageTask {
 
 	public async run( origin: Message ): Promise<void> {
 		// If the message is undefined or has been deleted, don't do anything
-		if ( origin === undefined || origin.deleted ) return;
+		if ( origin === undefined ) return;
 
 		const comment = origin.content;
 		const date = origin.createdAt;
@@ -32,7 +32,7 @@ export default class AddProgressMessageTask extends MessageTask {
 			try {
 				const embed = this.request.embeds[0];
 				embed.addField( date.toDateString(), `${ user } - ${ comment.replace( `${ this.request.id } `, '' ).replace( `${ this.request.id }\n`, '' ) }` );
-				await this.request.edit( embed );
+				await this.request.edit( { embeds: [embed] } );
 			} catch ( error ) {
 				AddProgressMessageTask.logger.error( error );
 			}

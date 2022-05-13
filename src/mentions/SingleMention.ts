@@ -81,7 +81,7 @@ export class SingleMention extends Mention {
 		description = description.split( '\n' ).slice( 0, 2 ).join( '\n' );
 
 		const embed = new MessageEmbed();
-		embed.setAuthor( ticketResult.fields.reporter.displayName, ticketResult.fields.reporter.avatarUrls['48x48'], 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) )
+		embed.setAuthor( { name: ticketResult.fields.reporter.displayName, iconURL: ticketResult.fields.reporter.avatarUrls['48x48'], url: 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) } )
 			.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ Util.escapeMarkdown( ticketResult.fields.summary ) }` ) )
 			.setDescription( description.substring( 0, 2048 ) )
 			.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
@@ -120,16 +120,16 @@ export class SingleMention extends Mention {
 		}
 
 		if ( ticketResult.fields.votes.votes ) {
-			embed.addField( 'Votes', ticketResult.fields.votes.votes, true );
+			embed.addField( 'Votes', ticketResult.fields.votes.votes.toString(), true );
 		}
 
 		if ( ticketResult.fields.comment.total ) {
-			embed.addField( 'Comments', ticketResult.fields.comment.total, true );
+			embed.addField( 'Comments', ticketResult.fields.comment.total.toString(), true );
 		}
 
 		const duplicates = ticketResult.fields.issuelinks.filter( relation => relation.type.id === '10102' && relation.inwardIssue );
 		if ( duplicates.length ) {
-			embed.addField( 'Duplicates', duplicates.length, true );
+			embed.addField( 'Duplicates', duplicates.length.toString(), true );
 		}
 
 		if ( ticketResult.fields.creator.key !== ticketResult.fields.reporter.key ) {

@@ -16,9 +16,9 @@ export default class TestingRequestEventHandler implements EventHandler<'message
 			this.logger.info( `${ request.author.tag } posted request ${ request.id } in #${ request.channel.name }` );
 		}
 
-		const guildMember = request.guild?.member( request.author );
+		const guildMember = request.guild.members.resolve( request.author );
 
-		if ( guildMember && !guildMember.permissionsIn( await DiscordUtil.getChannel( BotConfig.request.logChannel ) ).has( 'VIEW_CHANNEL' ) ) {
+		if ( guildMember && !guildMember.permissionsIn( BotConfig.request.logChannel ).has( 'VIEW_CHANNEL' ) ) {
 			const tickets = RequestsUtil.getTicketIdsFromString( request.content );
 
 			if ( tickets.length !== 1 ) {
@@ -32,9 +32,7 @@ export default class TestingRequestEventHandler implements EventHandler<'message
 
 				try {
 					const warning = await request.channel.send( `${ request.author }, your request doesn't contain exactly one ticket reference.` );
-
-					const timeout = BotConfig.request.warningLifetime;
-					await warning.delete( { timeout } );
+					await DiscordUtil.deleteWithDelay( warning, BotConfig.request.warningLifetime );
 				} catch ( error ) {
 					this.logger.error( error );
 				}
@@ -54,9 +52,7 @@ export default class TestingRequestEventHandler implements EventHandler<'message
 
 					try {
 						const warning = await request.channel.send( `${ request.author }, your request contains a ticket that is less than 24 hours old. Please wait until it is at least one day old before making a request.` );
-
-						const timeout = BotConfig.request.warningLifetime;
-						await warning.delete( { timeout } );
+						await DiscordUtil.deleteWithDelay( warning, BotConfig.request.warningLifetime );
 					} catch ( error ) {
 						this.logger.error( error );
 					}
