@@ -50,10 +50,7 @@ export default class MojiraBot {
 	private static botUser: ClientUser;
 
 	// TODO: integrate newErrorHandling from Jira.js
-	public static jira = new JiraClient( {
-		host: 'https://bugs.mojang.com',
-		telemetry: false,
-	} );
+	public static jira: JiraClient;
 
 	public static async start(): Promise<void> {
 		if ( this.running ) {
@@ -75,6 +72,7 @@ export default class MojiraBot {
 		} );
 
 		try {
+			BotConfig.jiraLogin();
 			const loginResult = await BotConfig.login( this.client );
 			if ( !loginResult || !this.client.user ) return;
 
