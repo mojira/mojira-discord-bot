@@ -122,6 +122,10 @@ export default class BotConfig {
 
 	public static projects: string[];
 
+	public static fieldShortcuts: Map<string, string>;
+	public static containsSearchSyntax: string[];
+	public static prebuiltClauses: Map<string, string>;
+
 	public static request: RequestConfig;
 
 	public static roleGroups: RoleGroupConfig[];
@@ -148,6 +152,10 @@ export default class BotConfig {
 		this.maxSearchResults = config.get( 'maxSearchResults' );
 
 		this.projects = config.get( 'projects' );
+
+		this.fieldShortcuts = new Map( Object.entries( config.get( 'fieldShortcuts' ) ) );
+		this.containsSearchSyntax = config.get( 'containsSearchSyntax' );
+		this.prebuiltClauses = new Map( Object.entries( config.get( 'prebuiltClauses' ) ) );
 
 		this.request = new RequestConfig();
 

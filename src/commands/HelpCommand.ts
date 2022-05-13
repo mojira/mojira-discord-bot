@@ -24,6 +24,10 @@ export default class HelpCommand extends PrefixCommand {
 					\`!jira ping\` - Sends a message to check if the bot is running.
 					
 					\`!jira search <text>\` - Searches for text and returns the results from the bug tracker.
+
+					\`!jira search :jql <query>\` - Searches using the content of a JQL query and returns the results.
+
+					\`!jira search _<field> <content>\` - Searches a field for specific content and returns the results. These arguments can be used multiple times for multiple fields.
 					
 					\`!jira tips\` - Sends helpful info on how to use the bug tracker and this Discord server.`
 				)
