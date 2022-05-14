@@ -6,7 +6,7 @@ import SlashCommand from './commandHandlers/SlashCommand';
 export default class ShutdownCommand extends SlashCommand {
 	public readonly slashCommandBuilder = this.slashCommandBuilder
 		.setName( 'shutdown' )
-		.setDescription( 'Shutdown MojiraBot.' )
+		.setDescription( 'Shutdown MojiraBot.' );
 
 	public readonly permissionLevel = PermissionRegistry.OWNER_PERMISSION;
 
