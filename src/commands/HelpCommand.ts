@@ -1,11 +1,13 @@
-import { Message, MessageEmbed } from 'discord.js';
-import PrefixCommand from './PrefixCommand';
+import { CommandInteraction, MessageEmbed } from 'discord.js';
 import BotConfig from '../BotConfig';
+import SlashCommand from './commandHandlers/SlashCommand';
 
-export default class HelpCommand extends PrefixCommand {
-	public readonly aliases = ['help'];
+export default class HelpCommand extends SlashCommand {
+	public readonly slashCommandBuilder = this.slashCommandBuilder
+		.setName( 'jira-help' )
+		.setDescription( 'Sends a help message.' );
 
-	public async run( message: Message ): Promise<boolean> {
+	public async run( interaction: CommandInteraction ): Promise<boolean> {
 		try {
 			const embed = new MessageEmbed();
 			embed.setTitle( '<:mojira:821162280905211964> **MojiraBot help** <:mojira:821162280905211964>' )
@@ -19,32 +21,20 @@ export default class HelpCommand extends PrefixCommand {
 
 					(For help with the bug tracker or this Discord server, use \`!jira tips\`)`.replace( /\t/g, '' ) )
 				.addField( 'Bot Commands',
-					`\`!jira help\` - Sends this message.
+					`\`/jira-help\` - Sends this message.
 					
-					\`!jira ping\` - Sends a message to check if the bot is running.
+					\`/ping\` - Sends a message to check if the bot is running.
 					
-					\`!jira search <text>\` - Searches for text and returns the results from the bug tracker.
+					\`/search <query>\` - Searches for text and returns the results from the bug tracker.
 					
-					\`!jira tips\` - Sends helpful info on how to use the bug tracker and this Discord server.`
+					\`/tips\` - Sends helpful info on how to use the bug tracker and this Discord server.`
 				)
-				.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() } );
-			await message.channel.send( { embeds: [embed] } );
+				.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() } );
+			await interaction.reply( { embeds: [embed], ephemeral: true } );
 		} catch {
 			return false;
 		}
 
-		if ( message.deletable ) {
-			try {
-				await message.delete();
-			} catch {
-				return true;
-			}
-		}
-
 		return true;
-	}
-
-	public asString(): string {
-		return '!jira help';
 	}
 }

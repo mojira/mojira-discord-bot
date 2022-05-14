@@ -18,6 +18,9 @@ owners:
   - <string>
   - ...
 
+# The ID of the guild/server to connect to (for slash commands).
+guild: <string>
+
 # The channel ID of the bot's home channel.
 homeChannel: <string>
 

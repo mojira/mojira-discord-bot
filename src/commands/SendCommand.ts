@@ -1,67 +1,41 @@
-import { Message, MessageEmbed, TextChannel, NewsChannel, TextBasedChannel } from 'discord.js';
-import PrefixCommand from './PrefixCommand';
+import { MessageEmbed, TextChannel, NewsChannel, CommandInteraction } from 'discord.js';
 import PermissionRegistry from '../permissions/PermissionRegistry';
-import Command from './Command';
+import SlashCommand from './commandHandlers/SlashCommand';
 
-export default class SendCommand extends PrefixCommand {
+export default class SendCommand extends SlashCommand {
+	public readonly slashCommandBuilder = this.slashCommandBuilder
+		.setName( 'send' )
+		.setDescription( 'Send a message to a channel as the bot.' )
+		.addChannelOption( option =>
+			option.setName( 'channel' )
+				.setDescription( 'The channel to send the message to.' )
+				.setRequired( true )
+		)
+		.addStringOption( option =>
+			option.setName( 'message-type' )
+				.setDescription( 'The type of message to send. Either text or embed.' )
+				.setRequired( true )
+				.addChoice( 'text', 'text' )
+				.addChoice( 'embed', 'embed' )
+		)
+		.addStringOption( option =>
+			option.setName( 'message' )
+				.setDescription( 'The message to send.' )
+				.setRequired( true )
+		);
+
 	public readonly permissionLevel = PermissionRegistry.OWNER_PERMISSION;
 
-	public readonly aliases = ['send', 'message'];
+	public async run( interaction: CommandInteraction ): Promise<boolean> {
+		const channel = interaction.options.getChannel( 'channel' );
+		const messageType = interaction.options.getString( 'message-type' );
+		const content = interaction.options.getString( 'message' );
 
-	private async sendSyntaxMessage( channel: TextBasedChannel, additionalInfo?: string ): Promise<void> {
-		try {
-			await channel.send(
-				`${ additionalInfo }Command syntax:
-				\`\`\`
-				${ PrefixCommand.prefix } send|message [channel]
-				text|embed
-				[<Message Content>]
-				\`\`\``.replace( /\t/g, '' )
-			);
-		} catch ( err ) {
-			Command.logger.error( err );
-		}
-	}
-
-	public async run( message: Message, args: string ): Promise<boolean> {
-		if ( !args.length ) {
-			await this.sendSyntaxMessage( message.channel, 'No Arguments Specified ' );
-			return false;
-		}
-
-		const sendRegex = /(.*)\n(.*)\n([\S\s]*)/;
-		const matches = sendRegex.exec( args );
-
-		if ( !matches || matches.length < 4 ) {
-			await this.sendSyntaxMessage( message.channel, 'Field was missing! ' );
-			return false;
-		}
-
-		const channelName = matches[1];
-		const messageType = matches[2];
-		const content = matches[3];
-		const sendChannel = message.mentions.channels.first();
-
-		if ( !sendChannel ) {
-			await this.sendSyntaxMessage( message.channel, `**Error:** ${ channelName } is not a valid channel. ` );
-			return false;
-		}
-
-		if ( !channelName || !messageType || !content ) {
-			await this.sendSyntaxMessage( message.channel, 'Field was missing! ' );
-			return false;
-		}
-
-		try {
-			await message.react( '✅' );
-		} catch ( err ) {
-			Command.logger.error( err );
-		}
-
-		if ( sendChannel instanceof TextChannel || sendChannel instanceof NewsChannel ) {
+		if ( channel instanceof TextChannel || channel instanceof NewsChannel ) {
 			if ( messageType === 'text' ) {
 				try {
-					await sendChannel.send( content );
+					await channel.send( content );
+					await interaction.reply( { content: 'Message sent.' } );
 				} catch {
 					return false;
 				}
@@ -69,23 +43,17 @@ export default class SendCommand extends PrefixCommand {
 				try {
 					const embed = new MessageEmbed();
 					embed.setDescription( content );
-					await sendChannel.send( { embeds: [embed] } );
+					await channel.send( { embeds: [embed] } );
+					await interaction.reply( { content: 'Message sent.' } );
 				} catch {
 					return false;
 				}
-			} else {
-				await this.sendSyntaxMessage( message.channel, `**Error:** ${ messageType } must be text or embed. ` );
-				return false;
 			}
 		} else {
-			await this.sendSyntaxMessage( message.channel, `**Error:** ${ channelName } is not a valid channel. ` );
-			return false;
+			await interaction.reply( { content: `**Error:** ${ channel.name } is not a valid channel. `, ephemeral: true } );
+			return true;
 		}
 
 		return true;
-	}
-
-	public asString( args: string ): string {
-		return `!jira send ${ args.split( '\n' )[0] } ${ args.split( '\n' )[1] } [${ args.split( '\n' ).length - 2 } lines in the message]`;
 	}
 }

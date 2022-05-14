@@ -1,6 +1,6 @@
 import { Message, Snowflake } from 'discord.js';
 import BotConfig from '../../BotConfig';
-import CommandExecutor from '../../commands/CommandExecutor';
+import CommandExecutor from '../../commands/commandHandlers/CommandExecutor';
 import DiscordUtil from '../../util/DiscordUtil';
 import EventHandler from '../EventHandler';
 import RequestEventHandler from '../request/RequestEventHandler';

@@ -1,9 +1,9 @@
-import PrefixCommand from './PrefixCommand';
-import { Message, MessageEmbed, TextBasedChannel } from 'discord.js';
-import Command from './Command';
+import { CommandInteraction, Message, MessageEmbed } from 'discord.js';
+import Command from './CommandHandlers/Command';
 import emojiRegex = require( 'emoji-regex/text.js' );
 import PermissionRegistry from '../permissions/PermissionRegistry';
 import { ReactionsUtil } from '../util/ReactionsUtil';
+import SlashCommand from './commandHandlers/SlashCommand';
 
 interface PollOption {
 	emoji: string;
@@ -12,12 +12,27 @@ interface PollOption {
 	text: string;
 }
 
-export default class PollCommand extends PrefixCommand {
+export default class PollCommand extends SlashCommand {
+	public readonly slashCommandBuilder = this.slashCommandBuilder
+		.setName( 'poll' )
+		.setDescription( 'Create a poll.' )
+		.addStringOption( option =>
+			option.setName( 'title' )
+				.setDescription( 'The title of the poll.' )
+				.setRequired( true )
+		)
+		.addStringOption( option =>
+			option.setName( 'choices' )
+				.setDescription( 'The choices to include in the poll, separated by the \'~\' character.' )
+				.setRequired( true )
+		);
+
+
 	public readonly permissionLevel = PermissionRegistry.MODERATOR_PERMISSION;
 
 	public readonly aliases = ['poll', 'vote'];
 
-	private async sendSyntaxMessage( channel: TextBasedChannel, additionalInfo?: string ): Promise<void> {
+	private async sendSyntaxMessage( interaction: CommandInteraction, additionalInfo?: string ): Promise<void> {
 		try {
 			if ( additionalInfo != undefined ) {
 				additionalInfo += '\n';
@@ -25,25 +40,23 @@ export default class PollCommand extends PrefixCommand {
 				additionalInfo = '';
 			}
 
-			await channel.send(
-				`${ additionalInfo }Command syntax:
+			await interaction.reply( {
+				content: `${ additionalInfo }Choice syntax:
 				\`\`\`
-				${ PrefixCommand.prefix } poll|vote [<poll title>]
-				<emoji> [<First option name>]
-				<emoji> [<Second option name>]
-				...
-				\`\`\``.replace( /\t/g, '' )
-			);
+				<emoji> [<First option name>]~<emoji> [<Second option name>] ~ ...
+				\`\`\``.replace( /\t/g, '' ),
+				ephemeral: true,
+			} );
 		} catch ( err ) {
 			Command.logger.error( err );
 		}
 	}
 
-	private async sendPollMessage( message: Message, title: string, options: PollOption[] ): Promise<void> {
+	private async sendPollMessage( interaction: CommandInteraction, title: string, options: PollOption[] ): Promise<void> {
 		const embed = new MessageEmbed();
 		embed.setTitle( 'Poll' )
-			.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() } )
-			.setTimestamp( message.createdAt )
+			.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() } )
+			.setTimestamp( interaction.createdAt )
 			.setColor( 'GREEN' );
 
 		if ( title ) {
@@ -67,7 +80,7 @@ export default class PollCommand extends PrefixCommand {
 			embed.addField( option.emoji, option.text, true );
 		}
 
-		let poll = await message.channel.send( { embeds: [embed], allowedMentions: { parse: [] } } );
+		let poll = await interaction.reply( { embeds: [embed], allowedMentions: { parse: [] }, fetchReply: true } );
 
 		if ( poll instanceof Array ) {
 			if ( poll.length == 0 ) {
@@ -79,20 +92,13 @@ export default class PollCommand extends PrefixCommand {
 
 		const reactions = options.map( option => option.rawEmoji );
 
-		await ReactionsUtil.reactToMessage( poll, reactions );
+		if ( poll instanceof Message ) {
+			await ReactionsUtil.reactToMessage( poll, reactions );
+		}
 	}
 
-	public async run( message: Message, args: string ): Promise<boolean> {
-		const pollRegex = /^(?:(.*?))?\s*((?:\n.*)*)$/;
-		const pollMatch = pollRegex.exec( args );
-
-		if ( !pollMatch ) {
-			await this.sendSyntaxMessage( message.channel, 'Invalid title syntax' );
-			return false;
-		}
-
-		const pollTitle = pollMatch ? pollMatch[1] : '';
-		const pollOptions = pollMatch[2] ? pollMatch[2].split( '\n' ) : '';
+	public async run( interaction: CommandInteraction ): Promise<boolean> {
+		const pollOptions = interaction.options.getString( 'choices' ).split( '~' );
 
 		const options: PollOption[] = [];
 
@@ -107,8 +113,8 @@ export default class PollCommand extends PrefixCommand {
 			const unicodeEmoji = emojiRegex();
 
 			if ( !optionArgs ) {
-				await this.sendSyntaxMessage( message.channel, 'Invalid options' );
-				return false;
+				await this.sendSyntaxMessage( interaction, 'Incorrect choice syntax.' );
+				return true;
 			}
 
 			const emoji = optionArgs[1];
@@ -127,25 +133,13 @@ export default class PollCommand extends PrefixCommand {
 					text: optionArgs[2],
 				} );
 			} else {
-				await this.sendSyntaxMessage( message.channel, `**Error:** ${ emoji } is not a valid emoji.` );
-				return false;
+				await this.sendSyntaxMessage( interaction, `**Error:** ${ emoji } is not a valid emoji.` );
+				return true;
 			}
 		}
 
-		if ( message.deletable ) {
-			try {
-				await message.delete();
-			} catch ( err ) {
-				Command.logger.error( err );
-			}
-		}
-
-		await this.sendPollMessage( message, pollTitle, options );
+		await this.sendPollMessage( interaction, interaction.options.getString( 'title' ), options );
 
 		return true;
-	}
-
-	public asString( args: string ): string {
-		return `!jira poll ${ args.split( '\n' )[0] } [${ args.split( '\n' ).length - 1 } options]`;
 	}
 }

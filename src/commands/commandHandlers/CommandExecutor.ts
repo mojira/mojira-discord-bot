@@ -1,11 +1,11 @@
 import Command from './Command';
 import { Message } from 'discord.js';
-import CommandRegistry from './CommandRegistry';
+import DefaultCommandRegistry from './DefaultCommandRegistry';
 
 export default class CommandExecutor {
 	public static async checkCommands( message: Message ): Promise<boolean> {
-		for ( const commandName in CommandRegistry ) {
-			const command = CommandRegistry[commandName] as Command;
+		for ( const commandName in DefaultCommandRegistry ) {
+			const command = DefaultCommandRegistry[commandName] as Command;
 
 			if ( message.member && command.checkPermission( message.member ) ) {
 				const commandTestResult = command.test( message.content );

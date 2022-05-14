@@ -1,17 +1,20 @@
-import { Message, MessageEmbed, Util } from 'discord.js';
-import PrefixCommand from './PrefixCommand';
+import { CommandInteraction, MessageEmbed, Util } from 'discord.js';
 import BotConfig from '../BotConfig';
 import MojiraBot from '../MojiraBot';
+import SlashCommand from './commandHandlers/SlashCommand';
 
-export default class SearchCommand extends PrefixCommand {
-	public readonly aliases = ['search', 'find'];
+export default class SearchCommand extends SlashCommand {
+	public readonly slashCommandBuilder = this.slashCommandBuilder
+		.setName( 'search' )
+		.setDescription( 'Search for issues in Jira.' )
+		.addStringOption( option =>
+			option.setName( 'query' )
+				.setDescription( 'The query to search for.' )
+				.setRequired( true )
+		);
 
-	public async run( message: Message, args: string ): Promise<boolean> {
-		if ( !args.length ) {
-			return false;
-		}
-
-		const plainArgs = args.replace( /"|<|>/g, '' );
+	public async run( interaction: CommandInteraction ): Promise<boolean> {
+		const plainArgs = interaction.options.getString( 'query' ).replace( /"|<|>/g, '' );
 
 		try {
 			const embed = new MessageEmbed();
@@ -24,12 +27,12 @@ export default class SearchCommand extends PrefixCommand {
 
 			if ( !searchResults.issues ) {
 				embed.setTitle( `No results found for "${ Util.escapeMarkdown( plainArgs ) }"` );
-				await message.channel.send( { embeds: [embed] } );
-				return false;
+				await interaction.reply( { embeds: [embed], ephemeral: true } );
+				return true;
 			}
 
 			embed.setTitle( '**Results:**' );
-			embed.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() } );
+			embed.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() } );
 
 			for ( const issue of searchResults.issues ) {
 				embed.addField( issue.key, `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })` );
@@ -38,18 +41,14 @@ export default class SearchCommand extends PrefixCommand {
 			const escapedJql = encodeURIComponent( searchFilter ).replace( /\(/g, '%28' ).replace( /\)/g, '%29' );
 			embed.setDescription( `__[See all results](https://bugs.mojang.com/issues/?jql=${ escapedJql })__` );
 
-			await message.channel.send( { embeds: [embed] } );
+			await interaction.reply( { embeds: [embed], ephemeral: true } );
 		} catch {
 			const embed = new MessageEmbed();
 			embed.setTitle( `No results found for "${ Util.escapeMarkdown( plainArgs ) }"` );
-			await message.channel.send( { embeds: [embed] } );
-			return false;
+			await interaction.reply( { embeds: [embed], ephemeral: true } );
+			return true;
 		}
 
 		return true;
-	}
-
-	public asString( args: string ): string {
-		return `!jira search ${ args }`;
 	}
 }

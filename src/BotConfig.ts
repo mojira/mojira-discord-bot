@@ -2,6 +2,7 @@ import { Client, ColorResolvable, Snowflake } from 'discord.js';
 import config from 'config';
 import MojiraBot from './MojiraBot';
 import { VersionChangeType } from './tasks/VersionFeedTask';
+import SlashCommandRegister from './commands/commandHandlers/SlashCommandRegister';
 
 function getOrDefault<T>( configPath: string, defaultValue: T ): T {
 	if ( !config.has( configPath ) ) MojiraBot.logger.debug( `config ${ configPath } not set, assuming default` );
@@ -109,6 +110,8 @@ export default class BotConfig {
 	private static token: string;
 	public static owners: Snowflake[];
 
+	public static guild: Snowflake;
+
 	public static homeChannel: Snowflake;
 
 	public static ticketUrlsCauseEmbed: boolean;
@@ -136,6 +139,8 @@ export default class BotConfig {
 		this.token = config.get( 'token' );
 		this.owners = getOrDefault( 'owners', [] );
 
+		this.guild = config.get( 'guild' );
+
 		this.homeChannel = config.get( 'homeChannel' );
 		this.ticketUrlsCauseEmbed = getOrDefault( 'ticketUrlsCauseEmbed', false );
 		this.quotedTicketsCauseEmbed = getOrDefault( 'quotedTicketsCauseEmbed', false );
@@ -160,6 +165,7 @@ export default class BotConfig {
 	public static async login( client: Client ): Promise<boolean> {
 		try {
 			await client.login( this.token );
+			await SlashCommandRegister.registerCommands( client, this.guild, this.token );
 		} catch ( err ) {
 			MojiraBot.logger.error( err );
 			return false;

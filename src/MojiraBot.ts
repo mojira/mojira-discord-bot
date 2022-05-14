@@ -17,6 +17,7 @@ import TaskScheduler from './tasks/TaskScheduler';
 import VersionFeedTask from './tasks/VersionFeedTask';
 import DiscordUtil from './util/DiscordUtil';
 import { RoleSelectionUtil } from './util/RoleSelectionUtil';
+import InteractionEventHandler from './events/interaction/InteractionEventHandler';
 
 /**
  * Core class of MojiraBot
@@ -212,6 +213,7 @@ export default class MojiraBot {
 			EventRegistry.add( new MessageEventHandler( this.botUser.id, internalChannels, requestLimits ) );
 			EventRegistry.add( new MessageUpdateEventHandler( this.botUser.id, internalChannels ) );
 			EventRegistry.add( new MessageDeleteEventHandler( this.botUser.id, internalChannels ) );
+			EventRegistry.add( new InteractionEventHandler( this.client ) );
 
 			// #region Schedule tasks.
 			// Filter feed tasks.
@@ -240,7 +242,7 @@ export default class MojiraBot {
 
 			// TODO Change to custom status when discord.js#3552 is merged into current version of package
 			try {
-				await this.botUser.setActivity( '!jira help' );
+				await this.botUser.setActivity( '/jira-help' );
 			} catch ( error ) {
 				MojiraBot.logger.error( error );
 			}

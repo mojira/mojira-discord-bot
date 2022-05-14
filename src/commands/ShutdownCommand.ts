@@ -1,37 +1,23 @@
-import { Message } from 'discord.js';
+import { CommandInteraction } from 'discord.js';
 import MojiraBot from '../MojiraBot';
-import PrefixCommand from './PrefixCommand';
 import PermissionRegistry from '../permissions/PermissionRegistry';
-import Command from './Command';
+import SlashCommand from './commandHandlers/SlashCommand';
 
-export default class ShutdownCommand extends PrefixCommand {
+export default class ShutdownCommand extends SlashCommand {
+	public readonly slashCommandBuilder = this.slashCommandBuilder
+		.setName( 'shutdown' )
+		.setDescription( 'Shutdown MojiraBot.' )
+
 	public readonly permissionLevel = PermissionRegistry.OWNER_PERMISSION;
 
-	public readonly aliases = ['shutdown', 'stop'];
-
-	public async run( message: Message, args: string ): Promise<boolean> {
-		if ( args.length ) {
-			return false;
-		}
-
-		if ( message.deletable ) {
-			try {
-				await message.delete();
-			} catch ( err ) {
-				Command.logger.error( err );
-			}
-		}
-
+	public async run( interaction: CommandInteraction ): Promise<boolean> {
 		try {
+			await interaction.reply( { content: 'Shutting down MojiraBot...' } );
 			await MojiraBot.shutdown();
 		} catch {
 			return false;
 		}
 
 		return true;
-	}
-
-	public asString(): string {
-		return '!jira shutdown';
 	}
 }
