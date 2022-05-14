@@ -43,7 +43,7 @@ export default class PollCommand extends SlashCommand {
 			await interaction.reply( {
 				content: `${ additionalInfo }Choice syntax:
 				\`\`\`
-				<emoji> [<First option name>]~<emoji> [<Second option name>] ~ ...
+				<emoji> [<First option name>]~<emoji> [<Second option name>]~...
 				\`\`\``.replace( /\t/g, '' ),
 				ephemeral: true,
 			} );
