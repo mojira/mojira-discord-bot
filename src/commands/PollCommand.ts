@@ -1,5 +1,5 @@
 import { CommandInteraction, Message, MessageEmbed } from 'discord.js';
-import Command from './CommandHandlers/Command';
+import Command from './commandHandlers/Command';
 import emojiRegex = require( 'emoji-regex/text.js' );
 import PermissionRegistry from '../permissions/PermissionRegistry';
 import { ReactionsUtil } from '../util/ReactionsUtil';
