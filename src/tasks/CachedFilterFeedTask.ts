@@ -120,7 +120,9 @@ export default class CachedFilterFeedTask extends Task {
 				}
 
 				if ( this.publish ) {
-					NewsUtil.publishMessage( filterFeedMessage );
+					NewsUtil.publishMessage( filterFeedMessage ).catch( err => {
+						CachedFilterFeedTask.logger.error( `[${ this.id }] Error when publishing message`, err );
+					} );
 				}
 
 				if ( this.filterFeedEmoji !== undefined ) {

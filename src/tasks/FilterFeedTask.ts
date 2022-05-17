@@ -78,7 +78,9 @@ export default class FilterFeedTask extends Task {
 				}
 
 				if ( this.publish ) {
-					NewsUtil.publishMessage( filterFeedMessage );
+					NewsUtil.publishMessage( filterFeedMessage ).catch( err => {
+						FilterFeedTask.logger.error( `[${ this.id }] Error when publishing message`, err );
+					} );
 				}
 
 				if ( this.filterFeedEmoji !== undefined ) {
