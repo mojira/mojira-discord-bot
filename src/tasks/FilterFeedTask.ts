@@ -78,7 +78,7 @@ export default class FilterFeedTask extends Task {
 				}
 
 				if ( this.publish ) {
-					await NewsUtil.publishMessage( filterFeedMessage );
+					NewsUtil.publishMessage( filterFeedMessage );
 				}
 
 				if ( this.filterFeedEmoji !== undefined ) {

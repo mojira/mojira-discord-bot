@@ -1,6 +1,6 @@
 import { MentionRegistry } from '../mentions/MentionRegistry';
 import { FilterFeedConfig } from '../BotConfig';
-import { AnyChannel } from 'discord.js';
+import { AnyChannel, Message } from 'discord.js';
 import * as log4js from 'log4js';
 import Task from './Task';
 import { NewsUtil } from '../util/NewsUtil';
@@ -107,18 +107,20 @@ export default class CachedFilterFeedTask extends Task {
 
 				let message = '';
 
+				let filterFeedMessage: Message;
+
 				if ( unknownTickets.length > 1 ) {
 					embed.setTitle(
 						this.title.replace( /\{\{num\}\}/g, unknownTickets.length.toString() )
 					);
+					filterFeedMessage = await this.channel.send( { embeds: [embed] } );
 				} else {
 					message = this.titleSingle;
+					filterFeedMessage = await this.channel.send( { content: message, embeds: [embed] } );
 				}
 
-				const filterFeedMessage = await this.channel.send( { content: message, embeds: [embed] } );
-
 				if ( this.publish ) {
-					await NewsUtil.publishMessage( filterFeedMessage );
+					NewsUtil.publishMessage( filterFeedMessage );
 				}
 
 				if ( this.filterFeedEmoji !== undefined ) {
