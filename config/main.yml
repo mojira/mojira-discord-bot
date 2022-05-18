@@ -92,16 +92,18 @@ filterFeeds:
     titleSingle: This ticket has just been resolved as Fixed!
     cached: false
 
-    #bedrock-fixes
-  - jql: project = MCPE AND updated > lastRun AND (resolution = Fixed OR fixVersion != EMPTY)
-    jqlRemoved: fixVersion = EMPTY
-    channel: '974302728719314974'
-    publish: true
-    interval: 30000
-    filterFeedEmoji: '🎉'
-    title: '{{num}} tickets have just been marked as fixed!'
-    titleSingle: This ticket has just been marked as fixed!
-    cached: true
+  # FIXME: This is currently broken and just throws errors
+
+  #   # bedrock-fixes
+  # - jql: project = MCPE AND updated > lastRun AND (resolution = Fixed OR fixVersion != EMPTY)
+  #   jqlRemoved: fixVersion = EMPTY
+  #   channel: '974302728719314974'
+  #   publish: true
+  #   interval: 30000
+  #   filterFeedEmoji: '🎉'
+  #   title: '{{num}} tickets have just been marked as fixed!'
+  #   titleSingle: This ticket has just been marked as fixed!
+  #   cached: true
 
 versionFeeds:
     #java-fixes
