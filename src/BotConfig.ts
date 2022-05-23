@@ -29,6 +29,12 @@ export class RequestConfig {
 	public suggestedEmoji: string[];
 	public ignorePrependResponseMessageEmoji: string;
 	public ignoreResolutionEmoji: string;
+	public normalNotificationsRole: string;
+	public specialNotificationsRole: string;
+	public oldNotificationsRole: string;
+	public oldNotificationsTimeDifference: number;
+	public longNotificationsRole: string;
+	public longNotificationsTimeDifference: number;
 	public resolveDelay: number;
 	public progressMessageAddDelay: number;
 	public prependResponseMessage: PrependResponseMessageType;
@@ -54,6 +60,13 @@ export class RequestConfig {
 		this.suggestedEmoji = getOrDefault( 'request.suggestedEmoji', [] );
 		this.ignorePrependResponseMessageEmoji = config.get( 'request.ignorePrependResponseMessageEmoji' );
 		this.ignoreResolutionEmoji = config.get( 'request.ignoreResolutionEmoji' );
+
+		this.normalNotificationsRole = config.get( 'request.normalNotificationsRole' );
+		this.specialNotificationsRole = config.get( 'request.specialNotificationsRole' );
+		this.oldNotificationsRole = config.get( 'request.oldNotificationsRole' );
+		this.oldNotificationsTimeDifference = config.get( 'request.oldNotificationsTimeDifference' );
+		this.longNotificationsRole = config.get( 'request.longNotificationsRole' );
+		this.longNotificationsTimeDifference = config.get( 'request.longNotificationsTimeDifference' );
 
 		this.resolveDelay = config.get( 'request.resolveDelay' );
 		this.progressMessageAddDelay = config.get( 'request.progressMessageAddDelay' );
