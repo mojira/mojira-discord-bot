@@ -25,6 +25,25 @@ projects:
   - REALMS
   - WEB
 
+fieldShortcuts:
+  category: cf[11901]
+  confirmation: Confirmation Status
+  gamemode: Game Mode
+  mp: Mojang Priority
+  version: affectedVersion
+
+containsSearchSyntax:
+  - ado
+  - comment
+  - description
+  - environment
+  - summary
+  - text
+
+prebuiltClauses:
+  commenter: issueFunction in commented("by $?")
+  transitionedby: status changed by $!
+
 request:
   invalidTicketEmoji: ⏸
   noLinkEmoji: ⛔

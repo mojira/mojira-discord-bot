@@ -49,6 +49,32 @@ projects:
   - <string>
   - ...
 
+# Key-value pairs of field names that should be replaced when using search shortcuts.
+# The key should contain the search shortcut to be used.
+# The value should contain the valid JQL name for the field.
+fieldShortcuts:
+  <string1>: <stringA>
+  <string2>: <stringB>
+  <string3>: <stringC>
+  # ...
+
+# Jira field names that use the "contains" JQL operator (~), rather than the "equals" operator (=).
+containsSearchSyntax:
+  - <string>
+  - <string>
+  - <string>
+
+# Key-value pairs of prepared JQL clauses that are filled with the search argument.
+# The key should contain the search shortcut to be used.
+# The value should contain the prepared clauses, with a dollar sign where the argument should be inserted.
+# The dollar sign should be followed by a question mark if quotes within the argument should be escaped.
+# The dollar sign should be followed by an exclamation point if quotes within the argument should not be escaped.
+prebuiltClauses:
+  <string1>: <stringA>
+  <string2>: <stringB>
+  <string3>: <stringC>
+  # ...
+
 # Settings about channels that handle user requests.
 request:
   # The IDs of the server's request channels.
