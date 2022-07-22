@@ -115,6 +115,7 @@ export default class BotConfig {
 	public static quotedTicketsCauseEmbed: boolean;
 	public static requiredTicketPrefix: string;
 	public static forbiddenTicketPrefix: string;
+	public static forbiddenTicketText: string;
 
 	public static embedDeletionEmoji: string;
 
@@ -141,6 +142,7 @@ export default class BotConfig {
 		this.quotedTicketsCauseEmbed = getOrDefault( 'quotedTicketsCauseEmbed', false );
 
 		this.forbiddenTicketPrefix = getOrDefault( 'forbiddenTicketPrefix', '' );
+		this.forbiddenTicketText = getOrDefault( 'forbiddenTicketText', '' );
 		this.requiredTicketPrefix = getOrDefault( 'requiredTicketPrefix', '' );
 
 		this.embedDeletionEmoji = getOrDefault( 'embedDeletionEmoji', '' );
