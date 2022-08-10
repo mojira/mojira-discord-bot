@@ -63,8 +63,6 @@ export default class FilterFeedTask extends Task {
 			try {
 				const embed = await MentionRegistry.getMention( unknownTickets ).getEmbed();
 
-				let message = '';
-
 				let filterFeedMessage: Message;
 
 				if ( unknownTickets.length > 1 ) {
@@ -73,8 +71,7 @@ export default class FilterFeedTask extends Task {
 					);
 					filterFeedMessage = await this.channel.send( { embeds: [embed] } );
 				} else {
-					message = this.titleSingle;
-					filterFeedMessage = await this.channel.send( { content: message, embeds: [embed] } );
+					filterFeedMessage = await this.channel.send( { content: this.titleSingle, embeds: [embed] } );
 				}
 
 				if ( this.publish ) {
