@@ -117,7 +117,7 @@ filterFeeds:
     titleSingle: This ticket has just been updated!
 
 versionFeeds:
-  #version-feed-test
+    #version-feed-test
   - projects:
       - MC
     channel: '816267831993040926'
