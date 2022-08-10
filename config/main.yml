@@ -34,7 +34,7 @@ request:
 roleGroups:
   - prompt: Please select the project(s) you are interested in.
     desc: This will give you access to the appropriate channels.
-    color: GREEN
+    color: Green
     channel: '648479533246316555'
     message: '692405794305736816'
     radio: false
@@ -59,7 +59,7 @@ roleGroups:
         emoji: '648521149390520320'
   - prompt: Please select the pronoun(s) that you'd like to go by.
     desc: This is not mandatory, but we encourage people to use the appropriate pronouns when referring to each other.
-    color: BLUE
+    color: Blue
     channel: '648479533246316555'
     message: '753757208575082556'
     radio: false # Some people might go by multiple pronouns? So why I implemented the radio feature 😅
