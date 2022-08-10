@@ -8,6 +8,7 @@ export class ReactionsUtil {
 		if ( !reactions.length || message === undefined ) return;
 
 		const reaction = reactions.shift();
+		if ( reaction === undefined ) return;
 
 		this.logger.debug( `Reacting to message ${ message.id } with ${ reaction }` );
 

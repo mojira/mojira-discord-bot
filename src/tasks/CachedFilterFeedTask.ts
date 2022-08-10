@@ -74,8 +74,6 @@ export default class CachedFilterFeedTask extends Task {
 		}
 
 		if ( this.jqlRemoved !== undefined ) {
-			let removableTickets: string[];
-
 			try {
 				const ticketKeys = Array.from( this.knownTickets );
 				const previousTicketResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
@@ -83,19 +81,21 @@ export default class CachedFilterFeedTask extends Task {
 					fields: ['key'],
 				} );
 
+				let removableTickets: string[] = [];
+
 				if ( previousTicketResults?.issues ) {
 					removableTickets = previousTicketResults.issues.map( ( { key } ) => key );
 				} else {
 					CachedFilterFeedTask.logger.debug( 'No issues returned by JIRA' );
 				}
+
+				for ( const ticket of removableTickets ) {
+					this.knownTickets.delete( ticket );
+					CachedFilterFeedTask.logger.debug( `Removed ${ ticket } from known tickets for cached filter feed task ${ this.id }` );
+				}
 			} catch ( err ) {
 				CachedFilterFeedTask.logger.error( err );
 				return;
-			}
-
-			for ( const ticket of removableTickets ) {
-				this.knownTickets.delete( ticket );
-				CachedFilterFeedTask.logger.debug( `Removed ${ ticket } from known tickets for cached filter feed task ${ this.id }` );
 			}
 		}
 

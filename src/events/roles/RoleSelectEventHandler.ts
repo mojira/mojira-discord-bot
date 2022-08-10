@@ -14,6 +14,8 @@ export default class RoleSelectEventHandler implements EventHandler<'messageReac
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to role message` );
 
 		const group = BotConfig.roleGroups.find( searchedGroup => searchedGroup.message === reaction.message.id );
+		if ( group === undefined ) return;
+
 		const role = group.roles.find( searchedRole => searchedRole.emoji === reaction.emoji.id || searchedRole.emoji === reaction.emoji.name );
 
 		if ( !role ) {
@@ -25,7 +27,10 @@ export default class RoleSelectEventHandler implements EventHandler<'messageReac
 			return;
 		}
 
-		const member = await DiscordUtil.getMember( reaction.message.guild, user.id );
+		const guild = reaction.message.guild;
+		if ( guild === null ) return;
+
+		const member = await DiscordUtil.getMember( guild, user.id );
 
 		if ( group.radio ) {
 			// Remove other reactions.

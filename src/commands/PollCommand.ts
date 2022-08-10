@@ -1,7 +1,7 @@
 import PrefixCommand from './PrefixCommand';
 import { Message, MessageEmbed, TextBasedChannel } from 'discord.js';
 import Command from './Command';
-import emojiRegex = require( 'emoji-regex/text.js' );
+import emojiRegex from 'emoji-regex';
 import PermissionRegistry from '../permissions/PermissionRegistry';
 import { ReactionsUtil } from '../util/ReactionsUtil';
 
@@ -42,7 +42,7 @@ export default class PollCommand extends PrefixCommand {
 	private async sendPollMessage( message: Message, title: string, options: PollOption[] ): Promise<void> {
 		const embed = new MessageEmbed();
 		embed.setTitle( 'Poll' )
-			.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() } )
+			.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() ?? undefined } )
 			.setTimestamp( message.createdAt )
 			.setColor( 'GREEN' );
 

@@ -7,7 +7,8 @@
             "dom"
         ],
         "outDir": "./bin",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "strictNullChecks": true
     },
     "exclude": [
         "node_modules"

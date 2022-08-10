@@ -1,5 +1,5 @@
 import Command from './Command';
-import escapeRegex = require( 'escape-string-regexp' );
+import escapeRegex from 'escape-string-regexp';
 
 export default abstract class PrefixCommand extends Command {
 	abstract readonly aliases: string[];

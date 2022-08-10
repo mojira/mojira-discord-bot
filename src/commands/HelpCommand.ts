@@ -27,7 +27,7 @@ export default class HelpCommand extends PrefixCommand {
 					
 					\`!jira tips\` - Sends helpful info on how to use the bug tracker and this Discord server.`
 				)
-				.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() } );
+				.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() ?? undefined } );
 			await message.channel.send( { embeds: [embed] } );
 		} catch {
 			return false;

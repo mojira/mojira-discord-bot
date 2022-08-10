@@ -16,7 +16,7 @@ export default class TestingRequestEventHandler implements EventHandler<'message
 			this.logger.info( `${ request.author.tag } posted request ${ request.id } in #${ request.channel.name }` );
 		}
 
-		const guildMember = request.guild.members.resolve( request.author );
+		const guildMember = request?.guild?.members?.resolve( request.author );
 
 		if ( guildMember && !guildMember.permissionsIn( BotConfig.request.logChannel ).has( 'VIEW_CHANNEL' ) ) {
 			const tickets = RequestsUtil.getTicketIdsFromString( request.content );

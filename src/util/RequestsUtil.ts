@@ -17,7 +17,10 @@ export class RequestsUtil {
 		try {
 			const url = field.value;
 
-			const messageUrl = url.match( /\((.*)\)/ )[1];
+			const matches = url.match( /\((.*)\)/ );
+			if ( matches === null ) return undefined;
+
+			const messageUrl = matches[1];
 			const parts = messageUrl.split( '/' );
 
 			const channelId = parts[parts.length - 2] as Snowflake;
@@ -108,6 +111,8 @@ export class RequestsUtil {
 				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ tickets.join( ',' ) })`,
 				fields: ['key'],
 			} );
+			if ( searchResults.issues === undefined ) return false;
+
 			const invalidTickets = searchResults.issues.map( ( { key } ) => key );
 			this.logger.debug( `Invalid tickets: [${ invalidTickets.join( ',' ) }]` );
 			return invalidTickets.length === 0;
@@ -126,6 +131,7 @@ export class RequestsUtil {
 
 		const tickets: string[] = [];
 		for ( const match of content.matchAll( regex ) ) {
+			if ( match.groups === undefined ) continue;
 			tickets.push( match.groups['ticketid'] );
 		}
 
