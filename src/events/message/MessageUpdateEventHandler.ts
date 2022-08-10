@@ -1,8 +1,8 @@
-import EventHandler from '../EventHandler';
+import EventHandler from '../EventHandler.js';
 import { Message, Snowflake } from 'discord.js';
-import BotConfig from '../../BotConfig';
-import RequestUpdateEventHandler from '../request/RequestUpdateEventHandler';
-import DiscordUtil from '../../util/DiscordUtil';
+import BotConfig from '../../BotConfig.js';
+import RequestUpdateEventHandler from '../request/RequestUpdateEventHandler.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
 
 export default class MessageUpdateEventHandler implements EventHandler<'messageUpdate'> {
 	public readonly eventName = 'messageUpdate';

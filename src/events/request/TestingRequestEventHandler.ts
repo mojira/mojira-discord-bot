@@ -1,9 +1,9 @@
 import { Message, TextChannel } from 'discord.js';
-import * as log4js from 'log4js';
-import BotConfig from '../../BotConfig';
-import DiscordUtil from '../../util/DiscordUtil';
-import { RequestsUtil } from '../../util/RequestsUtil';
-import EventHandler from '../EventHandler';
+import log4js from 'log4js';
+import BotConfig from '../../BotConfig.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import { RequestsUtil } from '../../util/RequestsUtil.js';
+import EventHandler from '../EventHandler.js';
 
 export default class TestingRequestEventHandler implements EventHandler<'message'> {
 	public readonly eventName = 'message';

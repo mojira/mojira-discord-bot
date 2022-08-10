@@ -1,10 +1,10 @@
 import { MessageEmbed, MessageReaction, TextChannel, User } from 'discord.js';
-import { RequestsUtil } from '../../util/RequestsUtil';
-import * as log4js from 'log4js';
-import BotConfig from '../../BotConfig';
-import DiscordUtil from '../../util/DiscordUtil';
-import EventHandler from '../EventHandler';
-import RequestEventHandler from './RequestEventHandler';
+import { RequestsUtil } from '../../util/RequestsUtil.js';
+import log4js from 'log4js';
+import BotConfig from '../../BotConfig.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import EventHandler from '../EventHandler.js';
+import RequestEventHandler from './RequestEventHandler.js';
 
 export default class RequestReopenEventHandler implements EventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';

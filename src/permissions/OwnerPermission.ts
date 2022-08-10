@@ -1,6 +1,6 @@
 import { GuildMember } from 'discord.js';
-import Permission from './Permission';
-import BotConfig from '../BotConfig';
+import Permission from './Permission.js';
+import BotConfig from '../BotConfig.js';
 
 export default class OwnerPermission extends Permission {
 	public checkPermission( member?: GuildMember ): boolean {

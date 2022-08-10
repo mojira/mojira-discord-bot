@@ -1,10 +1,10 @@
 import { MessageReaction, User } from 'discord.js';
-import * as log4js from 'log4js';
-import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
-import ResolveRequestMessageTask from '../../tasks/ResolveRequestMessageTask';
-import TaskScheduler from '../../tasks/TaskScheduler';
-import { RequestsUtil } from '../../util/RequestsUtil';
-import EventHandler from '../EventHandler';
+import log4js from 'log4js';
+import BotConfig, { PrependResponseMessageType } from '../../BotConfig.js';
+import ResolveRequestMessageTask from '../../tasks/ResolveRequestMessageTask.js';
+import TaskScheduler from '../../tasks/TaskScheduler.js';
+import { RequestsUtil } from '../../util/RequestsUtil.js';
+import EventHandler from '../EventHandler.js';
 
 export default class RequestResolveEventHandler implements EventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';

@@ -1,7 +1,7 @@
 import { Message } from 'discord.js';
-import PrefixCommand from './PrefixCommand';
-import { SingleMention } from '../mentions/SingleMention';
-import { ReactionsUtil } from '../util/ReactionsUtil';
+import PrefixCommand from './PrefixCommand.js';
+import { SingleMention } from '../mentions/SingleMention.js';
+import { ReactionsUtil } from '../util/ReactionsUtil.js';
 
 export default class MooCommand extends PrefixCommand {
 	public readonly aliases = ['moo', 'cow'];

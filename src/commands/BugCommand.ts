@@ -1,8 +1,8 @@
 import { Message, MessageEmbed } from 'discord.js';
-import Command from './Command';
-import PrefixCommand from './PrefixCommand';
-import { MentionRegistry } from '../mentions/MentionRegistry';
-import BotConfig from '../BotConfig';
+import Command from './Command.js';
+import PrefixCommand from './PrefixCommand.js';
+import { MentionRegistry } from '../mentions/MentionRegistry.js';
+import BotConfig from '../BotConfig.js';
 
 export default class BugCommand extends PrefixCommand {
 	public readonly aliases = ['bug', 'bugs', 'mention'];

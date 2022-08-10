@@ -1,9 +1,9 @@
-import * as log4js from 'log4js';
+import log4js from 'log4js';
 import { Message, MessageEmbed, TextChannel } from 'discord.js';
-import { RoleGroupConfig } from '../BotConfig';
-import MojiraBot from '../MojiraBot';
-import { ReactionsUtil } from './ReactionsUtil';
-import DiscordUtil from './DiscordUtil';
+import { RoleGroupConfig } from '../BotConfig.js';
+import MojiraBot from '../MojiraBot.js';
+import { ReactionsUtil } from './ReactionsUtil.js';
+import DiscordUtil from './DiscordUtil.js';
 
 export class RoleSelectionUtil {
 	private static logger = log4js.getLogger( 'RoleSelectionUtil' );

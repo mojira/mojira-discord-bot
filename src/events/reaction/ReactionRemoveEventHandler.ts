@@ -1,10 +1,10 @@
 import { MessageReaction, User } from 'discord.js';
-import BotConfig from '../../BotConfig';
-import EventHandler from '../EventHandler';
-import RequestUnresolveEventHandler from '../request/RequestUnresolveEventHandler';
-import RoleRemoveEventHandler from '../roles/RoleRemoveEventHandler';
-import MojiraBot from '../../MojiraBot';
-import DiscordUtil from '../../util/DiscordUtil';
+import BotConfig from '../../BotConfig.js';
+import EventHandler from '../EventHandler.js';
+import RequestUnresolveEventHandler from '../request/RequestUnresolveEventHandler.js';
+import RoleRemoveEventHandler from '../roles/RoleRemoveEventHandler.js';
+import MojiraBot from '../../MojiraBot.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
 
 export default class ReactionRemoveEventHandler implements EventHandler<'messageReactionRemove'> {
 	public readonly eventName = 'messageReactionRemove';

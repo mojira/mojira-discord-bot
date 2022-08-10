@@ -1,7 +1,7 @@
 import { Message, MessageEmbed, TextChannel, NewsChannel, TextBasedChannel } from 'discord.js';
-import PrefixCommand from './PrefixCommand';
-import PermissionRegistry from '../permissions/PermissionRegistry';
-import Command from './Command';
+import PrefixCommand from './PrefixCommand.js';
+import PermissionRegistry from '../permissions/PermissionRegistry.js';
+import Command from './Command.js';
 
 export default class SendCommand extends PrefixCommand {
 	public readonly permissionLevel = PermissionRegistry.OWNER_PERMISSION;

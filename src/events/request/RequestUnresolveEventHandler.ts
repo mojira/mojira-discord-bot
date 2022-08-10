@@ -1,10 +1,10 @@
 import { MessageReaction, User } from 'discord.js';
-import * as log4js from 'log4js';
-import BotConfig from '../../BotConfig';
-import TaskScheduler from '../../tasks/TaskScheduler';
-import DiscordUtil from '../../util/DiscordUtil';
-import { RequestsUtil } from '../../util/RequestsUtil';
-import EventHandler from '../EventHandler';
+import log4js from 'log4js';
+import BotConfig from '../../BotConfig.js';
+import TaskScheduler from '../../tasks/TaskScheduler.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import { RequestsUtil } from '../../util/RequestsUtil.js';
+import EventHandler from '../EventHandler.js';
 
 export default class RequestUnresolveEventHandler implements EventHandler<'messageReactionRemove'> {
 	public readonly eventName = 'messageReactionRemove';

@@ -1,8 +1,8 @@
 import { Message, Snowflake, TextChannel } from 'discord.js';
-import * as log4js from 'log4js';
-import EventHandler from '../EventHandler';
-import { RequestsUtil } from '../../util/RequestsUtil';
-import DiscordUtil from '../../util/DiscordUtil';
+import log4js from 'log4js';
+import EventHandler from '../EventHandler.js';
+import { RequestsUtil } from '../../util/RequestsUtil.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
 
 export default class RequestUpdateEventHandler implements EventHandler<'messageUpdate'> {
 	public readonly eventName = 'messageUpdate';

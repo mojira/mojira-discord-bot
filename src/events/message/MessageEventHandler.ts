@@ -1,11 +1,11 @@
 import { Message, Snowflake } from 'discord.js';
-import BotConfig from '../../BotConfig';
-import CommandExecutor from '../../commands/CommandExecutor';
-import DiscordUtil from '../../util/DiscordUtil';
-import EventHandler from '../EventHandler';
-import RequestEventHandler from '../request/RequestEventHandler';
-import TestingRequestEventHandler from '../request/TestingRequestEventHandler';
-import InternalProgressEventHandler from '../internal/InternalProgressEventHandler';
+import BotConfig from '../../BotConfig.js';
+import CommandExecutor from '../../commands/CommandExecutor.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import EventHandler from '../EventHandler.js';
+import RequestEventHandler from '../request/RequestEventHandler.js';
+import TestingRequestEventHandler from '../request/TestingRequestEventHandler.js';
+import InternalProgressEventHandler from '../internal/InternalProgressEventHandler.js';
 
 export default class MessageEventHandler implements EventHandler<'messageCreate'> {
 	public readonly eventName = 'messageCreate';

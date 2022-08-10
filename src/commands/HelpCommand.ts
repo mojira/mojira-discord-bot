@@ -1,6 +1,6 @@
 import { Message, MessageEmbed } from 'discord.js';
-import PrefixCommand from './PrefixCommand';
-import BotConfig from '../BotConfig';
+import PrefixCommand from './PrefixCommand.js';
+import BotConfig from '../BotConfig.js';
 
 export default class HelpCommand extends PrefixCommand {
 	public readonly aliases = ['help'];

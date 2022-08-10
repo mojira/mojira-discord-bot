@@ -1,7 +1,7 @@
 import { MessageReaction, TextChannel, User } from 'discord.js';
-import * as log4js from 'log4js';
-import DiscordUtil from '../../util/DiscordUtil';
-import EventHandler from '../EventHandler';
+import log4js from 'log4js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import EventHandler from '../EventHandler.js';
 
 export default class RequestReactionRemovalEventHandler implements EventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';
