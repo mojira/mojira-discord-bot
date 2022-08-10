@@ -48,6 +48,7 @@ export default class MojiraBot {
 			GatewayIntentBits.DirectMessages,
 			GatewayIntentBits.DirectMessageReactions,
 			GatewayIntentBits.DirectMessageTyping,
+			GatewayIntentBits.MessageContent,
 		],
 	} );
 
@@ -251,7 +252,7 @@ export default class MojiraBot {
 
 			// TODO Change to custom status when discord.js#3552 is merged into current version of package
 			try {
-				await this.botUser.setActivity( '!jira help' );
+				this.botUser.setActivity( '!jira help' );
 			} catch ( error ) {
 				MojiraBot.logger.error( error );
 			}
