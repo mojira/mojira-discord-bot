@@ -10,13 +10,10 @@ export class ReactionsUtil {
 		const reaction = reactions.shift();
 		if ( reaction === undefined ) return;
 
-		this.logger.debug( `Reacting to message ${ message.id } with ${ reaction }` );
-
 		try {
 			await message.react( reaction );
-			this.logger.debug( `Reacted to message ${ message.id } with ${ reaction }` );
 		} catch ( err ) {
-			this.logger.error( err );
+			this.logger.warn( `Error while reacting to message ${ message.id }`, err );
 		}
 
 		await this.reactToMessage( message, reactions );

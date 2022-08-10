@@ -11,8 +11,6 @@ export default class RoleRemoveEventHandler implements EventHandler<'messageReac
 
 	// This syntax is used to ensure that `this` refers to the `RoleRemoveEventHandler` object
 	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
-		this.logger.info( `User ${ user.tag } removed '${ reaction.emoji.name }' reaction from role message` );
-
 		const group = BotConfig.roleGroups.find( searchedGroup => searchedGroup.message === reaction.message.id );
 		const role = group?.roles.find( searchedRole => searchedRole.emoji === reaction.emoji.id || searchedRole.emoji === reaction.emoji.name );
 

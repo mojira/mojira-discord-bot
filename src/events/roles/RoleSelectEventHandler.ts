@@ -11,8 +11,6 @@ export default class RoleSelectEventHandler implements EventHandler<'messageReac
 
 	// This syntax is used to ensure that `this` refers to the `RoleSelectEventHandler` object
 	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
-		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to role message` );
-
 		const group = BotConfig.roleGroups.find( searchedGroup => searchedGroup.message === reaction.message.id );
 		if ( group === undefined ) return;
 

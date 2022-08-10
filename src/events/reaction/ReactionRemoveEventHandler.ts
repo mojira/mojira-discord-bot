@@ -3,7 +3,6 @@ import BotConfig from '../../BotConfig.js';
 import EventHandler from '../EventHandler.js';
 import RequestUnresolveEventHandler from '../request/RequestUnresolveEventHandler.js';
 import RoleRemoveEventHandler from '../roles/RoleRemoveEventHandler.js';
-import MojiraBot from '../../MojiraBot.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
 
 export default class ReactionRemoveEventHandler implements EventHandler<'messageReactionRemove'> {
@@ -27,8 +26,6 @@ export default class ReactionRemoveEventHandler implements EventHandler<'message
 		user = await DiscordUtil.fetchUser( user );
 
 		const message = await DiscordUtil.fetchMessage( reaction.message );
-
-		MojiraBot.logger.debug( `User ${ user.tag } removed reaction ${ reaction.emoji } to message ${ message.id }` );
 
 		if ( BotConfig.roleGroups.find( g => g.message === message.id ) ) {
 			// Handle role removal

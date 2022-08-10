@@ -93,7 +93,7 @@ export default class VersionFeedTask extends Task {
 
 	protected async run(): Promise<void> {
 		const changes = await this.getAllVersionChanges();
-		VersionFeedTask.logger.debug( `[${ this.id }] Gotten ${ changes.length } relevant version changes: ${ VersionFeedTask.stringifyChanges( changes ) }` );
+		// VersionFeedTask.logger.debug( `[${ this.id }] Gotten ${ changes.length } relevant version changes: ${ VersionFeedTask.stringifyChanges( changes ) }` );
 
 		for ( const change of changes ) {
 			try {
@@ -132,7 +132,7 @@ export default class VersionFeedTask extends Task {
 
 		const changes: JiraVersionChange[] = [];
 
-		VersionFeedTask.logger.debug( `[${ this.id }] Received ${ results.values?.length } versions for project ${ project }` );
+		// VersionFeedTask.logger.debug( `[${ this.id }] Received ${ results.values?.length } versions for project ${ project }` );
 		if ( !results.values ) return changes;
 
 		for ( const value of results.values ) {
@@ -151,7 +151,7 @@ export default class VersionFeedTask extends Task {
 			}
 		}
 
-		VersionFeedTask.logger.debug( `[${ this.id }] Found ${ changes.length } version changes for project ${ project }: ${ VersionFeedTask.stringifyChanges( changes ) }` );
+		// VersionFeedTask.logger.debug( `[${ this.id }] Found ${ changes.length } version changes for project ${ project }: ${ VersionFeedTask.stringifyChanges( changes ) }` );
 
 		return changes;
 	}
