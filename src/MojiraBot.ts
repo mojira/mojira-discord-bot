@@ -1,4 +1,4 @@
-import { ChannelLogsQueryOptions, Client, ClientUser, Intents, Message, Snowflake, TextChannel } from 'discord.js';
+import { Client, ClientUser, FetchMessagesOptions, GatewayIntentBits, Message, Partials, Snowflake, TextChannel } from 'discord.js';
 import log4js from 'log4js';
 import { Version2Client as JiraClient } from 'jira.js';
 import BotConfig from './BotConfig.js';
@@ -28,21 +28,26 @@ export default class MojiraBot {
 	public static logger = log4js.getLogger( 'MojiraBot' );
 
 	public static client: Client = new Client( {
-		partials: ['MESSAGE', 'REACTION', 'USER'],
+		partials: [
+			Partials.Message,
+			Partials.Reaction,
+			Partials.User,
+		],
 		intents: [
-			Intents.FLAGS.GUILDS,
-			Intents.FLAGS.GUILD_BANS,
-			Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
-			Intents.FLAGS.GUILD_INTEGRATIONS,
-			Intents.FLAGS.GUILD_WEBHOOKS,
-			Intents.FLAGS.GUILD_INVITES,
-			Intents.FLAGS.GUILD_VOICE_STATES,
-			Intents.FLAGS.GUILD_MESSAGES,
-			Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-			Intents.FLAGS.GUILD_MESSAGE_TYPING,
-			Intents.FLAGS.DIRECT_MESSAGES,
-			Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
-			Intents.FLAGS.DIRECT_MESSAGE_TYPING,
+			// TODO: We might not need all of these intents
+			GatewayIntentBits.Guilds,
+			GatewayIntentBits.GuildBans,
+			GatewayIntentBits.GuildEmojisAndStickers,
+			GatewayIntentBits.GuildIntegrations,
+			GatewayIntentBits.GuildWebhooks,
+			GatewayIntentBits.GuildInvites,
+			GatewayIntentBits.GuildVoiceStates,
+			GatewayIntentBits.GuildMessages,
+			GatewayIntentBits.GuildMessageReactions,
+			GatewayIntentBits.GuildMessageTyping,
+			GatewayIntentBits.DirectMessages,
+			GatewayIntentBits.DirectMessageReactions,
+			GatewayIntentBits.DirectMessageTyping,
 		],
 	} );
 
@@ -124,7 +129,7 @@ export default class MojiraBot {
 							let continueSearch = true;
 
 							while ( continueSearch ) {
-								const options: ChannelLogsQueryOptions = { limit: 50 };
+								const options: FetchMessagesOptions = { limit: 50 };
 								if ( lastId ) {
 									options.before = lastId;
 								}

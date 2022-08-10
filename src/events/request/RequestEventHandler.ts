@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, Snowflake, TextChannel } from 'discord.js';
+import { EmbedBuilder, Message, MessageType, Snowflake, TextChannel } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig, { PrependResponseMessageType } from '../../BotConfig.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
@@ -6,8 +6,8 @@ import { ReactionsUtil } from '../../util/ReactionsUtil.js';
 import { RequestsUtil } from '../../util/RequestsUtil.js';
 import EventHandler from '../EventHandler.js';
 
-export default class RequestEventHandler implements EventHandler<'message'> {
-	public readonly eventName = 'message';
+export default class RequestEventHandler implements EventHandler<'messageCreate'> {
+	public readonly eventName = 'messageCreate';
 
 	private logger = log4js.getLogger( 'RequestEventHandler' );
 
@@ -29,7 +29,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 	// This syntax is used to ensure that `this` refers to the `RequestEventHandler` object
 	public onEvent = async ( origin: Message, forced?: boolean ): Promise<void> => {
 		// we need this because this method gets invoked directly on bot startup instead of via the general MessageEventHandler
-		if ( origin.type !== 'DEFAULT' ) {
+		if ( origin.type !== MessageType.Default ) {
 			return;
 		}
 
@@ -87,9 +87,15 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 
 		if ( !forced && requestLimit && requestLimit >= 0 && internalChannel instanceof TextChannel ) {
+			// Check for 24 hour rolling window request limit
 			const internalChannelUserMessages = internalChannel.messages.cache
 				.filter( message => message.embeds.length > 0 && message.embeds[0].author?.name === origin.author.tag )
-				.filter( message => message.embeds[0].timestamp !== null && new Date().valueOf() - message.embeds[0].timestamp.valueOf() <= 86400000 );
+				.filter( message => {
+					// Check if message is at most 24 hours old
+					if ( message.embeds[0].timestamp === null ) return false;
+					const messageTimestamp = new Date( message.embeds[0].timestamp ).getTime();
+					return new Date().getTime() - messageTimestamp <= 86400000;
+				} );
 			if ( internalChannelUserMessages.size >= requestLimit ) {
 				try {
 					await origin.react( BotConfig.request.invalidTicketEmoji );
@@ -116,11 +122,15 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 		}
 
 		if ( internalChannel && internalChannel instanceof TextChannel ) {
-			const embed = new MessageEmbed()
+			const embed = new EmbedBuilder()
 				.setColor( RequestsUtil.getEmbedColor() )
 				.setAuthor( { name: origin.author.tag, iconURL: origin.author.avatarURL() ?? undefined } )
 				.setDescription( RequestsUtil.getRequestDescription( origin ) )
-				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
+				.addFields( {
+					name: 'Go To',
+					value: `[Message](${ origin.url }) in ${ origin.channel }`,
+					inline: true,
+				} )
 				.setTimestamp( origin.createdAt );
 
 			const response = BotConfig.request.prependResponseMessage == PrependResponseMessageType.Always

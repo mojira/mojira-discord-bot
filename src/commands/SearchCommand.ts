@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, Util } from 'discord.js';
+import { EmbedBuilder, escapeMarkdown, Message } from 'discord.js';
 import PrefixCommand from './PrefixCommand.js';
 import BotConfig from '../BotConfig.js';
 import MojiraBot from '../MojiraBot.js';
@@ -14,7 +14,7 @@ export default class SearchCommand extends PrefixCommand {
 		const plainArgs = args.replace( /"|<|>/g, '' );
 
 		try {
-			const embed = new MessageEmbed();
+			const embed = new EmbedBuilder();
 			const searchFilter = `text ~ "${ plainArgs }" AND project in (${ BotConfig.projects.join( ', ' ) })`;
 			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
 				jql: searchFilter,
@@ -23,7 +23,7 @@ export default class SearchCommand extends PrefixCommand {
 			} );
 
 			if ( !searchResults.issues ) {
-				embed.setTitle( `No results found for "${ Util.escapeMarkdown( plainArgs ) }"` );
+				embed.setTitle( `No results found for "${ escapeMarkdown( plainArgs ) }"` );
 				await message.channel.send( { embeds: [embed] } );
 				return false;
 			}
@@ -32,7 +32,10 @@ export default class SearchCommand extends PrefixCommand {
 			embed.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() ?? undefined } );
 
 			for ( const issue of searchResults.issues ) {
-				embed.addField( issue.key, `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })` );
+				embed.addFields( {
+					name: issue.key,
+					value: `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })`,
+				} );
 			}
 
 			const escapedJql = encodeURIComponent( searchFilter ).replace( /\(/g, '%28' ).replace( /\)/g, '%29' );
@@ -40,8 +43,8 @@ export default class SearchCommand extends PrefixCommand {
 
 			await message.channel.send( { embeds: [embed] } );
 		} catch {
-			const embed = new MessageEmbed();
-			embed.setTitle( `No results found for "${ Util.escapeMarkdown( plainArgs ) }"` );
+			const embed = new EmbedBuilder();
+			embed.setTitle( `No results found for "${ escapeMarkdown( plainArgs ) }"` );
 			await message.channel.send( { embeds: [embed] } );
 			return false;
 		}

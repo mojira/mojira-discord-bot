@@ -1,15 +1,16 @@
 {
     "compilerOptions": {
         "target": "ES2016",
-        "module": "Node16",
-        "moduleResolution": "Node16",
+        "module": "es2020",
+        "moduleResolution": "node",
         "lib": [
             "es2020",
             "dom"
         ],
         "outDir": "./bin",
         "esModuleInterop": true,
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "skipLibCheck": true,
     },
     "exclude": [
         "node_modules"

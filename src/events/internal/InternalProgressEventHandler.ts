@@ -6,8 +6,8 @@ import TaskScheduler from '../../tasks/TaskScheduler.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
 import EventHandler from '../EventHandler.js';
 
-export default class InternalProgressEventHandler implements EventHandler<'message'> {
-	public readonly eventName = 'message';
+export default class InternalProgressEventHandler implements EventHandler<'messageCreate'> {
+	public readonly eventName = 'messageCreate';
 
 	private logger = log4js.getLogger( 'InternalProgressEventHandler' );
 

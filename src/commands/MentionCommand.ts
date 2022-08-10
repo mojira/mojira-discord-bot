@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { EmbedBuilder, Message } from 'discord.js';
 import Command from './Command.js';
 import { MentionRegistry } from '../mentions/MentionRegistry.js';
 import BotConfig from '../BotConfig.js';
@@ -53,7 +53,7 @@ export default class MentionCommand extends Command {
 	public async run( message: Message, args: string[] ): Promise<boolean> {
 		const mention = MentionRegistry.getMention( args );
 
-		let embed: MessageEmbed;
+		let embed: EmbedBuilder;
 		try {
 			embed = await mention.getEmbed();
 		} catch ( jiraError ) {

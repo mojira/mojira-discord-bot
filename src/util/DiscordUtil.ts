@@ -1,9 +1,10 @@
 import MojiraBot from '../MojiraBot.js';
-import { TextChannel, Message, AnyChannel, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage } from 'discord.js';
+import { TextChannel, Message, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage, TextBasedChannel } from 'discord.js';
 
 export default class DiscordUtil {
-	public static async getChannel( channelId: Snowflake ): Promise<AnyChannel | undefined> {
-		return await MojiraBot.client.channels.fetch( channelId ) ?? undefined;
+	public static async getChannel( channelId: Snowflake ): Promise<TextBasedChannel | undefined> {
+		const channel = await MojiraBot.client.channels.fetch( channelId );
+		return channel?.isTextBased() ? channel : undefined;
 	}
 
 	public static async getMessage( channel: TextChannel, messageId: Snowflake ): Promise<Message> {

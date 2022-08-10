@@ -18,7 +18,7 @@ export default class RequestReactionRemovalEventHandler implements EventHandler<
 
 		const guildMember = guild.members.resolve( user );
 
-		if ( guildMember && !guildMember.permissionsIn( message.channel as TextChannel ).has( 'ADD_REACTIONS' ) ) {
+		if ( guildMember && !guildMember.permissionsIn( message.channel as TextChannel ).has( 'AddReactions' ) ) {
 			await reaction.users.remove( user );
 		}
 	};

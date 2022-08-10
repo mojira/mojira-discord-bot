@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import MojiraBot from '../MojiraBot.js';
 import { Mention } from './Mention.js';
 
@@ -11,10 +11,10 @@ export class MultipleMention extends Mention {
 		this.tickets = tickets;
 	}
 
-	public async getEmbed(): Promise<MessageEmbed> {
-		const embed = new MessageEmbed();
+	public async getEmbed(): Promise<EmbedBuilder> {
+		const embed = new EmbedBuilder();
 		embed.setTitle( 'Mentioned tickets' )
-			.setColor( 'RED' );
+			.setColor( 'Red' );
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		let searchResults: any;
@@ -46,14 +46,14 @@ export class MultipleMention extends Mention {
 		}
 
 		for ( const issue of searchResults.issues ) {
-			embed.addField( issue.key, `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })` );
+			embed.addFields( { name: issue.key, value: `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })` } );
 		}
 
 		if ( this.tickets.length !== searchResults.issues.length ) {
-			embed.addField(
-				'More results',
-				`[View all ${ this.tickets.length } tickets](https://bugs.mojang.com/issues/?jql=` + `id IN %28${ this.tickets.join( ',' ) }%29 ORDER BY key ASC`.replace( /\s+/ig, '%20' ) + ')'
-			);
+			embed.addFields( {
+				name: 'More results',
+				value: `[View all ${ this.tickets.length } tickets](https://bugs.mojang.com/issues/?jql=` + `id IN %28${ this.tickets.join( ',' ) }%29 ORDER BY key ASC`.replace( /\s+/ig, '%20' ) + ')',
+			} );
 		}
 
 		return embed;

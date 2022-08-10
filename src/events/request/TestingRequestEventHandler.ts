@@ -5,8 +5,8 @@ import DiscordUtil from '../../util/DiscordUtil.js';
 import { RequestsUtil } from '../../util/RequestsUtil.js';
 import EventHandler from '../EventHandler.js';
 
-export default class TestingRequestEventHandler implements EventHandler<'message'> {
-	public readonly eventName = 'message';
+export default class TestingRequestEventHandler implements EventHandler<'messageCreate'> {
+	public readonly eventName = 'messageCreate';
 
 	private logger = log4js.getLogger( 'RequestEventHandler' );
 
@@ -18,7 +18,7 @@ export default class TestingRequestEventHandler implements EventHandler<'message
 
 		const guildMember = request?.guild?.members?.resolve( request.author );
 
-		if ( guildMember && !guildMember.permissionsIn( BotConfig.request.logChannel ).has( 'VIEW_CHANNEL' ) ) {
+		if ( guildMember && !guildMember.permissionsIn( BotConfig.request.logChannel ).has( 'ViewChannel' ) ) {
 			const tickets = RequestsUtil.getTicketIdsFromString( request.content );
 
 			if ( tickets.length !== 1 ) {

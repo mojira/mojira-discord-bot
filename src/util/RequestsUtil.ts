@@ -1,4 +1,4 @@
-import { EmbedField, Message, PartialMessage, Snowflake, TextChannel, User } from 'discord.js';
+import { APIEmbedField, Message, PartialMessage, Snowflake, TextChannel, User } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../BotConfig.js';
 import DiscordUtil from './DiscordUtil.js';
@@ -13,7 +13,7 @@ interface OriginIds {
 export class RequestsUtil {
 	private static logger = log4js.getLogger( 'RequestsUtil' );
 
-	private static getOriginIdsFromField( field: EmbedField ): OriginIds | undefined {
+	private static getOriginIdsFromField( field: APIEmbedField ): OriginIds | undefined {
 		try {
 			const url = field.value;
 
@@ -87,9 +87,9 @@ export class RequestsUtil {
 	}
 
 	// https://stackoverflow.com/a/3426956
-	public static getEmbedColor( resolver?: User ): 'BLUE' | number {
+	public static getEmbedColor( resolver?: User ): 'Blue' | number {
 		if ( !resolver ) {
-			return 'BLUE';
+			return 'Blue';
 		}
 		return this.hashCode( resolver.tag ) & 0x00FFFFFF;
 	}

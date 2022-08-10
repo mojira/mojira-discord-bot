@@ -1,4 +1,4 @@
-import { GuildMember, Permissions } from 'discord.js';
+import { GuildMember } from 'discord.js';
 import Permission from './Permission.js';
 
 /**
@@ -7,6 +7,6 @@ import Permission from './Permission.js';
  */
 export default class ModeratorPermission extends Permission {
 	public checkPermission( member?: GuildMember ): boolean {
-		return member?.permissions.has( Permissions.FLAGS.MANAGE_MESSAGES ) ?? false;
+		return member?.permissions.has( 'ManageMessages' ) ?? false;
 	}
 }
