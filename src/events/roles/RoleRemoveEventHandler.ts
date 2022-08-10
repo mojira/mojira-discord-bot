@@ -14,11 +14,14 @@ export default class RoleRemoveEventHandler implements EventHandler<'messageReac
 		this.logger.info( `User ${ user.tag } removed '${ reaction.emoji.name }' reaction from role message` );
 
 		const group = BotConfig.roleGroups.find( searchedGroup => searchedGroup.message === reaction.message.id );
-		const role = group.roles.find( searchedRole => searchedRole.emoji === reaction.emoji.id || searchedRole.emoji === reaction.emoji.name );
+		const role = group?.roles.find( searchedRole => searchedRole.emoji === reaction.emoji.id || searchedRole.emoji === reaction.emoji.name );
 
 		if ( !role ) return;
 
-		const member = await DiscordUtil.getMember( reaction.message.guild, user.id );
+		const guild = reaction.message.guild;
+		if ( guild === null ) return;
+
+		const member = await DiscordUtil.getMember( guild, user.id );
 		if ( member ) {
 			try {
 				await member.roles.remove( role.id );

@@ -5,6 +5,7 @@ import { NewsUtil } from '../util/NewsUtil';
 import MojiraBot from '../MojiraBot';
 import Task from './Task';
 import { LoggerUtil } from '../util/LoggerUtil';
+import { Version } from 'jira.js/out/version2/models';
 
 interface JiraVersion {
 	id: string;
@@ -13,6 +14,25 @@ interface JiraVersion {
 	released: boolean;
 	releaseDate?: string;
 	project: string;
+}
+
+function versionConv( version: Version ): JiraVersion | undefined {
+	if (
+		version.id === undefined
+		|| version.name === undefined
+		|| version.archived === undefined
+		|| version.released === undefined
+		|| version.project === undefined
+	) return undefined;
+
+	return {
+		id: version.id,
+		name: version.name,
+		archived: version.archived,
+		released: version.released,
+		releaseDate: version.releaseDate,
+		project: version.project,
+	};
 }
 
 export type VersionChangeType = 'created' | 'released' | 'unreleased' | 'archived' | 'unarchived' | 'renamed';
@@ -60,15 +80,8 @@ export default class VersionFeedTask extends Task {
 				} );
 
 				for ( const value of results ) {
-					if ( value == undefined ) continue;
-					this.cachedVersions[value.id] = {
-						id: value.id,
-						name: value.name,
-						archived: value.archived,
-						released: value.released,
-						releaseDate: value.releaseDate,
-						project,
-					};
+					const version = versionConv( value );
+					if ( version !== undefined ) this.cachedVersions[version.id] = version;
 				}
 			}
 		} catch ( error ) {
@@ -89,7 +102,8 @@ export default class VersionFeedTask extends Task {
 
 		for ( const change of changes ) {
 			try {
-				const versionFeedMessage = await this.channel.send( { content: change.message, embeds: [change.embed] } );
+				const embeds = change.embed === undefined ? [] : [change.embed];
+				const versionFeedMessage = await this.channel.send( { content: change.message, embeds } );
 
 				if ( this.publish ) {
 					await NewsUtil.publishMessage( versionFeedMessage );
@@ -128,19 +142,13 @@ export default class VersionFeedTask extends Task {
 
 		for ( const value of results.values ) {
 			try {
-				const version: JiraVersion = {
-					id: value.id,
-					name: value.name,
-					archived: value.archived,
-					released: value.released,
-					releaseDate: value.releaseDate,
-					project,
-				};
+				const version = versionConv( value );
+				if ( version === undefined ) continue;
 
-				const versionChanges = await this.getVersionChanges( this.cachedVersions[value.id], version );
+				const versionChanges = await this.getVersionChanges( this.cachedVersions[version.id], version );
 
 				if ( versionChanges.length ) {
-					this.cachedVersions[value.id] = version;
+					this.cachedVersions[version.id] = version;
 					changes.push( ...versionChanges );
 				}
 			} catch ( error ) {

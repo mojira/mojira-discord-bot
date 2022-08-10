@@ -82,6 +82,8 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 
 		const requestLimit = this.requestLimits.get( origin.channel.id );
 		const internalChannelId = this.internalChannels.get( origin.channel.id );
+		if ( internalChannelId === undefined ) return;
+
 		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 
 		if ( !forced && requestLimit && requestLimit >= 0 && internalChannel instanceof TextChannel ) {
@@ -116,7 +118,7 @@ export default class RequestEventHandler implements EventHandler<'message'> {
 		if ( internalChannel && internalChannel instanceof TextChannel ) {
 			const embed = new MessageEmbed()
 				.setColor( RequestsUtil.getEmbedColor() )
-				.setAuthor( { name: origin.author.tag, iconURL: origin.author.avatarURL() } )
+				.setAuthor( { name: origin.author.tag, iconURL: origin.author.avatarURL() ?? undefined } )
 				.setDescription( RequestsUtil.getRequestDescription( origin ) )
 				.addField( 'Go To', `[Message](${ origin.url }) in ${ origin.channel }`, true )
 				.setTimestamp( origin.createdAt );

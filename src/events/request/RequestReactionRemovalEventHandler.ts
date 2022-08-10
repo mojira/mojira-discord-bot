@@ -13,7 +13,10 @@ export default class RequestReactionRemovalEventHandler implements EventHandler<
 		const message = await DiscordUtil.fetchMessage( reaction.message );
 
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ message.id }'` );
-		const guildMember = message.guild.members.resolve( user );
+		const guild = message.guild;
+		if ( guild === null ) return;
+
+		const guildMember = guild.members.resolve( user );
 
 		if ( guildMember && !guildMember.permissionsIn( message.channel as TextChannel ).has( 'ADD_REACTIONS' ) ) {
 			await reaction.users.remove( user );

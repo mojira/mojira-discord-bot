@@ -19,10 +19,7 @@ export default class RequestResolveEventHandler implements EventHandler<'message
 
 	// This syntax is used to ensure that `this` refers to the `RequestResolveEventHandler` object
 	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
-		if ( reaction.message.author.id !== this.botUserId ) {
-			this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to non-bot message '${ reaction.message.id }'. Ignored` );
-			return;
-		}
+		if ( reaction.message?.author?.id !== this.botUserId ) return;
 
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ reaction.message.id }'` );
 

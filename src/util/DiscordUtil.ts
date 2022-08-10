@@ -2,8 +2,8 @@ import MojiraBot from '../MojiraBot';
 import { TextChannel, Message, AnyChannel, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage } from 'discord.js';
 
 export default class DiscordUtil {
-	public static async getChannel( channelId: Snowflake ): Promise<AnyChannel> {
-		return await MojiraBot.client.channels.fetch( channelId );
+	public static async getChannel( channelId: Snowflake ): Promise<AnyChannel | undefined> {
+		return await MojiraBot.client.channels.fetch( channelId ) ?? undefined;
 	}
 
 	public static async getMessage( channel: TextChannel, messageId: Snowflake ): Promise<Message> {

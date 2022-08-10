@@ -31,20 +31,21 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 
 		const requestMessage = await RequestsUtil.getOriginMessage( message );
 
-		if ( !requestMessage ) {
+		if ( requestMessage === undefined ) {
 			this.logger.error( `Could not find origin message for request message '${ message.id }'` );
+			return;
 		}
 
 		const logChannel = await DiscordUtil.getChannel( BotConfig.request.logChannel );
 		if ( logChannel && logChannel instanceof TextChannel ) {
 			const log = new MessageEmbed()
 				.setColor( 'ORANGE' )
-				.setAuthor( { name: requestMessage.author.tag, iconURL: requestMessage.author.avatarURL() } )
+				.setAuthor( { name: requestMessage.author.tag, iconURL: requestMessage.author.avatarURL() ?? undefined } )
 				.setDescription( requestMessage.content )
 				.addField( 'Message', `[Here](${ requestMessage.url })`, true )
 				.addField( 'Channel', requestMessage.channel.toString(), true )
 				.addField( 'Created', requestMessage.createdAt.toUTCString(), false )
-				.setFooter( { text: `${ user.tag } reopened this request`, iconURL: user.avatarURL() } )
+				.setFooter( { text: `${ user.tag } reopened this request`, iconURL: user.avatarURL() ?? undefined } )
 				.setTimestamp( new Date() );
 
 			try {

@@ -49,12 +49,12 @@ export default class ResolveRequestMessageTask extends MessageTask {
 				if ( logChannel && logChannel instanceof TextChannel ) {
 					const log = new MessageEmbed()
 						.setColor( 'GREEN' )
-						.setAuthor( { name: origin.author.tag, iconURL: origin.author.avatarURL() } )
+						.setAuthor( { name: origin.author.tag, iconURL: origin.author.avatarURL() ?? undefined } )
 						.setDescription( origin.content )
 						.addField( 'Message', `[Here](${ origin.url })`, true )
 						.addField( 'Channel', origin.channel.toString(), true )
 						.addField( 'Created', origin.createdAt.toUTCString(), false )
-						.setFooter( { text: `${ this.user.tag } resolved as ${ this.emoji }`, iconURL: this.user.avatarURL() } )
+						.setFooter( { text: `${ this.user.tag } resolved as ${ this.emoji }`, iconURL: this.user.avatarURL() ?? undefined } )
 						.setTimestamp( new Date() );
 
 					try {

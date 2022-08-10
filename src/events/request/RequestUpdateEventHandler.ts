@@ -23,6 +23,8 @@ export default class RequestUpdateEventHandler implements EventHandler<'messageU
 		this.logger.info( `User ${ oldMessage.author.tag }'s request ${ oldMessage.id } in channel ${ oldMessage.channel.id } was updated` );
 
 		const internalChannelId = this.internalChannels.get( oldMessage.channel.id );
+		if ( internalChannelId === undefined ) return;
+
 		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 
 		if ( internalChannel && internalChannel instanceof TextChannel ) {
@@ -34,7 +36,7 @@ export default class RequestUpdateEventHandler implements EventHandler<'messageU
 				if ( result.channelId === oldMessage.channel.id && result.messageId === oldMessage.id ) {
 					try {
 						const embed = internalMessage.embeds[0];
-						embed.setAuthor( { name: oldMessage.author.tag, iconURL: oldMessage.author.avatarURL() } );
+						embed.setAuthor( { name: oldMessage.author.tag, iconURL: oldMessage.author.avatarURL() ?? undefined } );
 						embed.setDescription( RequestsUtil.getRequestDescription( newMessage ) );
 						await internalMessage.edit( { embeds: [embed] } );
 					} catch ( error ) {

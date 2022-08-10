@@ -24,6 +24,8 @@ export default class RequestDeleteEventHandler implements EventHandler<'messageD
 		this.logger.info( `User ${ origin.author.tag }'s request ${ origin.id } in channel ${ origin.channel.id } was deleted` );
 
 		const internalChannelId = this.internalChannels.get( origin.channel.id );
+		if ( internalChannelId === undefined ) return;
+
 		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 
 		if ( internalChannel && internalChannel instanceof TextChannel ) {

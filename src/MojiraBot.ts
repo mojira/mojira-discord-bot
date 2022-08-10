@@ -216,14 +216,17 @@ export default class MojiraBot {
 			// #region Schedule tasks.
 			// Filter feed tasks.
 			for ( const config of BotConfig.filterFeeds ) {
+				const channel = await DiscordUtil.getChannel( config.channel );
+				if ( channel === undefined ) continue;
+
 				if ( config.cached ) {
 					TaskScheduler.addTask(
-						new CachedFilterFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
+						new CachedFilterFeedTask( config, channel ),
 						config.interval
 					);
 				} else {
 					TaskScheduler.addTask(
-						new FilterFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
+						new FilterFeedTask( config, channel ),
 						config.interval
 					);
 				}
@@ -231,8 +234,11 @@ export default class MojiraBot {
 
 			// Version feed tasks.
 			for ( const config of BotConfig.versionFeeds ) {
+				const channel = await DiscordUtil.getChannel( config.channel );
+				if ( channel === undefined ) continue;
+
 				TaskScheduler.addTask(
-					new VersionFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
+					new VersionFeedTask( config, channel ),
 					config.interval
 				);
 			}
