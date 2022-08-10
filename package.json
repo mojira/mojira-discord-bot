@@ -13,16 +13,16 @@
   "dependencies": {
     "config": "^3.3.6",
     "discord.js": "^13.0.0",
-    "emoji-regex": "^8.0.0",
-    "escape-string-regexp": "^1.0.5",
+    "emoji-regex": "^10.1.0",
+    "escape-string-regexp": "^5.0.0",
     "jira.js": "^2.8.0",
     "js-yaml": "^4.1.0",
     "log4js": "^6.4.0"
   },
   "devDependencies": {
-    "@types/config": "0.0.40",
-    "@types/emoji-regex": "^8.0.0",
-    "@types/node": "^17.0.0",
+    "@types/config": "^3.3.0",
+    "@types/emoji-regex": "^9.2.0",
+    "@types/node": "^14.1.2",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "eslint": "^8.2.0",
