@@ -1,6 +1,6 @@
 import { MentionRegistry } from '../mentions/MentionRegistry.js';
 import { FilterFeedConfig } from '../BotConfig.js';
-import { AnyChannel, Message } from 'discord.js';
+import { Message, TextBasedChannel } from 'discord.js';
 import log4js from 'log4js';
 import Task from './Task.js';
 import { NewsUtil } from '../util/NewsUtil.js';
@@ -9,7 +9,7 @@ import MojiraBot from '../MojiraBot.js';
 export default class CachedFilterFeedTask extends Task {
 	private static logger = log4js.getLogger( 'CachedFilterFeedTask' );
 
-	private channel: AnyChannel;
+	private channel: TextBasedChannel;
 	private jql: string;
 	private jqlRemoved?: string;
 	private filterFeedEmoji: string;
@@ -21,7 +21,7 @@ export default class CachedFilterFeedTask extends Task {
 
 	private	lastRun: number;
 
-	constructor( feedConfig: FilterFeedConfig, channel: AnyChannel ) {
+	constructor( feedConfig: FilterFeedConfig, channel: TextBasedChannel ) {
 		super();
 
 		this.channel = channel;
@@ -49,11 +49,6 @@ export default class CachedFilterFeedTask extends Task {
 	}
 
 	protected async run(): Promise<void> {
-		if ( !this.channel.isText() ) {
-			CachedFilterFeedTask.logger.error( `[${ this.id }] Expected ${ this.channel } to be a TextChannel` );
-			return;
-		}
-
 		let upcomingTickets: string[];
 
 		try {

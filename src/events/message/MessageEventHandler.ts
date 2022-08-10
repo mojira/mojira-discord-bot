@@ -1,4 +1,4 @@
-import { Message, Snowflake } from 'discord.js';
+import { Message, MessageType, Snowflake } from 'discord.js';
 import BotConfig from '../../BotConfig.js';
 import CommandExecutor from '../../commands/CommandExecutor.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
@@ -36,7 +36,7 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 			|| message.author.id === this.botUserId
 
 			// Don't reply to non-default messages
-			|| ( message.type !== 'DEFAULT' && message.type !== 'REPLY' )
+			|| ( message.type !== MessageType.Default && message.type !== MessageType.Reply )
 		) return;
 
 		if ( BotConfig.request.channels && BotConfig.request.channels.includes( message.channel.id ) ) {

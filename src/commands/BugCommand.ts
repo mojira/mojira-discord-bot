@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { EmbedBuilder, Message } from 'discord.js';
 import Command from './Command.js';
 import PrefixCommand from './PrefixCommand.js';
 import { MentionRegistry } from '../mentions/MentionRegistry.js';
@@ -25,7 +25,7 @@ export default class BugCommand extends PrefixCommand {
 
 		const mention = MentionRegistry.getMention( tickets );
 
-		let embed: MessageEmbed;
+		let embed: EmbedBuilder;
 		try {
 			embed = await mention.getEmbed();
 		} catch ( err ) {

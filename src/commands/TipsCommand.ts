@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { EmbedBuilder, Message } from 'discord.js';
 import PrefixCommand from './PrefixCommand.js';
 
 export default class TipsCommand extends PrefixCommand {
@@ -6,7 +6,7 @@ export default class TipsCommand extends PrefixCommand {
 
 	public async run( message: Message ): Promise<boolean> {
 		try {
-			const embed = new MessageEmbed();
+			const embed = new EmbedBuilder();
 			embed.setDescription( `__Welcome to the Mojira Discord Server!__
 				
 				For help with using the bug tracker, there is an article on the Minecraft website that you can read: <https://help.minecraft.net/hc/articles/360049840492>.

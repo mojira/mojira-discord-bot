@@ -1,4 +1,4 @@
-import { MessageEmbed, AnyChannel } from 'discord.js';
+import { EmbedBuilder, TextBasedChannel } from 'discord.js';
 import log4js from 'log4js';
 import { VersionFeedConfig } from '../BotConfig.js';
 import { NewsUtil } from '../util/NewsUtil.js';
@@ -41,7 +41,7 @@ interface JiraVersionChange {
 	type: VersionChangeType;
 	versionId: string;
 	message: string;
-	embed?: MessageEmbed;
+	embed?: EmbedBuilder;
 }
 
 interface JiraVersionMap {
@@ -51,7 +51,7 @@ interface JiraVersionMap {
 export default class VersionFeedTask extends Task {
 	private static logger = log4js.getLogger( 'VersionFeedTask' );
 
-	private channel: AnyChannel;
+	private channel: TextBasedChannel;
 	private projects: string[];
 	private versionFeedEmoji: string;
 	private scope: number;
@@ -60,7 +60,7 @@ export default class VersionFeedTask extends Task {
 
 	private cachedVersions: JiraVersionMap = {};
 
-	constructor( feedConfig: VersionFeedConfig, channel: AnyChannel ) {
+	constructor( feedConfig: VersionFeedConfig, channel: TextBasedChannel ) {
 		super();
 
 		this.channel = channel;
@@ -92,11 +92,6 @@ export default class VersionFeedTask extends Task {
 	}
 
 	protected async run(): Promise<void> {
-		if ( !this.channel.isText() ) {
-			VersionFeedTask.logger.error( `[${ this.id }] Expected ${ this.channel } to be a TextChannel` );
-			return;
-		}
-
 		const changes = await this.getAllVersionChanges();
 		VersionFeedTask.logger.debug( `[${ this.id }] Gotten ${ changes.length } relevant version changes: ${ VersionFeedTask.stringifyChanges( changes ) }` );
 
@@ -220,10 +215,10 @@ export default class VersionFeedTask extends Task {
 		return changes;
 	}
 
-	private async getVersionEmbed( version: JiraVersion ): Promise<MessageEmbed | undefined> {
-		const embed = new MessageEmbed()
+	private async getVersionEmbed( version: JiraVersion ): Promise<EmbedBuilder | undefined> {
+		const embed = new EmbedBuilder()
 			.setTitle( version.name )
-			.setColor( 'PURPLE' );
+			.setColor( 'Purple' );
 
 		let versionIssueCounts: {
 			issuesAffectedCount: number;
@@ -244,23 +239,39 @@ export default class VersionFeedTask extends Task {
 
 		if ( affectedIssues > 0 ) {
 			const affectedSearchQuery = `affectedVersion = ${ version.id } ORDER BY created ASC`;
-			embed.addField( 'Affected', `[${ affectedIssues } issue${ affectedIssues > 1 ? 's' : '' }](https://bugs.mojang.com/issues/?jql=${ affectedSearchQuery.replace( /\s+/ig, '%20' ) })`, true );
+			embed.addFields( {
+				name: 'Affected',
+				value: `[${ affectedIssues } issue${ affectedIssues > 1 ? 's' : '' }](https://bugs.mojang.com/issues/?jql=${ affectedSearchQuery.replace( /\s+/ig, '%20' ) })`,
+				inline: true,
+			} );
 		}
 
 		if ( fixedIssues > 0 ) {
 			const fixedSearchQuery = `fixVersion = ${ version.id } ORDER BY key ASC`;
-			embed.addField( 'Fixed', `[${ fixedIssues } issue${ fixedIssues > 1 ? 's' : '' }](https://bugs.mojang.com/issues/?jql=${ fixedSearchQuery.replace( /\s+/ig, '%20' ) })`, true );
+			embed.addFields( {
+				name: 'Fixed',
+				value: `[${ fixedIssues } issue${ fixedIssues > 1 ? 's' : '' }](https://bugs.mojang.com/issues/?jql=${ fixedSearchQuery.replace( /\s+/ig, '%20' ) })`,
+				inline: true,
+			} );
 		}
 
 		if ( version.releaseDate !== undefined ) {
-			embed.addField( 'Released', version.releaseDate, true );
+			embed.addFields( {
+				name: 'Released',
+				value: version.releaseDate,
+				inline: true,
+			} );
 		}
 
 		if ( this.projects.length > 1 ) {
-			embed.addField( 'Project', version.project, true );
+			embed.addFields( {
+				name: 'Project',
+				value: version.project,
+				inline: true,
+			} );
 		}
 
-		if ( !embed.fields?.length ) {
+		if ( !embed.data.fields?.length ) {
 			return undefined;
 		}
 

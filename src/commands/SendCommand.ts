@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, TextChannel, NewsChannel, TextBasedChannel } from 'discord.js';
+import { EmbedBuilder, Message, TextChannel, NewsChannel, TextBasedChannel } from 'discord.js';
 import PrefixCommand from './PrefixCommand.js';
 import PermissionRegistry from '../permissions/PermissionRegistry.js';
 import Command from './Command.js';
@@ -67,7 +67,7 @@ export default class SendCommand extends PrefixCommand {
 				}
 			} else if ( messageType === 'embed' ) {
 				try {
-					const embed = new MessageEmbed();
+					const embed = new EmbedBuilder();
 					embed.setDescription( content );
 					await sendChannel.send( { embeds: [embed] } );
 				} catch {

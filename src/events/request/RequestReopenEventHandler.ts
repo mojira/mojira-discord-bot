@@ -1,4 +1,4 @@
-import { MessageEmbed, MessageReaction, TextChannel, User } from 'discord.js';
+import { EmbedBuilder, MessageReaction, TextChannel, User } from 'discord.js';
 import { RequestsUtil } from '../../util/RequestsUtil.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
@@ -38,13 +38,15 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 
 		const logChannel = await DiscordUtil.getChannel( BotConfig.request.logChannel );
 		if ( logChannel && logChannel instanceof TextChannel ) {
-			const log = new MessageEmbed()
-				.setColor( 'ORANGE' )
+			const log = new EmbedBuilder()
+				.setColor( 'Orange' )
 				.setAuthor( { name: requestMessage.author.tag, iconURL: requestMessage.author.avatarURL() ?? undefined } )
 				.setDescription( requestMessage.content )
-				.addField( 'Message', `[Here](${ requestMessage.url })`, true )
-				.addField( 'Channel', requestMessage.channel.toString(), true )
-				.addField( 'Created', requestMessage.createdAt.toUTCString(), false )
+				.addFields(
+					{ name: 'Message', value: `[Here](${ requestMessage.url })`, inline: true },
+					{ name: 'Channel', value: requestMessage.channel.toString(), inline: true },
+					{ name: 'Created', value: requestMessage.createdAt.toUTCString(), inline: false }
+				)
 				.setFooter( { text: `${ user.tag } reopened this request`, iconURL: user.avatarURL() ?? undefined } )
 				.setTimestamp( new Date() );
 

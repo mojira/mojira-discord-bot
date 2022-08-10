@@ -1,4 +1,4 @@
-import { EmojiResolvable, Message, MessageEmbed, TextChannel, User } from 'discord.js';
+import { EmbedBuilder, EmojiResolvable, Message, TextChannel, User } from 'discord.js';
 import BotConfig from '../BotConfig.js';
 import DiscordUtil from '../util/DiscordUtil.js';
 import { RequestsUtil } from '../util/RequestsUtil.js';
@@ -47,13 +47,15 @@ export default class ResolveRequestMessageTask extends MessageTask {
 			if ( BotConfig.request.logChannel ) {
 				const logChannel = await DiscordUtil.getChannel( BotConfig.request.logChannel );
 				if ( logChannel && logChannel instanceof TextChannel ) {
-					const log = new MessageEmbed()
-						.setColor( 'GREEN' )
+					const log = new EmbedBuilder()
+						.setColor( 'Green' )
 						.setAuthor( { name: origin.author.tag, iconURL: origin.author.avatarURL() ?? undefined } )
 						.setDescription( origin.content )
-						.addField( 'Message', `[Here](${ origin.url })`, true )
-						.addField( 'Channel', origin.channel.toString(), true )
-						.addField( 'Created', origin.createdAt.toUTCString(), false )
+						.addFields(
+							{ name: 'Message', value: `[Here](${ origin.url })`, inline: true },
+							{ name: 'Channel', value: origin.channel.toString(), inline: true },
+							{ name: 'Created', value: origin.createdAt.toUTCString(), inline: false },
+						)
 						.setFooter( { text: `${ this.user.tag } resolved as ${ this.emoji }`, iconURL: this.user.avatarURL() ?? undefined } )
 						.setTimestamp( new Date() );
 
