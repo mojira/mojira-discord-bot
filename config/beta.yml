@@ -107,16 +107,14 @@ roleGroups:
         emoji: '🇴'
 
 filterFeeds:
-  - jql: created > lastRun
+  - jql: updated > lastRun
+    jqlRemoved: ''
     channel: '665904688616701953'
-    interval: 10000
-    title: '{{num}} tickets have been created!'
-    titleSingle: This ticket has just been created!
-  - jql: CHK > lastRun
-    channel: '665904688616701953'
-    interval: 10000
-    title: '{{num}} tickets have been confirmed!'
-    titleSingle: This ticket has just been confirmed!
+    publish: true
+    interval: 30000
+    filterFeedEmoji: '😀'
+    title: '{{num}} tickets have been updated!'
+    titleSingle: This ticket has just been updated!
 
 versionFeeds:
   #version-feed-test
