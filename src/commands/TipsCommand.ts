@@ -9,7 +9,7 @@ export default class TipsCommand extends PrefixCommand {
 			const embed = new EmbedBuilder();
 			embed.setDescription( `__Welcome to the Mojira Discord Server!__
 				
-				For help with using the bug tracker, there is an article on the Minecraft website that you can read: <https://help.minecraft.net/hc/articles/360049840492>.
+				For help with using the bug tracker, there is an article on the Minecraft website that you can read: <https://aka.ms/MCBugTrackerHelp>.
 				
 				How to use this server: 
 				Start by choosing which bug tracker projects you would like to be a part of in <#648479533246316555>.
