@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
-import MessageTask from './MessageTask';
-import * as log4js from 'log4js';
+import MessageTask from './MessageTask.js';
+import log4js from 'log4js';
 
 export default class AddProgressMessageTask extends MessageTask {
 	private static logger = log4js.getLogger( 'AddProgressMessageTask' );

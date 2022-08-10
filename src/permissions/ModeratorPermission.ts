@@ -1,5 +1,5 @@
 import { GuildMember, Permissions } from 'discord.js';
-import Permission from './Permission';
+import Permission from './Permission.js';
 
 /**
  * Permission level 'Moderator'

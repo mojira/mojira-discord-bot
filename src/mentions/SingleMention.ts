@@ -1,7 +1,7 @@
 import { MessageEmbed, Util } from 'discord.js';
-import MojiraBot from '../MojiraBot';
-import { MarkdownUtil } from '../util/MarkdownUtil';
-import { Mention } from './Mention';
+import MojiraBot from '../MojiraBot.js';
+import { MarkdownUtil } from '../util/MarkdownUtil.js';
+import { Mention } from './Mention.js';
 
 export class SingleMention extends Mention {
 	private ticket: string;

@@ -1,10 +1,10 @@
 import { Message, Snowflake } from 'discord.js';
-import * as log4js from 'log4js';
-import BotConfig from '../../BotConfig';
-import AddProgressMessageTask from '../../tasks/AddProgressMessageTask';
-import TaskScheduler from '../../tasks/TaskScheduler';
-import DiscordUtil from '../../util/DiscordUtil';
-import EventHandler from '../EventHandler';
+import log4js from 'log4js';
+import BotConfig from '../../BotConfig.js';
+import AddProgressMessageTask from '../../tasks/AddProgressMessageTask.js';
+import TaskScheduler from '../../tasks/TaskScheduler.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import EventHandler from '../EventHandler.js';
 
 export default class InternalProgressEventHandler implements EventHandler<'message'> {
 	public readonly eventName = 'message';

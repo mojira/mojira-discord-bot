@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js';
-import Command from './Command';
-import { MentionRegistry } from '../mentions/MentionRegistry';
-import BotConfig from '../BotConfig';
+import Command from './Command.js';
+import { MentionRegistry } from '../mentions/MentionRegistry.js';
+import BotConfig from '../BotConfig.js';
 
 export default class MentionCommand extends Command {
 	public static get ticketPattern(): string {

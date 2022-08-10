@@ -1,7 +1,7 @@
 import { Message, MessageEmbed, Util } from 'discord.js';
-import PrefixCommand from './PrefixCommand';
-import BotConfig from '../BotConfig';
-import MojiraBot from '../MojiraBot';
+import PrefixCommand from './PrefixCommand.js';
+import BotConfig from '../BotConfig.js';
+import MojiraBot from '../MojiraBot.js';
 
 export default class SearchCommand extends PrefixCommand {
 	public readonly aliases = ['search', 'find'];

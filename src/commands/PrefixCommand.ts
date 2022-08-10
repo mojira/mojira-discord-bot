@@ -1,4 +1,4 @@
-import Command from './Command';
+import Command from './Command.js';
 import escapeRegex from 'escape-string-regexp';
 
 export default abstract class PrefixCommand extends Command {

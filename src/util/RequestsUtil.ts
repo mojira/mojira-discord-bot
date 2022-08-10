@@ -1,9 +1,9 @@
 import { EmbedField, Message, PartialMessage, Snowflake, TextChannel, User } from 'discord.js';
-import * as log4js from 'log4js';
-import BotConfig from '../BotConfig';
-import DiscordUtil from './DiscordUtil';
-import MentionCommand from '../commands/MentionCommand';
-import MojiraBot from '../MojiraBot';
+import log4js from 'log4js';
+import BotConfig from '../BotConfig.js';
+import DiscordUtil from './DiscordUtil.js';
+import MentionCommand from '../commands/MentionCommand.js';
+import MojiraBot from '../MojiraBot.js';
 
 interface OriginIds {
 	channelId: Snowflake;

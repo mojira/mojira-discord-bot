@@ -1,8 +1,8 @@
 import { MessageReaction, User } from 'discord.js';
-import * as log4js from 'log4js';
-import BotConfig from '../../BotConfig';
-import DiscordUtil from '../../util/DiscordUtil';
-import EventHandler from '../EventHandler';
+import log4js from 'log4js';
+import BotConfig from '../../BotConfig.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import EventHandler from '../EventHandler.js';
 
 export default class RoleRemoveEventHandler implements EventHandler<'messageReactionRemove'> {
 	public readonly eventName = 'messageReactionRemove';

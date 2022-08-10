@@ -1,10 +1,10 @@
-import { MentionRegistry } from '../mentions/MentionRegistry';
-import { FilterFeedConfig } from '../BotConfig';
+import { MentionRegistry } from '../mentions/MentionRegistry.js';
+import { FilterFeedConfig } from '../BotConfig.js';
 import { AnyChannel, Message } from 'discord.js';
-import * as log4js from 'log4js';
-import Task from './Task';
-import { NewsUtil } from '../util/NewsUtil';
-import MojiraBot from '../MojiraBot';
+import log4js from 'log4js';
+import Task from './Task.js';
+import { NewsUtil } from '../util/NewsUtil.js';
+import MojiraBot from '../MojiraBot.js';
 
 export default class CachedFilterFeedTask extends Task {
 	private static logger = log4js.getLogger( 'CachedFilterFeedTask' );

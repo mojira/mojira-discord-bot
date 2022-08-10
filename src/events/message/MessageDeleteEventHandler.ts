@@ -1,8 +1,8 @@
 import { Message, Snowflake } from 'discord.js';
-import BotConfig from '../../BotConfig';
-import DiscordUtil from '../../util/DiscordUtil';
-import EventHandler from '../EventHandler';
-import RequestDeleteEventHandler from '../request/RequestDeleteEventHandler';
+import BotConfig from '../../BotConfig.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import EventHandler from '../EventHandler.js';
+import RequestDeleteEventHandler from '../request/RequestDeleteEventHandler.js';
 
 export default class MessageDeleteEventHandler implements EventHandler<'messageDelete'> {
 	public readonly eventName = 'messageDelete';

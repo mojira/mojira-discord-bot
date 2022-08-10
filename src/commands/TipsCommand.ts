@@ -1,5 +1,5 @@
 import { Message, MessageEmbed } from 'discord.js';
-import PrefixCommand from './PrefixCommand';
+import PrefixCommand from './PrefixCommand.js';
 
 export default class TipsCommand extends PrefixCommand {
 	public readonly aliases = ['tips', 'tutorial'];

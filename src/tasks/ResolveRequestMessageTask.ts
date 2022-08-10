@@ -1,9 +1,9 @@
 import { EmojiResolvable, Message, MessageEmbed, TextChannel, User } from 'discord.js';
-import BotConfig from '../BotConfig';
-import DiscordUtil from '../util/DiscordUtil';
-import { RequestsUtil } from '../util/RequestsUtil';
-import MessageTask from './MessageTask';
-import * as log4js from 'log4js';
+import BotConfig from '../BotConfig.js';
+import DiscordUtil from '../util/DiscordUtil.js';
+import { RequestsUtil } from '../util/RequestsUtil.js';
+import MessageTask from './MessageTask.js';
+import log4js from 'log4js';
 
 export default class ResolveRequestMessageTask extends MessageTask {
 	private static logger = log4js.getLogger( 'ResolveRequestMessageTask' );

@@ -1,10 +1,10 @@
 import { Message, MessageEmbed, Snowflake, TextChannel } from 'discord.js';
-import * as log4js from 'log4js';
-import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
-import DiscordUtil from '../../util/DiscordUtil';
-import { ReactionsUtil } from '../../util/ReactionsUtil';
-import { RequestsUtil } from '../../util/RequestsUtil';
-import EventHandler from '../EventHandler';
+import log4js from 'log4js';
+import BotConfig, { PrependResponseMessageType } from '../../BotConfig.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import { ReactionsUtil } from '../../util/ReactionsUtil.js';
+import { RequestsUtil } from '../../util/RequestsUtil.js';
+import EventHandler from '../EventHandler.js';
 
 export default class RequestEventHandler implements EventHandler<'message'> {
 	public readonly eventName = 'message';

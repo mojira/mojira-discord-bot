@@ -1,9 +1,9 @@
-import PrefixCommand from './PrefixCommand';
+import PrefixCommand from './PrefixCommand.js';
 import { Message, MessageEmbed, TextBasedChannel } from 'discord.js';
-import Command from './Command';
+import Command from './Command.js';
 import emojiRegex from 'emoji-regex';
-import PermissionRegistry from '../permissions/PermissionRegistry';
-import { ReactionsUtil } from '../util/ReactionsUtil';
+import PermissionRegistry from '../permissions/PermissionRegistry.js';
+import { ReactionsUtil } from '../util/ReactionsUtil.js';
 
 interface PollOption {
 	emoji: string;

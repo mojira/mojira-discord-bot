@@ -1,6 +1,6 @@
 import { MessageEmbed } from 'discord.js';
-import MojiraBot from '../MojiraBot';
-import { Mention } from './Mention';
+import MojiraBot from '../MojiraBot.js';
+import { Mention } from './Mention.js';
 
 export class MultipleMention extends Mention {
 	private tickets: string[];

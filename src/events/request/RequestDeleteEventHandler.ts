@@ -1,9 +1,9 @@
 import { Message, Snowflake, TextChannel } from 'discord.js';
-import * as log4js from 'log4js';
-import EventHandler from '../EventHandler';
-import { RequestsUtil } from '../../util/RequestsUtil';
-import TaskScheduler from '../../tasks/TaskScheduler';
-import DiscordUtil from '../../util/DiscordUtil';
+import log4js from 'log4js';
+import EventHandler from '../EventHandler.js';
+import { RequestsUtil } from '../../util/RequestsUtil.js';
+import TaskScheduler from '../../tasks/TaskScheduler.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
 
 export default class RequestDeleteEventHandler implements EventHandler<'messageDelete'> {
 	public readonly eventName = 'messageDelete';

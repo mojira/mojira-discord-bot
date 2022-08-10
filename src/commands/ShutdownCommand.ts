@@ -1,8 +1,8 @@
 import { Message } from 'discord.js';
-import MojiraBot from '../MojiraBot';
-import PrefixCommand from './PrefixCommand';
-import PermissionRegistry from '../permissions/PermissionRegistry';
-import Command from './Command';
+import MojiraBot from '../MojiraBot.js';
+import PrefixCommand from './PrefixCommand.js';
+import PermissionRegistry from '../permissions/PermissionRegistry.js';
+import Command from './Command.js';
 
 export default class ShutdownCommand extends PrefixCommand {
 	public readonly permissionLevel = PermissionRegistry.OWNER_PERMISSION;

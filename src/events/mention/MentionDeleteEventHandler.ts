@@ -1,6 +1,6 @@
 import { MessageReaction, User } from 'discord.js';
-import * as log4js from 'log4js';
-import EventHandler from '../EventHandler';
+import log4js from 'log4js';
+import EventHandler from '../EventHandler.js';
 
 export default class MentionDeleteEventHandler implements EventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';

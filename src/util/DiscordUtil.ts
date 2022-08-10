@@ -1,4 +1,4 @@
-import MojiraBot from '../MojiraBot';
+import MojiraBot from '../MojiraBot.js';
 import { TextChannel, Message, AnyChannel, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage } from 'discord.js';
 
 export default class DiscordUtil {

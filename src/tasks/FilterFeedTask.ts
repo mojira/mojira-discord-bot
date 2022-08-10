@@ -1,11 +1,11 @@
-import { MentionRegistry } from '../mentions/MentionRegistry';
-import { FilterFeedConfig } from '../BotConfig';
+import { MentionRegistry } from '../mentions/MentionRegistry.js';
+import { FilterFeedConfig } from '../BotConfig.js';
 import { AnyChannel, Message } from 'discord.js';
-import * as log4js from 'log4js';
-import Task from './Task';
-import { NewsUtil } from '../util/NewsUtil';
-import MojiraBot from '../MojiraBot';
-import { LoggerUtil } from '../util/LoggerUtil';
+import log4js from 'log4js';
+import Task from './Task.js';
+import { NewsUtil } from '../util/NewsUtil.js';
+import MojiraBot from '../MojiraBot.js';
+import { LoggerUtil } from '../util/LoggerUtil.js';
 
 export default class FilterFeedTask extends Task {
 	private static logger = log4js.getLogger( 'FilterFeedTask' );

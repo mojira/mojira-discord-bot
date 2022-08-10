@@ -1,14 +1,14 @@
 import { MessageReaction, Snowflake, User } from 'discord.js';
-import BotConfig from '../../BotConfig';
-import DiscordEventHandler from '../EventHandler';
-import RequestEventHandler from '../request/RequestEventHandler';
-import RequestReopenEventHandler from '../request/RequestReopenEventHandler';
-import RequestResolveEventHandler from '../request/RequestResolveEventHandler';
-import RequestReactionRemovalEventHandler from '../request/RequestReactionRemovalEventHandler';
-import RoleSelectEventHandler from '../roles/RoleSelectEventHandler';
-import MentionDeleteEventHandler from '../mention/MentionDeleteEventHandler';
-import MojiraBot from '../../MojiraBot';
-import DiscordUtil from '../../util/DiscordUtil';
+import BotConfig from '../../BotConfig.js';
+import DiscordEventHandler from '../EventHandler.js';
+import RequestEventHandler from '../request/RequestEventHandler.js';
+import RequestReopenEventHandler from '../request/RequestReopenEventHandler.js';
+import RequestResolveEventHandler from '../request/RequestResolveEventHandler.js';
+import RequestReactionRemovalEventHandler from '../request/RequestReactionRemovalEventHandler.js';
+import RoleSelectEventHandler from '../roles/RoleSelectEventHandler.js';
+import MentionDeleteEventHandler from '../mention/MentionDeleteEventHandler.js';
+import MojiraBot from '../../MojiraBot.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
 
 export default class ReactionAddEventHandler implements DiscordEventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';

@@ -1,10 +1,10 @@
 import { MessageEmbed, AnyChannel } from 'discord.js';
-import * as log4js from 'log4js';
-import { VersionFeedConfig } from '../BotConfig';
-import { NewsUtil } from '../util/NewsUtil';
-import MojiraBot from '../MojiraBot';
-import Task from './Task';
-import { LoggerUtil } from '../util/LoggerUtil';
+import log4js from 'log4js';
+import { VersionFeedConfig } from '../BotConfig.js';
+import { NewsUtil } from '../util/NewsUtil.js';
+import MojiraBot from '../MojiraBot.js';
+import Task from './Task.js';
+import { LoggerUtil } from '../util/LoggerUtil.js';
 import { Version } from 'jira.js/out/version2/models';
 
 interface JiraVersion {
