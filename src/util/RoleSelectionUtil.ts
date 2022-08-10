@@ -1,5 +1,5 @@
 import log4js from 'log4js';
-import { EmbedBuilder, Message, TextChannel } from 'discord.js';
+import { EmbedBuilder, EmbedType, Message, TextChannel } from 'discord.js';
 import { RoleGroupConfig } from '../BotConfig.js';
 import MojiraBot from '../MojiraBot.js';
 import { ReactionsUtil } from './ReactionsUtil.js';
@@ -20,7 +20,7 @@ export class RoleSelectionUtil {
 		for ( const role of groupConfig.roles ) {
 			const emoji = MojiraBot.client.emojis.resolve( role.emoji ) ?? role.emoji;
 
-			embed.addFields( { name: `${ emoji.toString() }\u2002${ role.title }`, value: role.desc ?? '\u200b' } );
+			embed.addFields( { name: `${ emoji.toString() }\u2002${ role.title }`, value: role.desc ?? '\u200b', inline: false } );
 		}
 
 		const channel = await DiscordUtil.getChannel( groupConfig.channel );
@@ -57,11 +57,14 @@ export class RoleSelectionUtil {
 		if ( message.embeds.length == 1 ) {
 			const existingEmbed = message.embeds[0];
 
-			if ( existingEmbed.equals( embed.data ) ) {
+			// The provided equals operator cares about the rich type, which we can't create with EmbedBuilder, so we have to cheat.
+			if ( existingEmbed.equals( { ...embed.data, type: EmbedType.Rich } ) ) {
 				// Role message does not need to be updated, nothing else left to do
 				return;
 			}
 		}
+
+		this.logger.info( `Updating role selection message ${ message.id }` );
 
 		// Update role message
 		await message.edit( { embeds: [embed] } );
