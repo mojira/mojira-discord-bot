@@ -10,7 +10,6 @@
         "outDir": "./bin",
         "esModuleInterop": true,
         "strictNullChecks": true,
-        "skipLibCheck": true,
     },
     "exclude": [
         "node_modules"
