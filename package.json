@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "config": "^3.3.6",
-    "discord.js": "^14.1.2",
+    "discord.js": "^14.2.0",
     "emoji-regex": "^10.1.0",
     "escape-string-regexp": "^5.0.0",
     "jira.js": "^2.8.0",
