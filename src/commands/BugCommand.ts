@@ -1,8 +1,8 @@
-import { CommandInteraction, MessageEmbed } from 'discord.js';
-import Command from './commandHandlers/Command';
-import { MentionRegistry } from '../mentions/MentionRegistry';
-import BotConfig from '../BotConfig';
-import SlashCommand from './commandHandlers/SlashCommand';
+import { EmbedBuilder, CommandInteraction } from 'discord.js';
+import Command from './commandHandlers/Command.js';
+import { MentionRegistry } from '../mentions/MentionRegistry.js';
+import BotConfig from '../BotConfig.js';
+import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class BugCommand extends SlashCommand {
 	public slashCommandBuilder = this.slashCommandBuilder
@@ -33,7 +33,7 @@ export default class BugCommand extends SlashCommand {
 
 		const mention = MentionRegistry.getMention( tickets );
 
-		let embed: MessageEmbed;
+		let embed: EmbedBuilder;
 		try {
 			embed = await mention.getEmbed();
 		} catch ( err ) {
@@ -48,7 +48,7 @@ export default class BugCommand extends SlashCommand {
 
 		if ( embed === undefined ) return false;
 
-		embed.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() } )
+		embed.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } )
 			.setTimestamp( interaction.createdAt );
 
 		try {

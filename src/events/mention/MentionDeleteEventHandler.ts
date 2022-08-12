@@ -1,6 +1,6 @@
 import { MessageReaction, User } from 'discord.js';
-import * as log4js from 'log4js';
-import EventHandler from '../EventHandler';
+import log4js from 'log4js';
+import EventHandler from '../EventHandler.js';
 
 export default class MentionDeleteEventHandler implements EventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';
@@ -13,9 +13,9 @@ export default class MentionDeleteEventHandler implements EventHandler<'messageR
 		const footer = message.embeds[0]?.footer?.text;
 		if ( footer === undefined ) return;
 
-		const userTag = footer.match( /.{3,32}#[0-9]{4}/ )[0];
+		const userTag = footer.match( /.{3,32}#[0-9]{4}/ );
 
-		if ( user.tag === userTag ) {
+		if ( userTag !== null && user.tag === userTag[0] ) {
 			try {
 				await message.delete();
 			} catch ( error ) {

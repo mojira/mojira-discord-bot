@@ -1,5 +1,5 @@
 import { CommandInteraction } from 'discord.js';
-import SlashCommand from './commandHandlers/SlashCommand';
+import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class PingCommand extends SlashCommand {
 	public readonly slashCommandBuilder = this.slashCommandBuilder

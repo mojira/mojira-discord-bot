@@ -1,10 +1,10 @@
-import { MessageReaction, User } from 'discord.js';
-import * as log4js from 'log4js';
-import BotConfig from '../../BotConfig';
-import TaskScheduler from '../../tasks/TaskScheduler';
-import DiscordUtil from '../../util/DiscordUtil';
-import { RequestsUtil } from '../../util/RequestsUtil';
-import EventHandler from '../EventHandler';
+import { EmbedBuilder, MessageReaction, User } from 'discord.js';
+import log4js from 'log4js';
+import BotConfig from '../../BotConfig.js';
+import TaskScheduler from '../../tasks/TaskScheduler.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import { RequestsUtil } from '../../util/RequestsUtil.js';
+import EventHandler from '../EventHandler.js';
 
 export default class RequestUnresolveEventHandler implements EventHandler<'messageReactionRemove'> {
 	public readonly eventName = 'messageReactionRemove';
@@ -28,9 +28,11 @@ export default class RequestUnresolveEventHandler implements EventHandler<'messa
 
 		this.logger.info( `User ${ user.tag } removed '${ emoji.name }' reaction from request message '${ message.id }'` );
 
+		const embed = new EmbedBuilder( message.embeds[0].data ).setColor( RequestsUtil.getEmbedColor() );
+
 		await message.edit( {
 			content: null,
-			embeds: [message.embeds[0].setColor( RequestsUtil.getEmbedColor() )],
+			embeds: [embed],
 		} );
 
 		if ( message.reactions.cache.size <= BotConfig.request.suggestedEmoji.length ) {

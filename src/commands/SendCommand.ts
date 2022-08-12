@@ -1,6 +1,6 @@
-import { MessageEmbed, TextChannel, NewsChannel, CommandInteraction } from 'discord.js';
-import PermissionRegistry from '../permissions/PermissionRegistry';
-import SlashCommand from './commandHandlers/SlashCommand';
+import { EmbedBuilder, TextChannel, NewsChannel, CommandInteraction } from 'discord.js';
+import PermissionRegistry from '../permissions/PermissionRegistry.js';
+import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class SendCommand extends SlashCommand {
 	public readonly slashCommandBuilder = this.slashCommandBuilder
@@ -34,14 +34,14 @@ export default class SendCommand extends SlashCommand {
 		if ( channel instanceof TextChannel || channel instanceof NewsChannel ) {
 			if ( messageType === 'text' ) {
 				try {
-					await channel.send( content );
+					await channel.send( content!! );
 					await interaction.reply( { content: 'Message sent.' } );
 				} catch {
 					return false;
 				}
 			} else if ( messageType === 'embed' ) {
 				try {
-					const embed = new MessageEmbed();
+					const embed = new EmbedBuilder();
 					embed.setDescription( content );
 					await channel.send( { embeds: [embed] } );
 					await interaction.reply( { content: 'Message sent.' } );
@@ -50,7 +50,7 @@ export default class SendCommand extends SlashCommand {
 				}
 			}
 		} else {
-			await interaction.reply( { content: `**Error:** ${ channel.name } is not a valid channel. `, ephemeral: true } );
+			await interaction.reply( { content: `**Error:** ${ channel!!.name } is not a valid channel. `, ephemeral: true } );
 			return true;
 		}
 

@@ -1,6 +1,6 @@
-import AnyPermission from './AnyPermission';
-import ModeratorPermission from './ModeratorPermission';
-import OwnerPermission from './OwnerPermission';
+import AnyPermission from './AnyPermission.js';
+import ModeratorPermission from './ModeratorPermission.js';
+import OwnerPermission from './OwnerPermission.js';
 
 export default class PermissionRegistry {
 	public static ANY_PERMISSION = new AnyPermission();

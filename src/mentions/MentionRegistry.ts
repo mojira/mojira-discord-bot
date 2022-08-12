@@ -1,6 +1,6 @@
-import { Mention } from './Mention';
-import { SingleMention } from './SingleMention';
-import { MultipleMention } from './MultipleMention';
+import { Mention } from './Mention.js';
+import { SingleMention } from './SingleMention.js';
+import { MultipleMention } from './MultipleMention.js';
 
 export class MentionRegistry {
 	public static getMention( tickets: string[] ): Mention {

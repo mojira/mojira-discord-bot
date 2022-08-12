@@ -1,6 +1,6 @@
-import Command from './Command';
+import Command from './Command.js';
 import { Message } from 'discord.js';
-import DefaultCommandRegistry from './DefaultCommandRegistry';
+import DefaultCommandRegistry from './DefaultCommandRegistry.js';
 
 export default class CommandExecutor {
 	public static async checkCommands( message: Message ): Promise<boolean> {

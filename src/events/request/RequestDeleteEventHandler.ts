@@ -1,9 +1,9 @@
 import { Message, Snowflake, TextChannel } from 'discord.js';
-import * as log4js from 'log4js';
-import EventHandler from '../EventHandler';
-import { RequestsUtil } from '../../util/RequestsUtil';
-import TaskScheduler from '../../tasks/TaskScheduler';
-import DiscordUtil from '../../util/DiscordUtil';
+import log4js from 'log4js';
+import EventHandler from '../EventHandler.js';
+import { RequestsUtil } from '../../util/RequestsUtil.js';
+import TaskScheduler from '../../tasks/TaskScheduler.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
 
 export default class RequestDeleteEventHandler implements EventHandler<'messageDelete'> {
 	public readonly eventName = 'messageDelete';
@@ -24,6 +24,8 @@ export default class RequestDeleteEventHandler implements EventHandler<'messageD
 		this.logger.info( `User ${ origin.author.tag }'s request ${ origin.id } in channel ${ origin.channel.id } was deleted` );
 
 		const internalChannelId = this.internalChannels.get( origin.channel.id );
+		if ( internalChannelId === undefined ) return;
+
 		const internalChannel = await DiscordUtil.getChannel( internalChannelId );
 
 		if ( internalChannel && internalChannel instanceof TextChannel ) {

@@ -1,9 +1,9 @@
-import { CommandInteraction, Message, MessageEmbed } from 'discord.js';
-import Command from './commandHandlers/Command';
-import emojiRegex = require( 'emoji-regex/text.js' );
-import PermissionRegistry from '../permissions/PermissionRegistry';
-import { ReactionsUtil } from '../util/ReactionsUtil';
-import SlashCommand from './commandHandlers/SlashCommand';
+import { CommandInteraction, Message, EmbedBuilder } from 'discord.js';
+import Command from './commandHandlers/Command.js';
+import emojiRegex from 'emoji-regex';
+import PermissionRegistry from '../permissions/PermissionRegistry.js';
+import { ReactionsUtil } from '../util/ReactionsUtil.js';
+import SlashCommand from './commandHandlers/SlashCommand.js';
 
 interface PollOption {
 	emoji: string;
@@ -53,11 +53,11 @@ export default class PollCommand extends SlashCommand {
 	}
 
 	private async sendPollMessage( interaction: CommandInteraction, title: string, options: PollOption[] ): Promise<void> {
-		const embed = new MessageEmbed();
+		const embed = new EmbedBuilder();
 		embed.setTitle( 'Poll' )
-			.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() } )
+			.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } )
 			.setTimestamp( interaction.createdAt )
-			.setColor( 'GREEN' );
+			.setColor( 'Green' );
 
 		if ( title ) {
 			embed.setDescription( title );
@@ -77,7 +77,7 @@ export default class PollCommand extends SlashCommand {
 		}
 
 		for ( const option of options ) {
-			embed.addField( option.emoji, option.text, true );
+			embed.addFields( { name: option.emoji, value: option.text, inline: true } );
 		}
 
 		let poll = await interaction.reply( { embeds: [embed], allowedMentions: { parse: [] }, fetchReply: true } );

@@ -1,7 +1,7 @@
-import { CommandInteraction, MessageEmbed, Util } from 'discord.js';
-import BotConfig from '../BotConfig';
-import MojiraBot from '../MojiraBot';
-import SlashCommand from './commandHandlers/SlashCommand';
+import { EmbedBuilder, escapeMarkdown, CommandInteraction } from 'discord.js';
+import SlashCommand from './commandHandlers/SlashCommand.js';
+import BotConfig from '../BotConfig.js';
+import MojiraBot from '../MojiraBot.js';
 
 export default class SearchCommand extends SlashCommand {
 	public readonly slashCommandBuilder = this.slashCommandBuilder
@@ -17,7 +17,7 @@ export default class SearchCommand extends SlashCommand {
 		const plainArgs = interaction.options.getString( 'query' ).replace( /"|<|>/g, '' );
 
 		try {
-			const embed = new MessageEmbed();
+			const embed = new EmbedBuilder();
 			const searchFilter = `text ~ "${ plainArgs }" AND project in (${ BotConfig.projects.join( ', ' ) })`;
 			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
 				jql: searchFilter,
@@ -26,16 +26,19 @@ export default class SearchCommand extends SlashCommand {
 			} );
 
 			if ( !searchResults.issues ) {
-				embed.setTitle( `No results found for "${ Util.escapeMarkdown( plainArgs ) }"` );
+				embed.setTitle( `No results found for "${ escapeMarkdown( plainArgs ) }"` );
 				await interaction.reply( { embeds: [embed], ephemeral: true } );
 				return true;
 			}
 
 			embed.setTitle( '**Results:**' );
-			embed.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() } );
+			embed.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } );
 
 			for ( const issue of searchResults.issues ) {
-				embed.addField( issue.key, `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })` );
+				embed.addFields( {
+					name: issue.key,
+					value: `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })`,
+				} );
 			}
 
 			const escapedJql = encodeURIComponent( searchFilter ).replace( /\(/g, '%28' ).replace( /\)/g, '%29' );
@@ -43,10 +46,10 @@ export default class SearchCommand extends SlashCommand {
 
 			await interaction.reply( { embeds: [embed], ephemeral: true } );
 		} catch {
-			const embed = new MessageEmbed();
-			embed.setTitle( `No results found for "${ Util.escapeMarkdown( plainArgs ) }"` );
+			const embed = new EmbedBuilder();
+			embed.setTitle( `No results found for "${ escapeMarkdown( plainArgs ) }"` );
 			await interaction.reply( { embeds: [embed], ephemeral: true } );
-			return true;
+			return false;
 		}
 
 		return true;
