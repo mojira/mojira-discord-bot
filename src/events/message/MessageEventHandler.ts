@@ -1,4 +1,4 @@
-import { Message, Snowflake } from 'discord.js';
+import { Message, MessageType, Snowflake } from 'discord.js';
 import BotConfig from '../../BotConfig.js';
 import CommandExecutor from '../../commands/commandHandlers/CommandExecutor.js';
 import DiscordUtil from '../../util/DiscordUtil.js';

@@ -1,4 +1,4 @@
-import { CommandInteraction, EmbedBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import BotConfig from '../BotConfig.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
@@ -7,7 +7,7 @@ export default class HelpCommand extends SlashCommand {
 		.setName( 'jira-help' )
 		.setDescription( 'Sends a help message.' );
 
-	public async run( interaction: CommandInteraction ): Promise<boolean> {
+	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 		try {
 			const embed = new EmbedBuilder();
 			embed.setTitle( '<:mojira:821162280905211964> **MojiraBot help** <:mojira:821162280905211964>' )

@@ -1,12 +1,12 @@
-import BugCommand from '../BugCommand';
-import HelpCommand from '../HelpCommand';
-import PingCommand from '../PingCommand';
-import MooCommand from '../MooCommand';
-import PollCommand from '../PollCommand';
-import SearchCommand from '../SearchCommand';
-import SendCommand from '../SendCommand';
-import ShutdownCommand from '../ShutdownCommand';
-import TipsCommand from '../TipsCommand';
+import BugCommand from '../BugCommand.js';
+import HelpCommand from '../HelpCommand.js';
+import PingCommand from '../PingCommand.js';
+import MooCommand from '../MooCommand.js';
+import PollCommand from '../PollCommand.js';
+import SearchCommand from '../SearchCommand.js';
+import SendCommand from '../SendCommand.js';
+import ShutdownCommand from '../ShutdownCommand.js';
+import TipsCommand from '../TipsCommand.js';
 
 export default class SlashCommandRegistry {
 	public static BUG_COMMAND = new BugCommand();

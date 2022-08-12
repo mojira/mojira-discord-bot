@@ -1,4 +1,4 @@
-import { CommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction } from 'discord.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class PingCommand extends SlashCommand {
@@ -6,7 +6,7 @@ export default class PingCommand extends SlashCommand {
 		.setName( 'ping' )
 		.setDescription( 'Check if MojiraBot is online.' );
 
-	public async run( interaction: CommandInteraction ): Promise<boolean> {
+	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 		let message;
 
 		try {

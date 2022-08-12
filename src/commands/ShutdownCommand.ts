@@ -1,4 +1,4 @@
-import { CommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction } from 'discord.js';
 import MojiraBot from '../MojiraBot.js';
 import PermissionRegistry from '../permissions/PermissionRegistry.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
@@ -10,7 +10,7 @@ export default class ShutdownCommand extends SlashCommand {
 
 	public readonly permissionLevel = PermissionRegistry.OWNER_PERMISSION;
 
-	public async run( interaction: CommandInteraction ): Promise<boolean> {
+	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 		try {
 			await interaction.reply( { content: 'Shutting down MojiraBot...' } );
 			await MojiraBot.shutdown();

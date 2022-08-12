@@ -1,4 +1,4 @@
-import { CommandInteraction, Message } from 'discord.js';
+import { ChatInputCommandInteraction, Message } from 'discord.js';
 import { SingleMention } from '../mentions/SingleMention.js';
 import { ReactionsUtil } from '../util/ReactionsUtil.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
@@ -8,7 +8,7 @@ export default class MooCommand extends SlashCommand {
 		.setName( 'moo' )
 		.setDescription( 'Mooooo.' );
 
-	public async run( interaction: CommandInteraction ): Promise<boolean> {
+	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 		try {
 			const mention = new SingleMention( 'MC-772' );
 			const embed = await mention.getEmbed();

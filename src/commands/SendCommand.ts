@@ -1,4 +1,4 @@
-import { EmbedBuilder, TextChannel, NewsChannel, CommandInteraction } from 'discord.js';
+import { EmbedBuilder, TextChannel, NewsChannel, ChatInputCommandInteraction } from 'discord.js';
 import PermissionRegistry from '../permissions/PermissionRegistry.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
@@ -15,8 +15,10 @@ export default class SendCommand extends SlashCommand {
 			option.setName( 'message-type' )
 				.setDescription( 'The type of message to send. Either text or embed.' )
 				.setRequired( true )
-				.addChoice( 'text', 'text' )
-				.addChoice( 'embed', 'embed' )
+				.addChoices(
+					{ name: 'text', value: 'text' },
+					{ name: 'embed', value: 'embed' }
+				)
 		)
 		.addStringOption( option =>
 			option.setName( 'message' )
@@ -26,10 +28,12 @@ export default class SendCommand extends SlashCommand {
 
 	public readonly permissionLevel = PermissionRegistry.OWNER_PERMISSION;
 
-	public async run( interaction: CommandInteraction ): Promise<boolean> {
+	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 		const channel = interaction.options.getChannel( 'channel' );
 		const messageType = interaction.options.getString( 'message-type' );
 		const content = interaction.options.getString( 'message' );
+
+		if ( channel == null || messageType == null || content == null ) return false;
 
 		if ( channel instanceof TextChannel || channel instanceof NewsChannel ) {
 			if ( messageType === 'text' ) {

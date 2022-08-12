@@ -1,22 +1,22 @@
 import { Client, ClientUser, FetchMessagesOptions, GatewayIntentBits, Message, Partials, Snowflake, TextChannel } from 'discord.js';
 import log4js from 'log4js';
 import { Version2Client as JiraClient } from 'jira.js';
-import BotConfig from './BotConfig';
-import ErrorEventHandler from './events/discord/ErrorEventHandler';
-import EventRegistry from './events/EventRegistry';
-import MessageDeleteEventHandler from './events/message/MessageDeleteEventHandler';
-import MessageEventHandler from './events/message/MessageEventHandler';
-import MessageUpdateEventHandler from './events/message/MessageUpdateEventHandler';
-import ReactionAddEventHandler from './events/reaction/ReactionAddEventHandler';
-import ReactionRemoveEventHandler from './events/reaction/ReactionRemoveEventHandler';
-import RequestEventHandler from './events/request/RequestEventHandler';
-import RequestResolveEventHandler from './events/request/RequestResolveEventHandler';
-import FilterFeedTask from './tasks/FilterFeedTask';
-import CachedFilterFeedTask from './tasks/CachedFilterFeedTask';
-import TaskScheduler from './tasks/TaskScheduler';
-import VersionFeedTask from './tasks/VersionFeedTask';
-import DiscordUtil from './util/DiscordUtil';
-import { RoleSelectionUtil } from './util/RoleSelectionUtil';
+import BotConfig from './BotConfig.js';
+import ErrorEventHandler from './events/discord/ErrorEventHandler.js';
+import EventRegistry from './events/EventRegistry.js';
+import MessageDeleteEventHandler from './events/message/MessageDeleteEventHandler.js';
+import MessageEventHandler from './events/message/MessageEventHandler.js';
+import MessageUpdateEventHandler from './events/message/MessageUpdateEventHandler.js';
+import ReactionAddEventHandler from './events/reaction/ReactionAddEventHandler.js';
+import ReactionRemoveEventHandler from './events/reaction/ReactionRemoveEventHandler.js';
+import RequestEventHandler from './events/request/RequestEventHandler.js';
+import RequestResolveEventHandler from './events/request/RequestResolveEventHandler.js';
+import FilterFeedTask from './tasks/FilterFeedTask.js';
+import CachedFilterFeedTask from './tasks/CachedFilterFeedTask.js';
+import TaskScheduler from './tasks/TaskScheduler.js';
+import VersionFeedTask from './tasks/VersionFeedTask.js';
+import DiscordUtil from './util/DiscordUtil.js';
+import { RoleSelectionUtil } from './util/RoleSelectionUtil.js';
 import InteractionEventHandler from './events/interaction/InteractionEventHandler.js';
 
 /**

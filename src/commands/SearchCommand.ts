@@ -1,4 +1,4 @@
-import { EmbedBuilder, escapeMarkdown, CommandInteraction } from 'discord.js';
+import { EmbedBuilder, escapeMarkdown, ChatInputCommandInteraction } from 'discord.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 import BotConfig from '../BotConfig.js';
 import MojiraBot from '../MojiraBot.js';
@@ -13,8 +13,10 @@ export default class SearchCommand extends SlashCommand {
 				.setRequired( true )
 		);
 
-	public async run( interaction: CommandInteraction ): Promise<boolean> {
-		const plainArgs = interaction.options.getString( 'query' ).replace( /"|<|>/g, '' );
+	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
+		const plainArgs = interaction.options.getString( 'query' )?.replace( /"|<|>/g, '' );
+
+		if ( plainArgs == null ) return false;
 
 		try {
 			const embed = new EmbedBuilder();

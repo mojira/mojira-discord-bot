@@ -1,12 +1,13 @@
-import SlashCommand from './SlashCommand';
-import SlashCommandRegistry from './SlashCommandRegistry';
+import SlashCommand from './SlashCommand.js';
+import SlashCommandRegistry from './SlashCommandRegistry.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
-import { Client, Collection, CommandInteraction } from 'discord.js';
+import { Client, Collection, ChatInputCommandInteraction } from 'discord.js';
 
 export default class SlashCommandRegister {
 	public static async registerCommands( client: Client, guild: string, token: string ) {
-		const commands = [];
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const commands: any[] = [];
 
 		const fetchedGuild = await client.guilds.fetch( guild );
 
@@ -16,7 +17,7 @@ export default class SlashCommandRegister {
 			const command = SlashCommandRegistry[commandName] as SlashCommand;
 
 			const JSON = {
-				data: command.slashCommandBuilder, async execute( interaction: CommandInteraction ) {
+				data: command.slashCommandBuilder, async execute( interaction: ChatInputCommandInteraction ) {
 					SlashCommand.logger.info( `User ${ interaction.user.tag } ran command ${ command.asString( interaction ) }` );
 					if ( command.checkPermission( await fetchedGuild.members.fetch( interaction.user ) ) ) {
 						if ( !await command.run( interaction ) ) {
@@ -35,8 +36,10 @@ export default class SlashCommandRegister {
 
 		const rest = new REST( { version: '9' } ).setToken( token );
 
-		rest.put( Routes.applicationGuildCommands( client.user.id, guild ), { body: commands } )
-			.then( () => SlashCommand.logger.info( 'Successfully registered all slash commands.' ) )
-			.catch( SlashCommand.logger.error );
+		if ( client.user != null ) {
+			rest.put( Routes.applicationGuildCommands( client.user.id, guild ), { body: commands } )
+				.then( () => SlashCommand.logger.info( 'Successfully registered all slash commands.' ) )
+				.catch( SlashCommand.logger.error );
+		}
 	}
 }

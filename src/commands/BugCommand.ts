@@ -1,4 +1,4 @@
-import { EmbedBuilder, CommandInteraction } from 'discord.js';
+import { EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
 import Command from './commandHandlers/Command.js';
 import { MentionRegistry } from '../mentions/MentionRegistry.js';
 import BotConfig from '../BotConfig.js';
@@ -14,8 +14,10 @@ export default class BugCommand extends SlashCommand {
 				.setRequired( true )
 		);
 
-	public async run( interaction: CommandInteraction ): Promise<boolean> {
-		const tickets = interaction.options.getString( 'ticket-id' ).split( /\s+/ig );
+	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
+		const tickets = interaction.options.getString( 'ticket-id' )?.split( /\s+/ig );
+
+		if ( tickets == null ) return false;
 
 		const ticketRegex = new RegExp( `\\s*((?:${ BotConfig.projects.join( '|' ) })-\\d+)\\s*` );
 

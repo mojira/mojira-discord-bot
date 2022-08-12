@@ -1,4 +1,4 @@
-import { CommandInteraction, Message, EmbedBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, Message, EmbedBuilder } from 'discord.js';
 import Command from './commandHandlers/Command.js';
 import emojiRegex from 'emoji-regex';
 import PermissionRegistry from '../permissions/PermissionRegistry.js';
@@ -32,7 +32,7 @@ export default class PollCommand extends SlashCommand {
 
 	public readonly aliases = ['poll', 'vote'];
 
-	private async sendSyntaxMessage( interaction: CommandInteraction, additionalInfo?: string ): Promise<void> {
+	private async sendSyntaxMessage( interaction: ChatInputCommandInteraction, additionalInfo?: string ): Promise<void> {
 		try {
 			if ( additionalInfo != undefined ) {
 				additionalInfo += '\n';
@@ -52,7 +52,7 @@ export default class PollCommand extends SlashCommand {
 		}
 	}
 
-	private async sendPollMessage( interaction: CommandInteraction, title: string, options: PollOption[] ): Promise<void> {
+	private async sendPollMessage( interaction: ChatInputCommandInteraction, title: string, options: PollOption[] ): Promise<void> {
 		const embed = new EmbedBuilder();
 		embed.setTitle( 'Poll' )
 			.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } )
@@ -97,8 +97,10 @@ export default class PollCommand extends SlashCommand {
 		}
 	}
 
-	public async run( interaction: CommandInteraction ): Promise<boolean> {
-		const pollOptions = interaction.options.getString( 'choices' ).split( '~' );
+	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
+		const pollOptions = interaction.options.getString( 'choices' )?.split( '~' );
+
+		if ( pollOptions == null ) return false;
 
 		const options: PollOption[] = [];
 
@@ -138,7 +140,11 @@ export default class PollCommand extends SlashCommand {
 			}
 		}
 
-		await this.sendPollMessage( interaction, interaction.options.getString( 'title' ), options );
+		const title = interaction.options.getString( 'title' );
+
+		if ( title == null ) return false;
+
+		await this.sendPollMessage( interaction, title, options );
 
 		return true;
 	}

@@ -1,12 +1,12 @@
-import { CommandInteraction, EmbedBuilder } from 'discord.js';
-import SlashCommand from './commandHandlers/SlashCommand';
+import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
+import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class TipsCommand extends SlashCommand {
 	public readonly slashCommandBuilder = this.slashCommandBuilder
 		.setName( 'tips' )
 		.setDescription( 'Get some tips on how to use the Mojira Discord Server.' );
 
-	public async run( interaction: CommandInteraction ): Promise<boolean> {
+	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 		try {
 			const embed = new EmbedBuilder();
 			embed.setDescription( `__Welcome to the Mojira Discord Server!__

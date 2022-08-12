@@ -1,6 +1,6 @@
 import { Client, Interaction } from 'discord.js';
-import EventHandler from '../EventHandler';
-import SlashCommand from '../../commands/commandHandlers/SlashCommand';
+import EventHandler from '../EventHandler.js';
+import SlashCommand from '../../commands/commandHandlers/SlashCommand.js';
 
 export default class InteractionEventHandler implements EventHandler<'interactionCreate'> {
 	public readonly eventName = 'interactionCreate';
