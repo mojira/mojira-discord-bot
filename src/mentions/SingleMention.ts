@@ -90,26 +90,26 @@ export class SingleMention extends Mention {
 			.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
 			.setColor( 'Red' );
 
-			if ( !ChannelConfigUtil.limitedInfo( this.channel ) ) {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		function findThumbnail( attachments: any[] ): string | undefined {
+			const allowedMimes = [
+				'image/png', 'image/jpeg',
+			];
+
+			attachments.sort( ( a, b ) => {
+				return new Date( a.created ).valueOf() - new Date( b.created ).valueOf();
+			} );
+
+			for ( const attachment of attachments ) {
+				if ( allowedMimes.includes( attachment.mimeType ) ) return attachment.content;
+			}
+
+			return undefined;
+		}
+
+		if ( !ChannelConfigUtil.limitedInfo( this.channel ) ) {
 			embed.setAuthor( ticketResult.fields.reporter.displayName, ticketResult.fields.reporter.avatarUrls['48x48'], 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) )
 				.addFields( { name: 'Status', value: status, inline: !largeStatus } );
-
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			function findThumbnail( attachments: any[] ): string {
-				const allowedMimes = [
-					'image/png', 'image/jpeg',
-				];
-
-				attachments.sort( ( a, b ) => {
-					return new Date( a.created ).valueOf() - new Date( b.created ).valueOf();
-				} );
-
-				for ( const attachment of attachments ) {
-					if ( allowedMimes.includes( attachment.mimeType ) ) return attachment.content;
-				}
-
-				return undefined;
-			}
 
 			// Assigned to, Reported by, Created on, Category, Resolution, Resolved on, Since version, (Latest) affected version, Fixed version(s)
 
