@@ -28,7 +28,7 @@ export default class HelpCommand extends SlashCommand {
 					
 					\`/search <query>\` - Searches for text and returns the results from the bug tracker.
 					
-					\`/tips\` - Sends helpful info on how to use the bug tracker and this Discord server.`
+					\`/tips\` - Sends helpful info on how to use the bug tracker and this Discord server.`,
 				} )
 				.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } );
 			await interaction.reply( { embeds: [embed], ephemeral: true } );

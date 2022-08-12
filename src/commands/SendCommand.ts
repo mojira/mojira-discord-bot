@@ -34,7 +34,7 @@ export default class SendCommand extends SlashCommand {
 		if ( channel instanceof TextChannel || channel instanceof NewsChannel ) {
 			if ( messageType === 'text' ) {
 				try {
-					await channel.send( content!! );
+					await channel.send( content );
 					await interaction.reply( { content: 'Message sent.' } );
 				} catch {
 					return false;
@@ -50,7 +50,7 @@ export default class SendCommand extends SlashCommand {
 				}
 			}
 		} else {
-			await interaction.reply( { content: `**Error:** ${ channel!!.name } is not a valid channel. `, ephemeral: true } );
+			await interaction.reply( { content: `**Error:** ${ channel.name } is not a valid channel. `, ephemeral: true } );
 			return true;
 		}
 
