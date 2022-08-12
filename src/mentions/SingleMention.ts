@@ -1,4 +1,4 @@
-import { EmbedBuilder, escapeMarkdown, TextBasedChannels } from 'discord.js';
+import { EmbedBuilder, escapeMarkdown, TextBasedChannel } from 'discord.js';
 import MojiraBot from '../MojiraBot.js';
 import { MarkdownUtil } from '../util/MarkdownUtil.js';
 import { Mention } from './Mention.js';
@@ -6,9 +6,9 @@ import { ChannelConfigUtil } from '../util/ChannelConfigUtil.js';
 
 export class SingleMention extends Mention {
 	private ticket: string;
-	private channel: TextBasedChannels;
+	private channel: TextBasedChannel;
 
-	constructor( ticket: string, channel: TextBasedChannels ) {
+	constructor( ticket: string, channel: TextBasedChannel ) {
 		super();
 
 		this.ticket = ticket;
@@ -86,17 +86,34 @@ export class SingleMention extends Mention {
 		const embed = new EmbedBuilder();
 
 		embed.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ escapeMarkdown( ticketResult.fields.summary ) }` ) )
-			.setDescription( description.substring( 0, 1024 ) )
+			.setDescription( description.substring( 0, 2048 ) )
 			.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
 			.setColor( 'RED' );
 
-		if ( !ChannelConfigUtil.limitedInfo( this.channel ) ) {
+			if ( !ChannelConfigUtil.limitedInfo( this.channel ) ) {
 			embed.setAuthor( ticketResult.fields.reporter.displayName, ticketResult.fields.reporter.avatarUrls['48x48'], 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) )
-				.addField( 'Status', status, !largeStatus );
+				.addFields( { name: 'Status', value: status, inline: !largeStatus } );
+
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			function findThumbnail( attachments: any[] ): string {
+				const allowedMimes = [
+					'image/png', 'image/jpeg',
+				];
+
+				attachments.sort( ( a, b ) => {
+					return new Date( a.created ).valueOf() - new Date( b.created ).valueOf();
+				} );
+
+				for ( const attachment of attachments ) {
+					if ( allowedMimes.includes( attachment.mimeType ) ) return attachment.content;
+				}
+
+				return undefined;
+			}
 
 			// Assigned to, Reported by, Created on, Category, Resolution, Resolved on, Since version, (Latest) affected version, Fixed version(s)
 
-			const thumbnail = this.findThumbnail( ticketResult.fields.attachment );
+			const thumbnail = findThumbnail( ticketResult.fields.attachment );
 			if ( thumbnail !== undefined ) embed.setThumbnail( thumbnail );
 
 			if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
@@ -157,23 +174,6 @@ export class SingleMention extends Mention {
 		}
 
 		return embed;
-	}
-
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private findThumbnail( attachments: any[] ): string {
-		const allowedMimes = [
-			'image/png', 'image/jpeg',
-		];
-
-		attachments.sort( ( a, b ) => {
-			return new Date( a.created ).valueOf() - new Date( b.created ).valueOf();
-		} );
-
-		for ( const attachment of attachments ) {
-			if ( allowedMimes.includes( attachment.mimeType ) ) return attachment.content;
-		}
-
-		return undefined;
 	}
 
 	private ensureLength( input: string ): string {
