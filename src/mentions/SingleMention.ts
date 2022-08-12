@@ -84,15 +84,15 @@ export class SingleMention extends Mention {
 		description = description.split( '\n' ).slice( 0, 2 ).join( '\n' );
 
 		const embed = new EmbedBuilder();
-    
-    embed.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ escapeMarkdown( ticketResult.fields.summary ) }` ) )
-				.setDescription( description.substring( 0, 1024 ) )
-				.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
-				.setColor( 'RED' );
+
+		embed.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ escapeMarkdown( ticketResult.fields.summary ) }` ) )
+			.setDescription( description.substring( 0, 1024 ) )
+			.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
+			.setColor( 'RED' );
 
 		if ( !ChannelConfigUtil.limitedInfo( this.channel ) ) {
 			embed.setAuthor( ticketResult.fields.reporter.displayName, ticketResult.fields.reporter.avatarUrls['48x48'], 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) )
-				.addField( 'Status', status, !largeStatus )
+				.addField( 'Status', status, !largeStatus );
 
 			// Assigned to, Reported by, Created on, Category, Resolution, Resolved on, Since version, (Latest) affected version, Fixed version(s)
 
@@ -101,89 +101,63 @@ export class SingleMention extends Mention {
 
 			if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
 				const fixVersions = ticketResult.fields.fixVersions.map( v => v.name );
-				embed.addField( 'Fix version' + ( fixVersions.length > 1 ? 's' : '' ), Util.escapeMarkdown( fixVersions.join( ', ' ) ), true );
+				embed.addFields( {
+					name: 'Fix Version' + ( fixVersions.length > 1 ? 's' : '' ),
+					value: escapeMarkdown( fixVersions.join( ', ' ) ),
+					inline: true,
+				} );
 			}
 
-      if ( ticketResult.fields.assignee ) {
-				embed.addField( 'Assignee', `[${ Util.escapeMarkdown( ticketResult.fields.assignee.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.assignee.name ) })`, true );
+			if ( ticketResult.fields.assignee ) {
+				embed.addFields( {
+					name: 'Assignee',
+					value: `[${ escapeMarkdown( ticketResult.fields.assignee.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.assignee.name ) })`,
+					inline: true,
+				} );
 			}
 
 			if ( ticketResult.fields.votes.votes ) {
-				embed.addField( 'Votes', ticketResult.fields.votes.votes.toString(), true );
+				embed.addFields( {
+					name: 'Votes',
+					value: ticketResult.fields.votes.votes.toString(),
+					inline: true,
+				} );
 			}
 
 			if ( ticketResult.fields.comment.total ) {
-				embed.addField( 'Comments', ticketResult.fields.comment.total.toString(), true );
+				embed.addFields( {
+					name: 'Comments',
+					value: ticketResult.fields.comment.total.toString(),
+					inline: true,
+				} );
 			}
 
 			const duplicates = ticketResult.fields.issuelinks.filter( relation => relation.type.id === '10102' && relation.inwardIssue );
 			if ( duplicates.length ) {
-				embed.addField( 'Duplicates', duplicates.length.toString(), true );
+				embed.addFields( {
+					name: 'Duplicates',
+					value: duplicates.length.toString(),
+					inline: true,
+				} );
 			}
 
 			if ( ticketResult.fields.creator.key !== ticketResult.fields.reporter.key ) {
-				embed.addField( 'Created by', `[${ Util.escapeMarkdown( ticketResult.fields.creator.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.creator.name ) })`, true );
+				embed.addFields( {
+					name: 'Creator',
+					value: `[${ escapeMarkdown( ticketResult.fields.creator.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.creator.name ) })`,
+					inline: true,
+				} );
 			}
-      
-      if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
-			const fixVersions = ticketResult.fields.fixVersions.map( v => v.name );
+
 			embed.addFields( {
-				name: 'Fix Version' + ( fixVersions.length > 1 ? 's' : '' ),
-				value: escapeMarkdown( fixVersions.join( ', ' ) ),
+				name: 'Created',
+				value: MarkdownUtil.timestamp( new Date( ticketResult.fields.created ), 'R' ),
 				inline: true,
 			} );
 		}
 
-		if ( ticketResult.fields.assignee ) {
-			embed.addFields( {
-				name: 'Assignee',
-				value: `[${ escapeMarkdown( ticketResult.fields.assignee.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.assignee.name ) })`,
-				inline: true,
-			} );
-		}
-
-		if ( ticketResult.fields.votes.votes ) {
-			embed.addFields( {
-				name: 'Votes',
-				value: ticketResult.fields.votes.votes.toString(),
-				inline: true,
-			} );
-		}
-
-		if ( ticketResult.fields.comment.total ) {
-			embed.addFields( {
-				name: 'Comments',
-				value: ticketResult.fields.comment.total.toString(),
-				inline: true,
-			} );
-		}
-
-		const duplicates = ticketResult.fields.issuelinks.filter( relation => relation.type.id === '10102' && relation.inwardIssue );
-		if ( duplicates.length ) {
-			embed.addFields( {
-				name: 'Duplicates',
-				value: duplicates.length.toString(),
-				inline: true,
-			} );
-		}
-
-		if ( ticketResult.fields.creator.key !== ticketResult.fields.reporter.key ) {
-			embed.addFields( {
-				name: 'Creator',
-				value: `[${ escapeMarkdown( ticketResult.fields.creator.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.creator.name ) })`,
-				inline: true,
-			} );
-		}
-
-		embed.addFields( {
-			name: 'Created',
-			value: MarkdownUtil.timestamp( new Date( ticketResult.fields.created ), 'R' ),
-			inline: true,
-		} );
-  }
-
-  return embed;
-}
+		return embed;
+	}
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	private findThumbnail( attachments: any[] ): string {
@@ -200,7 +174,7 @@ export class SingleMention extends Mention {
 		}
 
 		return undefined;
-  }
+	}
 
 	private ensureLength( input: string ): string {
 		if ( input.length > 251 ) {
