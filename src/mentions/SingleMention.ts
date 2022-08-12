@@ -108,7 +108,7 @@ export class SingleMention extends Mention {
 		}
 
 		if ( !ChannelConfigUtil.limitedInfo( this.channel ) ) {
-			embed.setAuthor( ticketResult.fields.reporter.displayName, ticketResult.fields.reporter.avatarUrls['48x48'], 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) )
+			embed.setAuthor( { name: ticketResult.fields.reporter.displayName, iconURL: ticketResult.fields.reporter.avatarUrls['48x48'], url: 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) } )
 				.addFields( { name: 'Status', value: status, inline: !largeStatus } );
 
 			// Assigned to, Reported by, Created on, Category, Resolution, Resolved on, Since version, (Latest) affected version, Fixed version(s)
