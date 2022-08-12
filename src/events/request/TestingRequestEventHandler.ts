@@ -1,12 +1,12 @@
 import { Message, TextChannel } from 'discord.js';
-import * as log4js from 'log4js';
-import BotConfig from '../../BotConfig';
-import DiscordUtil from '../../util/DiscordUtil';
-import { RequestsUtil } from '../../util/RequestsUtil';
-import EventHandler from '../EventHandler';
+import log4js from 'log4js';
+import BotConfig from '../../BotConfig.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import { RequestsUtil } from '../../util/RequestsUtil.js';
+import EventHandler from '../EventHandler.js';
 
-export default class TestingRequestEventHandler implements EventHandler<'message'> {
-	public readonly eventName = 'message';
+export default class TestingRequestEventHandler implements EventHandler<'messageCreate'> {
+	public readonly eventName = 'messageCreate';
 
 	private logger = log4js.getLogger( 'RequestEventHandler' );
 
@@ -16,7 +16,9 @@ export default class TestingRequestEventHandler implements EventHandler<'message
 			this.logger.info( `${ request.author.tag } posted request ${ request.id } in #${ request.channel.name }` );
 		}
 
-		if ( !request.guild.members.resolve( request.author ).permissionsIn( BotConfig.request.logChannel ).has( 'VIEW_CHANNEL' ) ) {
+		const guildMember = request?.guild?.members?.resolve( request.author );
+
+		if ( guildMember && !guildMember.permissionsIn( BotConfig.request.logChannel ).has( 'ViewChannel' ) ) {
 			const tickets = RequestsUtil.getTicketIdsFromString( request.content );
 
 			if ( tickets.length !== 1 ) {

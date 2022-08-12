@@ -1,6 +1,6 @@
-import { Mention } from './Mention';
-import { SingleMention } from './SingleMention';
-import { MultipleMention } from './MultipleMention';
+import { Mention } from './Mention.js';
+import { SingleMention } from './SingleMention.js';
+import { MultipleMention } from './MultipleMention.js';
 import { TextBasedChannels } from 'discord.js';
 
 export class MentionRegistry {

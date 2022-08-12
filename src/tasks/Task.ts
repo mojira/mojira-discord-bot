@@ -1,4 +1,5 @@
-import MojiraBot from '../MojiraBot';
+import MojiraBot from '../MojiraBot.js';
+import { LoggerUtil } from '../util/LoggerUtil.js';
 
 export default abstract class Task {
 	private static maxId = 0;
@@ -20,7 +21,7 @@ export default abstract class Task {
 				this.initialized = true;
 				MojiraBot.logger.info( `Initialized ${ this.asString() }` );
 			} catch ( error ) {
-				MojiraBot.logger.error( `Could not initialize ${ this.asString() }`, error );
+				MojiraBot.logger.error( `Could not initialize ${ this.asString() }. ${ LoggerUtil.shortenJiraError( error ) }` );
 			}
 		}
 

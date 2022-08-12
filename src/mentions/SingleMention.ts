@@ -1,9 +1,8 @@
-import { TextBasedChannels, MessageEmbed, Util } from 'discord.js';
-import moment from 'moment';
-import MojiraBot from '../MojiraBot';
-import { ChannelConfigUtil } from '../util/ChannelConfigUtil';
-import { MarkdownUtil } from '../util/MarkdownUtil';
-import { Mention } from './Mention';
+import { EmbedBuilder, escapeMarkdown, TextBasedChannels } from 'discord.js';
+import MojiraBot from '../MojiraBot.js';
+import { MarkdownUtil } from '../util/MarkdownUtil.js';
+import { Mention } from './Mention.js';
+import { ChannelConfigUtil } from '../util/ChannelConfigUtil.js';
 
 export class SingleMention extends Mention {
 	private ticket: string;
@@ -16,7 +15,7 @@ export class SingleMention extends Mention {
 		this.channel = channel;
 	}
 
-	public async getEmbed(): Promise<MessageEmbed> {
+	public async getEmbed(): Promise<EmbedBuilder> {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		let ticketResult: any;
 
@@ -51,7 +50,7 @@ export class SingleMention extends Mention {
 		let status = ticketResult.fields.status.name;
 		let largeStatus = false;
 		if ( ticketResult.fields.resolution ) {
-			const resolutionDate = moment( ticketResult.fields.resolutiondate ).fromNow();
+			const resolutionDate = MarkdownUtil.timestamp( new Date( ticketResult.fields.resolutiondate ), 'R' );
 			status = `Resolved as **${ ticketResult.fields.resolution.name }** ${ resolutionDate }`;
 
 			if ( ticketResult.fields.resolution.id === '3' ) {
@@ -84,20 +83,16 @@ export class SingleMention extends Mention {
 		// only show first two lines
 		description = description.split( '\n' ).slice( 0, 2 ).join( '\n' );
 
-		const embed = new MessageEmbed();
-
-		if ( ChannelConfigUtil.limitedInfo( this.channel ) ) {
-			embed.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ Util.escapeMarkdown( ticketResult.fields.summary ) }` ) )
+		const embed = new EmbedBuilder();
+    
+    embed.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ escapeMarkdown( ticketResult.fields.summary ) }` ) )
 				.setDescription( description.substring( 0, 1024 ) )
 				.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
 				.setColor( 'RED' );
-		} else {
+
+		if ( !ChannelConfigUtil.limitedInfo( this.channel ) ) {
 			embed.setAuthor( ticketResult.fields.reporter.displayName, ticketResult.fields.reporter.avatarUrls['48x48'], 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) )
-				.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ Util.escapeMarkdown( ticketResult.fields.summary ) }` ) )
-				.setDescription( description.substring( 0, 2048 ) )
-				.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
 				.addField( 'Status', status, !largeStatus )
-				.setColor( 'RED' );
 
 			// Assigned to, Reported by, Created on, Category, Resolution, Resolved on, Since version, (Latest) affected version, Fixed version(s)
 
@@ -109,7 +104,7 @@ export class SingleMention extends Mention {
 				embed.addField( 'Fix version' + ( fixVersions.length > 1 ? 's' : '' ), Util.escapeMarkdown( fixVersions.join( ', ' ) ), true );
 			}
 
-			if ( ticketResult.fields.assignee ) {
+      if ( ticketResult.fields.assignee ) {
 				embed.addField( 'Assignee', `[${ Util.escapeMarkdown( ticketResult.fields.assignee.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.assignee.name ) })`, true );
 			}
 
@@ -129,13 +124,66 @@ export class SingleMention extends Mention {
 			if ( ticketResult.fields.creator.key !== ticketResult.fields.reporter.key ) {
 				embed.addField( 'Created by', `[${ Util.escapeMarkdown( ticketResult.fields.creator.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.creator.name ) })`, true );
 			}
-
-			embed.addField( 'Created', moment( ticketResult.fields.created ).fromNow(), true );
-
+      
+      if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
+			const fixVersions = ticketResult.fields.fixVersions.map( v => v.name );
+			embed.addFields( {
+				name: 'Fix Version' + ( fixVersions.length > 1 ? 's' : '' ),
+				value: escapeMarkdown( fixVersions.join( ', ' ) ),
+				inline: true,
+			} );
 		}
 
-		return embed;
-	}
+		if ( ticketResult.fields.assignee ) {
+			embed.addFields( {
+				name: 'Assignee',
+				value: `[${ escapeMarkdown( ticketResult.fields.assignee.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.assignee.name ) })`,
+				inline: true,
+			} );
+		}
+
+		if ( ticketResult.fields.votes.votes ) {
+			embed.addFields( {
+				name: 'Votes',
+				value: ticketResult.fields.votes.votes.toString(),
+				inline: true,
+			} );
+		}
+
+		if ( ticketResult.fields.comment.total ) {
+			embed.addFields( {
+				name: 'Comments',
+				value: ticketResult.fields.comment.total.toString(),
+				inline: true,
+			} );
+		}
+
+		const duplicates = ticketResult.fields.issuelinks.filter( relation => relation.type.id === '10102' && relation.inwardIssue );
+		if ( duplicates.length ) {
+			embed.addFields( {
+				name: 'Duplicates',
+				value: duplicates.length.toString(),
+				inline: true,
+			} );
+		}
+
+		if ( ticketResult.fields.creator.key !== ticketResult.fields.reporter.key ) {
+			embed.addFields( {
+				name: 'Creator',
+				value: `[${ escapeMarkdown( ticketResult.fields.creator.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.creator.name ) })`,
+				inline: true,
+			} );
+		}
+
+		embed.addFields( {
+			name: 'Created',
+			value: MarkdownUtil.timestamp( new Date( ticketResult.fields.created ), 'R' ),
+			inline: true,
+		} );
+  }
+
+  return embed;
+}
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	private findThumbnail( attachments: any[] ): string {
@@ -152,7 +200,7 @@ export class SingleMention extends Mention {
 		}
 
 		return undefined;
-	}
+  }
 
 	private ensureLength( input: string ): string {
 		if ( input.length > 251 ) {

@@ -1,14 +1,13 @@
 import { MessageReaction, Snowflake, User } from 'discord.js';
-import BotConfig from '../../BotConfig';
-import DiscordEventHandler from '../EventHandler';
-import RequestEventHandler from '../request/RequestEventHandler';
-import RequestReopenEventHandler from '../request/RequestReopenEventHandler';
-import RequestResolveEventHandler from '../request/RequestResolveEventHandler';
-import RequestReactionRemovalEventHandler from '../request/RequestReactionRemovalEventHandler';
-import RoleSelectEventHandler from '../roles/RoleSelectEventHandler';
-import MentionDeleteEventHandler from '../mention/MentionDeleteEventHandler';
-import MojiraBot from '../../MojiraBot';
-import DiscordUtil from '../../util/DiscordUtil';
+import BotConfig from '../../BotConfig.js';
+import DiscordEventHandler from '../EventHandler.js';
+import RequestEventHandler from '../request/RequestEventHandler.js';
+import RequestReopenEventHandler from '../request/RequestReopenEventHandler.js';
+import RequestResolveEventHandler from '../request/RequestResolveEventHandler.js';
+import RequestReactionRemovalEventHandler from '../request/RequestReactionRemovalEventHandler.js';
+import RoleSelectEventHandler from '../roles/RoleSelectEventHandler.js';
+import MentionDeleteEventHandler from '../mention/MentionDeleteEventHandler.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
 
 export default class ReactionAddEventHandler implements DiscordEventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';
@@ -39,8 +38,6 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 
 		const message = await DiscordUtil.fetchMessage( reaction.message );
 
-		MojiraBot.logger.debug( `User ${ user.tag } reacted with ${ reaction.emoji } to message ${ message.id }` );
-
 		if ( BotConfig.roleGroups.find( g => g.message === message.id ) ) {
 			// Handle role selection
 			return this.roleSelectHandler.onEvent( reaction, user );
@@ -53,7 +50,7 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 		} else if ( BotConfig.request.logChannel.includes( message.channel.id ) ) {
 			// Handle reopening a user request
 			return this.requestReopenEventHandler.onEvent( reaction, user );
-		} else if ( reaction.message.author.id === this.botUserId && reaction.emoji.name === BotConfig.embedDeletionEmoji ) {
+		} else if ( reaction.message.author?.id === this.botUserId && reaction.emoji.name === BotConfig.embedDeletionEmoji ) {
 			// Handle deleting bot embed
 			return this.mentionDeleteEventHandler.onEvent( reaction, user );
 		}

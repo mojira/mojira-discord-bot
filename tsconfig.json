@@ -1,12 +1,15 @@
 {
     "compilerOptions": {
         "target": "ES2016",
-        "module": "commonjs",
+        "module": "es2020",
+        "moduleResolution": "node",
         "lib": [
-            "es2020"
+            "es2020",
+            "dom"
         ],
         "outDir": "./bin",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "strictNullChecks": true,
     },
     "exclude": [
         "node_modules"

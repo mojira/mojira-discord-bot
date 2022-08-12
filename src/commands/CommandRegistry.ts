@@ -1,13 +1,13 @@
-import BugCommand from './BugCommand';
-import HelpCommand from './HelpCommand';
-import PingCommand from './PingCommand';
-import MooCommand from './MooCommand';
-import MentionCommand from './MentionCommand';
-import PollCommand from './PollCommand';
-import SendCommand from './SendCommand';
-import SearchCommand from './SearchCommand';
-import ShutdownCommand from './ShutdownCommand';
-import TipsCommand from './TipsCommand';
+import BugCommand from './BugCommand.js';
+import HelpCommand from './HelpCommand.js';
+import PingCommand from './PingCommand.js';
+import MooCommand from './MooCommand.js';
+import MentionCommand from './MentionCommand.js';
+import PollCommand from './PollCommand.js';
+import SendCommand from './SendCommand.js';
+import SearchCommand from './SearchCommand.js';
+import ShutdownCommand from './ShutdownCommand.js';
+import TipsCommand from './TipsCommand.js';
 
 export default class CommandRegistry {
 	public static BUG_COMMAND = new BugCommand();

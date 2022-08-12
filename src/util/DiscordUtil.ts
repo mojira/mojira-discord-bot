@@ -1,33 +1,22 @@
-import MojiraBot from '../MojiraBot';
-import { TextChannel, Message, Channel, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage } from 'discord.js';
+import MojiraBot from '../MojiraBot.js';
+import { TextChannel, Message, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage, TextBasedChannel } from 'discord.js';
 
 export default class DiscordUtil {
-	public static async getChannel( channelId: Snowflake ): Promise<Channel> {
-		if ( MojiraBot.client.channels.cache.has( channelId ) ) {
-			return MojiraBot.client.channels.cache.get( channelId );
-		}
-
-		return await MojiraBot.client.channels.fetch( channelId );
+	public static async getChannel( channelId: Snowflake ): Promise<TextBasedChannel | undefined> {
+		const channel = await MojiraBot.client.channels.fetch( channelId );
+		return channel?.isTextBased() ? channel : undefined;
 	}
 
 	public static async getMessage( channel: TextChannel, messageId: Snowflake ): Promise<Message> {
-		if ( channel.messages.cache.has( messageId ) ) {
-			return channel.messages.cache.get( messageId );
-		}
-
 		return await channel.messages.fetch( messageId );
 	}
 
 	public static async getMember( guild: Guild, userId: Snowflake ): Promise<GuildMember> {
-		if ( guild.members.cache.has( userId ) ) {
-			return guild.members.cache.get( userId );
-		}
-
 		return await guild.members.fetch( userId );
 	}
 
 	public static async fetchMessage( message: Message | PartialMessage ): Promise<Message> {
-		if ( message.partial ) {
+		if ( message !== undefined && message.partial ) {
 			message = await message.fetch();
 		}
 		return message as Message;

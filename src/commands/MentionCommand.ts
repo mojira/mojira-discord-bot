@@ -1,8 +1,8 @@
-import { Message, MessageEmbed } from 'discord.js';
-import Command from './Command';
-import { MentionRegistry } from '../mentions/MentionRegistry';
-import BotConfig from '../BotConfig';
-import { ChannelConfigUtil } from '../util/ChannelConfigUtil';
+import { EmbedBuilder, Message } from 'discord.js';
+import Command from './Command.js';
+import { MentionRegistry } from '../mentions/MentionRegistry.js';
+import BotConfig from '../BotConfig.js';
+import { ChannelConfigUtil } from '../util/ChannelConfigUtil.js';
 
 export default class MentionCommand extends Command {
 	public static get ticketPattern(): string {
@@ -40,7 +40,7 @@ export default class MentionCommand extends Command {
 				.join( '\n' );
 		}
 
-		let ticketMatch: RegExpExecArray;
+		let ticketMatch: RegExpExecArray | null;
 		const ticketIdRegex = MentionCommand.getTicketIdRegex();
 		const ticketMatches: Set<string> = new Set();
 
@@ -56,7 +56,7 @@ export default class MentionCommand extends Command {
 
 		const mention = MentionRegistry.getMention( args, message.channel );
 
-		let embed: MessageEmbed;
+		let embed: EmbedBuilder;
 		try {
 			embed = await mention.getEmbed();
 		} catch ( jiraError ) {
@@ -71,7 +71,7 @@ export default class MentionCommand extends Command {
 
 		if ( embed === undefined ) return false;
 
-		embed.setFooter( message.author.tag, message.author.avatarURL() )
+		embed.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() ?? undefined } )
 			.setTimestamp( message.createdAt );
 
 		try {
