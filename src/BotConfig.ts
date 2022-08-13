@@ -110,8 +110,6 @@ export default class BotConfig {
 	private static token: string;
 	public static owners: Snowflake[];
 
-	public static guild: Snowflake;
-
 	public static homeChannel: Snowflake;
 
 	public static ticketUrlsCauseEmbed: boolean;
@@ -139,8 +137,6 @@ export default class BotConfig {
 		this.token = config.get( 'token' );
 		this.owners = getOrDefault( 'owners', [] );
 
-		this.guild = config.get( 'guild' );
-
 		this.homeChannel = config.get( 'homeChannel' );
 		this.ticketUrlsCauseEmbed = getOrDefault( 'ticketUrlsCauseEmbed', false );
 		this.quotedTicketsCauseEmbed = getOrDefault( 'quotedTicketsCauseEmbed', false );
@@ -165,7 +161,7 @@ export default class BotConfig {
 	public static async login( client: Client ): Promise<boolean> {
 		try {
 			await client.login( this.token );
-			await SlashCommandRegister.registerCommands( client, this.guild, this.token );
+			await SlashCommandRegister.registerCommands( client, this.token );
 		} catch ( err ) {
 			MojiraBot.logger.error( err );
 			return false;
