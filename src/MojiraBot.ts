@@ -17,6 +17,7 @@ import TaskScheduler from './tasks/TaskScheduler.js';
 import VersionFeedTask from './tasks/VersionFeedTask.js';
 import DiscordUtil from './util/DiscordUtil.js';
 import { RoleSelectionUtil } from './util/RoleSelectionUtil.js';
+import InteractionEventHandler from './events/interaction/InteractionEventHandler.js';
 
 /**
  * Core class of MojiraBot
@@ -218,6 +219,7 @@ export default class MojiraBot {
 			EventRegistry.add( new MessageEventHandler( this.botUser.id, internalChannels, requestLimits ) );
 			EventRegistry.add( new MessageUpdateEventHandler( this.botUser.id, internalChannels ) );
 			EventRegistry.add( new MessageDeleteEventHandler( this.botUser.id, internalChannels ) );
+			EventRegistry.add( new InteractionEventHandler( this.client ) );
 
 			// #region Schedule tasks.
 			// Filter feed tasks.

@@ -1,5 +1,5 @@
 import { EmbedBuilder, Message } from 'discord.js';
-import Command from './Command.js';
+import Command from './commandHandlers/Command.js';
 import { MentionRegistry } from '../mentions/MentionRegistry.js';
 import BotConfig from '../BotConfig.js';
 import DiscordUtil from '../util/DiscordUtil.js';
