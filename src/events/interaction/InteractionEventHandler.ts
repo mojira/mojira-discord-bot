@@ -14,8 +14,8 @@ export default class InteractionEventHandler implements EventHandler<'interactio
 	// This syntax is used to ensure that `this` refers to the `InteractionEventHandler` object
 	public onEvent = async ( interaction: Interaction ): Promise<void> => {
 		// Execute commands
-		if ( interaction.isCommand() ) {
-			const command = await this.botUser.commands.get( interaction.commandName );
+		if ( interaction.isChatInputCommand() ) {
+			const command = this.botUser.commands.get( interaction.commandName );
 
 			if ( !command ) return;
 

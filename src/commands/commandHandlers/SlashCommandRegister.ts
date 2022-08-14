@@ -2,7 +2,8 @@ import SlashCommand from './SlashCommand.js';
 import SlashCommandRegistry from './SlashCommandRegistry.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
-import { Client, Collection, ChatInputCommandInteraction, RESTPostAPIApplicationCommandsJSONBody } from 'discord.js';
+import { Client, Collection, RESTPostAPIApplicationCommandsJSONBody, ChatInputCommandInteraction } from 'discord.js';
+import { SlashCommandJsonData } from '../../types/discord.js';
 
 export default class SlashCommandRegister {
 	public static async registerCommands( client: Client, token: string ) {
@@ -16,8 +17,11 @@ export default class SlashCommandRegister {
 			for ( const commandName in SlashCommandRegistry ) {
 				const command = SlashCommandRegistry[commandName] as SlashCommand;
 
-				const JSON = {
-					data: command.slashCommandBuilder, async execute( interaction: ChatInputCommandInteraction ) {
+				// FIXME: This stores a function in a map, and could be refactored.
+				// E.g. we could only store the `command` here, and move the logic elsewhere. Does that work?
+				const jsonData: SlashCommandJsonData = {
+					data: command.slashCommandBuilder,
+					async execute( interaction: ChatInputCommandInteraction ) {
 						SlashCommand.logger.info( `User ${ interaction.user.tag } ran command ${ command.asString( interaction ) }` );
 						if ( command.checkPermission( await fetchedGuild.members.fetch( interaction.user ) ) ) {
 							if ( !await command.run( interaction ) ) {
@@ -29,8 +33,8 @@ export default class SlashCommandRegister {
 					},
 				};
 
-				client.commands.set( command.slashCommandBuilder.name, JSON );
-				commands.push( JSON.data.toJSON() );
+				client.commands.set( command.slashCommandBuilder.name, jsonData );
+				commands.push( jsonData.data.toJSON() );
 				SlashCommand.logger.info( `Registered command ${ commandName } for guild ${ fetchedGuild.name }` );
 			}
 

@@ -1,8 +1,12 @@
-import { Collection } from 'discord.js';
+import { ChatInputCommandInteraction, Collection, SlashCommandBuilder } from 'discord.js';
+
+export interface SlashCommandJsonData {
+	data: SlashCommandBuilder;
+	execute: ( interaction: ChatInputCommandInteraction ) => Promise<void>;
+}
 
 declare module 'discord.js' {
 	export interface Client {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		commands: Collection<unknown, any>
+		commands: Collection<string, SlashCommandJsonData>
 	}
 }
