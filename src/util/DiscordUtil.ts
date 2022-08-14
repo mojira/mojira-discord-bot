@@ -1,9 +1,9 @@
 import log4js from 'log4js';
 import MojiraBot from '../MojiraBot.js';
-import { TextChannel, Message, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage, TextBasedChannel } from 'discord.js';
+import { TextChannel, Message, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage, TextBasedChannel, ReplyMessageOptions } from 'discord.js';
 
 export default class DiscordUtil {
-  private static logger = log4js.getLogger( 'DiscordUtil' );
+	private static logger = log4js.getLogger( 'DiscordUtil' );
 
 	public static async getChannel( channelId: Snowflake ): Promise<TextBasedChannel | undefined> {
 		const channel = await MojiraBot.client.channels.fetch( channelId );
@@ -52,11 +52,12 @@ export default class DiscordUtil {
 		} );
 	}
 
-	public static async sendMentionMessage( origin: Message, content: MessageOptions ): Promise<void> {
+	public static async sendMentionMessage( origin: Message, content: ReplyMessageOptions ): Promise<void> {
 		try {
 			if ( origin.reference?.messageId ) {
 				const replyTo = await origin.fetchReference();
-				if ( replyTo === undefined || replyTo.deleted ) return;
+				if ( replyTo === undefined ) return;
+
 				if ( origin.mentions.users.first()?.id == replyTo.author.id ) {
 					await replyTo.reply( { ...content, allowedMentions: { repliedUser: true } } );
 				} else {
