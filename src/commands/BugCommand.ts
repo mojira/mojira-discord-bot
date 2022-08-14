@@ -54,7 +54,7 @@ export default class BugCommand extends SlashCommand {
 			.setTimestamp( interaction.createdAt );
 
 		try {
-			await interaction.reply( { embeds: [embed], ephemeral: true } );
+			await interaction.reply( { embeds: [embed] } );
 		} catch ( err ) {
 			Command.logger.error( err );
 			return false;

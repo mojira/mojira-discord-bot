@@ -4,7 +4,7 @@ import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class HelpCommand extends SlashCommand {
 	public readonly slashCommandBuilder = this.slashCommandBuilder
-		.setName( 'jira-help' )
+		.setName( 'help' )
 		.setDescription( 'Sends a help message.' );
 
 	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
@@ -17,7 +17,7 @@ export default class HelpCommand extends SlashCommand {
 
 					This bot is continuously being worked on and this will receive more features in the future.
 					It is not possible to invite this bot to other servers yet.
-					If you have any issues, feel free to ping violine1101.
+					If you have any issues, feel free to ping <@417403221863301130>.
 
 					(For help with the bug tracker or this Discord server, use \`!jira tips\`)`.replace( /\t/g, '' ) )
 				.addFields( {
