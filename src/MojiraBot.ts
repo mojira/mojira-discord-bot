@@ -50,6 +50,9 @@ export default class MojiraBot {
 			GatewayIntentBits.DirectMessageTyping,
 			GatewayIntentBits.MessageContent,
 		],
+		allowedMentions: {
+			parse: ['users'],
+		},
 	} );
 
 	private static running = false;
