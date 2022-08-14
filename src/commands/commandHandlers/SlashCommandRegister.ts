@@ -2,7 +2,7 @@ import SlashCommand from './SlashCommand.js';
 import SlashCommandRegistry from './SlashCommandRegistry.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
-import { Client, Collection, RESTPostAPIApplicationCommandsJSONBody, ChatInputCommandInteraction } from 'discord.js';
+import { Client, Collection, RESTPostAPIApplicationCommandsJSONBody, ChatInputCommandInteraction, GuildMember } from 'discord.js';
 import { SlashCommandJsonData } from '../../types/discord.js';
 
 export default class SlashCommandRegister {
@@ -23,7 +23,10 @@ export default class SlashCommandRegister {
 					data: command.slashCommandBuilder,
 					async execute( interaction: ChatInputCommandInteraction ) {
 						SlashCommand.logger.info( `User ${ interaction.user.tag } ran command ${ command.asString( interaction ) }` );
-						if ( command.checkPermission( await fetchedGuild.members.fetch( interaction.user ) ) ) {
+
+						const member = interaction.member instanceof GuildMember ? interaction.member : await fetchedGuild.members.fetch( interaction.user );
+
+						if ( command.checkPermission( member ) ) {
 							if ( !await command.run( interaction ) ) {
 								await interaction.reply( { content: 'An error occurred while running this command.', ephemeral: true } );
 							}
@@ -35,15 +38,15 @@ export default class SlashCommandRegister {
 
 				client.commands.set( command.slashCommandBuilder.name, jsonData );
 				commands.push( jsonData.data.toJSON() );
-				SlashCommand.logger.info( `Registered command ${ commandName } for guild ${ fetchedGuild.name }` );
+				SlashCommand.logger.info( `Registered command ${ commandName } for guild '${ fetchedGuild.name }'` );
 			}
 
 			const rest = new REST( { version: '9' } ).setToken( token );
 
 			if ( client.user != null ) {
 				rest.put( Routes.applicationGuildCommands( client.user.id, fetchedGuild.id ), { body: commands } )
-					.then( () => SlashCommand.logger.info( 'Successfully registered all slash commands.' ) )
-					.catch( error => SlashCommand.logger.error( 'An error occurred while registering slash commands', error ) );
+					.then( () => SlashCommand.logger.info( `Successfully registered all slash commands for guild '${ fetchedGuild.name }'.` ) )
+					.catch( error => SlashCommand.logger.error( `An error occurred while registering slash commands for guild '${ fetchedGuild.name }'`, error ) );
 			}
 		} );
 	}
