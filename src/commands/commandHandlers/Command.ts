@@ -1,6 +1,6 @@
 import { Message, GuildMember } from 'discord.js';
-import Permission from '../permissions/Permission.js';
-import PermissionRegistry from '../permissions/PermissionRegistry.js';
+import Permission from '../../permissions/Permission.js';
+import PermissionRegistry from '../../permissions/PermissionRegistry.js';
 import log4js from 'log4js';
 
 /**
@@ -26,7 +26,7 @@ export default abstract class Command {
 	 * @param messageText The text that came with the message
 	 */
 	public abstract test( messageText: string ): boolean | string | string[];
-	public abstract run( message: Message, args: string | string[] ): Promise<boolean>;
+	public abstract run( message: Message, args?: string | string[] ): Promise<boolean>;
 
-	public abstract asString( args: string | string[] ): string;
+	public abstract asString( args?: string | string[] ): string;
 }

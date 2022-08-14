@@ -12,6 +12,7 @@
     "lintfix": "eslint . --ext .ts --fix"
   },
   "dependencies": {
+    "@discordjs/rest": "^0.4.1",
     "config": "^3.3.6",
     "discord.js": "^14.2.0",
     "emoji-regex": "^10.1.0",

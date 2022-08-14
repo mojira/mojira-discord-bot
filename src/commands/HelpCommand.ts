@@ -1,12 +1,13 @@
-import { EmbedBuilder, Message } from 'discord.js';
-import PrefixCommand from './PrefixCommand.js';
+import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import BotConfig from '../BotConfig.js';
-import DiscordUtil from '../util/DiscordUtil.js';
+import SlashCommand from './commandHandlers/SlashCommand.js';
 
-export default class HelpCommand extends PrefixCommand {
-	public readonly aliases = ['help'];
+export default class HelpCommand extends SlashCommand {
+	public readonly slashCommandBuilder = this.slashCommandBuilder
+		.setName( 'help' )
+		.setDescription( 'Sends a help message.' );
 
-	public async run( message: Message ): Promise<boolean> {
+	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 		try {
 			const embed = new EmbedBuilder();
 			embed.setTitle( '<:mojira:821162280905211964> **MojiraBot help** <:mojira:821162280905211964>' )
@@ -16,37 +17,25 @@ export default class HelpCommand extends PrefixCommand {
 
 					This bot is continuously being worked on and this will receive more features in the future.
 					It is not possible to invite this bot to other servers yet.
-					If you have any issues, feel free to ping violine1101.
+					If you have any issues, feel free to ping <@417403221863301130>.
 
 					(For help with the bug tracker or this Discord server, use \`!jira tips\`)`.replace( /\t/g, '' ) )
 				.addFields( {
 					name: 'Bot Commands',
-					value: `\`!jira help\` - Sends this message.
+					value: `\`/help\` - Sends this message.
 					
-					\`!jira ping\` - Sends a message to check if the bot is running.
+					\`/ping\` - Sends a message to check if the bot is running.
 					
-					\`!jira search <text>\` - Searches for text and returns the results from the bug tracker.
+					\`/search <query>\` - Searches for text and returns the results from the bug tracker.
 					
-					\`!jira tips\` - Sends helpful info on how to use the bug tracker and this Discord server.`,
+					\`/tips\` - Sends helpful info on how to use the bug tracker and this Discord server.`,
 				} )
-				.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() ?? undefined } );
-			await DiscordUtil.sendMentionMessage( message, { embeds: [embed] } );
+				.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } );
+			await interaction.reply( { embeds: [embed], ephemeral: true } );
 		} catch {
 			return false;
 		}
 
-		if ( message.deletable ) {
-			try {
-				await message.delete();
-			} catch {
-				return true;
-			}
-		}
-
 		return true;
-	}
-
-	public asString(): string {
-		return '!jira help';
 	}
 }

@@ -3,6 +3,7 @@ import { Version2Client as JiraClient } from 'jira.js';
 import config from 'config';
 import MojiraBot from './MojiraBot.js';
 import { VersionChangeType } from './tasks/VersionFeedTask.js';
+import SlashCommandRegister from './commands/commandHandlers/SlashCommandRegister.js';
 
 function getOrDefault<T>( configPath: string, defaultValue: T ): T {
 	if ( !config.has( configPath ) ) MojiraBot.logger.debug( `config ${ configPath } not set, assuming default` );
@@ -165,6 +166,7 @@ export default class BotConfig {
 	public static async login( client: Client ): Promise<boolean> {
 		try {
 			await client.login( this.token );
+			await SlashCommandRegister.registerCommands( client, this.token );
 		} catch ( err ) {
 			MojiraBot.logger.error( err );
 			return false;
