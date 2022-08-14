@@ -50,16 +50,15 @@ export default class MojiraBot {
 			GatewayIntentBits.DirectMessageTyping,
 			GatewayIntentBits.MessageContent,
 		],
+		allowedMentions: {
+			parse: ['users'],
+		},
 	} );
 
 	private static running = false;
 	private static botUser: ClientUser;
 
-	public static jira = new JiraClient( {
-		host: 'https://bugs.mojang.com',
-		telemetry: false,
-		newErrorHandling: true,
-	} );
+	public static jira: JiraClient;
 
 	public static async start(): Promise<void> {
 		if ( this.running ) {
@@ -81,6 +80,7 @@ export default class MojiraBot {
 		} );
 
 		try {
+			BotConfig.jiraLogin();
 			const loginResult = await BotConfig.login( this.client );
 			if ( !loginResult || !this.client.user ) return;
 
