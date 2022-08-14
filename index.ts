@@ -1,6 +1,6 @@
-import * as log4js from 'log4js';
-import BotConfig from './src/BotConfig';
-import MojiraBot from './src/MojiraBot';
+import log4js from 'log4js';
+import BotConfig from './src/BotConfig.js';
+import MojiraBot from './src/MojiraBot.js';
 
 log4js.configure( {
 	appenders: {
@@ -41,8 +41,7 @@ try {
 		MojiraBot.logger.info( `Writing log to ${ logConfig.appenders.log[ 'filename' ] }` );
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-floating-promises
-	MojiraBot.start();
+	await MojiraBot.start();
 } catch ( err ) {
 	MojiraBot.logger.error( err );
 }

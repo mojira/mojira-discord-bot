@@ -1,7 +1,7 @@
 import { Message, GuildMember } from 'discord.js';
-import Permission from '../permissions/Permission';
-import PermissionRegistry from '../permissions/PermissionRegistry';
-import * as log4js from 'log4js';
+import Permission from '../permissions/Permission.js';
+import PermissionRegistry from '../permissions/PermissionRegistry.js';
+import log4js from 'log4js';
 
 /**
  * Interface for bot commands

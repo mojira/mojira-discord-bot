@@ -1,5 +1,5 @@
 import { Message } from 'discord.js';
-import PrefixCommand from './PrefixCommand';
+import PrefixCommand from './PrefixCommand.js';
 
 export default class PingCommand extends PrefixCommand {
 	public readonly aliases = ['ping', 'test'];

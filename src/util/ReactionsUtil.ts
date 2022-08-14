@@ -1,5 +1,5 @@
 import { Message } from 'discord.js';
-import * as log4js from 'log4js';
+import log4js from 'log4js';
 
 export class ReactionsUtil {
 	private static logger = log4js.getLogger( 'ReactionsUtil' );
@@ -8,14 +8,12 @@ export class ReactionsUtil {
 		if ( !reactions.length || message === undefined ) return;
 
 		const reaction = reactions.shift();
-
-		this.logger.debug( `Reacting to message ${ message.id } with ${ reaction }` );
+		if ( reaction === undefined ) return;
 
 		try {
 			await message.react( reaction );
-			this.logger.debug( `Reacted to message ${ message.id } with ${ reaction }` );
 		} catch ( err ) {
-			this.logger.error( err );
+			this.logger.warn( `Error while reacting to message ${ message.id }`, err );
 		}
 
 		await this.reactToMessage( message, reactions );

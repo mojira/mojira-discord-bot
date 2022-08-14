@@ -1,9 +1,9 @@
-import { EmbedField, Message, PartialMessage, Snowflake, TextChannel, User } from 'discord.js';
-import * as log4js from 'log4js';
-import BotConfig from '../BotConfig';
-import DiscordUtil from './DiscordUtil';
-import MentionCommand from '../commands/MentionCommand';
-import MojiraBot from '../MojiraBot';
+import { APIEmbedField, Message, PartialMessage, Snowflake, TextChannel, User } from 'discord.js';
+import log4js from 'log4js';
+import BotConfig from '../BotConfig.js';
+import DiscordUtil from './DiscordUtil.js';
+import MentionCommand from '../commands/MentionCommand.js';
+import MojiraBot from '../MojiraBot.js';
 
 interface OriginIds {
 	channelId: Snowflake;
@@ -13,11 +13,14 @@ interface OriginIds {
 export class RequestsUtil {
 	private static logger = log4js.getLogger( 'RequestsUtil' );
 
-	private static getOriginIdsFromField( field: EmbedField ): OriginIds | undefined {
+	private static getOriginIdsFromField( field: APIEmbedField ): OriginIds | undefined {
 		try {
 			const url = field.value;
 
-			const messageUrl = url.match( /\((.*)\)/ )[1];
+			const matches = url.match( /\((.*)\)/ );
+			if ( matches === null ) return undefined;
+
+			const messageUrl = matches[1];
 			const parts = messageUrl.split( '/' );
 
 			const channelId = parts[parts.length - 2] as Snowflake;
@@ -84,9 +87,9 @@ export class RequestsUtil {
 	}
 
 	// https://stackoverflow.com/a/3426956
-	public static getEmbedColor( resolver?: User ): 'BLUE' | number {
+	public static getEmbedColor( resolver?: User ): 'Blue' | number {
 		if ( !resolver ) {
-			return 'BLUE';
+			return 'Blue';
 		}
 		return this.hashCode( resolver.tag ) & 0x00FFFFFF;
 	}
@@ -108,6 +111,8 @@ export class RequestsUtil {
 				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ tickets.join( ',' ) })`,
 				fields: ['key'],
 			} );
+			if ( searchResults.issues === undefined ) return false;
+
 			const invalidTickets = searchResults.issues.map( ( { key } ) => key );
 			this.logger.debug( `Invalid tickets: [${ invalidTickets.join( ',' ) }]` );
 			return invalidTickets.length === 0;
@@ -126,6 +131,7 @@ export class RequestsUtil {
 
 		const tickets: string[] = [];
 		for ( const match of content.matchAll( regex ) ) {
+			if ( match.groups === undefined ) continue;
 			tickets.push( match.groups['ticketid'] );
 		}
 

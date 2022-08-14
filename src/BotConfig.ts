@@ -1,7 +1,7 @@
 import { Client, ColorResolvable, Snowflake } from 'discord.js';
 import config from 'config';
-import MojiraBot from './MojiraBot';
-import { VersionChangeType } from './tasks/VersionFeedTask';
+import MojiraBot from './MojiraBot.js';
+import { VersionChangeType } from './tasks/VersionFeedTask.js';
 
 function getOrDefault<T>( configPath: string, defaultValue: T ): T {
 	if ( !config.has( configPath ) ) MojiraBot.logger.debug( `config ${ configPath } not set, assuming default` );

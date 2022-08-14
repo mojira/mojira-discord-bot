@@ -1,7 +1,7 @@
 import { MessageReaction, TextChannel, User } from 'discord.js';
-import * as log4js from 'log4js';
-import DiscordUtil from '../../util/DiscordUtil';
-import EventHandler from '../EventHandler';
+import log4js from 'log4js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import EventHandler from '../EventHandler.js';
 
 export default class RequestReactionRemovalEventHandler implements EventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';
@@ -13,9 +13,12 @@ export default class RequestReactionRemovalEventHandler implements EventHandler<
 		const message = await DiscordUtil.fetchMessage( reaction.message );
 
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ message.id }'` );
-		const guildMember = message.guild.members.resolve( user );
+		const guild = message.guild;
+		if ( guild === null ) return;
 
-		if ( guildMember && !guildMember.permissionsIn( message.channel as TextChannel ).has( 'ADD_REACTIONS' ) ) {
+		const guildMember = guild.members.resolve( user );
+
+		if ( guildMember && !guildMember.permissionsIn( message.channel as TextChannel ).has( 'AddReactions' ) ) {
 			await reaction.users.remove( user );
 		}
 	};

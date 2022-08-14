@@ -1,8 +1,8 @@
 import { MessageReaction, User } from 'discord.js';
-import * as log4js from 'log4js';
-import BotConfig from '../../BotConfig';
-import DiscordUtil from '../../util/DiscordUtil';
-import EventHandler from '../EventHandler';
+import log4js from 'log4js';
+import BotConfig from '../../BotConfig.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import EventHandler from '../EventHandler.js';
 
 export default class RoleSelectEventHandler implements EventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';
@@ -11,9 +11,9 @@ export default class RoleSelectEventHandler implements EventHandler<'messageReac
 
 	// This syntax is used to ensure that `this` refers to the `RoleSelectEventHandler` object
 	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
-		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to role message` );
-
 		const group = BotConfig.roleGroups.find( searchedGroup => searchedGroup.message === reaction.message.id );
+		if ( group === undefined ) return;
+
 		const role = group.roles.find( searchedRole => searchedRole.emoji === reaction.emoji.id || searchedRole.emoji === reaction.emoji.name );
 
 		if ( !role ) {
@@ -25,7 +25,10 @@ export default class RoleSelectEventHandler implements EventHandler<'messageReac
 			return;
 		}
 
-		const member = await DiscordUtil.getMember( reaction.message.guild, user.id );
+		const guild = reaction.message.guild;
+		if ( guild === null ) return;
+
+		const member = await DiscordUtil.getMember( guild, user.id );
 
 		if ( group.radio ) {
 			// Remove other reactions.

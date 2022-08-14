@@ -1,22 +1,22 @@
-import { ChannelLogsQueryOptions, Client, ClientUser, Intents, Message, Snowflake, TextChannel } from 'discord.js';
-import * as log4js from 'log4js';
+import { Client, ClientUser, FetchMessagesOptions, GatewayIntentBits, Message, Partials, Snowflake, TextChannel } from 'discord.js';
+import log4js from 'log4js';
 import { Version2Client as JiraClient } from 'jira.js';
-import BotConfig from './BotConfig';
-import ErrorEventHandler from './events/discord/ErrorEventHandler';
-import EventRegistry from './events/EventRegistry';
-import MessageDeleteEventHandler from './events/message/MessageDeleteEventHandler';
-import MessageEventHandler from './events/message/MessageEventHandler';
-import MessageUpdateEventHandler from './events/message/MessageUpdateEventHandler';
-import ReactionAddEventHandler from './events/reaction/ReactionAddEventHandler';
-import ReactionRemoveEventHandler from './events/reaction/ReactionRemoveEventHandler';
-import RequestEventHandler from './events/request/RequestEventHandler';
-import RequestResolveEventHandler from './events/request/RequestResolveEventHandler';
-import FilterFeedTask from './tasks/FilterFeedTask';
-import CachedFilterFeedTask from './tasks/CachedFilterFeedTask';
-import TaskScheduler from './tasks/TaskScheduler';
-import VersionFeedTask from './tasks/VersionFeedTask';
-import DiscordUtil from './util/DiscordUtil';
-import { RoleSelectionUtil } from './util/RoleSelectionUtil';
+import BotConfig from './BotConfig.js';
+import ErrorEventHandler from './events/discord/ErrorEventHandler.js';
+import EventRegistry from './events/EventRegistry.js';
+import MessageDeleteEventHandler from './events/message/MessageDeleteEventHandler.js';
+import MessageEventHandler from './events/message/MessageEventHandler.js';
+import MessageUpdateEventHandler from './events/message/MessageUpdateEventHandler.js';
+import ReactionAddEventHandler from './events/reaction/ReactionAddEventHandler.js';
+import ReactionRemoveEventHandler from './events/reaction/ReactionRemoveEventHandler.js';
+import RequestEventHandler from './events/request/RequestEventHandler.js';
+import RequestResolveEventHandler from './events/request/RequestResolveEventHandler.js';
+import FilterFeedTask from './tasks/FilterFeedTask.js';
+import CachedFilterFeedTask from './tasks/CachedFilterFeedTask.js';
+import TaskScheduler from './tasks/TaskScheduler.js';
+import VersionFeedTask from './tasks/VersionFeedTask.js';
+import DiscordUtil from './util/DiscordUtil.js';
+import { RoleSelectionUtil } from './util/RoleSelectionUtil.js';
 
 /**
  * Core class of MojiraBot
@@ -28,22 +28,31 @@ export default class MojiraBot {
 	public static logger = log4js.getLogger( 'MojiraBot' );
 
 	public static client: Client = new Client( {
-		partials: ['MESSAGE', 'REACTION', 'USER'],
-		intents: [
-			Intents.FLAGS.GUILDS,
-			Intents.FLAGS.GUILD_BANS,
-			Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
-			Intents.FLAGS.GUILD_INTEGRATIONS,
-			Intents.FLAGS.GUILD_WEBHOOKS,
-			Intents.FLAGS.GUILD_INVITES,
-			Intents.FLAGS.GUILD_VOICE_STATES,
-			Intents.FLAGS.GUILD_MESSAGES,
-			Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-			Intents.FLAGS.GUILD_MESSAGE_TYPING,
-			Intents.FLAGS.DIRECT_MESSAGES,
-			Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
-			Intents.FLAGS.DIRECT_MESSAGE_TYPING,
+		partials: [
+			Partials.Message,
+			Partials.Reaction,
+			Partials.User,
 		],
+		intents: [
+			// TODO: We might not need all of these intents
+			GatewayIntentBits.Guilds,
+			GatewayIntentBits.GuildBans,
+			GatewayIntentBits.GuildEmojisAndStickers,
+			GatewayIntentBits.GuildIntegrations,
+			GatewayIntentBits.GuildWebhooks,
+			GatewayIntentBits.GuildInvites,
+			GatewayIntentBits.GuildVoiceStates,
+			GatewayIntentBits.GuildMessages,
+			GatewayIntentBits.GuildMessageReactions,
+			GatewayIntentBits.GuildMessageTyping,
+			GatewayIntentBits.DirectMessages,
+			GatewayIntentBits.DirectMessageReactions,
+			GatewayIntentBits.DirectMessageTyping,
+			GatewayIntentBits.MessageContent,
+		],
+		allowedMentions: {
+			parse: ['users'],
+		},
 	} );
 
 	private static running = false;
@@ -124,7 +133,7 @@ export default class MojiraBot {
 							let continueSearch = true;
 
 							while ( continueSearch ) {
-								const options: ChannelLogsQueryOptions = { limit: 50 };
+								const options: FetchMessagesOptions = { limit: 50 };
 								if ( lastId ) {
 									options.before = lastId;
 								}
@@ -216,14 +225,17 @@ export default class MojiraBot {
 			// #region Schedule tasks.
 			// Filter feed tasks.
 			for ( const config of BotConfig.filterFeeds ) {
+				const channel = await DiscordUtil.getChannel( config.channel );
+				if ( channel === undefined ) continue;
+
 				if ( config.cached ) {
 					TaskScheduler.addTask(
-						new CachedFilterFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
+						new CachedFilterFeedTask( config, channel ),
 						config.interval
 					);
 				} else {
 					TaskScheduler.addTask(
-						new FilterFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
+						new FilterFeedTask( config, channel ),
 						config.interval
 					);
 				}
@@ -231,8 +243,11 @@ export default class MojiraBot {
 
 			// Version feed tasks.
 			for ( const config of BotConfig.versionFeeds ) {
+				const channel = await DiscordUtil.getChannel( config.channel );
+				if ( channel === undefined ) continue;
+
 				TaskScheduler.addTask(
-					new VersionFeedTask( config, await DiscordUtil.getChannel( config.channel ) ),
+					new VersionFeedTask( config, channel ),
 					config.interval
 				);
 			}
@@ -240,7 +255,7 @@ export default class MojiraBot {
 
 			// TODO Change to custom status when discord.js#3552 is merged into current version of package
 			try {
-				await this.botUser.setActivity( '!jira help' );
+				this.botUser.setActivity( '!jira help' );
 			} catch ( error ) {
 				MojiraBot.logger.error( error );
 			}
