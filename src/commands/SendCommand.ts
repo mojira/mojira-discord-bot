@@ -1,14 +1,14 @@
-import { Message, MessageEmbed, TextChannel, TextBasedChannels } from 'discord.js';
-import PrefixCommand from './PrefixCommand';
-import PermissionRegistry from '../permissions/PermissionRegistry';
-import Command from './Command';
+import { EmbedBuilder, Message, TextChannel, NewsChannel, TextBasedChannel } from 'discord.js';
+import PrefixCommand from './PrefixCommand.js';
+import PermissionRegistry from '../permissions/PermissionRegistry.js';
+import Command from './Command.js';
 
 export default class SendCommand extends PrefixCommand {
 	public readonly permissionLevel = PermissionRegistry.OWNER_PERMISSION;
 
 	public readonly aliases = ['send', 'message'];
 
-	private async sendSyntaxMessage( channel: TextBasedChannels, additionalInfo?: string ): Promise<void> {
+	private async sendSyntaxMessage( channel: TextBasedChannel, additionalInfo?: string ): Promise<void> {
 		try {
 			await channel.send(
 				`${ additionalInfo }Command syntax:
@@ -58,7 +58,7 @@ export default class SendCommand extends PrefixCommand {
 			Command.logger.error( err );
 		}
 
-		if ( sendChannel instanceof TextChannel ) {
+		if ( sendChannel instanceof TextChannel || sendChannel instanceof NewsChannel ) {
 			if ( messageType === 'text' ) {
 				try {
 					await sendChannel.send( content );
@@ -67,7 +67,7 @@ export default class SendCommand extends PrefixCommand {
 				}
 			} else if ( messageType === 'embed' ) {
 				try {
-					const embed = new MessageEmbed();
+					const embed = new EmbedBuilder();
 					embed.setDescription( content );
 					await sendChannel.send( { embeds: [embed] } );
 				} catch {

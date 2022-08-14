@@ -1,8 +1,8 @@
-import { Message, MessageEmbed } from 'discord.js';
-import Command from './Command';
-import PrefixCommand from './PrefixCommand';
-import { MentionRegistry } from '../mentions/MentionRegistry';
-import BotConfig from '../BotConfig';
+import { EmbedBuilder, Message } from 'discord.js';
+import Command from './Command.js';
+import PrefixCommand from './PrefixCommand.js';
+import { MentionRegistry } from '../mentions/MentionRegistry.js';
+import BotConfig from '../BotConfig.js';
 
 export default class BugCommand extends PrefixCommand {
 	public readonly aliases = ['bug', 'bugs', 'mention'];
@@ -25,7 +25,7 @@ export default class BugCommand extends PrefixCommand {
 
 		const mention = MentionRegistry.getMention( tickets );
 
-		let embed: MessageEmbed;
+		let embed: EmbedBuilder;
 		try {
 			embed = await mention.getEmbed();
 		} catch ( err ) {
@@ -39,7 +39,7 @@ export default class BugCommand extends PrefixCommand {
 
 		if ( embed === undefined ) return false;
 
-		embed.setFooter( message.author.tag, message.author.avatarURL() )
+		embed.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() ?? undefined } )
 			.setTimestamp( message.createdAt );
 
 		try {

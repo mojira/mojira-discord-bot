@@ -1,9 +1,9 @@
-import { EmojiResolvable, Message, MessageEmbed, TextChannel, User } from 'discord.js';
-import BotConfig from '../BotConfig';
-import DiscordUtil from '../util/DiscordUtil';
-import { RequestsUtil } from '../util/RequestsUtil';
-import MessageTask from './MessageTask';
-import * as log4js from 'log4js';
+import { EmbedBuilder, EmojiResolvable, Message, TextChannel, User } from 'discord.js';
+import BotConfig from '../BotConfig.js';
+import DiscordUtil from '../util/DiscordUtil.js';
+import { RequestsUtil } from '../util/RequestsUtil.js';
+import MessageTask from './MessageTask.js';
+import log4js from 'log4js';
 
 export default class ResolveRequestMessageTask extends MessageTask {
 	private static logger = log4js.getLogger( 'ResolveRequestMessageTask' );
@@ -47,21 +47,25 @@ export default class ResolveRequestMessageTask extends MessageTask {
 			if ( BotConfig.request.logChannel ) {
 				const logChannel = await DiscordUtil.getChannel( BotConfig.request.logChannel );
 				if ( logChannel && logChannel instanceof TextChannel ) {
-					const response = BotConfig.request.prependResponseMessageInLog ?
-						RequestsUtil.getResponseMessage( origin ) : '';
-
-					const log = new MessageEmbed()
-						.setColor( 'GREEN' )
-						.setAuthor( origin.author.tag, origin.author.avatarURL() )
+					const log = new EmbedBuilder()
+						.setColor( 'Green' )
+						.setAuthor( { name: origin.author.tag, iconURL: origin.author.avatarURL() ?? undefined } )
 						.setDescription( origin.content )
-						.addField( 'Message', `[Here](${ origin.url })`, true )
-						.addField( 'Channel', origin.channel.toString(), true )
-						.addField( 'Created', origin.createdAt.toUTCString(), false )
-						.setFooter( `${ this.user.tag } resolved as ${ this.emoji }`, this.user.avatarURL() )
+						.addFields(
+							{ name: 'Message', value: `[Here](${ origin.url })`, inline: true },
+							{ name: 'Channel', value: origin.channel.toString(), inline: true },
+							{ name: 'Created', value: origin.createdAt.toUTCString(), inline: false },
+						)
+						.setFooter( { text: `${ this.user.tag } resolved as ${ this.emoji }`, iconURL: this.user.avatarURL() ?? undefined } )
 						.setTimestamp( new Date() );
 
 					try {
-						await logChannel.send( { content: response, embeds: [log] } );
+						if ( BotConfig.request.prependResponseMessageInLog ) {
+							const response = RequestsUtil.getResponseMessage( origin );
+							await logChannel.send( { content: response, embeds: [log] } );
+						} else {
+							await logChannel.send( { embeds: [log] } );
+						}
 					} catch ( error ) {
 						ResolveRequestMessageTask.logger.error( error );
 					}

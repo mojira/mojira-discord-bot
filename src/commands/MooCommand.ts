@@ -1,7 +1,7 @@
 import { Message } from 'discord.js';
-import PrefixCommand from './PrefixCommand';
-import { SingleMention } from '../mentions/SingleMention';
-import { ReactionsUtil } from '../util/ReactionsUtil';
+import PrefixCommand from './PrefixCommand.js';
+import { SingleMention } from '../mentions/SingleMention.js';
+import { ReactionsUtil } from '../util/ReactionsUtil.js';
 
 export default class MooCommand extends PrefixCommand {
 	public readonly aliases = ['moo', 'cow'];
@@ -14,7 +14,7 @@ export default class MooCommand extends PrefixCommand {
 		try {
 			const mention = new SingleMention( 'MC-772' );
 			const embed = await mention.getEmbed();
-			embed.setFooter( message.author.tag, message.author.avatarURL() );
+			embed.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() ?? undefined } );
 			await message.channel.send( { embeds: [embed] } );
 			await ReactionsUtil.reactToMessage( message, ['🐮', '🐄', '🥛'] );
 		} catch {

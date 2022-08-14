@@ -1,18 +1,18 @@
 import { Message, Snowflake } from 'discord.js';
-import * as log4js from 'log4js';
-import BotConfig from '../../BotConfig';
-import AddProgressMessageTask from '../../tasks/AddProgressMessageTask';
-import TaskScheduler from '../../tasks/TaskScheduler';
-import DiscordUtil from '../../util/DiscordUtil';
-import EventHandler from '../EventHandler';
+import log4js from 'log4js';
+import BotConfig from '../../BotConfig.js';
+import AddProgressMessageTask from '../../tasks/AddProgressMessageTask.js';
+import TaskScheduler from '../../tasks/TaskScheduler.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import EventHandler from '../EventHandler.js';
 
-export default class InternalProgressEventHandler implements EventHandler<'message'> {
-	public readonly eventName = 'message';
+export default class InternalProgressEventHandler implements EventHandler<'messageCreate'> {
+	public readonly eventName = 'messageCreate';
 
 	private logger = log4js.getLogger( 'InternalProgressEventHandler' );
 
 	private isValidId( id: string ): id is Snowflake {
-		return !!id.match( /[0-9]{18}/ );
+		return /^\d{18,}$/.test( id );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `InternalProgressEventHandler` object

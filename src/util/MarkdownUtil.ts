@@ -1,4 +1,16 @@
 export class MarkdownUtil {
+	public static timestamp( timestamp: number | Date, style?: string ): string {
+		if ( timestamp instanceof Date ) {
+			timestamp = Math.floor( timestamp.getTime() / 1_000 );
+		}
+
+		if ( style ) {
+			return `<t:${ timestamp }:${ style }>`;
+		} else {
+			return `<t:${ timestamp }>`;
+		}
+	}
+
 	/**
 	 * Converts JIRA markdown to Discord markdown + headings
 	 * Partially adapted from https://github.com/kylefarris/J2M

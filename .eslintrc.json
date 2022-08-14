@@ -1,11 +1,7 @@
 {
 	"parser": "@typescript-eslint/parser",
 	"plugins": ["@typescript-eslint"],
-	"extends": [
-		"eslint:recommended",
-		"plugin:@typescript-eslint/eslint-recommended",
-		"plugin:@typescript-eslint/recommended"
-	],
+	"extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
 	"env": {
 		"node": true
 	},
@@ -20,6 +16,7 @@
 		"comma-style": "warn",
 		"curly": ["warn", "multi-line", "consistent"],
 		"dot-location": ["warn", "property"],
+		"eol-last": "warn",
 		"@typescript-eslint/indent": ["warn", "tab"],
 		"keyword-spacing": ["warn"],
 		"max-nested-callbacks": ["warn", { "max": 4 }],

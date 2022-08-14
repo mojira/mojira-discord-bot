@@ -1,7 +1,7 @@
 import { Client, ColorResolvable, Snowflake } from 'discord.js';
 import config from 'config';
-import MojiraBot from './MojiraBot';
-import { VersionChangeType } from './tasks/VersionFeedTask';
+import MojiraBot from './MojiraBot.js';
+import { VersionChangeType } from './tasks/VersionFeedTask.js';
 
 function getOrDefault<T>( configPath: string, defaultValue: T ): T {
 	if ( !config.has( configPath ) ) MojiraBot.logger.debug( `config ${ configPath } not set, assuming default` );
@@ -106,8 +106,7 @@ export default class BotConfig {
 	public static debug: boolean;
 	public static logDirectory: false | string;
 
-	// TODO: make private again when /crosspost api endpoint is implemented into discord.js
-	public static token: string;
+	private static token: string;
 	public static owners: Snowflake[];
 
 	public static homeChannel: Snowflake;
