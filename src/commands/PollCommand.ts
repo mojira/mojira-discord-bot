@@ -1,9 +1,9 @@
-import PrefixCommand from './PrefixCommand';
-import { Message, MessageEmbed, TextBasedChannel } from 'discord.js';
-import Command from './Command';
-import emojiRegex = require( 'emoji-regex/text.js' );
-import PermissionRegistry from '../permissions/PermissionRegistry';
-import { ReactionsUtil } from '../util/ReactionsUtil';
+import PrefixCommand from './PrefixCommand.js';
+import { EmbedBuilder, Message, TextBasedChannel } from 'discord.js';
+import Command from './Command.js';
+import emojiRegex from 'emoji-regex';
+import PermissionRegistry from '../permissions/PermissionRegistry.js';
+import { ReactionsUtil } from '../util/ReactionsUtil.js';
 
 interface PollOption {
 	emoji: string;
@@ -40,11 +40,11 @@ export default class PollCommand extends PrefixCommand {
 	}
 
 	private async sendPollMessage( message: Message, title: string, options: PollOption[] ): Promise<void> {
-		const embed = new MessageEmbed();
+		const embed = new EmbedBuilder();
 		embed.setTitle( 'Poll' )
-			.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() } )
+			.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() ?? undefined } )
 			.setTimestamp( message.createdAt )
-			.setColor( 'GREEN' );
+			.setColor( 'Green' );
 
 		if ( title ) {
 			embed.setDescription( title );
@@ -64,7 +64,7 @@ export default class PollCommand extends PrefixCommand {
 		}
 
 		for ( const option of options ) {
-			embed.addField( option.emoji, option.text, true );
+			embed.addFields( { name: option.emoji, value: option.text, inline: true } );
 		}
 
 		let poll = await message.channel.send( { embeds: [embed], allowedMentions: { parse: [] } } );

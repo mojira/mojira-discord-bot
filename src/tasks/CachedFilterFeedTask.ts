@@ -1,15 +1,15 @@
-import { MentionRegistry } from '../mentions/MentionRegistry';
-import { FilterFeedConfig } from '../BotConfig';
-import { AnyChannel } from 'discord.js';
-import * as log4js from 'log4js';
-import Task from './Task';
-import { NewsUtil } from '../util/NewsUtil';
-import MojiraBot from '../MojiraBot';
+import { MentionRegistry } from '../mentions/MentionRegistry.js';
+import { FilterFeedConfig } from '../BotConfig.js';
+import { Message, TextBasedChannel } from 'discord.js';
+import log4js from 'log4js';
+import Task from './Task.js';
+import { NewsUtil } from '../util/NewsUtil.js';
+import MojiraBot from '../MojiraBot.js';
 
 export default class CachedFilterFeedTask extends Task {
 	private static logger = log4js.getLogger( 'CachedFilterFeedTask' );
 
-	private channel: AnyChannel;
+	private channel: TextBasedChannel;
 	private jql: string;
 	private jqlRemoved?: string;
 	private filterFeedEmoji: string;
@@ -21,7 +21,7 @@ export default class CachedFilterFeedTask extends Task {
 
 	private	lastRun: number;
 
-	constructor( feedConfig: FilterFeedConfig, channel: AnyChannel ) {
+	constructor( feedConfig: FilterFeedConfig, channel: TextBasedChannel ) {
 		super();
 
 		this.channel = channel;
@@ -49,11 +49,6 @@ export default class CachedFilterFeedTask extends Task {
 	}
 
 	protected async run(): Promise<void> {
-		if ( !this.channel.isText() ) {
-			CachedFilterFeedTask.logger.error( `[${ this.id }] Expected ${ this.channel } to be a TextChannel` );
-			return;
-		}
-
 		let upcomingTickets: string[];
 
 		try {
@@ -74,8 +69,6 @@ export default class CachedFilterFeedTask extends Task {
 		}
 
 		if ( this.jqlRemoved !== undefined ) {
-			let removableTickets: string[];
-
 			try {
 				const ticketKeys = Array.from( this.knownTickets );
 				const previousTicketResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
@@ -83,19 +76,21 @@ export default class CachedFilterFeedTask extends Task {
 					fields: ['key'],
 				} );
 
+				let removableTickets: string[] = [];
+
 				if ( previousTicketResults?.issues ) {
 					removableTickets = previousTicketResults.issues.map( ( { key } ) => key );
 				} else {
 					CachedFilterFeedTask.logger.debug( 'No issues returned by JIRA' );
 				}
+
+				for ( const ticket of removableTickets ) {
+					this.knownTickets.delete( ticket );
+					CachedFilterFeedTask.logger.debug( `Removed ${ ticket } from known tickets for cached filter feed task ${ this.id }` );
+				}
 			} catch ( err ) {
 				CachedFilterFeedTask.logger.error( err );
 				return;
-			}
-
-			for ( const ticket of removableTickets ) {
-				this.knownTickets.delete( ticket );
-				CachedFilterFeedTask.logger.debug( `Removed ${ ticket } from known tickets for cached filter feed task ${ this.id }` );
 			}
 		}
 
@@ -107,18 +102,22 @@ export default class CachedFilterFeedTask extends Task {
 
 				let message = '';
 
+				let filterFeedMessage: Message;
+
 				if ( unknownTickets.length > 1 ) {
 					embed.setTitle(
 						this.title.replace( /\{\{num\}\}/g, unknownTickets.length.toString() )
 					);
+					filterFeedMessage = await this.channel.send( { embeds: [embed] } );
 				} else {
 					message = this.titleSingle;
+					filterFeedMessage = await this.channel.send( { content: message, embeds: [embed] } );
 				}
 
-				const filterFeedMessage = await this.channel.send( { content: message, embeds: [embed] } );
-
 				if ( this.publish ) {
-					await NewsUtil.publishMessage( filterFeedMessage );
+					NewsUtil.publishMessage( filterFeedMessage ).catch( err => {
+						CachedFilterFeedTask.logger.error( `[${ this.id }] Error when publishing message`, err );
+					} );
 				}
 
 				if ( this.filterFeedEmoji !== undefined ) {

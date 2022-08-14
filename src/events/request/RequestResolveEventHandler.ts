@@ -1,10 +1,10 @@
-import { MessageReaction, User } from 'discord.js';
-import * as log4js from 'log4js';
-import BotConfig, { PrependResponseMessageType } from '../../BotConfig';
-import ResolveRequestMessageTask from '../../tasks/ResolveRequestMessageTask';
-import TaskScheduler from '../../tasks/TaskScheduler';
-import { RequestsUtil } from '../../util/RequestsUtil';
-import EventHandler from '../EventHandler';
+import { EmbedBuilder, MessageReaction, User } from 'discord.js';
+import log4js from 'log4js';
+import BotConfig, { PrependResponseMessageType } from '../../BotConfig.js';
+import ResolveRequestMessageTask from '../../tasks/ResolveRequestMessageTask.js';
+import TaskScheduler from '../../tasks/TaskScheduler.js';
+import { RequestsUtil } from '../../util/RequestsUtil.js';
+import EventHandler from '../EventHandler.js';
 
 export default class RequestResolveEventHandler implements EventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';
@@ -19,14 +19,11 @@ export default class RequestResolveEventHandler implements EventHandler<'message
 
 	// This syntax is used to ensure that `this` refers to the `RequestResolveEventHandler` object
 	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
-		if ( reaction.message.author.id !== this.botUserId ) {
-			this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to non-bot message '${ reaction.message.id }'. Ignored` );
-			return;
-		}
+		if ( reaction.message?.author?.id !== this.botUserId ) return;
 
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ reaction.message.id }'` );
 
-		const embed = reaction.message.embeds[0].setColor( RequestsUtil.getEmbedColor( user ) );
+		const embed = new EmbedBuilder( reaction.message.embeds[0].data ).setColor( RequestsUtil.getEmbedColor( user ) );
 		await reaction.message.edit( { embeds: [embed] } );
 
 		if ( BotConfig.request.prependResponseMessage == PrependResponseMessageType.WhenResolved

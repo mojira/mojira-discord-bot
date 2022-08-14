@@ -1,8 +1,8 @@
-import { Message, Snowflake } from 'discord.js';
-import BotConfig from '../../BotConfig';
-import DiscordUtil from '../../util/DiscordUtil';
-import EventHandler from '../EventHandler';
-import RequestDeleteEventHandler from '../request/RequestDeleteEventHandler';
+import { Message, MessageType, Snowflake } from 'discord.js';
+import BotConfig from '../../BotConfig.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import EventHandler from '../EventHandler.js';
+import RequestDeleteEventHandler from '../request/RequestDeleteEventHandler.js';
 
 export default class MessageDeleteEventHandler implements EventHandler<'messageDelete'> {
 	public readonly eventName = 'messageDelete';
@@ -23,7 +23,7 @@ export default class MessageDeleteEventHandler implements EventHandler<'messageD
 
 		if (
 			// Don't handle non-default messages
-			( message.type !== 'DEFAULT' && message.type !== 'REPLY' )
+			( message.type !== MessageType.Default && message.type !== MessageType.Reply )
 
 			// Don't handle webhooks
 			|| message.webhookId

@@ -1,7 +1,8 @@
-import { Message, MessageEmbed } from 'discord.js';
-import Command from './Command';
-import { MentionRegistry } from '../mentions/MentionRegistry';
-import BotConfig from '../BotConfig';
+import { EmbedBuilder, Message } from 'discord.js';
+import Command from './Command.js';
+import { MentionRegistry } from '../mentions/MentionRegistry.js';
+import BotConfig from '../BotConfig.js';
+import DiscordUtil from '../util/DiscordUtil.js';
 
 export default class MentionCommand extends Command {
 	public static get ticketPattern(): string {
@@ -53,7 +54,7 @@ export default class MentionCommand extends Command {
 	public async run( message: Message, args: string[] ): Promise<boolean> {
 		const mention = MentionRegistry.getMention( args );
 
-		let embed: MessageEmbed;
+		let embed: EmbedBuilder;
 		try {
 			embed = await mention.getEmbed();
 		} catch ( jiraError ) {
@@ -68,11 +69,11 @@ export default class MentionCommand extends Command {
 
 		if ( embed === undefined ) return false;
 
-		embed.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() } )
+		embed.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() ?? undefined } )
 			.setTimestamp( message.createdAt );
 
 		try {
-			await message.channel.send( { embeds: [embed] } );
+			await DiscordUtil.sendMentionMessage( message, { embeds: [embed] } );
 		} catch ( err ) {
 			Command.logger.error( err );
 			return false;

@@ -1,5 +1,5 @@
 import { Client, ClientEvents } from 'discord.js';
-import EventHandler from './EventHandler';
+import EventHandler from './EventHandler.js';
 
 export default class EventRegistry {
 	private static client: Client;

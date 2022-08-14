@@ -1,5 +1,5 @@
-import MojiraBot from '../MojiraBot';
-import { LoggerUtil } from '../util/LoggerUtil';
+import MojiraBot from '../MojiraBot.js';
+import { LoggerUtil } from '../util/LoggerUtil.js';
 
 export default abstract class Task {
 	private static maxId = 0;

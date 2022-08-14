@@ -1,11 +1,11 @@
-import { Message, Snowflake } from 'discord.js';
-import BotConfig from '../../BotConfig';
-import CommandExecutor from '../../commands/CommandExecutor';
-import DiscordUtil from '../../util/DiscordUtil';
-import EventHandler from '../EventHandler';
-import RequestEventHandler from '../request/RequestEventHandler';
-import TestingRequestEventHandler from '../request/TestingRequestEventHandler';
-import InternalProgressEventHandler from '../internal/InternalProgressEventHandler';
+import { Message, MessageType, Snowflake } from 'discord.js';
+import BotConfig from '../../BotConfig.js';
+import CommandExecutor from '../../commands/CommandExecutor.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import EventHandler from '../EventHandler.js';
+import RequestEventHandler from '../request/RequestEventHandler.js';
+import TestingRequestEventHandler from '../request/TestingRequestEventHandler.js';
+import InternalProgressEventHandler from '../internal/InternalProgressEventHandler.js';
 
 export default class MessageEventHandler implements EventHandler<'messageCreate'> {
 	public readonly eventName = 'messageCreate';
@@ -36,7 +36,7 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 			|| message.author.id === this.botUserId
 
 			// Don't reply to non-default messages
-			|| ( message.type !== 'DEFAULT' && message.type !== 'REPLY' )
+			|| ( message.type !== MessageType.Default && message.type !== MessageType.Reply )
 		) return;
 
 		if ( BotConfig.request.channels && BotConfig.request.channels.includes( message.channel.id ) ) {

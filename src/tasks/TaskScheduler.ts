@@ -1,6 +1,6 @@
-import Task from './Task';
+import Task from './Task.js';
 import { Message, PartialMessage } from 'discord.js';
-import MessageTask from './MessageTask';
+import MessageTask from './MessageTask.js';
 
 export default class TaskScheduler {
 	private static readonly intervals: NodeJS.Timeout[] = [];
