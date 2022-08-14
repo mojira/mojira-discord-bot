@@ -12,7 +12,7 @@ export default class InternalProgressEventHandler implements EventHandler<'messa
 	private logger = log4js.getLogger( 'InternalProgressEventHandler' );
 
 	private isValidId( id: string ): id is Snowflake {
-		return /^[0-9]{18,}$/.test( id );
+		return /^\d{18,}$/.test( id );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `InternalProgressEventHandler` object
