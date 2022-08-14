@@ -2,6 +2,7 @@ import { EmbedBuilder, Message } from 'discord.js';
 import Command from './commandHandlers/Command.js';
 import { MentionRegistry } from '../mentions/MentionRegistry.js';
 import BotConfig from '../BotConfig.js';
+import DiscordUtil from '../util/DiscordUtil.js';
 
 export default class MentionCommand extends Command {
 	public static get ticketPattern(): string {
@@ -72,7 +73,7 @@ export default class MentionCommand extends Command {
 			.setTimestamp( message.createdAt );
 
 		try {
-			await message.channel.send( { embeds: [embed] } );
+			await DiscordUtil.sendMentionMessage( message, { embeds: [embed] } );
 		} catch ( err ) {
 			Command.logger.error( err );
 			return false;

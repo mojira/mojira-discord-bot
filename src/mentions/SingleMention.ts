@@ -28,6 +28,8 @@ export class SingleMention extends Mention {
 
 				if ( exception.status === 404 ) {
 					errorMessage = `${ this.ticket } doesn't seem to exist.`;
+				} else if ( exception.status === 403 ) {
+					errorMessage = `${ this.ticket } is private.`;
 				} else if ( exception.status === 401 ) {
 					errorMessage = `${ this.ticket } is private or has been deleted.`;
 				} else if ( exception?.data?.errorMessages ) {
