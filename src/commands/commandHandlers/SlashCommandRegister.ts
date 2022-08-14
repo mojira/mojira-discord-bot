@@ -43,7 +43,7 @@ export default class SlashCommandRegister {
 			if ( client.user != null ) {
 				rest.put( Routes.applicationGuildCommands( client.user.id, fetchedGuild.id ), { body: commands } )
 					.then( () => SlashCommand.logger.info( 'Successfully registered all slash commands.' ) )
-					.catch( SlashCommand.logger.error );
+					.catch( error => SlashCommand.logger.error( 'An error occurred while registering slash commands', error ) );
 			}
 		} );
 	}
