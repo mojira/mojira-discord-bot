@@ -254,7 +254,7 @@ export default class MojiraBot {
 
 			// TODO Change to custom status when discord.js#3552 is merged into current version of package
 			try {
-				this.botUser.setActivity( '!jira help' );
+				this.botUser.setActivity( '/help' );
 			} catch ( error ) {
 				MojiraBot.logger.error( error );
 			}
