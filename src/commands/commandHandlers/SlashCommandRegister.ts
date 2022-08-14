@@ -2,15 +2,14 @@ import SlashCommand from './SlashCommand.js';
 import SlashCommandRegistry from './SlashCommandRegistry.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
-import { Client, Collection, ChatInputCommandInteraction } from 'discord.js';
+import { Client, Collection, ChatInputCommandInteraction, RESTPostAPIApplicationCommandsJSONBody } from 'discord.js';
 
 export default class SlashCommandRegister {
 	public static async registerCommands( client: Client, token: string ) {
 		client.guilds.cache.forEach( async fetchedGuild => {
 			await fetchedGuild.fetch();
 
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const commands: any[] = [];
+			const commands: RESTPostAPIApplicationCommandsJSONBody[] = [];
 
 			client.commands = new Collection();
 
