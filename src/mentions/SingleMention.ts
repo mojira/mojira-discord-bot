@@ -1,15 +1,18 @@
-import { EmbedBuilder, escapeMarkdown } from 'discord.js';
+import { EmbedBuilder, escapeMarkdown, TextBasedChannel } from 'discord.js';
 import MojiraBot from '../MojiraBot.js';
 import { MarkdownUtil } from '../util/MarkdownUtil.js';
 import { Mention } from './Mention.js';
+import { ChannelConfigUtil } from '../util/ChannelConfigUtil.js';
 
 export class SingleMention extends Mention {
 	private ticket: string;
+	private channel: TextBasedChannel;
 
-	constructor( ticket: string ) {
+	constructor( ticket: string, channel: TextBasedChannel ) {
 		super();
 
 		this.ticket = ticket;
+		this.channel = channel;
 	}
 
 	public async getEmbed(): Promise<EmbedBuilder> {
@@ -83,11 +86,10 @@ export class SingleMention extends Mention {
 		description = description.split( '\n' ).slice( 0, 2 ).join( '\n' );
 
 		const embed = new EmbedBuilder();
-		embed.setAuthor( { name: ticketResult.fields.reporter.displayName, iconURL: ticketResult.fields.reporter.avatarUrls['48x48'], url: 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) } )
-			.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ escapeMarkdown( ticketResult.fields.summary ) }` ) )
+
+		embed.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ escapeMarkdown( ticketResult.fields.summary ) }` ) )
 			.setDescription( description.substring( 0, 2048 ) )
 			.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
-			.addFields( { name: 'Status', value: status, inline: !largeStatus } )
 			.setColor( 'Red' );
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -107,69 +109,75 @@ export class SingleMention extends Mention {
 			return undefined;
 		}
 
-		// Assigned to, Reported by, Created on, Category, Resolution, Resolved on, Since version, (Latest) affected version, Fixed version(s)
+		if ( !ChannelConfigUtil.limitedInfo( this.channel ) ) {
+			embed.setAuthor( { name: ticketResult.fields.reporter.displayName, iconURL: ticketResult.fields.reporter.avatarUrls['48x48'], url: 'https://bugs.mojang.com/secure/ViewProfile.jspa?name=' + encodeURIComponent( ticketResult.fields.reporter.name ) } )
+				.addFields( { name: 'Status', value: status, inline: !largeStatus } );
 
-		const thumbnail = findThumbnail( ticketResult.fields.attachment );
-		if ( thumbnail !== undefined ) embed.setThumbnail( thumbnail );
+			// Assigned to, Reported by, Created on, Category, Resolution, Resolved on, Since version, (Latest) affected version, Fixed version(s)
 
-		if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
-			const fixVersions = ticketResult.fields.fixVersions.map( v => v.name );
+			const thumbnail = findThumbnail( ticketResult.fields.attachment );
+			if ( thumbnail !== undefined ) embed.setThumbnail( thumbnail );
+
+			if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
+				const fixVersions = ticketResult.fields.fixVersions.map( v => v.name );
+				embed.addFields( {
+					name: 'Fix Version' + ( fixVersions.length > 1 ? 's' : '' ),
+					value: escapeMarkdown( fixVersions.join( ', ' ) ),
+					inline: true,
+				} );
+			}
+
+			if ( ticketResult.fields.assignee ) {
+				embed.addFields( {
+					name: 'Assignee',
+					value: `[${ escapeMarkdown( ticketResult.fields.assignee.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.assignee.name ) })`,
+					inline: true,
+				} );
+			}
+
+			if ( ticketResult.fields.votes.votes ) {
+				embed.addFields( {
+					name: 'Votes',
+					value: ticketResult.fields.votes.votes.toString(),
+					inline: true,
+				} );
+			}
+
+			if ( ticketResult.fields.comment.total ) {
+				embed.addFields( {
+					name: 'Comments',
+					value: ticketResult.fields.comment.total.toString(),
+					inline: true,
+				} );
+			}
+
+			const duplicates = ticketResult.fields.issuelinks.filter( relation => relation.type.id === '10102' && relation.inwardIssue );
+			if ( duplicates.length ) {
+				embed.addFields( {
+					name: 'Duplicates',
+					value: duplicates.length.toString(),
+					inline: true,
+				} );
+			}
+
+			if ( ticketResult.fields.creator.key !== ticketResult.fields.reporter.key ) {
+				embed.addFields( {
+					name: 'Creator',
+					value: `[${ escapeMarkdown( ticketResult.fields.creator.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.creator.name ) })`,
+					inline: true,
+				} );
+			}
+
 			embed.addFields( {
-				name: 'Fix Version' + ( fixVersions.length > 1 ? 's' : '' ),
-				value: escapeMarkdown( fixVersions.join( ', ' ) ),
+				name: 'Created',
+				value: MarkdownUtil.timestamp( new Date( ticketResult.fields.created ), 'R' ),
 				inline: true,
 			} );
 		}
-
-		if ( ticketResult.fields.assignee ) {
-			embed.addFields( {
-				name: 'Assignee',
-				value: `[${ escapeMarkdown( ticketResult.fields.assignee.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.assignee.name ) })`,
-				inline: true,
-			} );
-		}
-
-		if ( ticketResult.fields.votes.votes ) {
-			embed.addFields( {
-				name: 'Votes',
-				value: ticketResult.fields.votes.votes.toString(),
-				inline: true,
-			} );
-		}
-
-		if ( ticketResult.fields.comment.total ) {
-			embed.addFields( {
-				name: 'Comments',
-				value: ticketResult.fields.comment.total.toString(),
-				inline: true,
-			} );
-		}
-
-		const duplicates = ticketResult.fields.issuelinks.filter( relation => relation.type.id === '10102' && relation.inwardIssue );
-		if ( duplicates.length ) {
-			embed.addFields( {
-				name: 'Duplicates',
-				value: duplicates.length.toString(),
-				inline: true,
-			} );
-		}
-
-		if ( ticketResult.fields.creator.key !== ticketResult.fields.reporter.key ) {
-			embed.addFields( {
-				name: 'Creator',
-				value: `[${ escapeMarkdown( ticketResult.fields.creator.displayName ) }](https://bugs.mojang.com/secure/ViewProfile.jspa?name=${ encodeURIComponent( ticketResult.fields.creator.name ) })`,
-				inline: true,
-			} );
-		}
-
-		embed.addFields( {
-			name: 'Created',
-			value: MarkdownUtil.timestamp( new Date( ticketResult.fields.created ), 'R' ),
-			inline: true,
-		} );
 
 		return embed;
 	}
+
 	private ensureLength( input: string ): string {
 		if ( input.length > 251 ) {
 			return input.substring( 0, 251 ) + '...';

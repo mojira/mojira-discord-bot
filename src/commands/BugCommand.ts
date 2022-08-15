@@ -2,6 +2,7 @@ import { EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
 import Command from './commandHandlers/Command.js';
 import { MentionRegistry } from '../mentions/MentionRegistry.js';
 import BotConfig from '../BotConfig.js';
+import { ChannelConfigUtil } from '../util/ChannelConfigUtil.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class BugCommand extends SlashCommand {
@@ -15,6 +16,10 @@ export default class BugCommand extends SlashCommand {
 		);
 
 	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
+		if ( interaction.channel === null ) return false;
+
+		if ( ChannelConfigUtil.commandsDisabled( interaction.channel ) ) return false;
+
 		const tickets = interaction.options.getString( 'ticket-id' )?.split( /\s+/ig );
 
 		if ( tickets == null ) return false;
@@ -33,7 +38,7 @@ export default class BugCommand extends SlashCommand {
 			}
 		}
 
-		const mention = MentionRegistry.getMention( tickets );
+		const mention = MentionRegistry.getMention( tickets, interaction.channel );
 
 		let embed: EmbedBuilder;
 		try {
