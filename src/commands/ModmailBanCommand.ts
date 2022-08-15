@@ -1,39 +1,39 @@
-import { Message } from 'discord.js';
-import BotConfig from '../BotConfig';
-import PermissionRegistry from '../permissions/PermissionRegistry';
-import PrefixCommand from './PrefixCommand';
+import { ChatInputCommandInteraction } from 'discord.js';
+import BotConfig from '../BotConfig.js';
+import PermissionRegistry from '../permissions/PermissionRegistry.js';
+import SlashCommand from './commandHandlers/SlashCommand.js';
 
-export default class ModmailBanCommand extends PrefixCommand {
+export default class ModmailBanCommand extends SlashCommand {
+	public readonly slashCommandBuilder = this.slashCommandBuilder
+		.setName( 'modmailban' )
+		.setDescription( 'Ban a user from using the modmail system.' )
+		.addUserOption( option =>
+			option.setName( 'user' )
+				.setDescription( 'The user to ban.' )
+				.setRequired( true )
+		);
+
 	public readonly permissionLevel = PermissionRegistry.ADMIN_PERMISSION;
 
-	public readonly aliases = ['modmailban', 'ban'];
+	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 
-	public async run( message: Message, args: string ): Promise<boolean> {
-		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_bans (\'user\' varchar)' );
-
-		if ( !args.length ) {
-			return false;
-		}
+		const args = interaction.options.getUser( 'user', true );
 
 		try {
 			BotConfig.database.prepare(
 				`INSERT INTO modmail_bans (user)
 				VALUES (?)`
-			).run( args.replace( '!', '' ) );
+			).run( args.id );
 		} catch {
 			return false;
 		}
 
 		try {
-			await message.react( '✅' );
+			await interaction.reply( `Banned user ${ args.toString() } from ModMail.` );
 		} catch {
 			return false;
 		}
 
 		return true;
-	}
-
-	public asString( args: string ): string {
-		return `!jira modmailban ${ args.replace( '!', '' ) }`;
 	}
 }

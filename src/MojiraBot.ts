@@ -86,6 +86,9 @@ export default class MojiraBot {
 			const loginResult = await BotConfig.login( this.client );
 			if ( !loginResult || !this.client.user ) return;
 
+			BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_bans (\'user\' varchar)' );
+			BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_threads (\'user\' varchar, \'thread\' varchar)' );
+
 			this.botUser = this.client.user;
 			this.running = true;
 			this.logger.info( `MojiraBot has been started successfully. Logged in as ${ this.botUser.tag }` );
@@ -106,33 +109,6 @@ export default class MojiraBot {
 					} catch ( err ) {
 						this.logger.error( err );
 					}
-				}
-			}
-
-			if ( BotConfig.modmailEnabled && BotConfig.modmailChannel ) {
-				try {
-					const modmailChannel = await DiscordUtil.getChannel( BotConfig.modmailChannel );
-					if ( modmailChannel instanceof TextChannel ) {
-						const allMessages: Message[] = [];
-						let lastId: Snowflake | undefined;
-						let continueSearch = true;
-
-						while ( continueSearch ) {
-							const options: ChannelLogsQueryOptions = { limit: 50 };
-							if ( lastId ) {
-								options.before = lastId;
-							}
-							const messages = await modmailChannel.messages.fetch( options );
-							allMessages.push( ...messages.values() );
-							lastId = messages.last()?.id;
-							if ( messages.size !== 50 || !lastId ) {
-								continueSearch = false;
-							}
-						}
-						this.logger.info( `Fetched ${ allMessages.length } messages from "${ modmailChannel.name }"` );
-					}
-				} catch ( error ) {
-					this.logger.error( error );
 				}
 			}
 

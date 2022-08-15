@@ -1,29 +1,31 @@
-import { Message } from 'discord.js';
-import BotConfig from '../BotConfig';
-import PermissionRegistry from '../permissions/PermissionRegistry';
-import PrefixCommand from './PrefixCommand';
+import { ChatInputCommandInteraction } from 'discord.js';
+import BotConfig from '../BotConfig.js';
+import PermissionRegistry from '../permissions/PermissionRegistry.js';
+import SlashCommand from './commandHandlers/SlashCommand.js';
 
-export default class ModmailUnbanCommand extends PrefixCommand {
+export default class ModmailUnbanCommand extends SlashCommand {
+	public readonly slashCommandBuilder = this.slashCommandBuilder
+		.setName( 'modmailunban' )
+		.setDescription( 'Unbans a user from using the modmail system.' )
+		.addUserOption( option =>
+			option.setName( 'user' )
+				.setDescription( 'The user to unban.' )
+				.setRequired( true )
+		);
+
 	public readonly permissionLevel = PermissionRegistry.ADMIN_PERMISSION;
 
-	public readonly aliases = ['modmailunban', 'unban'];
+	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 
-	public async run( message: Message, args: string ): Promise<boolean> {
-		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_bans (\'user\' varchar)' );
-
-		if ( !args.length ) {
-			return false;
-		}
+		const args = interaction.options.getUser( 'user', true );
 
 		try {
 			const unban = BotConfig.database.prepare(
 				`DELETE FROM modmail_bans
 				WHERE user = ?`
-			).run( args.replace( '!', '' ) );
+			).run( args.id );
 			if ( unban.changes == 0 ) {
-				await message.channel.send( 'User was never banned.' );
-
-				await message.react( '☑️' );
+				await interaction.reply( { content: 'User was never banned.', ephemeral: true } );
 
 				return true;
 			}
@@ -32,15 +34,11 @@ export default class ModmailUnbanCommand extends PrefixCommand {
 		}
 
 		try {
-			await message.react( '✅' );
+			await interaction.reply( `${ args.toString() } has been unbanned from using modmail` );
 		} catch {
 			return false;
 		}
 
 		return true;
-	}
-
-	public asString( args: string ): string {
-		return `!jira modmailunban ${ args.replace( '!', '' ) }`;
 	}
 }

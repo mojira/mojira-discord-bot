@@ -30,8 +30,6 @@ export default class PollCommand extends SlashCommand {
 
 	public readonly permissionLevel = PermissionRegistry.MODERATOR_PERMISSION;
 
-	public readonly aliases = ['poll', 'vote'];
-
 	private async sendSyntaxMessage( interaction: ChatInputCommandInteraction, additionalInfo?: string ): Promise<void> {
 		try {
 			if ( additionalInfo != undefined ) {
