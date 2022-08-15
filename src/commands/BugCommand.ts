@@ -18,7 +18,7 @@ export default class BugCommand extends SlashCommand {
 	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 		if ( interaction.channel === null ) return false;
 
-		if ( ChannelConfigUtil.mentionsDisabled( interaction.channel ) ) return false;
+		if ( ChannelConfigUtil.commandsDisabled( interaction.channel ) ) return false;
 
 		const tickets = interaction.options.getString( 'ticket-id' )?.split( /\s+/ig );
 
