@@ -27,4 +27,13 @@ export class ChannelConfigUtil {
 		}
 		return false;
 	}
+
+	// Indicates in the channel's description that searches done by /search will not be ephemeral.
+	// Tag: ~public-search
+	public static publicSearch( channel: TextBasedChannel ): boolean {
+		if ( channel instanceof TextChannel || channel instanceof NewsChannel ) {
+			return channel.topic != null && channel.topic.includes( '~public-search' );
+		}
+		return false;
+	}
 }

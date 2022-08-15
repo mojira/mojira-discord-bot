@@ -6,7 +6,6 @@ import EventHandler from '../EventHandler.js';
 import RequestEventHandler from '../request/RequestEventHandler.js';
 import TestingRequestEventHandler from '../request/TestingRequestEventHandler.js';
 import InternalProgressEventHandler from '../internal/InternalProgressEventHandler.js';
-import { ChannelConfigUtil } from '../../util/ChannelConfigUtil.js';
 
 export default class MessageEventHandler implements EventHandler<'messageCreate'> {
 	public readonly eventName = 'messageCreate';
@@ -50,8 +49,6 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 			// This message is in an internal channel
 			await this.internalProgressEventHandler.onEvent( message );
 		}
-
-		if ( ChannelConfigUtil.commandsDisabled( message.channel ) && message.content.startsWith( '!jira' ) ) return;
 
 		await CommandExecutor.checkCommands( message );
 	};

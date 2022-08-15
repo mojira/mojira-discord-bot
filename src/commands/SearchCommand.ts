@@ -2,6 +2,7 @@ import { EmbedBuilder, escapeMarkdown, ChatInputCommandInteraction } from 'disco
 import SlashCommand from './commandHandlers/SlashCommand.js';
 import BotConfig from '../BotConfig.js';
 import MojiraBot from '../MojiraBot.js';
+import { ChannelConfigUtil } from '../util/ChannelConfigUtil.js';
 
 export default class SearchCommand extends SlashCommand {
 	public readonly slashCommandBuilder = this.slashCommandBuilder
@@ -46,7 +47,11 @@ export default class SearchCommand extends SlashCommand {
 			const escapedJql = encodeURIComponent( searchFilter ).replace( /\(/g, '%28' ).replace( /\)/g, '%29' );
 			embed.setDescription( `__[See all results](https://bugs.mojang.com/issues/?jql=${ escapedJql })__` );
 
-			await interaction.reply( { embeds: [embed], ephemeral: true } );
+			if ( interaction.channel !== null && ChannelConfigUtil.publicSearch( interaction.channel ) ) {
+				await interaction.reply( { embeds: [embed], ephemeral: false } );
+			} else {
+				await interaction.reply( { embeds: [embed], ephemeral: true } );
+			}
 		} catch {
 			const embed = new EmbedBuilder();
 			embed.setTitle( `No results found for "${ escapeMarkdown( plainArgs ) }"` );

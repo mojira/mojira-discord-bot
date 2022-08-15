@@ -10,7 +10,8 @@ export default class MooCommand extends SlashCommand {
 
 	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 		try {
-			const mention = new SingleMention( 'MC-772', message.channel );
+			if ( interaction.channel === null ) return false;
+			const mention = new SingleMention( 'MC-772', interaction.channel );
 			const embed = await mention.getEmbed();
 			embed.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } );
 			const message = await interaction.reply( { embeds: [embed], fetchReply: true } );

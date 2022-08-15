@@ -16,7 +16,9 @@ export default class BugCommand extends SlashCommand {
 		);
 
 	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
-    if ( ChannelConfigUtil.mentionsDisabled( message.channel ) ) return false;
+		if ( interaction.channel === null ) return false;
+
+		if ( ChannelConfigUtil.mentionsDisabled( interaction.channel ) ) return false;
 
 		const tickets = interaction.options.getString( 'ticket-id' )?.split( /\s+/ig );
 
@@ -36,7 +38,7 @@ export default class BugCommand extends SlashCommand {
 			}
 		}
 
-		const mention = MentionRegistry.getMention( tickets, message.channel );
+		const mention = MentionRegistry.getMention( tickets, interaction.channel );
 
 		let embed: EmbedBuilder;
 		try {
