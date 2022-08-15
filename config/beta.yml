@@ -11,12 +11,14 @@ request:
   channels:
     - '672114750477303837'
   internalChannels:
-    - '681145724364259438'
+    - '911003147588223016'
+  requestLimits:
+    - 5
   logChannel: '681145896247099618'
 
 roleGroups:
   - prompt: Please select the role(s) you are interested in, so that we can add you to the appropriate channels.
-    color: RED
+    color: Red
     channel: '653602305417150475'
     message: '654300040239775784'
     radio: false
@@ -37,7 +39,7 @@ roleGroups:
         title: Test 4
         emoji: '654297985835859978'
   - prompt: Radio test selection
-    color: BLUE
+    color: Blue
     channel: '653602305417150475'
     message: '797220404661059595'
     radio: true
@@ -60,7 +62,7 @@ roleGroups:
         emoji: 4️⃣
   - prompt: Please select the project(s) you are interested in.
     desc: This will give you access to the appropriate channels.
-    color: GREEN
+    color: Green
     channel: '653602305417150475'
     message: '797480350384390175'
     radio: false
@@ -85,7 +87,7 @@ roleGroups:
         emoji: '654297985835859978'
   - prompt: Please select the pronoun(s) that you'd like to go by.
     desc: This is not mandatory, but we encourage people to use the appropriate pronouns when referring to each other.
-    color: BLUE
+    color: Blue
     channel: '653602305417150475'
     message: '797480367014936576'
     radio: false
@@ -105,19 +107,17 @@ roleGroups:
         emoji: '🇴'
 
 filterFeeds:
-  - jql: created > -1m
+  - jql: updated > lastRun
+    jqlRemoved: ''
     channel: '665904688616701953'
-    interval: 10000
-    title: '{{num}} tickets have been created!'
-    titleSingle: This ticket has just been created!
-  - jql: CHK > -2h
-    channel: '665904688616701953'
-    interval: 10000
-    title: '{{num}} tickets have been confirmed!'
-    titleSingle: This ticket has just been confirmed!
+    publish: true
+    interval: 30000
+    filterFeedEmoji: '😀'
+    title: '{{num}} tickets have been updated!'
+    titleSingle: This ticket has just been updated!
 
 versionFeeds:
-  #version-feed-test
+    #version-feed-test
   - projects:
       - MC
     channel: '816267831993040926'

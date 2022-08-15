@@ -1,8 +1,10 @@
 import { Client, ColorResolvable, Snowflake } from 'discord.js';
+import { Version2Client as JiraClient } from 'jira.js';
 import config from 'config';
-import MojiraBot from './MojiraBot';
+import MojiraBot from './MojiraBot.js';
 import Sqlite3 from 'better-sqlite3';
-import { VersionChangeType } from './tasks/VersionFeedTask';
+import { VersionChangeType } from './tasks/VersionFeedTask.js';
+import SlashCommandRegister from './commands/commandHandlers/SlashCommandRegister.js';
 
 function getOrDefault<T>( configPath: string, defaultValue: T ): T {
 	if ( !config.has( configPath ) ) MojiraBot.logger.debug( `config ${ configPath } not set, assuming default` );
@@ -107,8 +109,9 @@ export default class BotConfig {
 	public static debug: boolean;
 	public static logDirectory: false | string;
 
-	// TODO: make private again when /crosspost api endpoint is implemented into discord.js
-	public static token: string;
+	private static token: string;
+	private static jiraPat?: string;
+
 	public static owners: Snowflake[];
 
 	public static homeChannel: Snowflake;
@@ -141,6 +144,8 @@ export default class BotConfig {
 		this.logDirectory = getOrDefault( 'logDirectory', false );
 
 		this.token = config.get( 'token' );
+		this.jiraPat = getOrDefault( 'jiraPat', undefined );
+
 		this.owners = getOrDefault( 'owners', [] );
 
 		this.homeChannel = config.get( 'homeChannel' );
@@ -173,10 +178,22 @@ export default class BotConfig {
 	public static async login( client: Client ): Promise<boolean> {
 		try {
 			await client.login( this.token );
+			await SlashCommandRegister.registerCommands( client, this.token );
 		} catch ( err ) {
 			MojiraBot.logger.error( err );
 			return false;
 		}
 		return true;
+	}
+
+	public static jiraLogin(): void {
+		// TODO: integrate newErrorHandling from Jira.js
+		MojiraBot.jira = new JiraClient( {
+			host: 'https://bugs.mojang.com',
+			telemetry: false,
+			authentication: this.jiraPat === undefined ? undefined : {
+				personalAccessToken: this.jiraPat,
+			},
+		} );
 	}
 }

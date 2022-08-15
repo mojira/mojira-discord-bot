@@ -1,11 +1,11 @@
-import { DMChannel, Message, Snowflake } from 'discord.js';
-import BotConfig from '../../BotConfig';
-import CommandExecutor from '../../commands/CommandExecutor';
-import DiscordUtil from '../../util/DiscordUtil';
-import EventHandler from '../EventHandler';
-import RequestEventHandler from '../request/RequestEventHandler';
-import TestingRequestEventHandler from '../request/TestingRequestEventHandler';
-import InternalProgressEventHandler from '../internal/InternalProgressEventHandler';
+import { Message, MessageType, Snowflake, DMChannel } from 'discord.js';
+import BotConfig from '../../BotConfig.js';
+import CommandExecutor from '../../commands/commandHandlers/CommandExecutor.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
+import EventHandler from '../EventHandler.js';
+import RequestEventHandler from '../request/RequestEventHandler.js';
+import TestingRequestEventHandler from '../request/TestingRequestEventHandler.js';
+import InternalProgressEventHandler from '../internal/InternalProgressEventHandler.js';
 import ModmailEventHandler from '../modmail/ModmailEventHandler';
 import ModmailReplyEventHandler from '../modmail/ModmailReplyEventHandler';
 
@@ -42,7 +42,7 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 			|| message.author.id === this.botUserId
 
 			// Don't reply to non-default messages
-			|| ( message.type !== 'DEFAULT' && message.type !== 'REPLY' )
+			|| ( message.type !== MessageType.Default && message.type !== MessageType.Reply )
 		) return;
 
 		// Only true if the message is in a DM channel
@@ -74,11 +74,9 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 
 			// Don't reply in DM channels
 			return;
-		} else if ( message.channelId == BotConfig.modmailChannel && BotConfig.modmailEnabled ) {
-			if ( message.type == 'REPLY' ) {
-				// This message is in the modmail channel and is a reply
-				await this.modmailReplyEventHandler.onEvent( message );
-			}
+		} else if ( message.channel.isThread() && message.channel.parent?.id == BotConfig.modmailChannel && BotConfig.modmailEnabled ) {
+			// This message is in the modmail channel and is a reply
+			await this.modmailReplyEventHandler.onEvent( message );
 
 			// Don't reply in modmail channels
 			return;

@@ -1,55 +1,59 @@
-import { Message, MessageEmbed, Util } from 'discord.js';
-import PrefixCommand from './PrefixCommand';
-import BotConfig from '../BotConfig';
-import MojiraBot from '../MojiraBot';
+import { EmbedBuilder, escapeMarkdown, ChatInputCommandInteraction } from 'discord.js';
+import SlashCommand from './commandHandlers/SlashCommand.js';
+import BotConfig from '../BotConfig.js';
+import MojiraBot from '../MojiraBot.js';
 
-export default class SearchCommand extends PrefixCommand {
-	public readonly aliases = ['search', 'find'];
+export default class SearchCommand extends SlashCommand {
+	public readonly slashCommandBuilder = this.slashCommandBuilder
+		.setName( 'search' )
+		.setDescription( 'Search for issues in Jira.' )
+		.addStringOption( option =>
+			option.setName( 'query' )
+				.setDescription( 'The query to search for.' )
+				.setRequired( true )
+		);
 
-	public async run( message: Message, args: string ): Promise<boolean> {
-		if ( !args.length ) {
-			return false;
-		}
+	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
+		const plainArgs = interaction.options.getString( 'query' )?.replace( /"|<|>/g, '' );
 
-		const plainArgs = args.replace( /"|<|>/g, '' );
+		if ( plainArgs == null ) return false;
 
 		try {
-			const embed = new MessageEmbed();
+			const embed = new EmbedBuilder();
 			const searchFilter = `text ~ "${ plainArgs }" AND project in (${ BotConfig.projects.join( ', ' ) })`;
-			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
+			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
 				jql: searchFilter,
 				maxResults: BotConfig.maxSearchResults,
 				fields: [ 'key', 'summary' ],
 			} );
 
 			if ( !searchResults.issues ) {
-				embed.setTitle( `No results found for "${ Util.escapeMarkdown( plainArgs ) }"` );
-				await message.channel.send( { embeds: [embed] } );
-				return false;
+				embed.setTitle( `No results found for "${ escapeMarkdown( plainArgs ) }"` );
+				await interaction.reply( { embeds: [embed], ephemeral: true } );
+				return true;
 			}
 
 			embed.setTitle( '**Results:**' );
-			embed.setFooter( message.author.tag, message.author.avatarURL() );
+			embed.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } );
 
 			for ( const issue of searchResults.issues ) {
-				embed.addField( issue.key, `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })` );
+				embed.addFields( {
+					name: issue.key,
+					value: `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })`,
+				} );
 			}
 
-			const escapedJql = encodeURIComponent( searchFilter ).replace( '/(/g', '%28' ).replace( '/)/g', '%29' );
+			const escapedJql = encodeURIComponent( searchFilter ).replace( /\(/g, '%28' ).replace( /\)/g, '%29' );
 			embed.setDescription( `__[See all results](https://bugs.mojang.com/issues/?jql=${ escapedJql })__` );
 
-			await message.channel.send( { embeds: [embed] } );
+			await interaction.reply( { embeds: [embed], ephemeral: true } );
 		} catch {
-			const embed = new MessageEmbed();
-			embed.setTitle( `No results found for "${ Util.escapeMarkdown( plainArgs ) }"` );
-			await message.channel.send( { embeds: [embed] } );
+			const embed = new EmbedBuilder();
+			embed.setTitle( `No results found for "${ escapeMarkdown( plainArgs ) }"` );
+			await interaction.reply( { embeds: [embed], ephemeral: true } );
 			return false;
 		}
 
 		return true;
-	}
-
-	public asString( args: string ): string {
-		return `!jira search ${ args }`;
 	}
 }

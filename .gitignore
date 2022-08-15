@@ -11,3 +11,5 @@ config/local.yml
 config/local-*.yml
 
 db.sqlite
+
+screenlog.*

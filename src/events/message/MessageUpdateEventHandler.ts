@@ -1,8 +1,8 @@
-import EventHandler from '../EventHandler';
-import { Message, Snowflake } from 'discord.js';
-import BotConfig from '../../BotConfig';
-import RequestUpdateEventHandler from '../request/RequestUpdateEventHandler';
-import DiscordUtil from '../../util/DiscordUtil';
+import EventHandler from '../EventHandler.js';
+import { Message, MessageType, Snowflake } from 'discord.js';
+import BotConfig from '../../BotConfig.js';
+import RequestUpdateEventHandler from '../request/RequestUpdateEventHandler.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
 
 export default class MessageUpdateEventHandler implements EventHandler<'messageUpdate'> {
 	public readonly eventName = 'messageUpdate';
@@ -24,7 +24,7 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 
 		if (
 			// Don't handle non-default messages
-			( oldMessage.type !== 'DEFAULT' && oldMessage.type !== 'REPLY' )
+			( oldMessage.type !== MessageType.Default && oldMessage.type !== MessageType.Reply )
 
 			// Don't handle webhooks
 			|| oldMessage.webhookId

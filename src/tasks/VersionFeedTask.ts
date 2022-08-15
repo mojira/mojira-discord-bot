@@ -1,9 +1,11 @@
-import { Channel, MessageEmbed, TextChannel } from 'discord.js';
-import * as log4js from 'log4js';
-import { VersionFeedConfig } from '../BotConfig';
-import { NewsUtil } from '../util/NewsUtil';
-import MojiraBot from '../MojiraBot';
-import Task from './Task';
+import { EmbedBuilder, TextBasedChannel } from 'discord.js';
+import log4js from 'log4js';
+import { VersionFeedConfig } from '../BotConfig.js';
+import { NewsUtil } from '../util/NewsUtil.js';
+import MojiraBot from '../MojiraBot.js';
+import Task from './Task.js';
+import { LoggerUtil } from '../util/LoggerUtil.js';
+import { Version } from 'jira.js/out/version2/models';
 
 interface JiraVersion {
 	id: string;
@@ -14,13 +16,32 @@ interface JiraVersion {
 	project: string;
 }
 
+function versionConv( version: Version ): JiraVersion | undefined {
+	if (
+		version.id === undefined
+		|| version.name === undefined
+		|| version.archived === undefined
+		|| version.released === undefined
+		|| version.project === undefined
+	) return undefined;
+
+	return {
+		id: version.id,
+		name: version.name,
+		archived: version.archived,
+		released: version.released,
+		releaseDate: version.releaseDate,
+		project: version.project,
+	};
+}
+
 export type VersionChangeType = 'created' | 'released' | 'unreleased' | 'archived' | 'unarchived' | 'renamed';
 
 interface JiraVersionChange {
 	type: VersionChangeType;
 	versionId: string;
 	message: string;
-	embed?: MessageEmbed;
+	embed?: EmbedBuilder;
 }
 
 interface JiraVersionMap {
@@ -30,7 +51,7 @@ interface JiraVersionMap {
 export default class VersionFeedTask extends Task {
 	private static logger = log4js.getLogger( 'VersionFeedTask' );
 
-	private channel: Channel;
+	private channel: TextBasedChannel;
 	private projects: string[];
 	private versionFeedEmoji: string;
 	private scope: number;
@@ -39,7 +60,7 @@ export default class VersionFeedTask extends Task {
 
 	private cachedVersions: JiraVersionMap = {};
 
-	constructor( feedConfig: VersionFeedConfig, channel: Channel ) {
+	constructor( feedConfig: VersionFeedConfig, channel: TextBasedChannel ) {
 		super();
 
 		this.channel = channel;
@@ -59,14 +80,8 @@ export default class VersionFeedTask extends Task {
 				} );
 
 				for ( const value of results ) {
-					this.cachedVersions[value.id] = {
-						id: value.id,
-						name: value.name,
-						archived: value.archived,
-						released: value.released,
-						releaseDate: value.releaseDate,
-						project,
-					};
+					const version = versionConv( value );
+					if ( version !== undefined ) this.cachedVersions[version.id] = version;
 				}
 			}
 		} catch ( error ) {
@@ -77,17 +92,13 @@ export default class VersionFeedTask extends Task {
 	}
 
 	protected async run(): Promise<void> {
-		if ( !( this.channel instanceof TextChannel ) ) {
-			VersionFeedTask.logger.error( `[${ this.id }] Expected ${ this.channel } to be a TextChannel` );
-			return;
-		}
-
 		const changes = await this.getAllVersionChanges();
-		VersionFeedTask.logger.debug( `[${ this.id }] Gotten ${ changes.length } relevant version changes: ${ VersionFeedTask.stringifyChanges( changes ) }` );
+		// VersionFeedTask.logger.debug( `[${ this.id }] Gotten ${ changes.length } relevant version changes: ${ VersionFeedTask.stringifyChanges( changes ) }` );
 
 		for ( const change of changes ) {
 			try {
-				const versionFeedMessage = await this.channel.send( { content: change.message, embeds: [change.embed] } );
+				const embeds = change.embed === undefined ? [] : [change.embed];
+				const versionFeedMessage = await this.channel.send( { content: change.message, embeds } );
 
 				if ( this.publish ) {
 					await NewsUtil.publishMessage( versionFeedMessage );
@@ -119,25 +130,20 @@ export default class VersionFeedTask extends Task {
 			orderBy: '-sequence',
 		} );
 
-		VersionFeedTask.logger.debug( `[${ this.id }] Received ${ results.values.length } versions for project ${ project }` );
-
 		const changes: JiraVersionChange[] = [];
+
+		// VersionFeedTask.logger.debug( `[${ this.id }] Received ${ results.values?.length } versions for project ${ project }` );
+		if ( !results.values ) return changes;
 
 		for ( const value of results.values ) {
 			try {
-				const version: JiraVersion = {
-					id: value.id,
-					name: value.name,
-					archived: value.archived,
-					released: value.released,
-					releaseDate: value.releaseDate,
-					project,
-				};
+				const version = versionConv( value );
+				if ( version === undefined ) continue;
 
-				const versionChanges = await this.getVersionChanges( this.cachedVersions[value.id], version );
+				const versionChanges = await this.getVersionChanges( this.cachedVersions[version.id], version );
 
 				if ( versionChanges.length ) {
-					this.cachedVersions[value.id] = version;
+					this.cachedVersions[version.id] = version;
 					changes.push( ...versionChanges );
 				}
 			} catch ( error ) {
@@ -145,7 +151,7 @@ export default class VersionFeedTask extends Task {
 			}
 		}
 
-		VersionFeedTask.logger.debug( `[${ this.id }] Found ${ changes.length } version changes for project ${ project }: ${ VersionFeedTask.stringifyChanges( changes ) }` );
+		// VersionFeedTask.logger.debug( `[${ this.id }] Found ${ changes.length } version changes for project ${ project }: ${ VersionFeedTask.stringifyChanges( changes ) }` );
 
 		return changes;
 	}
@@ -209,10 +215,10 @@ export default class VersionFeedTask extends Task {
 		return changes;
 	}
 
-	private async getVersionEmbed( version: JiraVersion ): Promise<MessageEmbed> {
-		const embed = new MessageEmbed()
+	private async getVersionEmbed( version: JiraVersion ): Promise<EmbedBuilder | undefined> {
+		const embed = new EmbedBuilder()
 			.setTitle( version.name )
-			.setColor( 'PURPLE' );
+			.setColor( 'Purple' );
 
 		let versionIssueCounts: {
 			issuesAffectedCount: number;
@@ -220,11 +226,11 @@ export default class VersionFeedTask extends Task {
 		};
 
 		try {
-			versionIssueCounts = await MojiraBot.jira.projectVersions.getVersionsRelatedIssuesCount( {
+			versionIssueCounts = await MojiraBot.jira.projectVersions.getVersionRelatedIssues( {
 				id: version.id,
 			} );
 		} catch ( error ) {
-			VersionFeedTask.logger.error( error );
+			VersionFeedTask.logger.error( `[${ this.id }] Error getting versionRelatedIssues: ${ LoggerUtil.shortenJiraError( error ) }` );
 			return undefined;
 		}
 
@@ -233,23 +239,39 @@ export default class VersionFeedTask extends Task {
 
 		if ( affectedIssues > 0 ) {
 			const affectedSearchQuery = `affectedVersion = ${ version.id } ORDER BY created ASC`;
-			embed.addField( 'Affected', `[${ affectedIssues } issue${ affectedIssues > 1 ? 's' : '' }](https://bugs.mojang.com/issues/?jql=${ affectedSearchQuery.replace( /\s+/ig, '%20' ) })`, true );
+			embed.addFields( {
+				name: 'Affected',
+				value: `[${ affectedIssues } issue${ affectedIssues > 1 ? 's' : '' }](https://bugs.mojang.com/issues/?jql=${ affectedSearchQuery.replace( /\s+/ig, '%20' ) })`,
+				inline: true,
+			} );
 		}
 
 		if ( fixedIssues > 0 ) {
 			const fixedSearchQuery = `fixVersion = ${ version.id } ORDER BY key ASC`;
-			embed.addField( 'Fixed', `[${ fixedIssues } issue${ fixedIssues > 1 ? 's' : '' }](https://bugs.mojang.com/issues/?jql=${ fixedSearchQuery.replace( /\s+/ig, '%20' ) })`, true );
+			embed.addFields( {
+				name: 'Fixed',
+				value: `[${ fixedIssues } issue${ fixedIssues > 1 ? 's' : '' }](https://bugs.mojang.com/issues/?jql=${ fixedSearchQuery.replace( /\s+/ig, '%20' ) })`,
+				inline: true,
+			} );
 		}
 
 		if ( version.releaseDate !== undefined ) {
-			embed.addField( 'Released', version.releaseDate, true );
+			embed.addFields( {
+				name: 'Released',
+				value: version.releaseDate,
+				inline: true,
+			} );
 		}
 
 		if ( this.projects.length > 1 ) {
-			embed.addField( 'Project', version.project, true );
+			embed.addFields( {
+				name: 'Project',
+				value: version.project,
+				inline: true,
+			} );
 		}
 
-		if ( !embed.fields?.length ) {
+		if ( !embed.data.fields?.length ) {
 			return undefined;
 		}
 

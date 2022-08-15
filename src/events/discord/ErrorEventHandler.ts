@@ -1,5 +1,5 @@
-import MojiraBot from '../../MojiraBot';
-import EventHandler from '../EventHandler';
+import MojiraBot from '../../MojiraBot.js';
+import EventHandler from '../EventHandler.js';
 
 export default class ErrorEventHandler implements EventHandler<'error'> {
 	public readonly eventName = 'error';

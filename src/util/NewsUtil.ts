@@ -1,5 +1,5 @@
 import { Message, NewsChannel } from 'discord.js';
-import * as log4js from 'log4js';
+import log4js from 'log4js';
 
 export class NewsUtil {
 	private static logger = log4js.getLogger( 'NewsUtil' );

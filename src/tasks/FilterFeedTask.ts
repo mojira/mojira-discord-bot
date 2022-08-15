@@ -1,15 +1,16 @@
-import { MentionRegistry } from '../mentions/MentionRegistry';
-import { FilterFeedConfig } from '../BotConfig';
-import { TextChannel, Channel } from 'discord.js';
-import * as log4js from 'log4js';
-import Task from './Task';
-import { NewsUtil } from '../util/NewsUtil';
-import MojiraBot from '../MojiraBot';
+import { MentionRegistry } from '../mentions/MentionRegistry.js';
+import { FilterFeedConfig } from '../BotConfig.js';
+import { Message, TextBasedChannel } from 'discord.js';
+import log4js from 'log4js';
+import Task from './Task.js';
+import { NewsUtil } from '../util/NewsUtil.js';
+import MojiraBot from '../MojiraBot.js';
+import { LoggerUtil } from '../util/LoggerUtil.js';
 
 export default class FilterFeedTask extends Task {
 	private static logger = log4js.getLogger( 'FilterFeedTask' );
 
-	private channel: Channel;
+	private channel: TextBasedChannel;
 	private jql: string;
 	private filterFeedEmoji: string;
 	private title: string;
@@ -18,7 +19,7 @@ export default class FilterFeedTask extends Task {
 
 	private lastRun: number;
 
-	constructor( feedConfig: FilterFeedConfig, channel: Channel ) {
+	constructor( feedConfig: FilterFeedConfig, channel: TextBasedChannel ) {
 		super();
 
 		this.channel = channel;
@@ -34,15 +35,10 @@ export default class FilterFeedTask extends Task {
 	}
 
 	protected async run(): Promise<void> {
-		if ( !( this.channel instanceof TextChannel ) ) {
-			FilterFeedTask.logger.error( `[${ this.id }] Expected ${ this.channel } to be a TextChannel` );
-			return;
-		}
-
 		let unknownTickets: string[];
 
 		try {
-			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
+			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
 				jql: this.jql.replace( 'lastRun', this.lastRun.toString() ),
 				fields: ['key'],
 			} );
@@ -54,7 +50,7 @@ export default class FilterFeedTask extends Task {
 
 			unknownTickets = searchResults.issues.map( ( { key } ) => key );
 		} catch ( err ) {
-			FilterFeedTask.logger.error( `[${ this.id }] Error when searching for issues`, err );
+			FilterFeedTask.logger.error( `[${ this.id }] Error when searching for issues. ${ LoggerUtil.shortenJiraError( err ) }` );
 			return;
 		}
 
@@ -62,20 +58,21 @@ export default class FilterFeedTask extends Task {
 			try {
 				const embed = await MentionRegistry.getMention( unknownTickets ).getEmbed();
 
-				let message = '';
+				let filterFeedMessage: Message;
 
 				if ( unknownTickets.length > 1 ) {
 					embed.setTitle(
 						this.title.replace( /\{\{num\}\}/g, unknownTickets.length.toString() )
 					);
+					filterFeedMessage = await this.channel.send( { embeds: [embed] } );
 				} else {
-					message = this.titleSingle;
+					filterFeedMessage = await this.channel.send( { content: this.titleSingle, embeds: [embed] } );
 				}
 
-				const filterFeedMessage = await this.channel.send( { content: message, embeds: [embed] } );
-
 				if ( this.publish ) {
-					await NewsUtil.publishMessage( filterFeedMessage );
+					NewsUtil.publishMessage( filterFeedMessage ).catch( err => {
+						FilterFeedTask.logger.error( `[${ this.id }] Error when publishing message`, err );
+					} );
 				}
 
 				if ( this.filterFeedEmoji !== undefined ) {
