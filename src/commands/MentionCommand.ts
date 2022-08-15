@@ -2,6 +2,7 @@ import { EmbedBuilder, Message } from 'discord.js';
 import Command from './commandHandlers/Command.js';
 import { MentionRegistry } from '../mentions/MentionRegistry.js';
 import BotConfig from '../BotConfig.js';
+import { ChannelConfigUtil } from '../util/ChannelConfigUtil.js';
 import DiscordUtil from '../util/DiscordUtil.js';
 
 export default class MentionCommand extends Command {
@@ -52,7 +53,9 @@ export default class MentionCommand extends Command {
 	}
 
 	public async run( message: Message, args: string[] ): Promise<boolean> {
-		const mention = MentionRegistry.getMention( args );
+		if ( ChannelConfigUtil.mentionsDisabled( message.channel ) ) return false;
+
+		const mention = MentionRegistry.getMention( args, message.channel );
 
 		let embed: EmbedBuilder;
 		try {

@@ -98,7 +98,7 @@ export default class CachedFilterFeedTask extends Task {
 
 		if ( unknownTickets.length > 0 ) {
 			try {
-				const embed = await MentionRegistry.getMention( unknownTickets ).getEmbed();
+				const embed = await MentionRegistry.getMention( unknownTickets, this.channel ).getEmbed();
 
 				let message = '';
 

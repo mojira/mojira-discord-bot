@@ -4,6 +4,7 @@ import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import { Client, Collection, RESTPostAPIApplicationCommandsJSONBody, ChatInputCommandInteraction, GuildMember } from 'discord.js';
 import { SlashCommandJsonData } from '../../types/discord.js';
+import { ChannelConfigUtil } from '../../util/ChannelConfigUtil.js';
 
 export default class SlashCommandRegister {
 	public static async registerCommands( client: Client, token: string ) {
@@ -27,7 +28,9 @@ export default class SlashCommandRegister {
 						const member = interaction.member instanceof GuildMember ? interaction.member : await fetchedGuild.members.fetch( interaction.user );
 
 						if ( command.checkPermission( member ) ) {
-							if ( !await command.run( interaction ) ) {
+							if ( interaction.channel !== null && ChannelConfigUtil.commandsDisabled( interaction.channel ) ) {
+								await interaction.reply( { content: 'Commands are not allowed in this channel.', ephemeral: true } );
+							} else if ( !await command.run( interaction ) ) {
 								await interaction.reply( { content: 'An error occurred while running this command.', ephemeral: true } );
 							}
 						} else {
