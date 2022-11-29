@@ -31,8 +31,6 @@ export class MarkdownUtil {
 			)
 			// Bold
 			.replace( /\*(\S.*)\*/g, '**$1**' )
-			// Italic
-			.replace( /_(\S.*)_/g, '*$1*' )
 			// Monospaced text
 			.replace( /\{\{([^}]+)\}\}/g, '`$1`' )
 			// Inserts / underline
