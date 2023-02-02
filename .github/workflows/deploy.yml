@@ -39,7 +39,7 @@ jobs:
       run: npm prune --production
 
     - name: Upload new binaries
-      uses: urielsalis/rsync-deploy@v1.4
+      uses: urielsalis/rsync-deploy@v1.5
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
@@ -48,9 +48,15 @@ jobs:
         SERVER_IP: ssh.urielsalis.com
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
-
+        CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        RESOURCE_ID: ${{ secrets.RESOURCE_ID }}
+        RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+        TENANT_ID: ${{ secrets.TENANT_ID }}
+        BASTION_NAME: ${{ secrets.BASTION_NAME }}
+          
     - name: Upload new dependencies
-      uses: urielsalis/rsync-deploy@v1.4
+      uses: urielsalis/rsync-deploy@v1.5
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
@@ -59,9 +65,15 @@ jobs:
         SERVER_IP: ssh.urielsalis.com
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
-
+        CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        RESOURCE_ID: ${{ secrets.RESOURCE_ID }}
+        RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+        TENANT_ID: ${{ secrets.TENANT_ID }}
+        BASTION_NAME: ${{ secrets.BASTION_NAME }}
+        
     - name: Update config
-      uses: urielsalis/rsync-deploy@v1.4
+      uses: urielsalis/rsync-deploy@v1.5
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
@@ -70,9 +82,15 @@ jobs:
         SERVER_IP: ssh.urielsalis.com
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
+        CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        RESOURCE_ID: ${{ secrets.RESOURCE_ID }}
+        RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+        TENANT_ID: ${{ secrets.TENANT_ID }}
+        BASTION_NAME: ${{ secrets.BASTION_NAME }}
 
     - name: Update shell files
-      uses: urielsalis/rsync-deploy@v1.4
+      uses: urielsalis/rsync-deploy@v1.5
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
@@ -81,9 +99,22 @@ jobs:
         SERVER_IP: ssh.urielsalis.com
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
+        CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        RESOURCE_ID: ${{ secrets.RESOURCE_ID }}
+        RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+        TENANT_ID: ${{ secrets.TENANT_ID }}
+        BASTION_NAME: ${{ secrets.BASTION_NAME }}
 
     - name: Run internal deploy script
-      uses: fifsky/ssh-action@master
+      uses: urielsalis/azure-bastion-ssh-action@master
+      env:
+        CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        RESOURCE_ID: ${{ secrets.RESOURCE_ID }}
+        RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+        TENANT_ID: ${{ secrets.TENANT_ID }}
+        BASTION_NAME: ${{ secrets.BASTION_NAME }}
       with:
         host: ssh.urielsalis.com
         user: ${{ secrets.REMOTE_USER }}
