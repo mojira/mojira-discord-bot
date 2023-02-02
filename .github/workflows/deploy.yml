@@ -116,7 +116,8 @@ jobs:
         TENANT_ID: ${{ secrets.TENANT_ID }}
         BASTION_NAME: ${{ secrets.BASTION_NAME }}
       with:
-        host: ssh.urielsalis.com
+        host: localhost
+        port: 50022
         user: ${{ secrets.REMOTE_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         command: |
