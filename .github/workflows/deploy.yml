@@ -39,7 +39,7 @@ jobs:
       run: npm prune --production
 
     - name: Upload new binaries
-      uses: urielsalis/rsync-deploy@v1.5
+      uses: urielsalis/rsync-deploy@master
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
@@ -56,7 +56,7 @@ jobs:
         BASTION_NAME: ${{ secrets.BASTION_NAME }}
           
     - name: Upload new dependencies
-      uses: urielsalis/rsync-deploy@v1.5
+      uses: urielsalis/rsync-deploy@master
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
@@ -73,7 +73,7 @@ jobs:
         BASTION_NAME: ${{ secrets.BASTION_NAME }}
         
     - name: Update config
-      uses: urielsalis/rsync-deploy@v1.5
+      uses: urielsalis/rsync-deploy@master
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
@@ -90,7 +90,7 @@ jobs:
         BASTION_NAME: ${{ secrets.BASTION_NAME }}
 
     - name: Update shell files
-      uses: urielsalis/rsync-deploy@v1.5
+      uses: urielsalis/rsync-deploy@master
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
