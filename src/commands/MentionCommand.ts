@@ -71,8 +71,13 @@ export default class MentionCommand extends Command {
 		}
 
 		if ( embed === undefined ) return false;
-
-		embed.setFooter( { text: message.author.tag, iconURL: message.author.avatarURL() ?? undefined } )
+		let messageAuthorNormalizedTag: string;
+		if ( message.author.discriminator === '0' ) {
+			messageAuthorNormalizedTag = message.author.username;
+		} else {
+			messageAuthorNormalizedTag = message.author.tag;
+		}
+		embed.setFooter( { text: messageAuthorNormalizedTag, iconURL: message.author.avatarURL() ?? undefined } )
 			.setTimestamp( message.createdAt );
 
 		try {
