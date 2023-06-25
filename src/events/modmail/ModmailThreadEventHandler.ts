@@ -32,6 +32,8 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 						} );
 					} );
 				}
+
+				await origin.react( '📬' );
 			} catch ( err ) {
 				this.logger.error( err );
 
