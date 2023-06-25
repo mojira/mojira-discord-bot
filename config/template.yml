@@ -25,6 +25,12 @@ owners:
 # The channel ID of the bot's home channel.
 homeChannel: <string>
 
+# Whether or not bot DMs will be forwarded to an internal channel.
+modmailEnabled: <boolean>
+
+# The channel ID of the channel modmail bot DMs will be sent to.
+modmailChannel: <string>
+
 # Whether the bot should send an embed when a full URL to a ticket gets posted.
 ticketUrlsCauseEmbed: <boolean>
 

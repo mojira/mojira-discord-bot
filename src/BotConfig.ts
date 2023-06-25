@@ -2,6 +2,7 @@ import { Client, ColorResolvable, Snowflake } from 'discord.js';
 import { Version2Client as JiraClient } from 'jira.js';
 import config from 'config';
 import MojiraBot from './MojiraBot.js';
+import Sqlite3 from 'better-sqlite3';
 import { VersionChangeType } from './tasks/VersionFeedTask.js';
 import SlashCommandRegister from './commands/commandHandlers/SlashCommandRegister.js';
 
@@ -115,6 +116,9 @@ export default class BotConfig {
 
 	public static homeChannel: Snowflake;
 
+	public static modmailEnabled: boolean;
+	public static modmailChannel: Snowflake;
+
 	public static ticketUrlsCauseEmbed: boolean;
 	public static quotedTicketsCauseEmbed: boolean;
 	public static requiredTicketPrefix: string;
@@ -133,6 +137,8 @@ export default class BotConfig {
 	public static filterFeeds: FilterFeedConfig[];
 	public static versionFeeds: VersionFeedConfig[];
 
+	public static database: Sqlite3.Database;
+
 	public static init(): void {
 		this.debug = getOrDefault( 'debug', false );
 		this.logDirectory = getOrDefault( 'logDirectory', false );
@@ -143,6 +149,10 @@ export default class BotConfig {
 		this.owners = getOrDefault( 'owners', [] );
 
 		this.homeChannel = config.get( 'homeChannel' );
+
+		this.modmailEnabled = getOrDefault( 'modmailEnabled', false );
+		this.modmailChannel = getOrDefault( 'modmailChannel', '' );
+
 		this.ticketUrlsCauseEmbed = getOrDefault( 'ticketUrlsCauseEmbed', false );
 		this.quotedTicketsCauseEmbed = getOrDefault( 'quotedTicketsCauseEmbed', false );
 
@@ -161,6 +171,8 @@ export default class BotConfig {
 
 		this.filterFeeds = config.get( 'filterFeeds' );
 		this.versionFeeds = config.get( 'versionFeeds' );
+
+		this.database = new Sqlite3( './db.sqlite' );
 	}
 
 	public static async login( client: Client ): Promise<boolean> {

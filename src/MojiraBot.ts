@@ -33,6 +33,7 @@ export default class MojiraBot {
 			Partials.Message,
 			Partials.Reaction,
 			Partials.User,
+			Partials.Channel,
 		],
 		intents: [
 			// TODO: We might not need all of these intents
@@ -84,6 +85,9 @@ export default class MojiraBot {
 			BotConfig.jiraLogin();
 			const loginResult = await BotConfig.login( this.client );
 			if ( !loginResult || !this.client.user ) return;
+
+			BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_bans (\'user\' varchar)' );
+			BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_threads (\'user\' varchar, \'thread\' varchar)' );
 
 			this.botUser = this.client.user;
 			this.running = true;
