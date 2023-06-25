@@ -18,7 +18,7 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 	private readonly requestResolveEventHandler: RequestResolveEventHandler;
 	private readonly requestReactionRemovalEventHandler = new RequestReactionRemovalEventHandler();
 	private readonly requestReopenEventHandler: RequestReopenEventHandler;
-	private readonly mentionDeleteEventHandler = new MentionDeleteEventHandler();
+	private readonly mentionDeleteEventHandler: MentionDeleteEventHandler;
 
 	constructor( botUserId: Snowflake, internalChannels: Map<Snowflake, Snowflake>, requestLimits: Map<Snowflake, number> ) {
 		this.botUserId = botUserId;
@@ -26,6 +26,7 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 		const requestEventHandler = new RequestEventHandler( internalChannels, requestLimits );
 		this.requestResolveEventHandler = new RequestResolveEventHandler( botUserId );
 		this.requestReopenEventHandler = new RequestReopenEventHandler( botUserId, requestEventHandler );
+		this.mentionDeleteEventHandler = new MentionDeleteEventHandler( botUserId );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `ReactionAddEventHandler` object
