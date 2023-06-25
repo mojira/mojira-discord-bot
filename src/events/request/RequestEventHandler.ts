@@ -34,7 +34,9 @@ export default class RequestEventHandler implements EventHandler<'messageCreate'
 		}
 
 		if ( origin.channel instanceof TextChannel ) {
-			this.logger.info( `${ origin.author.tag } posted request ${ origin.id } in #${ origin.channel.name }` );
+			this.logger.info(
+				`${ DiscordUtil.getUserHandle( origin.author ) } posted request ${ origin.id } in #${ origin.channel.name }`
+			);
 		}
 
 		try {
@@ -89,7 +91,7 @@ export default class RequestEventHandler implements EventHandler<'messageCreate'
 		if ( !forced && requestLimit && requestLimit >= 0 && internalChannel instanceof TextChannel ) {
 			// Check for 24 hour rolling window request limit
 			const internalChannelUserMessages = internalChannel.messages.cache
-				.filter( message => message.embeds.length > 0 && message.embeds[0].author?.name === origin.author.tag )
+				.filter( message => message.embeds.length > 0 && message.embeds[0].author?.name === DiscordUtil.getUserHandle( origin.author ) )
 				.filter( message => {
 					// Check if message is at most 24 hours old
 					if ( message.embeds[0].timestamp === null ) return false;
@@ -124,7 +126,7 @@ export default class RequestEventHandler implements EventHandler<'messageCreate'
 		if ( internalChannel && internalChannel instanceof TextChannel ) {
 			const embed = new EmbedBuilder()
 				.setColor( RequestsUtil.getEmbedColor() )
-				.setAuthor( { name: origin.author.tag, iconURL: origin.author.avatarURL() ?? undefined } )
+				.setAuthor( DiscordUtil.getUserAsEmbedAuthor( origin.author ) )
 				.setDescription( RequestsUtil.getRequestDescription( origin ) )
 				.addFields( {
 					name: 'Go To',

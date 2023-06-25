@@ -21,7 +21,9 @@ export default class RequestDeleteEventHandler implements EventHandler<'messageD
 
 	// This syntax is used to ensure that `this` refers to the `RequestDeleteEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
-		this.logger.info( `User ${ origin.author.tag }'s request ${ origin.id } in channel ${ origin.channel.id } was deleted` );
+		this.logger.info(
+			`User ${ DiscordUtil.getUserHandle( origin.author ) }'s request ${ origin.id } in channel ${ origin.channel.id } was deleted`
+		);
 
 		const internalChannelId = this.internalChannels.get( origin.channel.id );
 		if ( internalChannelId === undefined ) return;

@@ -22,11 +22,15 @@ export default class RequestUnresolveEventHandler implements EventHandler<'messa
 		message = await DiscordUtil.fetchMessage( message );
 
 		if ( message.author.id !== this.botUserId ) {
-			this.logger.info( `User ${ user.tag } removed '${ emoji.name }' reaction from non-bot message '${ message.id }'. Ignored` );
+			this.logger.info(
+				`User ${ DiscordUtil.getUserHandle( user ) } removed '${ emoji.name }' reaction from non-bot message '${ message.id }'. Ignored`
+			);
 			return;
 		}
 
-		this.logger.info( `User ${ user.tag } removed '${ emoji.name }' reaction from request message '${ message.id }'` );
+		this.logger.info(
+			`User ${ DiscordUtil.getUserHandle( user ) } removed '${ emoji.name }' reaction from request message '${ message.id }'`
+		);
 
 		const embed = new EmbedBuilder( message.embeds[0].data ).setColor( RequestsUtil.getEmbedColor() );
 
