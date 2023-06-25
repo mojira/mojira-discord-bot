@@ -7,6 +7,9 @@ owners:
 
 homeChannel: '649027251010142228'
 
+modmailEnabled: true
+modmailChannel: '975742528546545704'
+
 request:
   channels:
     - '672114750477303837'
