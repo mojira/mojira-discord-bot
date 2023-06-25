@@ -19,16 +19,19 @@ request:
     - '648555751438155776' # bedrock-requests
     - '651161365091844116' # other-requests
     - '692382286103969843' # dungeons-requests
+    - '1097590072351662140' # legends-requests
   internalChannels:
     - '683038862024638474' # java-pending-requests
     - '683038914306506841' # bedrock-pending-requests
     - '683040112191340560' # other-pending-requests
     - '692382871578607767' # dungeons-pending-requests
+    - '1097592319462604820' # legends-pending-requests
   requestLimits:
     - 30 # Limit for # java-requests
     - 30 # Limit for # bedrock-requests
     - 45 # Limit for # other-requests
     - 30 # Limit for # dungeons-requests
+    - 30 # Limit for # legends-requests
   testingRequestChannels:
     - '740188001052917801'
     - '807240396445843516'
@@ -49,13 +52,17 @@ roleGroups:
       - id: '648536590481752074'
         title: Bedrock Edition (MCPE)
         desc: |-
-          _Android, iOS, Windows 10 (from the Microsoft Store),
-          Xbox, Nintendo Switch, Playstation, Fire OS, and Gear VR_
+          _Android, iOS, Windows 10/11, ChromeOS,
+          Xbox, Nintendo Switch, Playstation, and Amazon Fire_
         emoji: '648474430158405642'
       - id: '692398773762261023'
         title: Minecraft Dungeons (MCD)
-        desc: _Action-adventure title set in the Minecraft universe_
+        desc: _Dungeon crawler spin-off_
         emoji: '692399397232836758'
+      - id: '1097589181154336789'
+        title: Minecraft Legends (MCLG)
+        desc: _Action-strategy spin-off_
+        emoji: '1093281397843689563'
       - id: '648536618113826847'
         title: Other projects
         desc: (BDS, MCL, REALMS, WEB)
