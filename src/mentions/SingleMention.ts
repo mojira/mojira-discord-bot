@@ -88,7 +88,7 @@ export class SingleMention extends Mention {
 		const embed = new EmbedBuilder();
 
 		embed.setTitle( this.ensureLength( `[${ ticketResult.key }] ${ escapeMarkdown( ticketResult.fields.summary ) }` ) )
-			.setDescription( description.substring( 0, 2048 ) )
+			.setDescription( description.substring( 0, 2048 ) || null )
 			.setURL( `https://bugs.mojang.com/browse/${ ticketResult.key }` )
 			.setColor( 'Red' );
 
