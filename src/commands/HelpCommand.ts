@@ -20,7 +20,7 @@ export default class HelpCommand extends SlashCommand {
 					It is not possible to invite this bot to other servers yet.
 					If you have any issues, feel free to ping <@417403221863301130>.
 
-					(For help with the bug tracker or this Discord server, use \`!jira tips\`)`.replace( /\t/g, '' ) )
+					(For help with the bug tracker or this Discord server, use \`/tips\`)`.replace( /\t/g, '' ) )
 				.addFields( {
 					name: 'Bot Commands',
 					value: `\`/help\` - Sends this message.
