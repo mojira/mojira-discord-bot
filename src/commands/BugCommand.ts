@@ -4,6 +4,7 @@ import { MentionRegistry } from '../mentions/MentionRegistry.js';
 import BotConfig from '../BotConfig.js';
 import { ChannelConfigUtil } from '../util/ChannelConfigUtil.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
+import DiscordUtil from '../util/DiscordUtil.js';
 
 export default class BugCommand extends SlashCommand {
 	public slashCommandBuilder = this.slashCommandBuilder
@@ -55,7 +56,7 @@ export default class BugCommand extends SlashCommand {
 
 		if ( embed === undefined ) return false;
 
-		embed.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } )
+		embed.setFooter( DiscordUtil.getUserFooter( interaction.user ) )
 			.setTimestamp( interaction.createdAt );
 
 		try {
