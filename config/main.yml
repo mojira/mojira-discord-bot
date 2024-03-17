@@ -139,21 +139,21 @@ versionFeeds:
       - unreleased
 
     #version-feed
-  - projects:
-      - BDS
-      - MC
-      - MCD
-      - MCL
-      - MCPE
-      - REALMS
-    channel: '741600360619049000'
-    publish: true
-    interval: 10000
-    scope: 5
-    actions:
-      - created
-      - archived
-      - unarchived
-      - released
-      - unreleased
-      - renamed
+  # - projects:
+  #     - BDS
+  #     - MC
+  #     - MCD
+  #     - MCL
+  #     - MCPE
+  #     - REALMS
+  #   channel: '741600360619049000'
+  #   publish: true
+  #   interval: 10000
+  #   scope: 5
+  #   actions:
+  #     - created
+  #     - archived
+  #     - unarchived
+  #     - released
+  #     - unreleased
+  #     - renamed
