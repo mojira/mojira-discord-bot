@@ -113,7 +113,7 @@ filterFeeds:
   #   titleSingle: This ticket has just been marked as fixed!
   #   cached: true
 
-versionFeeds:
+versionFeeds: []
     #java-fixes
   # - projects:
   #     - MC
