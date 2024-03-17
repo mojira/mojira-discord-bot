@@ -115,28 +115,28 @@ filterFeeds:
 
 versionFeeds:
     #java-fixes
-  - projects:
-      - MC
-    channel: '666349583227682819'
-    publish: true
-    interval: 10000
-    scope: 5
-    versionFeedEmoji: '🎉'
-    actions:
-      - released
-      - unreleased
+  # - projects:
+  #     - MC
+  #   channel: '666349583227682819'
+  #   publish: true
+  #   interval: 10000
+  #   scope: 5
+  #   versionFeedEmoji: '🎉'
+  #   actions:
+  #     - released
+  #     - unreleased
 
     #bedrock-fixes
-  - projects:
-      - MCPE
-    channel: '974302728719314974'
-    publish: true
-    interval: 10000
-    scope: 5
-    versionFeedEmoji: '🎉'
-    actions:
-      - released
-      - unreleased
+  # - projects:
+  #     - MCPE
+  #   channel: '974302728719314974'
+  #   publish: true
+  #   interval: 10000
+  #   scope: 5
+  #   versionFeedEmoji: '🎉'
+  #   actions:
+  #     - released
+  #     - unreleased
 
     #version-feed
   # - projects:
