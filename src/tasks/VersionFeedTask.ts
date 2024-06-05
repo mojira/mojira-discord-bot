@@ -1,6 +1,6 @@
 import { EmbedBuilder, TextBasedChannel } from 'discord.js';
 import log4js from 'log4js';
-import { VersionFeedConfig } from '../BotConfig.js';
+import { VersionConfig, VersionFeedConfig } from '../BotConfig.js';
 import { NewsUtil } from '../util/NewsUtil.js';
 import MojiraBot from '../MojiraBot.js';
 import Task from './Task.js';
@@ -13,7 +13,7 @@ interface JiraVersion {
 	archived: boolean;
 	released: boolean;
 	releaseDate?: string;
-	project: string;
+	projectId: number;
 }
 
 function versionConv( version: Version ): JiraVersion | undefined {
@@ -22,7 +22,7 @@ function versionConv( version: Version ): JiraVersion | undefined {
 		|| version.name === undefined
 		|| version.archived === undefined
 		|| version.released === undefined
-		|| version.project === undefined
+		|| version.projectId === undefined
 	) return undefined;
 
 	return {
@@ -31,7 +31,7 @@ function versionConv( version: Version ): JiraVersion | undefined {
 		archived: version.archived,
 		released: version.released,
 		releaseDate: version.releaseDate,
-		project: version.project,
+		projectId: version.projectId,
 	};
 }
 
@@ -52,7 +52,7 @@ export default class VersionFeedTask extends Task {
 	private static logger = log4js.getLogger( 'VersionFeedTask' );
 
 	private channel: TextBasedChannel;
-	private projects: string[];
+	private projects: VersionConfig[];
 	private versionFeedEmoji: string;
 	private scope: number;
 	private actions: VersionChangeType[];
@@ -75,7 +75,7 @@ export default class VersionFeedTask extends Task {
 		try {
 			for ( const project of this.projects ) {
 				const results = await MojiraBot.jira.projectVersions.getProjectVersions( {
-					projectIdOrKey: project,
+					projectIdOrKey: project.name,
 					expand: 'id,name,archived,released',
 				} );
 
@@ -117,7 +117,7 @@ export default class VersionFeedTask extends Task {
 		const changes: JiraVersionChange[] = [];
 
 		for ( const project of this.projects ) {
-			changes.push( ...await this.getVersionChangesForProject( project ) );
+			changes.push( ...await this.getVersionChangesForProject( project.name ) );
 		}
 
 		return changes.filter( change => this.actions.includes( change.type ) );
@@ -263,10 +263,11 @@ export default class VersionFeedTask extends Task {
 			} );
 		}
 
-		if ( this.projects.length > 1 ) {
+		const projectKey = this.projects.find( project => project.id == version.projectId )?.name;
+		if ( projectKey ) {
 			embed.addFields( {
 				name: 'Project',
-				value: version.project,
+				value: projectKey,
 				inline: true,
 			} );
 		}
