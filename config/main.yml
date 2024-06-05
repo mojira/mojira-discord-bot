@@ -113,7 +113,7 @@ filterFeeds:
   #   titleSingle: This ticket has just been marked as fixed!
   #   cached: true
 
-versionFeeds: []
+versionFeeds:
     #java-fixes
   # - projects:
   #     - MC
@@ -139,21 +139,25 @@ versionFeeds: []
   #     - unreleased
 
     #version-feed
-  # - projects:
-  #     - BDS
-  #     - MC
-  #     - MCD
-  #     - MCL
-  #     - MCPE
-  #     - REALMS
-  #   channel: '741600360619049000'
-  #   publish: true
-  #   interval: 10000
-  #   scope: 5
-  #   actions:
-  #     - created
-  #     - archived
-  #     - unarchived
-  #     - released
-  #     - unreleased
-  #     - renamed
+    - projects:
+      - name: BDS
+        id: 11700
+      - name: MC
+        id: 10400
+      - name: MCL
+        id: 11101
+      - name: MCPE
+        id: 10200
+      - name: REALMS
+        id: 11402
+      channel: "741600360619049000"
+      publish: false
+      interval: 10000
+      scope: 5
+      actions:
+        - created
+        - archived
+        - unarchived
+        - released
+        - unreleased
+        - renamed
