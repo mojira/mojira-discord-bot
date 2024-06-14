@@ -95,8 +95,13 @@ export interface FilterFeedConfig {
 	cached?: boolean;
 }
 
+export interface VersionConfig {
+	name: string;
+	id: number;
+}
+
 export interface VersionFeedConfig {
-	projects: string[];
+	projects: VersionConfig[];
 	channel: Snowflake;
 	interval: number;
 	versionFeedEmoji: string | Snowflake;
