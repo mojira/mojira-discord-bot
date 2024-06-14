@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import BotConfig from '../BotConfig.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
+import DiscordUtil from '../util/DiscordUtil.js';
 
 export default class HelpCommand extends SlashCommand {
 	public readonly slashCommandBuilder = this.slashCommandBuilder
@@ -30,7 +31,7 @@ export default class HelpCommand extends SlashCommand {
 					
 					\`/tips\` - Sends helpful info on how to use the bug tracker and this Discord server.`,
 				} )
-				.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } );
+				.setFooter( DiscordUtil.getUserFooter( interaction.user ) );
 			await interaction.reply( { embeds: [embed], ephemeral: true } );
 		} catch {
 			return false;

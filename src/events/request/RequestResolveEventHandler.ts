@@ -5,6 +5,7 @@ import ResolveRequestMessageTask from '../../tasks/ResolveRequestMessageTask.js'
 import TaskScheduler from '../../tasks/TaskScheduler.js';
 import { RequestsUtil } from '../../util/RequestsUtil.js';
 import EventHandler from '../EventHandler.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
 
 export default class RequestResolveEventHandler implements EventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';
@@ -21,7 +22,9 @@ export default class RequestResolveEventHandler implements EventHandler<'message
 	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
 		if ( reaction.message?.author?.id !== this.botUserId ) return;
 
-		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ reaction.message.id }'` );
+		this.logger.info(
+			`User ${ DiscordUtil.getUserHandle( user ) } added '${ reaction.emoji.name }' reaction to request message '${ reaction.message.id }'`
+		);
 
 		const embed = new EmbedBuilder( reaction.message.embeds[0].data ).setColor( RequestsUtil.getEmbedColor( user ) );
 		await reaction.message.edit( { embeds: [embed] } );

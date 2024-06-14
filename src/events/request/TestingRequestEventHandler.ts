@@ -13,7 +13,9 @@ export default class TestingRequestEventHandler implements EventHandler<'message
 	// This syntax is used to ensure that `this` refers to the `TestingRequestEventHandler` object
 	public onEvent = async ( request: Message ): Promise<void> => {
 		if ( request.channel instanceof TextChannel ) {
-			this.logger.info( `${ request.author.tag } posted request ${ request.id } in #${ request.channel.name }` );
+			this.logger.info(
+				`${ DiscordUtil.getUserHandle( request.author ) } posted request ${ request.id } in #${ request.channel.name }`
+			);
 		}
 
 		const guildMember = request?.guild?.members?.resolve( request.author );

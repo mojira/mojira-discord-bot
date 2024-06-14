@@ -49,14 +49,14 @@ export default class ResolveRequestMessageTask extends MessageTask {
 				if ( logChannel && logChannel instanceof TextChannel ) {
 					const log = new EmbedBuilder()
 						.setColor( 'Green' )
-						.setAuthor( { name: origin.author.tag, iconURL: origin.author.avatarURL() ?? undefined } )
+						.setAuthor( DiscordUtil.getUserAsEmbedAuthor( origin.author ) )
 						.setDescription( origin.content )
 						.addFields(
 							{ name: 'Message', value: `[Here](${ origin.url })`, inline: true },
 							{ name: 'Channel', value: origin.channel.toString(), inline: true },
 							{ name: 'Created', value: origin.createdAt.toUTCString(), inline: false },
 						)
-						.setFooter( { text: `${ this.user.tag } resolved as ${ this.emoji }`, iconURL: this.user.avatarURL() ?? undefined } )
+						.setFooter( DiscordUtil.getUserFooter( this.user, ` resolved as ${ this.emoji }` ) )
 						.setTimestamp( new Date() );
 
 					try {
