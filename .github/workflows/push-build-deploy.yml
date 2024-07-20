@@ -49,7 +49,7 @@ jobs:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 50022
         FOLDER: "bin"
-        ARGS: "-avh --delete"
+        ARGS: "-avhW --delete"
         SERVER_IP: localhost
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
@@ -66,7 +66,7 @@ jobs:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 50022
         FOLDER: "node_modules"
-        ARGS: "-avh --delete"
+        ARGS: "-avhW --delete"
         SERVER_IP: localhost
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
@@ -83,7 +83,7 @@ jobs:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 50022
         FOLDER: "config"
-        ARGS: "-avh --delete --exclude='local.yml' --exclude='local-*.yml'"
+        ARGS: "-avhW --delete --exclude='local.yml' --exclude='local-*.yml'"
         SERVER_IP: localhost
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
@@ -100,7 +100,7 @@ jobs:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 50022
         FOLDER: "*.sh"
-        ARGS: "-avh"
+        ARGS: "-avhW"
         SERVER_IP: localhost
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
