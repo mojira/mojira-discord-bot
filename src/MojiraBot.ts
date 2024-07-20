@@ -91,7 +91,9 @@ export default class MojiraBot {
 
 			this.botUser = this.client.user;
 			this.running = true;
-			this.logger.info( `MojiraBot has been started successfully. Logged in as ${ this.botUser.tag }` );
+			this.logger.info(
+				`MojiraBot has been started successfully. Logged in as ${ DiscordUtil.getUserHandle( this.botUser ) }`
+			);
 
 			// Register events.
 			EventRegistry.setClient( this.client );

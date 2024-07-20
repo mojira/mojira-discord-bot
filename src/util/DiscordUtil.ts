@@ -1,6 +1,6 @@
 import log4js from 'log4js';
 import MojiraBot from '../MojiraBot.js';
-import { TextChannel, Message, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage, TextBasedChannel, ReplyMessageOptions } from 'discord.js';
+import { TextChannel, Message, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage, TextBasedChannel, ReplyMessageOptions, EmbedFooterData, EmbedAuthorData } from 'discord.js';
 
 export default class DiscordUtil {
 	private static logger = log4js.getLogger( 'DiscordUtil' );
@@ -69,5 +69,21 @@ export default class DiscordUtil {
 		} catch ( e ) {
 			this.logger.error( e );
 		}
+	}
+
+	public static getUserHandle( user: User ): string {
+		if ( user.discriminator == '0' ) {
+			return '@' + user.username;
+		} else {
+			return user.tag;
+		}
+	}
+
+	public static getUserFooter( user: User, text = '' ): EmbedFooterData {
+		return { text: this.getUserHandle( user ) + text, iconURL: user.avatarURL() ?? undefined };
+	}
+
+	public static getUserAsEmbedAuthor( user: User ): EmbedAuthorData {
+		return { name: this.getUserHandle( user ), iconURL: user.avatarURL() ?? undefined };
 	}
 }

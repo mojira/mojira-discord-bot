@@ -1,5 +1,6 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
+import DiscordUtil from '../util/DiscordUtil.js';
 
 export default class TipsCommand extends SlashCommand {
 	public readonly slashCommandBuilder = this.slashCommandBuilder
@@ -17,7 +18,7 @@ export default class TipsCommand extends SlashCommand {
 				Start by choosing which bug tracker projects you would like to be a part of in <#648479533246316555>.
 				Afterwards, you can use corresponding request channels in each project to make requests for changes to tickets on the bug tracker, like resolutions and adding affected versions. 
 				The moderators and helpers of the bug tracker will then be able to see the requests and resolve them.`.replace( /\t/g, '' ) )
-				.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } );
+				.setFooter( DiscordUtil.getUserFooter( interaction.user ) );
 			await interaction.reply( { embeds: [embed], ephemeral: true } );
 		} catch {
 			return false;

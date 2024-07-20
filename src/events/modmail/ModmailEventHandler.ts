@@ -52,7 +52,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 				await origin.react( '📬' );
 
 				const newThread = await start.startThread( {
-					name: origin.author.tag,
+					name: DiscordUtil.getUserHandle( origin.author ),
 					autoArchiveDuration: 1440,
 				} );
 

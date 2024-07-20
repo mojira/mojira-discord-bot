@@ -71,13 +71,8 @@ export default class MentionCommand extends Command {
 		}
 
 		if ( embed === undefined ) return false;
-		let messageAuthorNormalizedTag: string;
-		if ( message.author.discriminator === '0' ) {
-			messageAuthorNormalizedTag = message.author.username;
-		} else {
-			messageAuthorNormalizedTag = message.author.tag;
-		}
-		embed.setFooter( { text: messageAuthorNormalizedTag, iconURL: message.author.avatarURL() ?? undefined } )
+
+		embed.setFooter( DiscordUtil.getUserFooter( message.author ) )
 			.setTimestamp( message.createdAt );
 
 		try {

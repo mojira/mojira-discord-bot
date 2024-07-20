@@ -4,6 +4,7 @@ import emojiRegex from 'emoji-regex';
 import PermissionRegistry from '../permissions/PermissionRegistry.js';
 import { ReactionsUtil } from '../util/ReactionsUtil.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
+import DiscordUtil from '../util/DiscordUtil.js';
 
 interface PollOption {
 	emoji: string;
@@ -53,7 +54,7 @@ export default class PollCommand extends SlashCommand {
 	private async sendPollMessage( interaction: ChatInputCommandInteraction, title: string, options: PollOption[] ): Promise<void> {
 		const embed = new EmbedBuilder();
 		embed.setTitle( 'Poll' )
-			.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } )
+			.setFooter( DiscordUtil.getUserFooter( interaction.user ) )
 			.setTimestamp( interaction.createdAt )
 			.setColor( 'Green' );
 
