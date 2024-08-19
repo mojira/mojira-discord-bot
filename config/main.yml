@@ -89,9 +89,17 @@ roleGroups:
         emoji: '🇴'
 
 filterFeeds:
+    #java-triage
+  - jql: project = MC AND status changed by bugnet after lastRun
+    channel: '1275197626719141888' # new channel #java-triage
+    publish: true
+    interval: 300000
+    title: '{{num}} tickets have just been triaged.'
+    titleSingle: This ticket has just been triaged.
+    cached: false
+
     #java-fixes
   - jql: project = MC AND resolved > lastRun AND resolution = Fixed AND fixVersion in unreleasedVersions()
-    jqlRemoved: resolution = Unresolved
     channel: '666349583227682819'
     publish: true
     interval: 30000
@@ -100,43 +108,42 @@ filterFeeds:
     titleSingle: This ticket has just been resolved as Fixed!
     cached: false
 
-  # FIXME: This is currently broken and just throws errors
-
-  #   # bedrock-fixes
-  # - jql: project = MCPE AND updated > lastRun AND (resolution = Fixed OR fixVersion != EMPTY)
-  #   jqlRemoved: fixVersion = EMPTY
-  #   channel: '974302728719314974'
-  #   publish: true
-  #   interval: 30000
-  #   filterFeedEmoji: '🎉'
-  #   title: '{{num}} tickets have just been marked as fixed!'
-  #   titleSingle: This ticket has just been marked as fixed!
-  #   cached: true
+    # bedrock-fixes
+  - jql: project IN (MCPE, BDS) AND (resolution changed to Fixed after lastRun OR fixVersion changed after lastRun) AND fixVersion != EMPTY
+    channel: '974302728719314974'
+    publish: true
+    interval: 30000
+    filterFeedEmoji: '🎉'
+    title: '{{num}} tickets have just been marked as fixed!'
+    titleSingle: This ticket has just been marked as fixed!
+    cached: false
 
 versionFeeds:
     #java-fixes
-  # - projects:
-  #     - MC
-  #   channel: '666349583227682819'
-  #   publish: true
-  #   interval: 10000
-  #   scope: 5
-  #   versionFeedEmoji: '🎉'
-  #   actions:
-  #     - released
-  #     - unreleased
+    - projects:
+      - name: MC
+        id: 10400
+      channel: '666349583227682819'
+      publish: true
+      interval: 10000
+      scope: 5
+      versionFeedEmoji: '🎉'
+      actions:
+        - released
+        - unreleased
 
     #bedrock-fixes
-  # - projects:
-  #     - MCPE
-  #   channel: '974302728719314974'
-  #   publish: true
-  #   interval: 10000
-  #   scope: 5
-  #   versionFeedEmoji: '🎉'
-  #   actions:
-  #     - released
-  #     - unreleased
+    - projects:
+      - name: MCPE
+        id: 10200
+      channel: '974302728719314974'
+      publish: true
+      interval: 10000
+      scope: 5
+      versionFeedEmoji: '🎉'
+      actions:
+        - released
+        - unreleased
 
     #version-feed
     - projects:
