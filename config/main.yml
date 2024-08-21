@@ -57,26 +57,6 @@ roleGroups:
         title: Archived projects (MCCE, MCE, MCD, MCLG)
         desc: _Read-only access to all archived channels_
         emoji: '692399397232836758'
-  - prompt: Please select the pronoun(s) that you'd like to go by.
-    desc: This is not mandatory, but we encourage people to use the appropriate pronouns when referring to each other.
-    color: Blue
-    channel: '648479533246316555'
-    message: '753757208575082556'
-    radio: false # Some people might go by multiple pronouns? So why I implemented the radio feature 😅
-    roles:
-      - id: '753741802829381765'
-        title: He/Him
-        emoji: '🇭'
-      - id: '753741949474832434'
-        title: She/Her
-        emoji: '🇸'
-      - id: '753742065971757167'
-        title: They/Them
-        emoji: '🇹'
-      - id: '753745759148572801'
-        title: Other Pronoun
-        desc: (please indicate in your nickname)
-        emoji: '🇴'
 
 filterFeeds:
     #java-triage
