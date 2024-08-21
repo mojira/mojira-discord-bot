@@ -110,7 +110,7 @@ roleGroups:
         emoji: '🇴'
 
 filterFeeds:
-  - jql: updated > lastRun
+  - jql: updated > {{lastRun}}
     jqlRemoved: ''
     channel: '665904688616701953'
     publish: true

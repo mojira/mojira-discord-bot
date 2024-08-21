@@ -8,6 +8,7 @@ import MojiraBot from '../MojiraBot.js';
 
 export default class CachedFilterFeedTask extends Task {
 	private static logger = log4js.getLogger( 'CachedFilterFeedTask' );
+	private static lastRunRegex = /\{\{lastRun\}\}/g;
 
 	private channel: TextBasedChannel;
 	private jql: string;
@@ -37,7 +38,7 @@ export default class CachedFilterFeedTask extends Task {
 		this.lastRun = new Date().valueOf();
 
 		const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
-			jql: this.jql.replace( 'lastRun', this.lastRun.toString() ),
+			jql: this.jql.replace( CachedFilterFeedTask.lastRunRegex, this.lastRun.toString() ),
 			fields: ['key'],
 		} );
 
@@ -53,7 +54,7 @@ export default class CachedFilterFeedTask extends Task {
 
 		try {
 			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
-				jql: this.jql.replace( 'lastRun', this.lastRun.toString() ),
+				jql: this.jql.replace( CachedFilterFeedTask.lastRunRegex, this.lastRun.toString() ),
 				fields: ['key'],
 			} );
 
@@ -72,7 +73,7 @@ export default class CachedFilterFeedTask extends Task {
 			try {
 				const ticketKeys = Array.from( this.knownTickets );
 				const previousTicketResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
-					jql: `${ this.jqlRemoved.replace( 'lastRun', this.lastRun.toString() ) } AND key in (${ ticketKeys.join( ',' ) })`,
+					jql: `${ this.jqlRemoved.replace( CachedFilterFeedTask.lastRunRegex, this.lastRun.toString() ) } AND key in (${ ticketKeys.join( ',' ) })`,
 					fields: ['key'],
 				} );
 

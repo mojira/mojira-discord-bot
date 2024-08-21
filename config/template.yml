@@ -215,7 +215,7 @@ filterFeeds:
     publish: <boolean>
 
     # Whether the bot should cache tickets in the filter feed, 
-    # If false, the property lastRun should be included in the jql, but when true, the filter feed will be less efficient.
+    # If false, the variable {{lastRun}} should be included in the jql, but when true, the filter feed will be less efficient.
     # Optional; true by default.
     cached: <boolean>
   

@@ -90,7 +90,7 @@ roleGroups:
 
 filterFeeds:
     #java-triage
-  - jql: project = MC AND status changed by bugnet after lastRun
+  - jql: project = MC AND status changed BY bugnet AFTER {{lastRun}}
     channel: '1275197626719141888' # new channel #java-triage
     publish: true
     interval: 300000
@@ -99,7 +99,7 @@ filterFeeds:
     cached: false
 
     #java-fixes
-  - jql: project = MC AND resolved > lastRun AND resolution = Fixed AND fixVersion in unreleasedVersions()
+  - jql: project = MC AND resolved > {{lastRun}} AND resolution = Fixed AND fixVersion in unreleasedVersions()
     channel: '666349583227682819'
     publish: true
     interval: 30000
@@ -109,7 +109,7 @@ filterFeeds:
     cached: false
 
     # bedrock-fixes
-  - jql: project IN (MCPE, BDS) AND (resolution changed to Fixed after lastRun OR fixVersion changed after lastRun) AND fixVersion != EMPTY
+  - jql: project IN (MCPE, BDS) AND (resolution CHANGED TO Fixed AFTER {{lastRun}} OR fixVersion CHANGED AFTER {{lastRun}}) AND fixVersion != EMPTY
     channel: '974302728719314974'
     publish: true
     interval: 30000
@@ -120,51 +120,51 @@ filterFeeds:
 
 versionFeeds:
     #java-fixes
-    - projects:
-      - name: MC
-        id: 10400
-      channel: '666349583227682819'
-      publish: true
-      interval: 10000
-      scope: 5
-      versionFeedEmoji: '🎉'
-      actions:
-        - released
-        - unreleased
+  - projects:
+    - name: MC
+      id: 10400
+    channel: '666349583227682819'
+    publish: true
+    interval: 10000
+    scope: 5
+    versionFeedEmoji: '🎉'
+    actions:
+      - released
+      - unreleased
 
     #bedrock-fixes
-    - projects:
-      - name: MCPE
-        id: 10200
-      channel: '974302728719314974'
-      publish: true
-      interval: 10000
-      scope: 5
-      versionFeedEmoji: '🎉'
-      actions:
-        - released
-        - unreleased
+  - projects:
+    - name: MCPE
+      id: 10200
+    channel: '974302728719314974'
+    publish: true
+    interval: 10000
+    scope: 5
+    versionFeedEmoji: '🎉'
+    actions:
+      - released
+      - unreleased
 
     #version-feed
-    - projects:
-      - name: BDS
-        id: 11700
-      - name: MC
-        id: 10400
-      - name: MCL
-        id: 11101
-      - name: MCPE
-        id: 10200
-      - name: REALMS
-        id: 11402
-      channel: "741600360619049000"
-      publish: false
-      interval: 10000
-      scope: 5
-      actions:
-        - created
-        - archived
-        - unarchived
-        - released
-        - unreleased
-        - renamed
+  - projects:
+    - name: BDS
+      id: 11700
+    - name: MC
+      id: 10400
+    - name: MCL
+      id: 11101
+    - name: MCPE
+      id: 10200
+    - name: REALMS
+      id: 11402
+    channel: "741600360619049000"
+    publish: false
+    interval: 10000
+    scope: 5
+    actions:
+      - created
+      - archived
+      - unarchived
+      - released
+      - unreleased
+      - renamed

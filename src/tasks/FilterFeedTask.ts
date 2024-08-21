@@ -9,6 +9,7 @@ import { LoggerUtil } from '../util/LoggerUtil.js';
 
 export default class FilterFeedTask extends Task {
 	private static logger = log4js.getLogger( 'FilterFeedTask' );
+	private static lastRunRegex = /\{\{lastRun\}\}/g;
 
 	private channel: TextBasedChannel;
 	private jql: string;
@@ -39,7 +40,7 @@ export default class FilterFeedTask extends Task {
 
 		try {
 			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
-				jql: this.jql.replace( 'lastRun', this.lastRun.toString() ),
+				jql: this.jql.replace( FilterFeedTask.lastRunRegex, this.lastRun.toString() ),
 				fields: ['key'],
 			} );
 
