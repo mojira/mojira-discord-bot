@@ -56,7 +56,7 @@ roleGroups:
       - id: '1097589181154336789'
         title: Archived projects (MCCE, MCE, MCD, MCLG)
         desc: _Read-only access to all archived channels_
-        emoji: '692399397232836758'
+        emoji: '1276641238782705704'
 
 filterFeeds:
     #java-triage
