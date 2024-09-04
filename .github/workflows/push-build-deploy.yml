@@ -63,6 +63,7 @@ jobs:
           config
           *.sh
         artifact_destination: /home/mojiradiscordbot/mojira-discord-bot
+        rsync_args: "-avhW --delete --exclude='local.yml' --exclude='local-*.yml'"
         script: |
           cd mojira-discord-bot
           ./restart.sh main
