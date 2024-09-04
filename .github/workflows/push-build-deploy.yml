@@ -1,5 +1,8 @@
 name: Build and deploy
 
+permissions:
+  id-token: write # Require write permission to Fetch an OIDC token.
+
 on:
   push:
     branches: [ master ]
@@ -17,14 +20,14 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
-    - name: Setup Node.js ${{ matrix.node-version }}
+    - name: Set up Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Setup cache for NPM modules
+    - name: Set up cache for NPM modules
       uses: actions/cache@v3
       with:
         path: ~/.npm
@@ -43,89 +46,23 @@ jobs:
     - name: Prune dependencies
       run: npm prune --production
 
-    - name: Upload new binaries
-      uses: urielsalis/rsync-deploy@master
-      env:
-        DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        SERVER_PORT: 50022
-        FOLDER: "bin"
-        ARGS: "-avhW --delete"
-        SERVER_IP: localhost
-        USERNAME: ${{ secrets.REMOTE_USER }}
-        SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
-        CLIENT_ID: ${{ secrets.CLIENT_ID }}
-        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-        RESOURCE_ID: ${{ secrets.RESOURCE_ID }}
-        RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
-        TENANT_ID: ${{ secrets.TENANT_ID }}
-        BASTION_NAME: ${{ secrets.BASTION_NAME }}
-          
-    - name: Upload new dependencies
-      uses: urielsalis/rsync-deploy@master
-      env:
-        DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        SERVER_PORT: 50022
-        FOLDER: "node_modules"
-        ARGS: "-avhW --delete"
-        SERVER_IP: localhost
-        USERNAME: ${{ secrets.REMOTE_USER }}
-        SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
-        CLIENT_ID: ${{ secrets.CLIENT_ID }}
-        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-        RESOURCE_ID: ${{ secrets.RESOURCE_ID }}
-        RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
-        TENANT_ID: ${{ secrets.TENANT_ID }}
-        BASTION_NAME: ${{ secrets.BASTION_NAME }}
-        
-    - name: Update config
-      uses: urielsalis/rsync-deploy@master
-      env:
-        DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        SERVER_PORT: 50022
-        FOLDER: "config"
-        ARGS: "-avhW --delete --exclude='local.yml' --exclude='local-*.yml'"
-        SERVER_IP: localhost
-        USERNAME: ${{ secrets.REMOTE_USER }}
-        SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
-        CLIENT_ID: ${{ secrets.CLIENT_ID }}
-        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-        RESOURCE_ID: ${{ secrets.RESOURCE_ID }}
-        RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
-        TENANT_ID: ${{ secrets.TENANT_ID }}
-        BASTION_NAME: ${{ secrets.BASTION_NAME }}
-
-    - name: Update shell files
-      uses: urielsalis/rsync-deploy@master
-      env:
-        DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        SERVER_PORT: 50022
-        FOLDER: "*.sh"
-        ARGS: "-avhW"
-        SERVER_IP: localhost
-        USERNAME: ${{ secrets.REMOTE_USER }}
-        SERVER_DESTINATION: /home/mojiradiscordbot/mojira-discord-bot
-        CLIENT_ID: ${{ secrets.CLIENT_ID }}
-        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-        RESOURCE_ID: ${{ secrets.RESOURCE_ID }}
-        RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
-        TENANT_ID: ${{ secrets.TENANT_ID }}
-        BASTION_NAME: ${{ secrets.BASTION_NAME }}
-
-    - name: Run internal deploy script
-      uses: urielsalis/azure-bastion-ssh-action@master
-      env:
-        CLIENT_ID: ${{ secrets.CLIENT_ID }}
-        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-        RESOURCE_ID: ${{ secrets.RESOURCE_ID }}
-        RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
-        TENANT_ID: ${{ secrets.TENANT_ID }}
-        BASTION_NAME: ${{ secrets.BASTION_NAME }}
+    - name: Deploy
+      uses: mojira/deploy@main
       with:
-        host: localhost
-        port: 50022
-        user: ${{ secrets.REMOTE_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        command: |
+        azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+        azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        bastion_name: ${{ secrets.BASTION_NAME }}
+        resource_group: ${{ secrets.RESOURCE_GROUP }}
+        resource_id: ${{ secrets.RESOURCE_ID }}
+        ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+        username: mojiradiscordbot
+        artifact_paths: |
+          bin
+          node_modules
+          config
+          *.sh
+        artifact_destination: /home/mojiradiscordbot/mojira-discord-bot
+        script: |
           cd mojira-discord-bot
           ./restart.sh main
-        args: "-tt"
