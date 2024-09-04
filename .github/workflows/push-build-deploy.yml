@@ -60,10 +60,10 @@ jobs:
         artifact_paths: |
           bin
           node_modules
-          config
+          config/default.yml
+          config/main.yml
           *.sh
         artifact_destination: /home/mojiradiscordbot/mojira-discord-bot
-        rsync_args: "-avhW --delete --exclude='local.yml' --exclude='local-*.yml'"
         script: |
           cd mojira-discord-bot
           ./restart.sh main
