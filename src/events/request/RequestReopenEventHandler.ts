@@ -21,7 +21,9 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 
 	// This syntax is used to ensure that `this` refers to the `RequestReopenEventHandler` object
 	public onEvent = async ( { message }: MessageReaction, user: User ): Promise<void> => {
-		this.logger.info( `User ${ user.tag } is reopening the request message '${ message.id }'` );
+		this.logger.info(
+			`User ${ DiscordUtil.getUserHandle( user ) } is reopening the request message '${ message.id }'`
+		);
 
 		message = await DiscordUtil.fetchMessage( message );
 
@@ -40,14 +42,14 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 		if ( logChannel && logChannel instanceof TextChannel ) {
 			const log = new EmbedBuilder()
 				.setColor( 'Orange' )
-				.setAuthor( { name: requestMessage.author.tag, iconURL: requestMessage.author.avatarURL() ?? undefined } )
+				.setAuthor( DiscordUtil.getUserAsEmbedAuthor( requestMessage.author ) )
 				.setDescription( requestMessage.content )
 				.addFields(
 					{ name: 'Message', value: `[Here](${ requestMessage.url })`, inline: true },
 					{ name: 'Channel', value: requestMessage.channel.toString(), inline: true },
 					{ name: 'Created', value: requestMessage.createdAt.toUTCString(), inline: false }
 				)
-				.setFooter( { text: `${ user.tag } reopened this request`, iconURL: user.avatarURL() ?? undefined } )
+				.setFooter( DiscordUtil.getUserFooter( user, ' reopened this request' ) )
 				.setTimestamp( new Date() );
 
 			try {

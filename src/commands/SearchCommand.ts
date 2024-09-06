@@ -3,6 +3,7 @@ import SlashCommand from './commandHandlers/SlashCommand.js';
 import BotConfig from '../BotConfig.js';
 import MojiraBot from '../MojiraBot.js';
 import { ChannelConfigUtil } from '../util/ChannelConfigUtil.js';
+import DiscordUtil from '../util/DiscordUtil.js';
 
 export default class SearchCommand extends SlashCommand {
 	public readonly slashCommandBuilder = this.slashCommandBuilder
@@ -35,7 +36,7 @@ export default class SearchCommand extends SlashCommand {
 			}
 
 			embed.setTitle( '**Results:**' );
-			embed.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } );
+			embed.setFooter( DiscordUtil.getUserFooter( interaction.user ) );
 
 			for ( const issue of searchResults.issues ) {
 				embed.addFields( {
