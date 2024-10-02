@@ -43,6 +43,11 @@ jobs:
       env:
         CI: true
 
+    - name: Rebuild better-sqlite3
+      run: |
+        npm rebuild better_sqlite3
+        npm rebuild
+
     - name: Prune dependencies
       run: npm prune --production
 
