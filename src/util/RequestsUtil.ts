@@ -31,7 +31,7 @@ export class RequestsUtil {
 			} else {
 				return undefined;
 			}
-		} catch ( ignored ) {
+		} catch {
 			// The field doesn't contain a valid message URL.
 			return undefined;
 		}
@@ -64,7 +64,7 @@ export class RequestsUtil {
 			if ( originChannel instanceof TextChannel ) {
 				return await DiscordUtil.getMessage( originChannel, ids.messageId );
 			}
-		} catch ( ignored ) {
+		} catch {
 			// The channel and/or the message don't exist.
 			return undefined;
 		}

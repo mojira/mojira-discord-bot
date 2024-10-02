@@ -284,7 +284,7 @@ export default class MojiraBot {
 
 		try {
 			TaskScheduler.clearAll();
-			this.client.destroy();
+			await this.client.destroy();
 			this.running = false;
 			this.logger.info( 'MojiraBot has been successfully shut down.' );
 

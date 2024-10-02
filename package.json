@@ -8,12 +8,12 @@
     "bot": "tsc && node bin",
     "build": "tsc",
     "validate": "tsc --noEmit",
-    "lint": "eslint . --ext .ts --max-warnings 0",
-    "lintfix": "eslint . --ext .ts --fix"
+    "lint": "eslint . --max-warnings 0",
+    "lintfix": "eslint . --fix"
   },
   "dependencies": {
-    "better-sqlite3": "^11.3.0",
     "@discordjs/rest": "^2.4.0",
+    "better-sqlite3": "^11.3.0",
     "config": "^3.3.12",
     "discord.js": "^14.16.3",
     "emoji-regex": "^10.4.0",
@@ -23,11 +23,12 @@
     "log4js": "^6.4.0"
   },
   "devDependencies": {
+    "@stylistic/eslint-plugin": "^2.8.0",
     "@types/config": "^3.3.5",
     "@types/node": "^18.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.4.0",
-    "@typescript-eslint/parser": "^5.4.0",
-    "eslint": "^8.2.0",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/parser": "^8.8.0",
+    "eslint": "^9.11.1",
     "typescript": "^5.6.2"
   },
   "engines": {

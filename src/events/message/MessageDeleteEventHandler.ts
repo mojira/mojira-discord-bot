@@ -1,4 +1,4 @@
-import { Message, MessageType, OmitPartialGroupDMChannel, PartialMessage, Snowflake } from 'discord.js';
+import { Message, MessageType, PartialMessage, Snowflake } from 'discord.js';
 import BotConfig from '../../BotConfig.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
 import EventHandler from '../EventHandler.js';
