@@ -1,6 +1,6 @@
 import log4js from 'log4js';
 import MojiraBot from '../MojiraBot.js';
-import { TextChannel, Message, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage, TextBasedChannel, ReplyMessageOptions } from 'discord.js';
+import { TextChannel, Message, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage, TextBasedChannel, MessageReplyOptions } from 'discord.js';
 
 export default class DiscordUtil {
 	private static logger = log4js.getLogger( 'DiscordUtil' );
@@ -52,7 +52,7 @@ export default class DiscordUtil {
 		} );
 	}
 
-	public static async sendMentionMessage( origin: Message, content: ReplyMessageOptions ): Promise<void> {
+	public static async sendMentionMessage( origin: Message, content: MessageReplyOptions ): Promise<void> {
 		try {
 			if ( origin.reference?.messageId ) {
 				const replyTo = await origin.fetchReference();
@@ -64,7 +64,10 @@ export default class DiscordUtil {
 					await replyTo.reply( { ...content, allowedMentions: { repliedUser: false } } );
 				}
 			} else {
-				await origin.channel.send( content );
+				const channel = await origin.channel.fetch();
+				if ( channel.isSendable() ) {
+					await channel.send( content );
+				}
 			}
 		} catch ( e ) {
 			this.logger.error( e );

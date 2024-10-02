@@ -17,6 +17,10 @@ export default class InternalProgressEventHandler implements EventHandler<'messa
 
 	// This syntax is used to ensure that `this` refers to the `InternalProgressEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
+		if ( !origin.channel.isSendable() ) {
+			return;
+		}
+
 		const messageId = origin.content.split( /\s/ )[0];
 		if ( !this.isValidId( messageId ) ) {
 			try {

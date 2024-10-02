@@ -1,6 +1,6 @@
 import { MentionRegistry } from '../mentions/MentionRegistry.js';
 import { FilterFeedConfig } from '../BotConfig.js';
-import { Message, TextBasedChannel } from 'discord.js';
+import { Message, SendableChannels } from 'discord.js';
 import log4js from 'log4js';
 import Task from './Task.js';
 import { NewsUtil } from '../util/NewsUtil.js';
@@ -10,7 +10,7 @@ export default class CachedFilterFeedTask extends Task {
 	private static logger = log4js.getLogger( 'CachedFilterFeedTask' );
 	private static lastRunRegex = /\{\{lastRun\}\}/g;
 
-	private channel: TextBasedChannel;
+	private channel: SendableChannels;
 	private jql: string;
 	private jqlRemoved?: string;
 	private filterFeedEmoji: string;
@@ -22,7 +22,7 @@ export default class CachedFilterFeedTask extends Task {
 
 	private	lastRun: number;
 
-	constructor( feedConfig: FilterFeedConfig, channel: TextBasedChannel ) {
+	constructor( feedConfig: FilterFeedConfig, channel: SendableChannels ) {
 		super();
 
 		this.channel = channel;

@@ -55,6 +55,10 @@ export default class MentionCommand extends Command {
 	public async run( message: Message, args: string[] ): Promise<boolean> {
 		if ( ChannelConfigUtil.mentionsDisabled( message.channel ) ) return false;
 
+		if ( !message.channel.isSendable() ) {
+			return false;
+		}
+
 		const mention = MentionRegistry.getMention( args, message.channel );
 
 		let embed: EmbedBuilder;

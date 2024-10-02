@@ -1,4 +1,4 @@
-import { Message, Snowflake, TextChannel } from 'discord.js';
+import { Message, PartialMessage, Snowflake, TextChannel } from 'discord.js';
 import log4js from 'log4js';
 import EventHandler from '../EventHandler.js';
 import { RequestsUtil } from '../../util/RequestsUtil.js';
@@ -20,7 +20,9 @@ export default class RequestDeleteEventHandler implements EventHandler<'messageD
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestDeleteEventHandler` object
-	public onEvent = async ( origin: Message ): Promise<void> => {
+	public onEvent = async ( origin: Message | PartialMessage ): Promise<void> => {
+		origin = await DiscordUtil.fetchMessage( origin );
+
 		this.logger.info( `User ${ origin.author.tag }'s request ${ origin.id } in channel ${ origin.channel.id } was deleted` );
 
 		const internalChannelId = this.internalChannels.get( origin.channel.id );

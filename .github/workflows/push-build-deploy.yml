@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [18.x]
 
     steps:
     - name: Checkout repository
@@ -60,8 +60,8 @@ jobs:
         artifact_paths: |
           bin
           node_modules
-          config/default.yml
-          config/main.yml
+          config/default.*
+          config/main.*
           *.sh
         artifact_destination: /home/mojiradiscordbot/mojira-discord-bot
         script: |

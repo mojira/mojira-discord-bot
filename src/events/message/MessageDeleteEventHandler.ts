@@ -1,4 +1,4 @@
-import { Message, MessageType, Snowflake } from 'discord.js';
+import { Message, MessageType, PartialMessage, Snowflake } from 'discord.js';
 import BotConfig from '../../BotConfig.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
 import EventHandler from '../EventHandler.js';
@@ -18,7 +18,7 @@ export default class MessageDeleteEventHandler implements EventHandler<'messageD
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageDeleteEventHandler` object
-	public onEvent = async ( message: Message ): Promise<void> => {
+	public onEvent = async ( message: Message | PartialMessage ): Promise<void> => {
 		message = await DiscordUtil.fetchMessage( message );
 
 		if (
