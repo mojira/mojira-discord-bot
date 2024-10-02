@@ -1,4 +1,4 @@
-import { Message, TextChannel } from 'discord.js';
+import { GuildChannel, Message } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
@@ -12,7 +12,10 @@ export default class TestingRequestEventHandler implements EventHandler<'message
 
 	// This syntax is used to ensure that `this` refers to the `TestingRequestEventHandler` object
 	public onEvent = async ( request: Message ): Promise<void> => {
-		if ( request.channel instanceof TextChannel ) {
+		if ( !request.channel.isSendable() ) {
+			return;
+		}
+		if ( request.channel instanceof GuildChannel ) {
 			this.logger.info( `${ request.author.tag } posted request ${ request.id } in #${ request.channel.name }` );
 		}
 

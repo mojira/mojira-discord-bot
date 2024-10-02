@@ -1,4 +1,4 @@
-import { EmbedBuilder, TextBasedChannel } from 'discord.js';
+import { EmbedBuilder, SendableChannels } from 'discord.js';
 import log4js from 'log4js';
 import { VersionConfig, VersionFeedConfig } from '../BotConfig.js';
 import { NewsUtil } from '../util/NewsUtil.js';
@@ -51,7 +51,7 @@ interface JiraVersionMap {
 export default class VersionFeedTask extends Task {
 	private static logger = log4js.getLogger( 'VersionFeedTask' );
 
-	private channel: TextBasedChannel;
+	private channel: SendableChannels;
 	private projects: VersionConfig[];
 	private versionFeedEmoji: string;
 	private scope: number;
@@ -60,7 +60,7 @@ export default class VersionFeedTask extends Task {
 
 	private cachedVersions: JiraVersionMap = {};
 
-	constructor( feedConfig: VersionFeedConfig, channel: TextBasedChannel ) {
+	constructor( feedConfig: VersionFeedConfig, channel: SendableChannels ) {
 		super();
 
 		this.channel = channel;

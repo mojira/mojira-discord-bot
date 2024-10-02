@@ -1,4 +1,4 @@
-import { EmbedBuilder, Message, MessageType, Snowflake, TextChannel } from 'discord.js';
+import { EmbedBuilder, GuildChannel, Message, MessageType, Snowflake, TextChannel } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig, { PrependResponseMessageType } from '../../BotConfig.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
@@ -33,7 +33,11 @@ export default class RequestEventHandler implements EventHandler<'messageCreate'
 			return;
 		}
 
-		if ( origin.channel instanceof TextChannel ) {
+		if ( !origin.channel.isSendable() ) {
+			return;
+		}
+
+		if ( origin.channel instanceof GuildChannel ) {
 			this.logger.info( `${ origin.author.tag } posted request ${ origin.id } in #${ origin.channel.name }` );
 		}
 

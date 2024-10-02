@@ -229,7 +229,7 @@ export default class MojiraBot {
 			// Filter feed tasks.
 			for ( const config of BotConfig.filterFeeds ) {
 				const channel = await DiscordUtil.getChannel( config.channel );
-				if ( channel === undefined ) continue;
+				if ( channel === undefined || !channel.isSendable() ) continue;
 
 				if ( config.cached ) {
 					TaskScheduler.addTask(
@@ -247,7 +247,7 @@ export default class MojiraBot {
 			// Version feed tasks.
 			for ( const config of BotConfig.versionFeeds ) {
 				const channel = await DiscordUtil.getChannel( config.channel );
-				if ( channel === undefined ) continue;
+				if ( channel === undefined || !channel.isSendable() ) continue;
 
 				TaskScheduler.addTask(
 					new VersionFeedTask( config, channel ),

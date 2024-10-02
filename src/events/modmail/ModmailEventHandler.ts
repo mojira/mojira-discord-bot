@@ -11,6 +11,10 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 
 	// This syntax is used to ensure that `this` refers to the `ModmailEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
+		if ( !origin.channel.isSendable() ) {
+			return;
+		}
+
 		const modmailChannel = await DiscordUtil.getChannel( BotConfig.modmailChannel );
 
 		const banStatus = BotConfig.database.prepare( 'SELECT user FROM modmail_bans WHERE user = ?' ).get( origin.author.id );
