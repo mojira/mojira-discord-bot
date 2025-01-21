@@ -127,8 +127,8 @@ versionFeeds:
       id: 10200
     - name: REALMS
       id: 11402
-    channel: "741600360619049000"
-    publish: false
+    channel: '741600360619049000'
+    publish: true
     interval: 10000
     scope: 5
     actions:
