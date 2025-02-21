@@ -194,7 +194,7 @@ export default class BotConfig {
 	public static jiraLogin(): void {
 		// TODO: integrate newErrorHandling from Jira.js
 		MojiraBot.jira = new JiraClient( {
-			host: 'https://bugs.mojang.com',
+			host: 'https://bugs-legacy.mojang.com',
 			telemetry: false,
 			authentication: this.jiraPat === undefined ? undefined : {
 				personalAccessToken: this.jiraPat,
