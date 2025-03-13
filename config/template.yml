@@ -11,8 +11,9 @@ logDirectory: <string | false>
 # Your bot token used to log in to Discord with the bot.
 token: <string>
 
-# Your Jira personal access token.
+# Your Jira E-Mail and personal access token.
 # Optional; if not assigned a value, the bot will not attempt to log into Jira.
+jiraUser: <string>
 jiraPat: <string>
 
 # A list of user IDs for owner only commands.

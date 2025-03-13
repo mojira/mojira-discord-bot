@@ -4,6 +4,7 @@ node_modules
 .vscode/*
 .history
 **/.DS_Store
+.idea/
 
 **/*.log
 settings.json
