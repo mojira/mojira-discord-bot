@@ -21,7 +21,7 @@ export default class SearchCommand extends SlashCommand {
 
 		try {
 			const embed = new EmbedBuilder();
-			const searchFilter = `text ~ "${ plainArgs }" AND project in (${ BotConfig.projects.join( ', ' ) })`;
+			const searchFilter = `(description ~ "${ plainArgs }" OR summary ~ "${ plainArgs }") AND project in (${ BotConfig.projects.join( ', ' ) })`;
 			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
 				jql: searchFilter,
 				maxResults: BotConfig.maxSearchResults,

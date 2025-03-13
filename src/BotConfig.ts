@@ -116,6 +116,7 @@ export default class BotConfig {
 
 	private static token: string;
 	private static jiraPat?: string;
+	private static jiraUser?: string;
 
 	public static owners: Snowflake[];
 
@@ -149,6 +150,7 @@ export default class BotConfig {
 		this.logDirectory = getOrDefault( 'logDirectory', false );
 
 		this.token = config.get( 'token' );
+		this.jiraUser = getOrDefault( 'jiraUser', undefined );
 		this.jiraPat = getOrDefault( 'jiraPat', undefined );
 
 		this.owners = getOrDefault( 'owners', [] );
@@ -194,10 +196,12 @@ export default class BotConfig {
 	public static jiraLogin(): void {
 		// TODO: integrate newErrorHandling from Jira.js
 		MojiraBot.jira = new JiraClient( {
-			host: 'https://bugs.mojang.com',
-			telemetry: false,
-			authentication: this.jiraPat === undefined ? undefined : {
-				personalAccessToken: this.jiraPat,
+			host: 'https://mojira.atlassian.net',
+			authentication: this.jiraPat === undefined || this.jiraUser === undefined ? undefined : {
+				basic: {
+					email: this.jiraUser,
+					apiToken: this.jiraPat,
+				},
 			},
 		} );
 	}
