@@ -149,6 +149,6 @@ export class RequestsUtil {
 
 		// Escape all of the following characters with a backslash: [, ], \
 		return content.replace( /([[\]\\])/gm, '\\$1' )
-			.replace( regex, '[$<ticketid>$<anchor>](https://bugs.mojang.com/browse/$<ticketid>$<query>$<anchor>)' );
+			.replace( regex, '[$<ticketid>$<anchor>](https://mojira.atlassian.net/browse/$<ticketid>$<query>$<anchor>)' );
 	}
 }
