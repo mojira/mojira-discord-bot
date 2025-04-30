@@ -60,7 +60,7 @@ roleGroups:
 
 filterFeeds:
     #java-triage
-  - jql: project = MC AND status changed BY bugnet AFTER {{lastRun}}
+  - jql: project = MC AND status changed BY 712020:d5700659-5369-4732-bae2-b41f1168d768 AFTER {{lastRun}}
     channel: '1275197626719141888' # new channel #java-triage
     publish: true
     interval: 300000
