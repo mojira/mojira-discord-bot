@@ -13,7 +13,7 @@ interface JiraVersion {
 	archived: boolean;
 	released: boolean;
 	releaseDate?: string;
-	projectId: number;
+	projectId: number | string;
 }
 
 function versionConv( version: Version ): JiraVersion | undefined {
