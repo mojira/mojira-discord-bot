@@ -71,4 +71,5 @@ jobs:
         artifact_destination: /home/mojiradiscordbot/mojira-discord-bot
         script: |
           cd mojira-discord-bot
+          mv -f /home/mojiradiscordbot/mojira-discord-bot/main.yml /home/mojiradiscordbot/mojira-discord-bot/config/main.yml
           ./restart.sh main
