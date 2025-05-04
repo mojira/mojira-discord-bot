@@ -101,7 +101,7 @@ export class RequestsUtil {
 	 * @returns A NEW regex object every time. You have to store it as a variable if you use `exec` on it, otherwise you will encounter infinite loops.
 	 */
 	public static getTicketRequestRegex(): RegExp {
-		return new RegExp( `<?(?:https?://bugs\\.mojang\\.com/(?:browse|projects)(?:/\\w+/issues)?/|\\b)${ MentionCommand.ticketPattern }>?`, 'g' );
+		return new RegExp( `<?(?:https?://(?:report\\.)?bugs\\.mojang\\.com/(?:browse(?:/\\w+/issues)?|projects/\\w+/issues|servicedesk/customer/portal/\\d+)/|\\b)${ MentionCommand.ticketPattern }>?`, 'g' );
 	}
 
 	public static async checkTicketValidity( tickets: string[] ): Promise<boolean> {
