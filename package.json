@@ -12,10 +12,10 @@
     "lintfix": "eslint . --fix"
   },
   "dependencies": {
-    "@discordjs/rest": "^2.4.0",
+    "@discordjs/rest": "^2.5.0",
     "better-sqlite3": "^11.3.0",
     "config": "^3.3.12",
-    "discord.js": "^14.16.3",
+    "discord.js": "^14.19.3",
     "emoji-regex": "^10.4.0",
     "escape-string-regexp": "^5.0.0",
     "jira.js": "^2.20.1",
