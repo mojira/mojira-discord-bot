@@ -1,4 +1,4 @@
-import { EmbedBuilder, escapeMarkdown, ChatInputCommandInteraction } from 'discord.js';
+import { EmbedBuilder, escapeMarkdown, ChatInputCommandInteraction, MessageFlagsBitField } from 'discord.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 import BotConfig from '../BotConfig.js';
 import MojiraBot from '../MojiraBot.js';
@@ -22,7 +22,7 @@ export default class SearchCommand extends SlashCommand {
 		try {
 			const embed = new EmbedBuilder();
 			const searchFilter = `(description ~ "${ plainArgs }" OR summary ~ "${ plainArgs }") AND project in (${ BotConfig.projects.join( ', ' ) })`;
-			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
+			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlEnhancedSearch( {
 				jql: searchFilter,
 				maxResults: BotConfig.maxSearchResults,
 				fields: [ 'key', 'summary' ],
@@ -30,7 +30,7 @@ export default class SearchCommand extends SlashCommand {
 
 			if ( !searchResults.issues ) {
 				embed.setTitle( `No results found for "${ escapeMarkdown( plainArgs ) }"` );
-				await interaction.reply( { embeds: [embed], ephemeral: true } );
+				await interaction.reply( { embeds: [embed], flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 				return true;
 			}
 
@@ -48,14 +48,14 @@ export default class SearchCommand extends SlashCommand {
 			embed.setDescription( `__[See all results](https://bugs.mojang.com/issues/?jql=${ escapedJql })__` );
 
 			if ( interaction.channel !== null && ChannelConfigUtil.publicSearch( interaction.channel ) ) {
-				await interaction.reply( { embeds: [embed], ephemeral: false } );
+				await interaction.reply( { embeds: [embed] } );
 			} else {
-				await interaction.reply( { embeds: [embed], ephemeral: true } );
+				await interaction.reply( { embeds: [embed], flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 			}
 		} catch {
 			const embed = new EmbedBuilder();
 			embed.setTitle( `No results found for "${ escapeMarkdown( plainArgs ) }"` );
-			await interaction.reply( { embeds: [embed], ephemeral: true } );
+			await interaction.reply( { embeds: [embed], flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 			return false;
 		}
 

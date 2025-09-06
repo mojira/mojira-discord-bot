@@ -2,7 +2,7 @@ import SlashCommand from './SlashCommand.js';
 import SlashCommandRegistry from './SlashCommandRegistry.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
-import { Client, Collection, RESTPostAPIApplicationCommandsJSONBody, ChatInputCommandInteraction, GuildMember } from 'discord.js';
+import { Client, Collection, RESTPostAPIApplicationCommandsJSONBody, ChatInputCommandInteraction, GuildMember, MessageFlagsBitField } from 'discord.js';
 import { SlashCommandJsonData } from '../../types/discord.js';
 import { ChannelConfigUtil } from '../../util/ChannelConfigUtil.js';
 
@@ -29,12 +29,12 @@ export default class SlashCommandRegister {
 
 						if ( command.checkPermission( member ) ) {
 							if ( interaction.channel !== null && ChannelConfigUtil.commandsDisabled( interaction.channel ) ) {
-								await interaction.reply( { content: 'Commands are not allowed in this channel.', ephemeral: true } );
+								await interaction.reply( { content: 'Commands are not allowed in this channel.', flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 							} else if ( !await command.run( interaction ) ) {
-								await interaction.reply( { content: 'An error occurred while running this command.', ephemeral: true } );
+								await interaction.reply( { content: 'An error occurred while running this command.', flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 							}
 						} else {
-							await interaction.reply( { content: 'You do not have permission to use this command.', ephemeral: true } );
+							await interaction.reply( { content: 'You do not have permission to use this command.', flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 						}
 					},
 				};

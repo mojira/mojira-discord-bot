@@ -8,7 +8,7 @@ import MojiraBot from '../MojiraBot.js';
 
 export default class CachedFilterFeedTask extends Task {
 	private static logger = log4js.getLogger( 'CachedFilterFeedTask' );
-	private static lastRunRegex = /\{\{lastRun\}\}/g;
+	private static lastRunRegex = /\{\{lastRun}}/g;
 
 	private channel: SendableChannels;
 	private jql: string;
@@ -30,14 +30,14 @@ export default class CachedFilterFeedTask extends Task {
 		this.jqlRemoved = feedConfig.jqlRemoved;
 		this.filterFeedEmoji = feedConfig.filterFeedEmoji;
 		this.title = feedConfig.title;
-		this.titleSingle = feedConfig.titleSingle || feedConfig.title.replace( /\{\{num\}\}/g, '1' );
+		this.titleSingle = feedConfig.titleSingle || feedConfig.title.replace( /\{\{num}}/g, '1' );
 		this.publish = feedConfig.publish ?? false;
 	}
 
 	protected async init(): Promise<void> {
 		this.lastRun = new Date().valueOf();
 
-		const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
+		const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlEnhancedSearch( {
 			jql: this.jql.replace( CachedFilterFeedTask.lastRunRegex, this.lastRun.toString() ),
 			fields: ['key'],
 		} );
@@ -53,7 +53,7 @@ export default class CachedFilterFeedTask extends Task {
 		let upcomingTickets: string[];
 
 		try {
-			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
+			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlEnhancedSearch( {
 				jql: this.jql.replace( CachedFilterFeedTask.lastRunRegex, this.lastRun.toString() ),
 				fields: ['key'],
 			} );
@@ -72,7 +72,7 @@ export default class CachedFilterFeedTask extends Task {
 		if ( this.jqlRemoved !== undefined ) {
 			try {
 				const ticketKeys = Array.from( this.knownTickets );
-				const previousTicketResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
+				const previousTicketResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlEnhancedSearch( {
 					jql: `${ this.jqlRemoved.replace( CachedFilterFeedTask.lastRunRegex, this.lastRun.toString() ) } AND key in (${ ticketKeys.join( ',' ) })`,
 					fields: ['key'],
 				} );
@@ -107,7 +107,7 @@ export default class CachedFilterFeedTask extends Task {
 
 				if ( unknownTickets.length > 1 ) {
 					embed.setTitle(
-						this.title.replace( /\{\{num\}\}/g, unknownTickets.length.toString() )
+						this.title.replace( /\{\{num}}/g, unknownTickets.length.toString() )
 					);
 					filterFeedMessage = await this.channel.send( { embeds: [embed] } );
 				} else {

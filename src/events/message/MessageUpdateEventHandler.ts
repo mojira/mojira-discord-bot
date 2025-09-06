@@ -1,5 +1,5 @@
 import EventHandler from '../EventHandler.js';
-import { Message, MessageType, Snowflake } from 'discord.js';
+import { Message, MessageType, PartialMessage, Snowflake } from 'discord.js';
 import BotConfig from '../../BotConfig.js';
 import RequestUpdateEventHandler from '../request/RequestUpdateEventHandler.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
@@ -18,7 +18,7 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageUpdateEventHandler` object
-	public onEvent = async ( oldMessage: Message, newMessage: Message ): Promise<void> => {
+	public onEvent = async ( oldMessage: Message | PartialMessage, newMessage: Message ): Promise<void> => {
 		oldMessage = await DiscordUtil.fetchMessage( oldMessage );
 		newMessage = await DiscordUtil.fetchMessage( newMessage );
 

@@ -1,4 +1,4 @@
-import { EmbedBuilder, Message, Snowflake, TextChannel } from 'discord.js';
+import { EmbedBuilder, Message, PartialMessage, Snowflake, TextChannel } from 'discord.js';
 import log4js from 'log4js';
 import EventHandler from '../EventHandler.js';
 import { RequestsUtil } from '../../util/RequestsUtil.js';
@@ -19,8 +19,8 @@ export default class RequestUpdateEventHandler implements EventHandler<'messageU
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestUpdateEventHandler` object
-	public onEvent = async ( oldMessage: Message, newMessage: Message ): Promise<void> => {
-		this.logger.info( `User ${ oldMessage.author.tag }'s request ${ oldMessage.id } in channel ${ oldMessage.channel.id } was updated` );
+	public onEvent = async ( oldMessage: Message | PartialMessage, newMessage: Message ): Promise<void> => {
+		this.logger.info( `User ${ oldMessage.author?.tag }'s request ${ oldMessage.id } in channel ${ oldMessage.channel.id } was updated` );
 
 		const internalChannelId = this.internalChannels.get( oldMessage.channel.id );
 		if ( internalChannelId === undefined ) return;
@@ -36,7 +36,7 @@ export default class RequestUpdateEventHandler implements EventHandler<'messageU
 				if ( result.channelId === oldMessage.channel.id && result.messageId === oldMessage.id ) {
 					try {
 						const embed = new EmbedBuilder( internalMessage.embeds[0].data );
-						embed.setAuthor( { name: oldMessage.author.tag, iconURL: oldMessage.author.avatarURL() ?? undefined } );
+						embed.setAuthor( { name: oldMessage.author?.tag ?? 'unknown', iconURL: oldMessage.author?.avatarURL() ?? undefined } );
 						embed.setDescription( RequestsUtil.getRequestDescription( newMessage ) );
 						await internalMessage.edit( { embeds: [embed] } );
 					} catch ( error ) {

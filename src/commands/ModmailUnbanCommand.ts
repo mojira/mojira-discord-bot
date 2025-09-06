@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, MessageFlagsBitField } from 'discord.js';
 import BotConfig from '../BotConfig.js';
 import PermissionRegistry from '../permissions/PermissionRegistry.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
@@ -25,7 +25,7 @@ export default class ModmailUnbanCommand extends SlashCommand {
 				WHERE user = ?`
 			).run( args.id );
 			if ( unban.changes == 0 ) {
-				await interaction.reply( { content: 'User was never banned.', ephemeral: true } );
+				await interaction.reply( { content: 'User was never banned.', flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 
 				return true;
 			}
