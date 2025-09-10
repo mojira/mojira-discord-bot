@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Message, EmbedBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, Message, EmbedBuilder, MessageFlagsBitField } from 'discord.js';
 import Command from './commandHandlers/Command.js';
 import emojiRegex from 'emoji-regex';
 import PermissionRegistry from '../permissions/PermissionRegistry.js';
@@ -43,7 +43,7 @@ export default class PollCommand extends SlashCommand {
 				\`\`\`
 				<emoji> [<First option name>]~<emoji> [<Second option name>]~...
 				\`\`\``.replace( /\t/g, '' ),
-				ephemeral: true,
+				flags: [MessageFlagsBitField.Flags.Ephemeral],
 			} );
 		} catch ( err ) {
 			Command.logger.error( err );

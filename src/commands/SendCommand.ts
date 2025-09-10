@@ -1,4 +1,4 @@
-import { EmbedBuilder, TextChannel, NewsChannel, ChatInputCommandInteraction } from 'discord.js';
+import { EmbedBuilder, TextChannel, NewsChannel, ChatInputCommandInteraction, MessageFlagsBitField } from 'discord.js';
 import PermissionRegistry from '../permissions/PermissionRegistry.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
@@ -54,7 +54,7 @@ export default class SendCommand extends SlashCommand {
 				}
 			}
 		} else {
-			await interaction.reply( { content: `**Error:** ${ channel.name } is not a valid channel. `, ephemeral: true } );
+			await interaction.reply( { content: `**Error:** ${ channel.name } is not a valid channel. `, flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 			return true;
 		}
 

@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, MessageFlagsBitField } from 'discord.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class TipsCommand extends SlashCommand {
@@ -18,7 +18,7 @@ export default class TipsCommand extends SlashCommand {
 				Afterwards, you can use corresponding request channels in each project to make requests for changes to tickets on the bug tracker, like resolutions and adding affected versions. 
 				The moderators and helpers of the bug tracker will then be able to see the requests and resolve them.`.replace( /\t/g, '' ) )
 				.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } );
-			await interaction.reply( { embeds: [embed], ephemeral: true } );
+			await interaction.reply( { embeds: [embed], flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 		} catch {
 			return false;
 		}

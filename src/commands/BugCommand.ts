@@ -1,4 +1,4 @@
-import { EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { EmbedBuilder, ChatInputCommandInteraction, MessageFlagsBitField } from 'discord.js';
 import Command from './commandHandlers/Command.js';
 import { MentionRegistry } from '../mentions/MentionRegistry.js';
 import BotConfig from '../BotConfig.js';
@@ -29,7 +29,7 @@ export default class BugCommand extends SlashCommand {
 		for ( const ticket of tickets ) {
 			if ( !ticketRegex.test( ticket ) ) {
 				try {
-					await interaction.reply( { content: `'${ ticket }' is not a valid ticket ID.`, ephemeral: true } );
+					await interaction.reply( { content: `'${ ticket }' is not a valid ticket ID.`, flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 				} catch ( err ) {
 					Command.logger.log( err );
 					return false;
@@ -45,7 +45,7 @@ export default class BugCommand extends SlashCommand {
 			embed = await mention.getEmbed();
 		} catch ( err ) {
 			try {
-				await interaction.reply( { content: err, ephemeral: true } );
+				await interaction.reply( { content: err, flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 			} catch ( err ) {
 				Command.logger.log( err );
 				return false;

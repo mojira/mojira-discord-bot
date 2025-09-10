@@ -5,7 +5,7 @@ import { NewsUtil } from '../util/NewsUtil.js';
 import MojiraBot from '../MojiraBot.js';
 import Task from './Task.js';
 import { LoggerUtil } from '../util/LoggerUtil.js';
-import { Version } from 'jira.js/out/version2/models';
+import { Version } from 'jira.js/src/version3/models';
 
 interface JiraVersion {
 	id: string;

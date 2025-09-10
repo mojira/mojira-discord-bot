@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, MessageFlagsBitField } from 'discord.js';
 import BotConfig from '../BotConfig.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
@@ -31,7 +31,7 @@ export default class HelpCommand extends SlashCommand {
 					\`/tips\` - Sends helpful info on how to use the bug tracker and this Discord server.`,
 				} )
 				.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } );
-			await interaction.reply( { embeds: [embed], ephemeral: true } );
+			await interaction.reply( { embeds: [embed], flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 		} catch {
 			return false;
 		}

@@ -107,7 +107,7 @@ export class RequestsUtil {
 	public static async checkTicketValidity( tickets: string[] ): Promise<boolean> {
 		try {
 			this.logger.debug( `Checking for ticket validity of tickets ${ tickets.join( ',' ) }` );
-			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJql( {
+			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlEnhancedSearch( {
 				jql: `(${ BotConfig.request.invalidRequestJql }) AND key in (${ tickets.join( ',' ) })`,
 				fields: ['key'],
 			} );

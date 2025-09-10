@@ -18,7 +18,7 @@
     "discord.js": "^14.16.3",
     "emoji-regex": "^10.4.0",
     "escape-string-regexp": "^5.0.0",
-    "jira.js": "^2.20.1",
+    "jira.js": "^5.2.2",
     "js-yaml": "^4.1.0",
     "log4js": "^6.4.0"
   },
