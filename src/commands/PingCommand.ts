@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, InteractionCallbackResponse } from 'discord.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class PingCommand extends SlashCommand {
@@ -7,16 +7,16 @@ export default class PingCommand extends SlashCommand {
 		.setDescription( 'Check if MojiraBot is online.' );
 
 	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
-		let message;
+		let response: InteractionCallbackResponse;
 
 		try {
-			message = await interaction.reply( { content: `${ interaction.user.toString() } Pong!`, fetchReply: true } );
+			response = await interaction.reply( { content: `${ interaction.user.toString() } Pong!`, withResponse: true } );
 		} catch {
 			return false;
 		}
 
 		try {
-			await message.react( '🏓' );
+			await response.resource?.message?.react( '🏓' );
 		} catch {
 			return false;
 		}

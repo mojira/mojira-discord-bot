@@ -12,24 +12,24 @@
     "lintfix": "eslint . --fix"
   },
   "dependencies": {
-    "@discordjs/rest": "^2.4.0",
-    "better-sqlite3": "^11.3.0",
-    "config": "^3.3.12",
-    "discord.js": "^14.16.3",
-    "emoji-regex": "^10.4.0",
+    "@discordjs/rest": "^2.6.0",
+    "better-sqlite3": "^12.8.0",
+    "config": "^4.4.1",
+    "discord.js": "^14.25.1",
+    "emoji-regex": "^10.6.0",
     "escape-string-regexp": "^5.0.0",
-    "jira.js": "^5.2.2",
+    "jira.js": "^5.3.1",
     "js-yaml": "^4.1.1",
-    "log4js": "^6.4.0"
+    "log4js": "^6.9.1"
   },
   "devDependencies": {
-    "@stylistic/eslint-plugin": "^2.8.0",
-    "@types/config": "^3.3.5",
-    "@types/node": "^18.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.8.0",
-    "@typescript-eslint/parser": "^8.8.0",
-    "eslint": "^9.11.1",
-    "typescript": "^5.6.2"
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@types/config": "^4.4.0",
+    "@types/node": "^24.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.1",
+    "@typescript-eslint/parser": "^8.57.1",
+    "eslint": "^10.1.0",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=18.0"
