@@ -111,5 +111,7 @@ export default [{
         yoda: ["error", "never", {
             exceptRange: true,
         }],
+
+        "preserve-caught-error": "off",
     },
 }];
