@@ -54,22 +54,15 @@ jobs:
     - name: Deploy
       uses: mojira/deploy@main
       with:
-        azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
-        azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-        azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        bastion_name: ${{ secrets.BASTION_NAME }}
-        resource_group: ${{ secrets.RESOURCE_GROUP }}
-        resource_id: ${{ secrets.RESOURCE_ID }}
-        ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-        username: mojiradiscordbot
+        vps_host: ${{ secrets.VPS_HOST }}
+        vps_user: ${{ secrets.VPS_USER }}
+        vps_ssh_key: ${{ secrets.VPS_SSH_KEY }}
+        vps_known_hosts: ${{ secrets.VPS_KNOWN_HOSTS }}
         artifact_paths: |
-          bin
-          node_modules
+          bin/
+          node_modules/
           config/default.*
           config/main.*
           *.sh
-        artifact_destination: /home/mojiradiscordbot/mojira-discord-bot
-        script: |
-          cd mojira-discord-bot
-          mv -f /home/mojiradiscordbot/mojira-discord-bot/main.yml /home/mojiradiscordbot/mojira-discord-bot/config/main.yml
-          ./restart.sh main
+        artifact_destination: discordbot
+        script: ./restart.sh main
