@@ -63,5 +63,5 @@ jobs:
           config/default.*
           config/main.*
           *.sh
-        artifact_destination: discordbot
+        artifact_destination: discord-bot
         script: ./restart.sh main
