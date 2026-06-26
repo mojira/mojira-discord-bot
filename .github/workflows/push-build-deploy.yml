@@ -55,7 +55,6 @@ jobs:
       uses: mojira/deploy@main
       with:
         vps_host: ${{ secrets.VPS_HOST }}
-        vps_user: ${{ secrets.VPS_USER }}
         vps_ssh_key: ${{ secrets.VPS_SSH_KEY }}
         vps_known_hosts: ${{ secrets.VPS_KNOWN_HOSTS }}
         artifact_paths: |
