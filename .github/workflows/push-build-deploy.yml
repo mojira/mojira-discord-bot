@@ -60,8 +60,8 @@ jobs:
         artifact_paths: |
           bin/
           node_modules/
-          config/default.*
-          config/main.*
-          *.sh
         artifact_destination: discord-bot
-        script: cd discord-bot && ./restart.sh main
+        script: |
+          cd discord-bot
+          git pull
+          ./restart.sh main
