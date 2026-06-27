@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [24.x]
+        node-version: [25.x]
 
     steps:
     - name: Checkout repository
@@ -36,7 +36,7 @@ jobs:
           ${{ runner.os }}-node-
 
     - name: Install dependencies
-      run: npm i --no-audit
+      run: npm install --no-audit
 
     - name: Compile to JavaScript
       run: npm run build
@@ -57,11 +57,7 @@ jobs:
         vps_host: ${{ secrets.VPS_HOST }}
         vps_ssh_key: ${{ secrets.VPS_SSH_KEY }}
         vps_known_hosts: ${{ secrets.VPS_KNOWN_HOSTS }}
-        artifact_paths: |
-          bin/
-          node_modules/
-        artifact_destination: discord-bot
+        project_folder: discord-bot
         script: |
-          cd discord-bot
-          git pull
+          ./build.sh
           ./restart.sh main
