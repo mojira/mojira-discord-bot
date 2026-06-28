@@ -96,6 +96,23 @@ export class RequestsUtil {
 
 
 	/**
+	 * Checks whether the message content contains a URL pointing to an unofficial
+	 * bug tracker mirror (like mojira.dev) rather than the official bugs.mojang.com.
+	 *
+	 * The regex matches any http(s) URL whose host is NOT bugs.mojang.com (or the
+	 * report. subdomain) but whose path still contains something that looks like a
+	 * Jira ticket ID.  We intentionally keep the pattern loose on the URL side so
+	 * that novel mirror domains are caught automatically.
+	 */
+	public static containsUnofficialBugTrackerLink( content: string ): boolean {
+		const unofficialLinkRegex = new RegExp(
+			`https?://(?!(?:report\\.)?bugs\\.mojang\\.com(?:/|$))[^\\s<>]*\\b${ MentionCommand.ticketPattern }`,
+			'i'
+		);
+		return unofficialLinkRegex.test( content );
+	}
+
+	/**
 	 * This extracts a ticket ID from either a link or a standalone ticket ID.
 	 * E.g. this matches the "MC-1234" in https://bugs.mojang.browse/MC-1234 or in "This is some crazy bug:MC-1234".
 	 * @returns A NEW regex object every time. You have to store it as a variable if you use `exec` on it, otherwise you will encounter infinite loops.
