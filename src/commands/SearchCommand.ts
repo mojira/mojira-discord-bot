@@ -1,18 +1,20 @@
-import { EmbedBuilder, escapeMarkdown, ChatInputCommandInteraction, MessageFlagsBitField } from 'discord.js';
+import { EmbedBuilder, escapeMarkdown, ChatInputCommandInteraction, MessageFlagsBitField, SharedSlashCommand, SlashCommandBuilder } from 'discord.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 import BotConfig from '../BotConfig.js';
 import MojiraBot from '../MojiraBot.js';
 import { ChannelConfigUtil } from '../util/ChannelConfigUtil.js';
 
 export default class SearchCommand extends SlashCommand {
-	public readonly slashCommandBuilder = this.slashCommandBuilder
-		.setName( 'search' )
-		.setDescription( 'Search for issues in Jira.' )
-		.addStringOption( option =>
-			option.setName( 'query' )
-				.setDescription( 'The query to search for.' )
-				.setRequired( true )
-		);
+	public build(): SharedSlashCommand {
+		return new SlashCommandBuilder()
+			.setName( 'search' )
+			.setDescription( 'Search for issues in Jira.' )
+			.addStringOption( option =>
+				option.setName( 'query' )
+					.setDescription( 'The query to search for.' )
+					.setRequired( true )
+			);
+	}
 
 	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 		const plainArgs = interaction.options.getString( 'query' )?.replace( /"|<|>/g, '' );

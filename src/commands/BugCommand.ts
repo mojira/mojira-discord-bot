@@ -1,4 +1,4 @@
-import { EmbedBuilder, ChatInputCommandInteraction, MessageFlagsBitField } from 'discord.js';
+import { EmbedBuilder, ChatInputCommandInteraction, MessageFlagsBitField, SlashCommandBuilder, SharedSlashCommand } from 'discord.js';
 import Command from './commandHandlers/Command.js';
 import { MentionRegistry } from '../mentions/MentionRegistry.js';
 import BotConfig from '../BotConfig.js';
@@ -6,14 +6,16 @@ import { ChannelConfigUtil } from '../util/ChannelConfigUtil.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class BugCommand extends SlashCommand {
-	public slashCommandBuilder = this.slashCommandBuilder
-		.setName( 'bug' )
-		.setDescription( 'Creates a embed with info from a ticket in Jira.' )
-		.addStringOption( option =>
-			option.setName( 'ticket-id' )
-				.setDescription( 'The ID of the ticket.' )
-				.setRequired( true )
-		);
+	public build(): SharedSlashCommand {
+		return new SlashCommandBuilder()
+			.setName( 'bug' )
+			.setDescription( 'Creates a embed with info from a ticket in Jira.' )
+			.addStringOption( option =>
+				option.setName( 'ticket-id' )
+					.setDescription( 'The ID of the ticket.' )
+					.setRequired( true )
+			);
+	}
 
 	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 		if ( interaction.channel === null ) return false;
@@ -30,8 +32,8 @@ export default class BugCommand extends SlashCommand {
 			if ( !ticketRegex.test( ticket ) ) {
 				try {
 					await interaction.reply( { content: `'${ ticket }' is not a valid ticket ID.`, flags: [MessageFlagsBitField.Flags.Ephemeral] } );
-				} catch ( err ) {
-					Command.logger.log( err );
+				} catch ( error ) {
+					Command.logger.log( error as string );
 					return false;
 				}
 				return true;
@@ -43,11 +45,11 @@ export default class BugCommand extends SlashCommand {
 		let embed: EmbedBuilder;
 		try {
 			embed = await mention.getEmbed();
-		} catch ( err ) {
+		} catch ( error ) {
 			try {
-				await interaction.reply( { content: err, flags: [MessageFlagsBitField.Flags.Ephemeral] } );
-			} catch ( err ) {
-				Command.logger.log( err );
+				await interaction.reply( { content: error as string, flags: [MessageFlagsBitField.Flags.Ephemeral] } );
+			} catch ( innerError ) {
+				Command.logger.log( innerError as string );
 				return false;
 			}
 			return true;

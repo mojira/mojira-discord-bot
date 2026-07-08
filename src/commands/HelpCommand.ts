@@ -1,11 +1,13 @@
-import { ChatInputCommandInteraction, EmbedBuilder, MessageFlagsBitField } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, MessageFlagsBitField, SharedSlashCommand, SlashCommandBuilder } from 'discord.js';
 import BotConfig from '../BotConfig.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class HelpCommand extends SlashCommand {
-	public readonly slashCommandBuilder = this.slashCommandBuilder
-		.setName( 'help' )
-		.setDescription( 'Sends a help message.' );
+	public build(): SharedSlashCommand {
+		return new SlashCommandBuilder()
+			.setName( 'help' )
+			.setDescription( 'Sends a help message.' );
+	}
 
 	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 		try {

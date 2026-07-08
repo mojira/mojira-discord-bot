@@ -1,4 +1,4 @@
-import { EmbedBuilder, MessageReaction, TextChannel, User } from 'discord.js';
+import { EmbedBuilder, MessageReaction, PartialMessageReaction, PartialUser, TextChannel, User } from 'discord.js';
 import { RequestsUtil } from '../../util/RequestsUtil.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
@@ -20,7 +20,7 @@ export default class RequestReopenEventHandler implements EventHandler<'messageR
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestReopenEventHandler` object
-	public onEvent = async ( { message }: MessageReaction, user: User ): Promise<void> => {
+	public onEvent = async ( { message }: MessageReaction | PartialMessageReaction, user: User | PartialUser ): Promise<void> => {
 		this.logger.info( `User ${ user.tag } is reopening the request message '${ message.id }'` );
 
 		message = await DiscordUtil.fetchMessage( message );

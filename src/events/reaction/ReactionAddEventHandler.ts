@@ -1,4 +1,4 @@
-import { MessageReaction, Snowflake, User } from 'discord.js';
+import { MessageReaction, PartialMessageReaction, PartialUser, Snowflake, User } from 'discord.js';
 import BotConfig from '../../BotConfig.js';
 import DiscordEventHandler from '../EventHandler.js';
 import RequestEventHandler from '../request/RequestEventHandler.js';
@@ -29,7 +29,7 @@ export default class ReactionAddEventHandler implements DiscordEventHandler<'mes
 	}
 
 	// This syntax is used to ensure that `this` refers to the `ReactionAddEventHandler` object
-	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
+	public onEvent = async ( reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser ): Promise<void> => {
 		// Do not react to own reactions
 		if ( user.id === this.botUserId ) return;
 

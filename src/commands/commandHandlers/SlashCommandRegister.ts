@@ -15,13 +15,13 @@ export default class SlashCommandRegister {
 
 			client.commands = new Collection();
 
-			for ( const commandName in SlashCommandRegistry ) {
-				const command = SlashCommandRegistry[commandName] as SlashCommand;
+			for ( const [ commandName, command ] of Object.entries( SlashCommandRegistry ) ) {
+				const commandData = command.build();
 
 				// FIXME: This stores a function in a map, and could be refactored.
 				// E.g. we could only store the `command` here, and move the logic elsewhere. Does that work?
 				const jsonData: SlashCommandJsonData = {
-					data: command.slashCommandBuilder,
+					data: commandData,
 					async execute( interaction: ChatInputCommandInteraction ) {
 						SlashCommand.logger.info( `User ${ interaction.user.tag } ran command ${ command.asString( interaction ) }` );
 
@@ -39,8 +39,8 @@ export default class SlashCommandRegister {
 					},
 				};
 
-				client.commands.set( command.slashCommandBuilder.name, jsonData );
-				commands.push( jsonData.data.toJSON() );
+				client.commands.set( commandData.name, jsonData );
+				commands.push( commandData.toJSON() );
 				SlashCommand.logger.info( `Registered command ${ commandName } for guild '${ fetchedGuild.name }'` );
 			}
 

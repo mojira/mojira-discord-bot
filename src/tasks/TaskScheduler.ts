@@ -11,7 +11,7 @@ export default class TaskScheduler {
 	public static addTask( task: Task, interval: number ): void {
 		const id = setInterval( task.execute.bind( task ), interval );
 		// Run the task directly after it's been added
-		task.execute.bind( task )();
+		void task.execute.bind( task )();
 		this.intervals.push( id );
 	}
 

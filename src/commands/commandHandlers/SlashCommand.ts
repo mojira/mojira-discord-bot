@@ -2,12 +2,12 @@ import Permission from '../../permissions/Permission.js';
 import PermissionRegistry from '../../permissions/PermissionRegistry.js';
 import log4js from 'log4js';
 import { ChatInputCommandInteraction, GuildMember } from 'discord.js';
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { SharedSlashCommand } from '@discordjs/builders';
 
 export default abstract class SlashCommand {
 	public static logger = log4js.getLogger( 'SlashCommandExecutor' );
 
-	public slashCommandBuilder: SlashCommandBuilder = new SlashCommandBuilder();
+	public abstract build(): SharedSlashCommand;
 
 	public readonly permissionLevel: Permission = PermissionRegistry.ANY_PERMISSION;
 

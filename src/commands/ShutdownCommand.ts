@@ -1,12 +1,14 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, SharedSlashCommand, SlashCommandBuilder } from 'discord.js';
 import MojiraBot from '../MojiraBot.js';
 import PermissionRegistry from '../permissions/PermissionRegistry.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class ShutdownCommand extends SlashCommand {
-	public readonly slashCommandBuilder = this.slashCommandBuilder
-		.setName( 'shutdown' )
-		.setDescription( 'Shutdown MojiraBot.' );
+	public build(): SharedSlashCommand {
+		return new SlashCommandBuilder()
+			.setName( 'shutdown' )
+			.setDescription( 'Shutdown MojiraBot.' );
+	}
 
 	public readonly permissionLevel = PermissionRegistry.OWNER_PERMISSION;
 

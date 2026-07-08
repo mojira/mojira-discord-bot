@@ -37,8 +37,12 @@ try {
 		MojiraBot.logger.info( 'Debug mode is activated' );
 	}
 
-	if ( BotConfig.logDirectory ) {
-		MojiraBot.logger.info( `Writing log to ${ logConfig.appenders.log[ 'filename' ] }` );
+	for ( const [id, appender] of Object.entries( logConfig.appenders ) ) {
+		if ( appender.type === 'file' ) {
+			MojiraBot.logger.info( `Logging to file ${ appender.filename }` );
+		} else {
+			MojiraBot.logger.info( `Logging to ${ appender.type } (id ${ id })` );
+		}
 	}
 
 	await MojiraBot.start();

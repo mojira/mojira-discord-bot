@@ -1,10 +1,11 @@
-import { EmbedBuilder, MessageReaction, User } from 'discord.js';
+import { EmbedBuilder, MessageReaction, PartialMessageReaction, PartialUser, User } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig, { PrependResponseMessageType } from '../../BotConfig.js';
 import ResolveRequestMessageTask from '../../tasks/ResolveRequestMessageTask.js';
 import TaskScheduler from '../../tasks/TaskScheduler.js';
 import { RequestsUtil } from '../../util/RequestsUtil.js';
 import EventHandler from '../EventHandler.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
 
 export default class RequestResolveEventHandler implements EventHandler<'messageReactionAdd'> {
 	public readonly eventName = 'messageReactionAdd';
@@ -18,8 +19,9 @@ export default class RequestResolveEventHandler implements EventHandler<'message
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestResolveEventHandler` object
-	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
+	public onEvent = async ( reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser ): Promise<void> => {
 		if ( reaction.message?.author?.id !== this.botUserId ) return;
+		user = await DiscordUtil.fetchUser( user );
 
 		this.logger.info( `User ${ user.tag } added '${ reaction.emoji.name }' reaction to request message '${ reaction.message.id }'` );
 

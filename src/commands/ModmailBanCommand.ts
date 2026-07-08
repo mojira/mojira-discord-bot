@@ -1,17 +1,19 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, SharedSlashCommand, SlashCommandBuilder } from 'discord.js';
 import BotConfig from '../BotConfig.js';
 import PermissionRegistry from '../permissions/PermissionRegistry.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class ModmailBanCommand extends SlashCommand {
-	public readonly slashCommandBuilder = this.slashCommandBuilder
-		.setName( 'modmailban' )
-		.setDescription( 'Ban a user from using the modmail system.' )
-		.addUserOption( option =>
-			option.setName( 'user' )
-				.setDescription( 'The user to ban.' )
-				.setRequired( true )
-		);
+	public build(): SharedSlashCommand {
+		return new SlashCommandBuilder()
+			.setName( 'modmailban' )
+			.setDescription( 'Ban a user from using the modmail system.' )
+			.addUserOption( option =>
+				option.setName( 'user' )
+					.setDescription( 'The user to ban.' )
+					.setRequired( true )
+			);
+	}
 
 	public readonly permissionLevel = PermissionRegistry.ADMIN_PERMISSION;
 

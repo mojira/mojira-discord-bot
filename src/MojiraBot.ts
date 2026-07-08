@@ -1,4 +1,4 @@
-import { Client, ClientUser, FetchMessagesOptions, GatewayIntentBits, Message, Partials, Snowflake, TextChannel } from 'discord.js';
+import { Client, ClientUser, Collection, FetchMessagesOptions, GatewayIntentBits, Message, Partials, Snowflake, TextChannel } from 'discord.js';
 import log4js from 'log4js';
 import { Version2Client as JiraClient } from 'jira.js';
 import BotConfig from './BotConfig.js';
@@ -179,7 +179,7 @@ export default class MojiraBot {
 
 					let foundLastBotReaction = false;
 					while ( !foundLastBotReaction ) {
-						let fetchedMessages = await requestChannel.messages.fetch( { before: lastId } );
+						let fetchedMessages: Collection<string, Message> = await requestChannel.messages.fetch( { before: lastId } );
 
 						if ( fetchedMessages.size === 0 ) break;
 
@@ -187,8 +187,7 @@ export default class MojiraBot {
 							return a.createdAt < b.createdAt ? -1 : 1;
 						} );
 
-						for ( const messageId of fetchedMessages.keys() ) {
-							const message = fetchedMessages.get( messageId );
+						for ( const message of fetchedMessages.values() ) {
 							const hasBotReaction = message.reactions.cache.find( reaction => reaction.me ) !== undefined;
 							const hasReactions = message.reactions.cache.size > 0;
 

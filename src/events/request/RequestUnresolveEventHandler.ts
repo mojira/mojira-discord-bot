@@ -1,4 +1,4 @@
-import { EmbedBuilder, MessageReaction, User } from 'discord.js';
+import { EmbedBuilder, MessageReaction, PartialMessageReaction, PartialUser, User } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
 import TaskScheduler from '../../tasks/TaskScheduler.js';
@@ -18,7 +18,7 @@ export default class RequestUnresolveEventHandler implements EventHandler<'messa
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestUnresolveEventHandler` object
-	public onEvent = async ( { emoji, message }: MessageReaction, user: User ): Promise<void> => {
+	public onEvent = async ( { emoji, message }: MessageReaction | PartialMessageReaction, user: User | PartialUser ): Promise<void> => {
 		message = await DiscordUtil.fetchMessage( message );
 
 		if ( message.author.id !== this.botUserId ) {

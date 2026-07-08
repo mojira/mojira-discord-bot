@@ -1,12 +1,14 @@
-import { ChatInputCommandInteraction, InteractionCallbackResponse } from 'discord.js';
+import { ChatInputCommandInteraction, InteractionCallbackResponse, SharedSlashCommand, SlashCommandBuilder } from 'discord.js';
 import { SingleMention } from '../mentions/SingleMention.js';
 import { ReactionsUtil } from '../util/ReactionsUtil.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class MooCommand extends SlashCommand {
-	public readonly slashCommandBuilder = this.slashCommandBuilder
-		.setName( 'moo' )
-		.setDescription( 'Mooooo.' );
+	public build(): SharedSlashCommand {
+		return new SlashCommandBuilder()
+			.setName( 'moo' )
+			.setDescription( 'Mooooo.' );
+	}
 
 	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 		try {

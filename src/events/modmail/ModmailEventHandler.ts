@@ -19,7 +19,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 
 		const banStatus = BotConfig.database.prepare( 'SELECT user FROM modmail_bans WHERE user = ?' ).get( origin.author.id );
 
-		const previousThread = BotConfig.database.prepare( 'SELECT thread FROM modmail_threads WHERE user = ?' ).get( origin.author.id );
+		const previousThread = BotConfig.database.prepare( 'SELECT thread FROM modmail_threads WHERE user = ?' ).get( origin.author.id ) as { thread: string };
 
 		if ( modmailChannel instanceof TextChannel && banStatus === undefined ) {
 			if ( previousThread ) {
@@ -45,7 +45,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 						return;
 					}
 				} else {
-					await BotConfig.database.prepare(
+					BotConfig.database.prepare(
 						`DELETE FROM modmail_threads
 						WHERE user = ?`
 					).run( origin.author.id );

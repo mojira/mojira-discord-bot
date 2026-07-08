@@ -1,4 +1,4 @@
-import { MessageReaction, User } from 'discord.js';
+import { MessageReaction, PartialMessageReaction, PartialUser, User } from 'discord.js';
 import BotConfig from '../../BotConfig.js';
 import EventHandler from '../EventHandler.js';
 import RequestUnresolveEventHandler from '../request/RequestUnresolveEventHandler.js';
@@ -19,7 +19,7 @@ export default class ReactionRemoveEventHandler implements EventHandler<'message
 	}
 
 	// This syntax is used to ensure that `this` refers to the `ReactionRemoveEventHandler` object
-	public onEvent = async ( reaction: MessageReaction, user: User ): Promise<void> => {
+	public onEvent = async ( reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser ): Promise<void> => {
 		if ( user.id === this.botUserId ) return;
 
 		reaction = await DiscordUtil.fetchReaction( reaction );

@@ -1,10 +1,12 @@
-import { ChatInputCommandInteraction, InteractionCallbackResponse } from 'discord.js';
+import { ChatInputCommandInteraction, InteractionCallbackResponse, SharedSlashCommand, SlashCommandBuilder } from 'discord.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class PingCommand extends SlashCommand {
-	public readonly slashCommandBuilder = this.slashCommandBuilder
-		.setName( 'ping' )
-		.setDescription( 'Check if MojiraBot is online.' );
+	public build(): SharedSlashCommand {
+		return new SlashCommandBuilder()
+			.setName( 'ping' )
+			.setDescription( 'Check if MojiraBot is online.' );
+	}
 
 	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 		let response: InteractionCallbackResponse;

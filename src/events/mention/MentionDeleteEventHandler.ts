@@ -1,4 +1,4 @@
-import { MessageReaction, User } from 'discord.js';
+import { MessageReaction, PartialMessageReaction, PartialUser, User } from 'discord.js';
 import log4js from 'log4js';
 import EventHandler from '../EventHandler.js';
 
@@ -7,7 +7,7 @@ export default class MentionDeleteEventHandler implements EventHandler<'messageR
 
 	private logger = log4js.getLogger( 'MentionDeleteEventHandler' );
 
-	public onEvent = async ( { message }: MessageReaction, user: User ): Promise<void> => {
+	public onEvent = async ( { message }: MessageReaction | PartialMessageReaction, user: User | PartialUser ): Promise<void> => {
 		this.logger.info( `User ${ user.tag } is attempting to delete message '${ message.id }'` );
 
 		const footer = message.embeds[0]?.footer?.text;

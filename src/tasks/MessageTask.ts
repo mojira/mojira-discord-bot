@@ -1,5 +1,5 @@
-import { Message } from 'discord.js';
+import { Message, PartialMessage } from 'discord.js';
 
 export default abstract class MessageTask {
-	public abstract run( message: Message ): Promise<void>;
+	public abstract run( message: Message | PartialMessage ): Promise<void>;
 }

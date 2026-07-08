@@ -1,6 +1,6 @@
 import log4js from 'log4js';
 import MojiraBot from '../MojiraBot.js';
-import { TextChannel, Message, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage, TextBasedChannel, MessageReplyOptions } from 'discord.js';
+import { TextChannel, Message, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage, TextBasedChannel, MessageReplyOptions, PartialMessageReaction, PartialUser } from 'discord.js';
 
 export default class DiscordUtil {
 	private static logger = log4js.getLogger( 'DiscordUtil' );
@@ -25,14 +25,14 @@ export default class DiscordUtil {
 		return message as Message;
 	}
 
-	public static async fetchReaction( reaction: MessageReaction ): Promise<MessageReaction> {
+	public static async fetchReaction( reaction: MessageReaction | PartialMessageReaction ): Promise<MessageReaction> {
 		if ( reaction.partial ) {
 			reaction = await reaction.fetch();
 		}
 		return reaction;
 	}
 
-	public static async fetchUser( user: User ): Promise<User> {
+	public static async fetchUser( user: User | PartialUser ): Promise<User> {
 		if ( user.partial ) {
 			user = await user.fetch();
 		}

@@ -20,7 +20,7 @@ export default class CachedFilterFeedTask extends Task {
 
 	private knownTickets = new Set<string>();
 
-	private	lastRun: number;
+	private	lastRun: number = 0;
 
 	constructor( feedConfig: FilterFeedConfig, channel: SendableChannels ) {
 		super();

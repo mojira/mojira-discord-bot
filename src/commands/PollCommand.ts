@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Message, EmbedBuilder, MessageFlagsBitField } from 'discord.js';
+import { ChatInputCommandInteraction, Message, EmbedBuilder, MessageFlagsBitField, SlashCommandBuilder, SharedSlashCommand } from 'discord.js';
 import Command from './commandHandlers/Command.js';
 import emojiRegex from 'emoji-regex';
 import PermissionRegistry from '../permissions/PermissionRegistry.js';
@@ -13,20 +13,21 @@ interface PollOption {
 }
 
 export default class PollCommand extends SlashCommand {
-	public readonly slashCommandBuilder = this.slashCommandBuilder
-		.setName( 'poll' )
-		.setDescription( 'Create a poll.' )
-		.addStringOption( option =>
-			option.setName( 'title' )
-				.setDescription( 'The title of the poll.' )
-				.setRequired( true )
-		)
-		.addStringOption( option =>
-			option.setName( 'choices' )
-				.setDescription( 'The choices to include in the poll, separated by the \'~\' character.' )
-				.setRequired( true )
-		);
-
+	public build(): SharedSlashCommand {
+		return new SlashCommandBuilder()
+			.setName( 'poll' )
+			.setDescription( 'Create a poll.' )
+			.addStringOption( option =>
+				option.setName( 'title' )
+					.setDescription( 'The title of the poll.' )
+					.setRequired( true )
+			)
+			.addStringOption( option =>
+				option.setName( 'choices' )
+					.setDescription( 'The choices to include in the poll, separated by the \'~\' character.' )
+					.setRequired( true )
+			);
+	}
 
 	public readonly permissionLevel = PermissionRegistry.MODERATOR_PERMISSION;
 

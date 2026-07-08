@@ -18,7 +18,7 @@ export default class FilterFeedTask extends Task {
 	private titleSingle: string;
 	private publish: boolean;
 
-	private lastRun: number;
+	private lastRun: number = 0;
 
 	constructor( feedConfig: FilterFeedConfig, channel: SendableChannels ) {
 		super();

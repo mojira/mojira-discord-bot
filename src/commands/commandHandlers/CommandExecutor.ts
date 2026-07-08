@@ -4,15 +4,13 @@ import DefaultCommandRegistry from './DefaultCommandRegistry.js';
 
 export default class CommandExecutor {
 	public static async checkCommands( message: Message ): Promise<boolean> {
-		for ( const commandName in DefaultCommandRegistry ) {
-			const command = DefaultCommandRegistry[commandName] as Command;
-
+		for ( const command of Object.values( DefaultCommandRegistry ) ) {
 			if ( message.member && command.checkPermission( message.member ) ) {
 				const commandTestResult = command.test( message.content );
 
 				if ( commandTestResult === false ) continue;
 
-				const args = commandTestResult === true ? '' : commandTestResult;
+				const args = commandTestResult === true ? [] : commandTestResult;
 
 				Command.logger.info( `User ${ message.author.tag } ran command ${ command.asString( args ) }` );
 				return await command.run( message, args );

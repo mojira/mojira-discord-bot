@@ -1,30 +1,32 @@
-import { EmbedBuilder, TextChannel, NewsChannel, ChatInputCommandInteraction, MessageFlagsBitField } from 'discord.js';
+import { EmbedBuilder, TextChannel, NewsChannel, ChatInputCommandInteraction, MessageFlagsBitField, SharedSlashCommand, SlashCommandBuilder } from 'discord.js';
 import PermissionRegistry from '../permissions/PermissionRegistry.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class SendCommand extends SlashCommand {
-	public readonly slashCommandBuilder = this.slashCommandBuilder
-		.setName( 'send' )
-		.setDescription( 'Send a message to a channel as the bot.' )
-		.addChannelOption( option =>
-			option.setName( 'channel' )
-				.setDescription( 'The channel to send the message to.' )
-				.setRequired( true )
-		)
-		.addStringOption( option =>
-			option.setName( 'message-type' )
-				.setDescription( 'The type of message to send. Either text or embed.' )
-				.setRequired( true )
-				.addChoices(
-					{ name: 'text', value: 'text' },
-					{ name: 'embed', value: 'embed' }
-				)
-		)
-		.addStringOption( option =>
-			option.setName( 'message' )
-				.setDescription( 'The message to send.' )
-				.setRequired( true )
-		);
+	public build(): SharedSlashCommand {
+		return new SlashCommandBuilder()
+			.setName( 'send' )
+			.setDescription( 'Send a message to a channel as the bot.' )
+			.addChannelOption( option =>
+				option.setName( 'channel' )
+					.setDescription( 'The channel to send the message to.' )
+					.setRequired( true )
+			)
+			.addStringOption( option =>
+				option.setName( 'message-type' )
+					.setDescription( 'The type of message to send. Either text or embed.' )
+					.setRequired( true )
+					.addChoices(
+						{ name: 'text', value: 'text' },
+						{ name: 'embed', value: 'embed' }
+					)
+			)
+			.addStringOption( option =>
+				option.setName( 'message' )
+					.setDescription( 'The message to send.' )
+					.setRequired( true )
+			);
+	}
 
 	public readonly permissionLevel = PermissionRegistry.OWNER_PERMISSION;
 

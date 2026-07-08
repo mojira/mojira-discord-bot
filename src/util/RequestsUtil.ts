@@ -4,6 +4,7 @@ import BotConfig from '../BotConfig.js';
 import DiscordUtil from './DiscordUtil.js';
 import MentionCommand from '../commands/MentionCommand.js';
 import MojiraBot from '../MojiraBot.js';
+import { JiraError } from 'jira.js';
 
 interface OriginIds {
 	channelId: Snowflake;
@@ -116,8 +117,9 @@ export class RequestsUtil {
 			const invalidTickets = searchResults.issues.map( ( { key } ) => key );
 			this.logger.debug( `Invalid tickets: [${ invalidTickets.join( ',' ) }]` );
 			return invalidTickets.length === 0;
-		} catch ( err ) {
-			this.logger.error( `Error while checking validity of tickets ${ tickets.join( ',' ) }\n`, err.message );
+		} catch ( error ) {
+			const jiraError = error as JiraError;
+			this.logger.error( `Error while checking validity of tickets ${ tickets.join( ',' ) }\n`, jiraError.message );
 			return true;
 		}
 	}

@@ -3,6 +3,7 @@ import MojiraBot from '../MojiraBot.js';
 import { MarkdownUtil } from '../util/MarkdownUtil.js';
 import { Mention } from './Mention.js';
 import { ChannelConfigUtil } from '../util/ChannelConfigUtil.js';
+import { JiraError } from 'jira.js';
 
 export class SingleMention extends Mention {
 	private ticket: string;
@@ -23,22 +24,19 @@ export class SingleMention extends Mention {
 			ticketResult = await MojiraBot.jira.issues.getIssue( {
 				issueIdOrKey: this.ticket,
 			} );
-		} catch ( err ) {
-			let errorMessage = `An error occurred while retrieving ticket ${ this.ticket }: ${ err.message }`;
+		} catch ( error ) {
+			const jiraError = error as JiraError;
+			let errorMessage = `An error occurred while retrieving ticket ${ this.ticket }: ${ jiraError.message }`;
 
-			if ( err.response ) {
-				const exception = err.response;
+			if ( jiraError.response ) {
+				const status = jiraError.status;
 
-				if ( exception.status === 404 ) {
+				if ( status === 404 ) {
 					errorMessage = `${ this.ticket } doesn't seem to exist.`;
-				} else if ( exception.status === 403 ) {
+				} else if ( status === 403 ) {
 					errorMessage = `${ this.ticket } is private.`;
-				} else if ( exception.status === 401 ) {
+				} else if ( status === 401 ) {
 					errorMessage = `${ this.ticket } is private or has been deleted.`;
-				} else if ( exception?.data?.errorMessages ) {
-					for ( const msg of exception.data.errorMessages ) {
-						errorMessage += `\n${ msg }`;
-					}
 				}
 			}
 
@@ -57,7 +55,9 @@ export class SingleMention extends Mention {
 
 			if ( ticketResult.fields.resolution.id === '3' ) {
 				const parents = ticketResult.fields.issuelinks
+					// @ts-expect-error `relation` is untyped
 					.filter( relation => relation.type.id === '10102' && relation.outwardIssue )
+					// @ts-expect-error `relation` is untyped
 					.map( relation => `\n→ **[${ relation.outwardIssue.key }](https://bugs.mojang.com/browse/${ relation.outwardIssue.key })** *(${ relation.outwardIssue.fields.summary })*` );
 
 				status += parents.join( ',' );
@@ -119,7 +119,8 @@ export class SingleMention extends Mention {
 			if ( thumbnail !== undefined ) embed.setThumbnail( thumbnail );
 
 			if ( ticketResult.fields.fixVersions && ticketResult.fields.fixVersions.length ) {
-				const fixVersions = ticketResult.fields.fixVersions.map( v => v.name );
+				// @ts-expect-error `version` is untyped
+				const fixVersions = ticketResult.fields.fixVersions.map( version => version.name );
 				embed.addFields( {
 					name: 'Fix Version' + ( fixVersions.length > 1 ? 's' : '' ),
 					value: escapeMarkdown( fixVersions.join( ', ' ) ),
@@ -151,6 +152,7 @@ export class SingleMention extends Mention {
 				} );
 			}
 
+			// @ts-expect-error `relation` is untyped
 			const duplicates = ticketResult.fields.issuelinks.filter( relation => relation.type.id === '10102' && relation.inwardIssue );
 			if ( duplicates.length ) {
 				embed.addFields( {

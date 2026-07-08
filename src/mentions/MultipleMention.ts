@@ -1,6 +1,7 @@
 import { EmbedBuilder } from 'discord.js';
 import MojiraBot from '../MojiraBot.js';
 import { Mention } from './Mention.js';
+import { JiraError } from 'jira.js';
 
 export class MultipleMention extends Mention {
 	private tickets: string[];
@@ -25,20 +26,14 @@ export class MultipleMention extends Mention {
 				maxResults: 10,
 				fields: [ 'key', 'summary' ],
 			} );
-		} catch ( err ) {
+		} catch ( error ) {
+			const jiraError = error as JiraError;
+
 			let ticketList = this.tickets.join( ', ' );
 			const lastSeparatorPos = ticketList.lastIndexOf( ', ' );
 			ticketList = `${ ticketList.substring( 0, lastSeparatorPos ) } and ${ ticketList.substring( lastSeparatorPos + 2, ticketList.length ) }`;
 
-			let errorMessage = `An error occurred while retrieving tickets ${ ticketList }: ${ err.message }`;
-
-			if ( err.response?.data?.errorMessages ) {
-				for ( const msg of err.response.data.errorMessages ) {
-					errorMessage += `\n${ msg }`;
-				}
-			}
-
-			throw new Error( errorMessage );
+			throw new Error( `An error occurred while retrieving tickets ${ ticketList }: ${ jiraError.message }` );
 		}
 
 		if ( !searchResults.issues ) {

@@ -4,6 +4,7 @@ import { MentionRegistry } from '../mentions/MentionRegistry.js';
 import BotConfig from '../BotConfig.js';
 import { ChannelConfigUtil } from '../util/ChannelConfigUtil.js';
 import DiscordUtil from '../util/DiscordUtil.js';
+import { JiraError } from 'jira.js';
 
 export default class MentionCommand extends Command {
 	public static get ticketPattern(): string {
@@ -64,7 +65,8 @@ export default class MentionCommand extends Command {
 		let embed: EmbedBuilder;
 		try {
 			embed = await mention.getEmbed();
-		} catch ( jiraError ) {
+		} catch ( error ) {
+			const jiraError = error as JiraError;
 			try {
 				Command.logger.info( `Error when retreiving issue information: ${ jiraError.message }` );
 				await message.channel.send( `${ message.author } ${ jiraError.message }` );
