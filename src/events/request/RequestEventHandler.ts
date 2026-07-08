@@ -47,6 +47,29 @@ export default class RequestEventHandler implements EventHandler<'messageCreate'
 			this.logger.error( error );
 		}
 
+		// Reject requests that link to unofficial bug tracker mirrors.
+		// Only bugs.mojang.com is the authoritative source; sites like mojira.dev
+		// are third-party mirrors and should not be used for requests.
+		if ( RequestsUtil.containsUnofficialBugTrackerLink( origin.content ) ) {
+			try {
+				await origin.react( BotConfig.request.invalidTicketEmoji );
+			} catch ( error ) {
+				this.logger.error( error );
+			}
+
+			try {
+				const warning = await origin.channel.send(
+					`${ origin.author }, your request (<${ origin.url }>) contains a link to an unofficial bug tracker mirror. ` +
+					`Please only link to tickets on the official Mojang bug tracker: <https://bugs.mojang.com>.`
+				);
+				await DiscordUtil.deleteWithDelay( warning, BotConfig.request.warningLifetime );
+			} catch ( error ) {
+				this.logger.error( error );
+			}
+
+			return;
+		}
+
 		const tickets = RequestsUtil.getTicketIdsFromString( origin.content );
 
 		if ( BotConfig.request.noLinkEmoji && !tickets.length ) {
