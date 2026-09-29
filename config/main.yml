@@ -18,14 +18,17 @@ request:
     - '648555618994618378' # java-requests
     - '648555751438155776' # bedrock-requests
     - '651161365091844116' # other-requests
+    - '1554577686641512568' # dungeons-ii-requests
   internalChannels:
     - '683038862024638474' # java-pending-requests
     - '683038914306506841' # bedrock-pending-requests
     - '683040112191340560' # other-pending-requests
+    - '1554578092947804160' # dungeons-ii-pending-requests
   requestLimits:
     - 30 # Limit for # java-requests
     - 30 # Limit for # bedrock-requests
     - 45 # Limit for # other-requests
+    - 30 # Limit for # dungeons-ii-requests
   testingRequestChannels:
     - '740188001052917801'
     - '807240396445843516'
@@ -118,15 +121,17 @@ versionFeeds:
     #version-feed
   - projects:
     - name: BDS
-      id: 11700
+      id: 10003
     - name: MC
-      id: 10400
+      id: 10001
+    - name: MCD2
+      id: 12049
     - name: MCL
-      id: 11101
+      id: 10006
     - name: MCPE
-      id: 10200
+      id: 10005
     - name: REALMS
-      id: 11402
+      id: 10008
     channel: '741600360619049000'
     publish: true
     interval: 10000
