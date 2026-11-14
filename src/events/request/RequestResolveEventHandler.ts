@@ -42,11 +42,14 @@ export default class RequestResolveEventHandler implements EventHandler<'message
 
 		if ( BotConfig.request.ignoreResolutionEmoji !== reaction.emoji.name ) {
 			TaskScheduler.clearMessageTasks( reaction.message );
-			TaskScheduler.addOneTimeMessageTask(
-				reaction.message,
-				new ResolveRequestMessageTask( reaction.emoji, user ),
-				BotConfig.request.resolveDelay || 0
-			);
+
+			if ( RequestsUtil.getResolveReactions( reaction.message ).size <= 1 ) {
+				TaskScheduler.addOneTimeMessageTask(
+					reaction.message,
+					new ResolveRequestMessageTask( reaction.emoji, user ),
+					BotConfig.request.resolveDelay || 0
+				);
+			}
 		}
 	};
 }

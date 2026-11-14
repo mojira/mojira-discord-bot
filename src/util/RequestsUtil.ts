@@ -1,4 +1,4 @@
-import { APIEmbedField, Message, PartialMessage, Snowflake, TextChannel, User } from 'discord.js';
+import { APIEmbedField, Collection, Message, MessageReaction, PartialMessage, Snowflake, TextChannel, User } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../BotConfig.js';
 import DiscordUtil from './DiscordUtil.js';
@@ -76,6 +76,13 @@ export class RequestsUtil {
 			.replace( '{{author}}', `@${ message.author.tag }` )
 			.replace( '{{url}}', message.url )
 			.replace( '{{message}}', message.content.replace( /(^|\n)/g, '$1> ' ) );
+	}
+
+	public static getResolveReactions( message: Message | PartialMessage ): Collection<string, MessageReaction> {
+		return message.reactions.cache.filter( reaction =>
+			reaction.emoji.name !== BotConfig.request.ignoreResolutionEmoji
+			&& reaction.count > ( reaction.me ? 1 : 0 )
+		);
 	}
 
 	// https://stackoverflow.com/a/3426956
