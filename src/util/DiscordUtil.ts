@@ -52,9 +52,9 @@ export default class DiscordUtil {
 		} );
 	}
 
-	public static async sendMentionMessage( origin: Message, content: MessageReplyOptions ): Promise<void> {
+	public static async sendMentionMessage( origin: Message, content: MessageReplyOptions, copyReply: boolean ): Promise<void> {
 		try {
-			if ( origin.reference?.messageId ) {
+			if ( copyReply && origin.reference?.messageId ) {
 				const replyTo = await origin.fetchReference();
 				if ( replyTo === undefined ) return;
 
