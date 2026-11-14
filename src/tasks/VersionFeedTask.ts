@@ -117,7 +117,11 @@ export default class VersionFeedTask extends Task {
 		const changes: JiraVersionChange[] = [];
 
 		for ( const project of this.projects ) {
-			changes.push( ...await this.getVersionChangesForProject( project.name ) );
+			try {
+				changes.push( ...await this.getVersionChangesForProject( project.name ) );
+			} catch ( error ) {
+				VersionFeedTask.logger.error( `[${ this.id }] Error getting version changes for ${ project.name }: ${ LoggerUtil.shortenJiraError( error ) }` );
+			}
 		}
 
 		return changes.filter( change => this.actions.includes( change.type ) );
