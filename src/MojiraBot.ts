@@ -152,14 +152,14 @@ export default class MojiraBot {
 							const handler = new RequestResolveEventHandler( this.botUser.id );
 							for ( const message of allMessages ) {
 								message.reactions.cache.forEach( async reaction => {
-									const users = await reaction.users.fetch();
-									const user = [...users.values()].find( v => v.id !== this.botUser.id );
-									if ( user ) {
-										try {
+									try {
+										const users = await reaction.users.fetch();
+										const user = [...users.values()].find( v => v.id !== this.botUser.id );
+										if ( user ) {
 											await handler.onEvent( reaction, user );
-										} catch ( error ) {
-											MojiraBot.logger.error( error );
 										}
+									} catch ( error ) {
+										MojiraBot.logger.error( error );
 									}
 								} );
 							}

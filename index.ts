@@ -11,6 +11,14 @@ log4js.configure( {
 	},
 } );
 
+process.on( 'unhandledRejection', ( reason ) => {
+	log4js.getLogger( 'MojiraBot' ).error( 'Unhandled promise rejection:', reason );
+} );
+
+process.on( 'uncaughtException', ( error, origin ) => {
+	log4js.getLogger( 'MojiraBot' ).error( `Uncaught exception (${ origin }):`, error );
+} );
+
 try {
 	BotConfig.init();
 

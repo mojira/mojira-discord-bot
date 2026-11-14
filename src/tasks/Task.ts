@@ -27,7 +27,11 @@ export default abstract class Task {
 
 		if ( this.initialized ) {
 			MojiraBot.logger.debug( `Running ${ this.asString() }` );
-			await this.run();
+			try {
+				await this.run();
+			} catch ( error ) {
+				MojiraBot.logger.error( `Error while running ${ this.asString() }. ${ LoggerUtil.shortenJiraError( error ) }` );
+			}
 		}
 	}
 
