@@ -86,23 +86,22 @@ export default class MentionCommand extends Command {
 		embed.setFooter( { text: messageAuthorNormalizedTag, iconURL: message.author.avatarURL() ?? undefined } )
 			.setTimestamp( message.createdAt );
 
+		const matchesTicketId = message.content.match( new RegExp( `^\\s*${ BotConfig.requiredTicketPrefix }${ MentionCommand.ticketPattern }\\s*$` ) );
+		const matchesTicketUrl = message.content.match( new RegExp( `^\\s*https?://bugs.mojang.com/browse/${ MentionCommand.ticketPattern }\\s*$` ) );
+		const shouldDelete = message.deletable && ( matchesTicketId !== null || ( BotConfig.ticketUrlsCauseEmbed && matchesTicketUrl !== null ) );
+
 		try {
-			await DiscordUtil.sendMentionMessage( message, { embeds: [embed] } );
+			await DiscordUtil.sendMentionMessage( message, { embeds: [embed] }, shouldDelete );
 		} catch ( err ) {
 			Command.logger.error( err );
 			return false;
 		}
 
-		if ( message.deletable ) {
-			const matchesTicketId = message.content.match( new RegExp( `^\\s*${ BotConfig.requiredTicketPrefix }${ MentionCommand.ticketPattern }\\s*$` ) );
-			const matchesTicketUrl = message.content.match( new RegExp( `^\\s*https?://bugs.mojang.com/browse/${ MentionCommand.ticketPattern }\\s*$` ) );
-
-			if ( matchesTicketId || ( BotConfig.ticketUrlsCauseEmbed && matchesTicketUrl ) ) {
-				try {
-					await message.delete();
-				} catch ( err ) {
-					Command.logger.error( err );
-				}
+		if ( shouldDelete ) {
+			try {
+				await message.delete();
+			} catch ( err ) {
+				Command.logger.error( err );
 			}
 		}
 
