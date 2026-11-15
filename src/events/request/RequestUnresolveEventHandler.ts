@@ -1,10 +1,10 @@
 import { EmbedBuilder, MessageReaction, PartialMessageReaction, PartialUser, User } from 'discord.js';
 import log4js from 'log4js';
-import BotConfig from '../../BotConfig.js';
 import TaskScheduler from '../../tasks/TaskScheduler.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
 import { RequestsUtil } from '../../util/RequestsUtil.js';
 import EventHandler from '../EventHandler.js';
+import RequestResolveEventHandler from './RequestResolveEventHandler.js';
 
 export default class RequestUnresolveEventHandler implements EventHandler<'messageReactionRemove'> {
 	public readonly eventName = 'messageReactionRemove';
@@ -13,8 +13,11 @@ export default class RequestUnresolveEventHandler implements EventHandler<'messa
 
 	private readonly botUserId: string;
 
+	private readonly requestResolveEventHandler: RequestResolveEventHandler;
+
 	constructor( botUserId: string ) {
 		this.botUserId = botUserId;
+		this.requestResolveEventHandler = new RequestResolveEventHandler( botUserId );
 	}
 
 	// This syntax is used to ensure that `this` refers to the `RequestUnresolveEventHandler` object
@@ -35,9 +38,17 @@ export default class RequestUnresolveEventHandler implements EventHandler<'messa
 			embeds: [embed],
 		} );
 
-		if ( message.reactions.cache.size <= BotConfig.request.suggestedEmoji.length ) {
+		const resolveReactions = RequestsUtil.getResolveReactions( message );
+
+		if ( resolveReactions.size === 0 ) {
 			this.logger.info( `Cleared message task for request message '${ message.id }'` );
 			TaskScheduler.clearMessageTasks( message );
+		} else if ( resolveReactions.size === 1 ) {
+			const reaction = resolveReactions.first();
+			const resolver = ( await reaction?.users.fetch() )?.find( reactor => reactor.id !== this.botUserId );
+			if ( reaction && resolver ) {
+				await this.requestResolveEventHandler.onEvent( reaction, resolver );
+			}
 		}
 	};
 }
