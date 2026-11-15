@@ -23,19 +23,25 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 				}
 
 				if ( origin.attachments ) {
-					origin.attachments.forEach( async file => {
+					for ( const file of origin.attachments.values() ) {
 						await user.send( {
 							files: [ {
 								attachment: file.url,
 								name: file.name ?? undefined,
 							} ],
 						} );
-					} );
+					}
 				}
 
 				await origin.react( '📬' );
 			} catch ( err ) {
 				this.logger.error( err );
+
+				try {
+					await origin.react( '❌' );
+				} catch ( reactErr ) {
+					this.logger.error( reactErr );
+				}
 
 				return;
 			}
