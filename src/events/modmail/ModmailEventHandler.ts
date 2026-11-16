@@ -45,7 +45,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 			}
 
 			if ( previousThread ) {
-				const thread = modmailChannel.threads.cache.find( t => t.id == previousThread.thread );
+				const thread = await modmailChannel.threads.fetch( previousThread.thread ).catch( () => null );
 				if ( thread && !thread.archived ) {
 					try {
 						const replyTo = BotConfig.database.prepare( 'SELECT thread_message FROM modmail_messages WHERE dm_message = ?' ).get( origin.reference?.messageId ?? '' ) as { thread_message: string } | undefined;
