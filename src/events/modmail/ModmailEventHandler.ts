@@ -57,6 +57,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 								name: file.name ?? undefined,
 							} ) ),
 							reply: replyTo && { messageReference: replyTo.thread_message, failIfNotExists: false },
+							allowedMentions: { parse: [] },
 						} );
 
 						await ModmailUtil.markDelivered( origin, thread.id, copy.id );
@@ -87,6 +88,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 				start = await modmailChannel.send( {
 					components: [ this.getStartContainer( origin ) ],
 					flags: MessageFlags.IsComponentsV2,
+					allowedMentions: { parse: [] },
 				} );
 
 				newThread = await start.startThread( {
@@ -105,6 +107,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 						attachment: file.url,
 						name: file.name ?? undefined,
 					} ) ),
+					allowedMentions: { parse: [] },
 				} );
 
 				await ModmailUtil.markDelivered( origin, newThread.id, copy.id );

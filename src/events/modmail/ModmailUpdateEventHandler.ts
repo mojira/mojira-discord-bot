@@ -33,6 +33,7 @@ export default class ModmailUpdateEventHandler {
 					attachment: file.url,
 					name: file.name ?? undefined,
 				} ) ),
+				allowedMentions: { parse: [] },
 			} );
 		} catch ( e ) {
 			this.logger.error( e );
