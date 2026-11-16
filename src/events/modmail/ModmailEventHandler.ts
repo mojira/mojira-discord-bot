@@ -1,4 +1,4 @@
-import { Message, TextChannel } from 'discord.js';
+import { ComponentType, ContainerBuilder, Message, MessageFlags, SectionBuilder, TextChannel, TextDisplayBuilder, ThumbnailBuilder } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
@@ -47,6 +47,8 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 						return;
 					}
 				} else {
+					await this.removeAccentColor( modmailChannel, previousThread.thread );
+
 					BotConfig.database.prepare(
 						`DELETE FROM modmail_threads
 						WHERE user = ?`
@@ -60,11 +62,8 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 			}
 			try {
 				const start = await modmailChannel.send( {
-					content: origin.content,
-					files: origin.attachments.map( file => ( {
-						attachment: file.url,
-						name: file.name ?? undefined,
-					} ) ),
+					components: [ this.getStartContainer( origin ) ],
+					flags: MessageFlags.IsComponentsV2,
 				} );
 
 				const newThread = await start.startThread( {
@@ -77,7 +76,15 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 					VALUES (?, ?)`
 				).run( [ origin.author.id, newThread.id ] );
 
-				await ModmailUtil.markDelivered( origin, newThread.id, start.id );
+				const copy = await newThread.send( {
+					content: origin.content,
+					files: origin.attachments.map( file => ( {
+						attachment: file.url,
+						name: file.name ?? undefined,
+					} ) ),
+				} );
+
+				await ModmailUtil.markDelivered( origin, newThread.id, copy.id );
 			} catch ( e ) {
 				this.logger.error( e );
 				await this.reactFailed( origin );
@@ -99,6 +106,36 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 	private async reactFailed( origin: Message ): Promise<void> {
 		try {
 			await origin.react( '❌' );
+		} catch ( e ) {
+			this.logger.error( e );
+		}
+	}
+
+	private getStartContainer( origin: Message ): ContainerBuilder {
+		const text = [ new TextDisplayBuilder().setContent( `### ${ origin.author }` ) ];
+		if ( origin.content ) {
+			text.push( new TextDisplayBuilder().setContent( origin.content.replace( /(^|\n)/g, '$1> ' ) ) );
+		}
+
+		return new ContainerBuilder()
+			.setAccentColor( 0x2FCA74 )
+			.addSectionComponents(
+				new SectionBuilder()
+					.addTextDisplayComponents( text )
+					.setThumbnailAccessory( new ThumbnailBuilder().setURL( origin.author.displayAvatarURL() ) )
+			);
+	}
+
+	private async removeAccentColor( channel: TextChannel, messageId: string ): Promise<void> {
+		try {
+			const message = await channel.messages.fetch( messageId );
+			const container = message.components[0];
+			if ( container?.type !== ComponentType.Container ) return;
+
+			await message.edit( {
+				components: [ { ...container.toJSON(), accent_color: null } ],
+				flags: MessageFlags.IsComponentsV2,
+			} );
 		} catch ( e ) {
 			this.logger.error( e );
 		}
