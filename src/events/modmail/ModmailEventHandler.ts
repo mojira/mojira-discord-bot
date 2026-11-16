@@ -27,7 +27,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 				if ( thread && !thread.archived ) {
 					try {
 						await thread.send( {
-							content: `${ origin.author }: ${ origin.content }`,
+							content: origin.content,
 							files: origin.attachments.map( file => ( {
 								attachment: file.url,
 								name: file.name ?? undefined,
@@ -49,7 +49,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 			}
 			try {
 				const start = await modmailChannel.send( {
-					content: `${ origin.author }: ${ origin.content }`,
+					content: origin.content,
 					files: origin.attachments.map( file => ( {
 						attachment: file.url,
 						name: file.name ?? undefined,
