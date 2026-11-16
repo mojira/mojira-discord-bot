@@ -16,14 +16,21 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 
 		try {
 			const user = await origin.client.users.fetch( id.user );
+			const replyTo = BotConfig.database.prepare( 'SELECT dm FROM modmail_messages WHERE thread = ?' ).get( origin.reference?.messageId ?? '' ) as { dm: string } | undefined;
 
-			await user.send( {
+			const dm = await user.send( {
 				content: origin.content,
 				files: origin.attachments.map( file => ( {
 					attachment: file.url,
 					name: file.name ?? undefined,
 				} ) ),
+				reply: replyTo && { messageReference: replyTo.dm, failIfNotExists: false },
 			} );
+
+			BotConfig.database.prepare(
+				`INSERT INTO modmail_messages (dm, thread)
+				VALUES (?, ?)`
+			).run( [ dm.id, origin.id ] );
 
 			await origin.react( '📬' );
 		} catch ( err ) {

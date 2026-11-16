@@ -26,13 +26,22 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 				const thread = modmailChannel.threads.cache.find( t => t.id == previousThread.thread );
 				if ( thread && !thread.archived ) {
 					try {
-						await thread.send( {
+						const replyTo = BotConfig.database.prepare( 'SELECT thread FROM modmail_messages WHERE dm = ?' ).get( origin.reference?.messageId ?? '' ) as { thread: string } | undefined;
+
+						const copy = await thread.send( {
 							content: origin.content,
 							files: origin.attachments.map( file => ( {
 								attachment: file.url,
 								name: file.name ?? undefined,
 							} ) ),
+							reply: replyTo && { messageReference: replyTo.thread, failIfNotExists: false },
 						} );
+
+						BotConfig.database.prepare(
+							`INSERT INTO modmail_messages (dm, thread)
+							VALUES (?, ?)`
+						).run( [ origin.id, copy.id ] );
+
 						await origin.react( '📬' );
 						return;
 					} catch ( e ) {
@@ -66,6 +75,11 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 					`INSERT INTO modmail_threads (user, thread)
 					VALUES (?, ?)`
 				).run( [ origin.author.id, newThread.id ] );
+
+				BotConfig.database.prepare(
+					`INSERT INTO modmail_messages (dm, thread)
+					VALUES (?, ?)`
+				).run( [ origin.id, start.id ] );
 			} catch ( e ) {
 				this.logger.error( e );
 
