@@ -3,6 +3,7 @@ import { Message, MessageType, PartialMessage, Snowflake } from 'discord.js';
 import BotConfig from '../../BotConfig.js';
 import RequestUpdateEventHandler from '../request/RequestUpdateEventHandler.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
+import ModmailUpdateEventHandler from '../modmail/ModmailUpdateEventHandler.js';
 
 export default class MessageUpdateEventHandler implements EventHandler<'messageUpdate'> {
 	public readonly eventName = 'messageUpdate';
@@ -10,11 +11,13 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 	private readonly botUserId: string;
 
 	private readonly requestUpdateEventHandler: RequestUpdateEventHandler;
+	private readonly modmailUpdateEventHandler: ModmailUpdateEventHandler;
 
 	constructor( botUserId: string, internalChannels: Map<Snowflake, Snowflake> ) {
 		this.botUserId = botUserId;
 
 		this.requestUpdateEventHandler = new RequestUpdateEventHandler( internalChannels );
+		this.modmailUpdateEventHandler = new ModmailUpdateEventHandler();
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageUpdateEventHandler` object
@@ -36,6 +39,9 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 		if ( BotConfig.request.channels && BotConfig.request.channels.includes( oldMessage.channel.id ) ) {
 			// The updated message is in a request channel
 			await this.requestUpdateEventHandler.onEvent( oldMessage, newMessage );
+		} else if ( BotConfig.modmailEnabled ) {
+			// The updated message might be part of a modmail conversation
+			await this.modmailUpdateEventHandler.onEvent( newMessage );
 		}
 	};
 }
