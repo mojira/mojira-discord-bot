@@ -2,6 +2,7 @@ import { Message, TextChannel } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
+import { ModmailUtil } from '../../util/ModmailUtil.js';
 import EventHandler from '../EventHandler.js';
 
 export default class ModmailEventHandler implements EventHandler<'messageCreate'> {
@@ -26,7 +27,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 				const thread = modmailChannel.threads.cache.find( t => t.id == previousThread.thread );
 				if ( thread && !thread.archived ) {
 					try {
-						const replyTo = BotConfig.database.prepare( 'SELECT thread FROM modmail_messages WHERE dm = ?' ).get( origin.reference?.messageId ?? '' ) as { thread: string } | undefined;
+						const replyTo = BotConfig.database.prepare( 'SELECT thread_message FROM modmail_messages WHERE dm_message = ?' ).get( origin.reference?.messageId ?? '' ) as { thread_message: string } | undefined;
 
 						const copy = await thread.send( {
 							content: origin.content,
@@ -34,18 +35,14 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 								attachment: file.url,
 								name: file.name ?? undefined,
 							} ) ),
-							reply: replyTo && { messageReference: replyTo.thread, failIfNotExists: false },
+							reply: replyTo && { messageReference: replyTo.thread_message, failIfNotExists: false },
 						} );
 
-						BotConfig.database.prepare(
-							`INSERT INTO modmail_messages (dm, thread)
-							VALUES (?, ?)`
-						).run( [ origin.id, copy.id ] );
-
-						await origin.react( '📬' );
+						await ModmailUtil.markDelivered( origin, thread.id, copy.id );
 						return;
 					} catch ( e ) {
 						this.logger.error( e );
+						await this.reactFailed( origin );
 
 						return;
 					}
@@ -54,6 +51,11 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 						`DELETE FROM modmail_threads
 						WHERE user = ?`
 					).run( origin.author.id );
+
+					BotConfig.database.prepare(
+						`DELETE FROM modmail_messages
+						WHERE thread = ?`
+					).run( previousThread.thread );
 				}
 			}
 			try {
@@ -64,7 +66,6 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 						name: file.name ?? undefined,
 					} ) ),
 				} );
-				await origin.react( '📬' );
 
 				const newThread = await start.startThread( {
 					name: origin.author.tag,
@@ -76,12 +77,10 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 					VALUES (?, ?)`
 				).run( [ origin.author.id, newThread.id ] );
 
-				BotConfig.database.prepare(
-					`INSERT INTO modmail_messages (dm, thread)
-					VALUES (?, ?)`
-				).run( [ origin.id, start.id ] );
+				await ModmailUtil.markDelivered( origin, newThread.id, start.id );
 			} catch ( e ) {
 				this.logger.error( e );
+				await this.reactFailed( origin );
 
 				return;
 			}
@@ -96,4 +95,12 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 			}
 		}
 	};
+
+	private async reactFailed( origin: Message ): Promise<void> {
+		try {
+			await origin.react( '❌' );
+		} catch ( e ) {
+			this.logger.error( e );
+		}
+	}
 }

@@ -88,7 +88,7 @@ export default class MojiraBot {
 
 			BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_bans (\'user\' varchar)' );
 			BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_threads (\'user\' varchar, \'thread\' varchar)' );
-			BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_messages (\'dm\' varchar, \'thread\' varchar)' );
+			BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_messages (\'thread\' varchar, \'sender\' varchar, \'dm_message\' varchar, \'thread_message\' varchar)' );
 
 			this.botUser = this.client.user;
 			this.running = true;

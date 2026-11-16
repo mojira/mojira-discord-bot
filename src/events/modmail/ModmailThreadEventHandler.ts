@@ -1,6 +1,7 @@
 import { Message } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
+import { ModmailUtil } from '../../util/ModmailUtil.js';
 import EventHandler from '../EventHandler.js';
 
 export default class ModmailThreadEventHandler implements EventHandler<'messageCreate'> {
@@ -16,7 +17,7 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 
 		try {
 			const user = await origin.client.users.fetch( id.user );
-			const replyTo = BotConfig.database.prepare( 'SELECT dm FROM modmail_messages WHERE thread = ?' ).get( origin.reference?.messageId ?? '' ) as { dm: string } | undefined;
+			const replyTo = BotConfig.database.prepare( 'SELECT dm_message FROM modmail_messages WHERE thread_message = ?' ).get( origin.reference?.messageId ?? '' ) as { dm_message: string } | undefined;
 
 			const dm = await user.send( {
 				content: origin.content,
@@ -24,15 +25,10 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 					attachment: file.url,
 					name: file.name ?? undefined,
 				} ) ),
-				reply: replyTo && { messageReference: replyTo.dm, failIfNotExists: false },
+				reply: replyTo && { messageReference: replyTo.dm_message, failIfNotExists: false },
 			} );
 
-			BotConfig.database.prepare(
-				`INSERT INTO modmail_messages (dm, thread)
-				VALUES (?, ?)`
-			).run( [ dm.id, origin.id ] );
-
-			await origin.react( '📬' );
+			await ModmailUtil.markDelivered( origin, origin.channel.id, dm.id );
 		} catch ( err ) {
 			this.logger.error( err );
 
