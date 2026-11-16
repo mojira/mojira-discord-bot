@@ -10,6 +10,8 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 
 	private logger = log4js.getLogger( 'ModmailEventHandler' );
 
+	private readonly maxPreviewLength = 200;
+
 	private readonly queues = new Map<Snowflake, Promise<void>>();
 
 	// This syntax is used to ensure that `this` refers to the `ModmailEventHandler` object
@@ -154,7 +156,8 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 	private getStartContainer( origin: Message ): ContainerBuilder {
 		const text = [ new TextDisplayBuilder().setContent( `### ${ origin.author }` ) ];
 		if ( origin.content ) {
-			text.push( new TextDisplayBuilder().setContent( origin.content.replace( /(^|\n)/g, '$1> ' ) ) );
+			const preview = origin.content.length > this.maxPreviewLength ? `${ origin.content.slice( 0, this.maxPreviewLength ) }…` : origin.content;
+			text.push( new TextDisplayBuilder().setContent( preview.replace( /(^|\n)/g, '$1> ' ) ) );
 		}
 
 		return new ContainerBuilder()
