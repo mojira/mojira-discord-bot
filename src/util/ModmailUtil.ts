@@ -5,11 +5,10 @@ import BotConfig from '../BotConfig.js';
 export class ModmailUtil {
 	private static logger = log4js.getLogger( 'ModmailUtil' );
 
+	private static readonly maxContentLength = 2000;
+
 	/**
-	 * Stores a delivered message and moves the success reaction from the previous message of the same sender in the same thread to it.
-	 * @param origin The message that has been delivered
-	 * @param thread The ID of the thread of the conversation
-	 * @param copy The ID of the message that `origin` has been delivered as
+	 * Stores a delivered message and moves the success reaction to the bottom
 	 */
 	public static async markDelivered( origin: Message, thread: Snowflake, copy: Snowflake ): Promise<void> {
 		const sender = origin.channel.isDMBased() ? 'user' : 'staff';
@@ -31,6 +30,24 @@ export class ModmailUtil {
 			tasks.push( this.removeReaction( origin, sender === 'user' ? previous.dm_message : previous.thread_message ) );
 		}
 		await Promise.all( tasks );
+	}
+
+	/**
+	 * Messages that aren't supported by Modmail
+	 */
+	public static canForward( message: Message ): boolean {
+		return ( message.content !== '' || message.attachments.size > 0 )
+			&& message.content.length <= this.maxContentLength
+			&& message.stickers.size === 0
+			&& message.messageSnapshots.size === 0;
+	}
+
+	public static async markFailed( origin: Message ): Promise<void> {
+		try {
+			await origin.react( '❌' );
+		} catch ( err ) {
+			this.logger.error( err );
+		}
 	}
 
 	private static async removeReaction( origin: Message, messageId: Snowflake ): Promise<void> {

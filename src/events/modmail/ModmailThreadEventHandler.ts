@@ -15,6 +15,11 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 
 		if ( !origin.channel.isThread() || id === undefined ) return;
 
+		if ( !ModmailUtil.canForward( origin ) ) {
+			await ModmailUtil.markFailed( origin );
+			return;
+		}
+
 		try {
 			const user = await origin.client.users.fetch( id.user );
 			const replyTo = BotConfig.database.prepare( 'SELECT dm_message FROM modmail_messages WHERE thread_message = ?' ).get( origin.reference?.messageId ?? '' ) as { dm_message: string } | undefined;
@@ -31,12 +36,7 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 			await ModmailUtil.markDelivered( origin, origin.channel.id, dm.id );
 		} catch ( err ) {
 			this.logger.error( err );
-
-			try {
-				await origin.react( '❌' );
-			} catch ( reactErr ) {
-				this.logger.error( reactErr );
-			}
+			await ModmailUtil.markFailed( origin );
 
 			return;
 		}

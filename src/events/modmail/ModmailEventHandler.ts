@@ -1,4 +1,4 @@
-import { ComponentType, ContainerBuilder, Message, MessageFlags, SectionBuilder, TextChannel, TextDisplayBuilder, ThumbnailBuilder } from 'discord.js';
+import { ComponentType, ContainerBuilder, Message, MessageFlags, SectionBuilder, Snowflake, TextChannel, TextDisplayBuilder, ThreadChannel, ThumbnailBuilder } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
@@ -10,8 +10,24 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 
 	private logger = log4js.getLogger( 'ModmailEventHandler' );
 
+	private readonly queues = new Map<Snowflake, Promise<void>>();
+
 	// This syntax is used to ensure that `this` refers to the `ModmailEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
+		const previous = this.queues.get( origin.author.id ) ?? Promise.resolve();
+		const current = previous.catch( () => undefined ).then( () => this.handle( origin ) );
+		this.queues.set( origin.author.id, current );
+
+		try {
+			await current;
+		} finally {
+			if ( this.queues.get( origin.author.id ) === current ) {
+				this.queues.delete( origin.author.id );
+			}
+		}
+	};
+
+	private async handle( origin: Message ): Promise<void> {
 		if ( !origin.channel.isSendable() ) {
 			return;
 		}
@@ -23,6 +39,11 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 		const previousThread = BotConfig.database.prepare( 'SELECT thread FROM modmail_threads WHERE user = ?' ).get( origin.author.id ) as { thread: string };
 
 		if ( modmailChannel instanceof TextChannel && banStatus === undefined ) {
+			if ( !ModmailUtil.canForward( origin ) ) {
+				await ModmailUtil.markFailed( origin );
+				return;
+			}
+
 			if ( previousThread ) {
 				const thread = modmailChannel.threads.cache.find( t => t.id == previousThread.thread );
 				if ( thread && !thread.archived ) {
@@ -42,7 +63,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 						return;
 					} catch ( e ) {
 						this.logger.error( e );
-						await this.reactFailed( origin );
+						await ModmailUtil.markFailed( origin );
 
 						return;
 					}
@@ -60,13 +81,15 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 					).run( previousThread.thread );
 				}
 			}
+			let start: Message | undefined;
+			let newThread: ThreadChannel | undefined;
 			try {
-				const start = await modmailChannel.send( {
+				start = await modmailChannel.send( {
 					components: [ this.getStartContainer( origin ) ],
 					flags: MessageFlags.IsComponentsV2,
 				} );
 
-				const newThread = await start.startThread( {
+				newThread = await start.startThread( {
 					name: origin.author.tag,
 					autoArchiveDuration: 1440,
 				} );
@@ -87,7 +110,8 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 				await ModmailUtil.markDelivered( origin, newThread.id, copy.id );
 			} catch ( e ) {
 				this.logger.error( e );
-				await this.reactFailed( origin );
+				await this.discardThread( origin, start, newThread );
+				await ModmailUtil.markFailed( origin );
 
 				return;
 			}
@@ -101,13 +125,26 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 				return;
 			}
 		}
-	};
+	}
 
-	private async reactFailed( origin: Message ): Promise<void> {
+	private async discardThread( origin: Message, start?: Message, thread?: ThreadChannel ): Promise<void> {
 		try {
-			await origin.react( '❌' );
+			await thread?.delete();
+			await start?.delete();
 		} catch ( e ) {
 			this.logger.error( e );
+		}
+
+		if ( thread ) {
+			BotConfig.database.prepare(
+				`DELETE FROM modmail_threads
+				WHERE user = ?`
+			).run( origin.author.id );
+
+			BotConfig.database.prepare(
+				`DELETE FROM modmail_messages
+				WHERE thread = ?`
+			).run( thread.id );
 		}
 	}
 
