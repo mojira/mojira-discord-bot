@@ -26,17 +26,13 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 				const thread = modmailChannel.threads.cache.find( t => t.id == previousThread.thread );
 				if ( thread && !thread.archived ) {
 					try {
-						await thread.send( `${ origin.author }: ${ origin.content }` );
-						if ( origin.attachments ) {
-							origin.attachments.forEach( async file => {
-								await thread.send( {
-									files: [ {
-										attachment: file.url,
-										name: file.name ?? undefined,
-									} ],
-								} );
-							} );
-						}
+						await thread.send( {
+							content: `${ origin.author }: ${ origin.content }`,
+							files: origin.attachments.map( file => ( {
+								attachment: file.url,
+								name: file.name ?? undefined,
+							} ) ),
+						} );
 						await origin.react( '📬' );
 						return;
 					} catch ( e ) {
@@ -52,7 +48,13 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 				}
 			}
 			try {
-				const start = await modmailChannel.send( `${ origin.author }: ${ origin.content }` );
+				const start = await modmailChannel.send( {
+					content: `${ origin.author }: ${ origin.content }`,
+					files: origin.attachments.map( file => ( {
+						attachment: file.url,
+						name: file.name ?? undefined,
+					} ) ),
+				} );
 				await origin.react( '📬' );
 
 				const newThread = await start.startThread( {
@@ -64,17 +66,6 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 					`INSERT INTO modmail_threads (user, thread)
 					VALUES (?, ?)`
 				).run( [ origin.author.id, newThread.id ] );
-
-				if ( origin.attachments ) {
-					origin.attachments.forEach( async file => {
-						await newThread.send( {
-							files: [ {
-								attachment: file.url,
-								name: file.name ?? undefined,
-							} ],
-						} );
-					} );
-				}
 			} catch ( e ) {
 				this.logger.error( e );
 
