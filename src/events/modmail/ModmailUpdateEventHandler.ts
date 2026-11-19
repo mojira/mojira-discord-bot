@@ -11,7 +11,7 @@ export default class ModmailUpdateEventHandler {
 		const stored = BotConfig.database.prepare(
 			`SELECT t.user, m.thread, m.dm_message, m.thread_message FROM modmail_messages m
 			JOIN modmail_threads t ON t.thread = m.thread
-			WHERE m.dm_message = ? OR m.thread_message = ?`
+			WHERE m.sender != 'comment' AND ( m.dm_message = ? OR m.thread_message = ? )`
 		).get( origin.id, origin.id ) as { user: string; thread: string; dm_message: string; thread_message: string } | undefined;
 
 		if ( stored === undefined ) return;
