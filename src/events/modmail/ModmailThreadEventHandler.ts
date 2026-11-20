@@ -15,6 +15,17 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 
 		if ( !origin.channel.isThread() || id === undefined ) return;
 
+		if ( ModmailUtil.isComment( origin ) ) {
+			try {
+				await ModmailUtil.markComment( origin );
+			} catch ( err ) {
+				this.logger.error( err );
+				await ModmailUtil.markFailed( origin );
+			}
+
+			return;
+		}
+
 		if ( !ModmailUtil.canForward( origin ) ) {
 			await ModmailUtil.markFailed( origin );
 			return;

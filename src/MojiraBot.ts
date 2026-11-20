@@ -7,6 +7,7 @@ import EventRegistry from './events/EventRegistry.js';
 import MessageDeleteEventHandler from './events/message/MessageDeleteEventHandler.js';
 import MessageEventHandler from './events/message/MessageEventHandler.js';
 import MessageUpdateEventHandler from './events/message/MessageUpdateEventHandler.js';
+import ModmailCatchUp from './events/modmail/ModmailCatchUp.js';
 import ReactionAddEventHandler from './events/reaction/ReactionAddEventHandler.js';
 import ReactionRemoveEventHandler from './events/reaction/ReactionRemoveEventHandler.js';
 import RequestEventHandler from './events/request/RequestEventHandler.js';
@@ -224,6 +225,12 @@ export default class MojiraBot {
 				}
 
 				this.logger.info( 'Fully caught up on requests.' );
+			}
+
+			if ( BotConfig.modmailEnabled ) {
+				this.logger.info( 'Catching up on modmail...' );
+				await new ModmailCatchUp().run( this.client );
+				this.logger.info( 'Fully caught up on modmail.' );
 			}
 
 			EventRegistry.add( new ReactionAddEventHandler( this.botUser.id, internalChannels, requestLimits ) );

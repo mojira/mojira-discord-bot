@@ -7,6 +7,7 @@ import RequestEventHandler from '../request/RequestEventHandler.js';
 import TestingRequestEventHandler from '../request/TestingRequestEventHandler.js';
 import InternalProgressEventHandler from '../internal/InternalProgressEventHandler.js';
 import ModmailEventHandler from '../modmail/ModmailEventHandler.js';
+import ModmailPinEventHandler from '../modmail/ModmailPinEventHandler.js';
 import ModmailThreadEventHandler from '../modmail/ModmailThreadEventHandler.js';
 
 export default class MessageEventHandler implements EventHandler<'messageCreate'> {
@@ -19,6 +20,7 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 	private readonly internalProgressEventHandler: InternalProgressEventHandler;
 	private readonly modmailEventHandler: ModmailEventHandler;
 	private readonly modmailThreadEventHandler: ModmailThreadEventHandler;
+	private readonly modmailPinEventHandler: ModmailPinEventHandler;
 
 	constructor( botUserId: Snowflake, internalChannels: Map<Snowflake, Snowflake>, requestLimits: Map<Snowflake, number> ) {
 		this.botUserId = botUserId;
@@ -28,6 +30,7 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 		this.internalProgressEventHandler = new InternalProgressEventHandler();
 		this.modmailEventHandler = new ModmailEventHandler();
 		this.modmailThreadEventHandler = new ModmailThreadEventHandler();
+		this.modmailPinEventHandler = new ModmailPinEventHandler();
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageEventHandler` object
@@ -42,12 +45,21 @@ export default class MessageEventHandler implements EventHandler<'messageCreate'
 			|| message.author.id === this.botUserId
 
 			// Don't reply to non-default messages
-			|| ( message.type !== MessageType.Default && message.type !== MessageType.Reply )
+			|| ( message.type !== MessageType.Default && message.type !== MessageType.Reply && message.type !== MessageType.ChannelPinnedMessage )
 		) return;
 
 		// Only true if the message is in a DM channel
 		if ( message.partial ) {
 			await message.fetch();
+		}
+
+		if ( message.type === MessageType.ChannelPinnedMessage ) {
+			if ( BotConfig.modmailEnabled ) {
+				// The pinned message might be part of a modmail conversation
+				await this.modmailPinEventHandler.onPin( message );
+			}
+
+			return;
 		}
 
 		if ( BotConfig.request.channels && BotConfig.request.channels.includes( message.channel.id ) ) {
