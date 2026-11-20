@@ -1,4 +1,4 @@
-import { ComponentType, ContainerBuilder, Message, MessageFlags, SectionBuilder, Snowflake, TextChannel, TextDisplayBuilder, ThreadChannel, ThumbnailBuilder } from 'discord.js';
+import { ComponentType, ContainerBuilder, Message, MessageFlags, MessageType, SectionBuilder, Snowflake, TextChannel, TextDisplayBuilder, ThreadChannel, ThumbnailBuilder } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
@@ -11,6 +11,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 	private logger = log4js.getLogger( 'ModmailEventHandler' );
 
 	private readonly maxPreviewLength = 200;
+	private readonly maxBacklogAge = 48 * 60 * 60 * 1000;
 
 	private readonly queues = new Map<Snowflake, Promise<void>>();
 
@@ -50,19 +51,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 				const thread = await modmailChannel.threads.fetch( previousThread.thread ).catch( () => null );
 				if ( thread && !thread.archived ) {
 					try {
-						const replyTo = BotConfig.database.prepare( 'SELECT thread_message FROM modmail_messages WHERE dm_message = ?' ).get( origin.reference?.messageId ?? '' ) as { thread_message: string } | undefined;
-
-						const copy = await thread.send( {
-							content: origin.content,
-							files: origin.attachments.map( file => ( {
-								attachment: file.url,
-								name: file.name ?? undefined,
-							} ) ),
-							reply: replyTo && { messageReference: replyTo.thread_message, failIfNotExists: false },
-							allowedMentions: { parse: [] },
-						} );
-
-						await ModmailUtil.markDelivered( origin, thread.id, copy.id );
+						await this.forward( origin, thread );
 						return;
 					} catch ( e ) {
 						this.logger.error( e );
@@ -87,8 +76,10 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 			let start: Message | undefined;
 			let newThread: ThreadChannel | undefined;
 			try {
+				const backlog = await this.getBacklog( origin );
+
 				start = await modmailChannel.send( {
-					components: [ this.getStartContainer( origin ) ],
+					components: [ this.getStartContainer( backlog[0] ?? origin ) ],
 					flags: MessageFlags.IsComponentsV2,
 					allowedMentions: { parse: [] },
 				} );
@@ -103,16 +94,15 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 					VALUES (?, ?)`
 				).run( [ origin.author.id, newThread.id ] );
 
-				const copy = await newThread.send( {
-					content: origin.content,
-					files: origin.attachments.map( file => ( {
-						attachment: file.url,
-						name: file.name ?? undefined,
-					} ) ),
-					allowedMentions: { parse: [] },
-				} );
+				for ( const message of backlog ) {
+					if ( ModmailUtil.canForward( message ) ) {
+						await this.forward( message, newThread );
+					} else {
+						await ModmailUtil.markFailed( message );
+					}
+				}
 
-				await ModmailUtil.markDelivered( origin, newThread.id, copy.id );
+				await this.forward( origin, newThread );
 			} catch ( e ) {
 				this.logger.error( e );
 				await this.discardThread( origin, start, newThread );
@@ -130,6 +120,45 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 				return;
 			}
 		}
+	}
+
+	private async forward( origin: Message, thread: ThreadChannel ): Promise<void> {
+		const replyTo = BotConfig.database.prepare( 'SELECT thread_message FROM modmail_messages WHERE dm_message = ?' ).get( origin.reference?.messageId ?? '' ) as { thread_message: string } | undefined;
+
+		const copy = await thread.send( {
+			content: origin.content,
+			files: origin.attachments.map( file => ( {
+				attachment: file.url,
+				name: file.name ?? undefined,
+			} ) ),
+			reply: replyTo && { messageReference: replyTo.thread_message, failIfNotExists: false },
+			allowedMentions: { parse: [] },
+		} );
+
+		await ModmailUtil.markDelivered( origin, thread.id, copy.id );
+	}
+
+	/**
+	 * Recent messages right before the origin that were never handled, e.g. because the bot was offline
+	 */
+	private async getBacklog( origin: Message ): Promise<Message[]> {
+		const messages = ( await origin.channel.messages.fetch( { before: origin.id, limit: 100 } ) )
+			.sort( ( a, b ) => b.createdTimestamp - a.createdTimestamp );
+
+		const backlog: Message[] = [];
+		for ( const message of messages.values() ) {
+			if (
+				message.author.id !== origin.author.id
+				|| message.reactions.cache.some( reaction => reaction.me )
+				|| origin.createdTimestamp - message.createdTimestamp > this.maxBacklogAge
+			) break;
+
+			if ( message.type === MessageType.Default || message.type === MessageType.Reply ) {
+				backlog.unshift( message );
+			}
+		}
+
+		return backlog;
 	}
 
 	private async discardThread( origin: Message, start?: Message, thread?: ThreadChannel ): Promise<void> {
