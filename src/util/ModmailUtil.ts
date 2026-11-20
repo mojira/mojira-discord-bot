@@ -1,4 +1,4 @@
-import { Message, MessageFlags, Routes, Snowflake } from 'discord.js';
+import { Client, DMChannel, Message, MessageFlags, Routes, Snowflake, ThreadChannel } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../BotConfig.js';
 
@@ -44,6 +44,23 @@ export class ModmailUtil {
 				`SELECT 1 FROM modmail_messages
 				WHERE thread_message = ? AND sender = 'comment'`
 			).get( message.reference?.messageId ?? '' ) !== undefined;
+	}
+
+	/**
+	 * Finds the copy of a delivered message on the other side
+	 */
+	public static async findCopy( client: Client, messageId: Snowflake ): Promise<{ thread: Snowflake; channel: ThreadChannel | DMChannel; id: Snowflake } | undefined> {
+		const stored = BotConfig.database.prepare(
+			`SELECT t.user, m.thread, m.dm_message, m.thread_message FROM modmail_messages m
+			JOIN modmail_threads t ON t.thread = m.thread
+			WHERE m.sender != 'comment' AND ( m.dm_message = ? OR m.thread_message = ? )`
+		).get( messageId, messageId ) as { user: string; thread: string; dm_message: string; thread_message: string } | undefined;
+
+		if ( stored === undefined ) return undefined;
+
+		return stored.dm_message === messageId
+			? { thread: stored.thread, channel: await client.channels.fetch( stored.thread ) as ThreadChannel, id: stored.thread_message }
+			: { thread: stored.thread, channel: await ( await client.users.fetch( stored.user ) ).createDM(), id: stored.dm_message };
 	}
 
 	public static async markFailed( origin: Message ): Promise<void> {
