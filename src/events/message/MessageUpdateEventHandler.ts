@@ -30,6 +30,9 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 			await this.modmailPinEventHandler.onUnpin( newMessage );
 		}
 
+		// Pins and resolved embeds don't change the edit timestamp
+		const edited = oldMessage.editedTimestamp !== newMessage.editedTimestamp;
+
 		oldMessage = await DiscordUtil.fetchMessage( oldMessage );
 		newMessage = await DiscordUtil.fetchMessage( newMessage );
 
@@ -47,8 +50,8 @@ export default class MessageUpdateEventHandler implements EventHandler<'messageU
 		if ( BotConfig.request.channels && BotConfig.request.channels.includes( oldMessage.channel.id ) ) {
 			// The updated message is in a request channel
 			await this.requestUpdateEventHandler.onEvent( oldMessage, newMessage );
-		} else if ( BotConfig.modmailEnabled ) {
-			// The updated message might be part of a modmail conversation
+		} else if ( BotConfig.modmailEnabled && edited ) {
+			// The edited message might be part of a modmail conversation
 			await this.modmailUpdateEventHandler.onEvent( newMessage );
 		}
 	};
