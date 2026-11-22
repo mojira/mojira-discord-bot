@@ -13,21 +13,9 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 	private readonly maxPreviewLength = 200;
 	private readonly maxBacklogAge = 48 * 60 * 60 * 1000;
 
-	private readonly queues = new Map<Snowflake, Promise<void>>();
-
 	// This syntax is used to ensure that `this` refers to the `ModmailEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
-		const previous = this.queues.get( origin.author.id ) ?? Promise.resolve();
-		const current = previous.catch( () => undefined ).then( () => this.handle( origin ) );
-		this.queues.set( origin.author.id, current );
-
-		try {
-			await current;
-		} finally {
-			if ( this.queues.get( origin.author.id ) === current ) {
-				this.queues.delete( origin.author.id );
-			}
-		}
+		await ModmailUtil.queue( origin.author.id, () => this.handle( origin ) );
 	};
 
 	private async handle( origin: Message ): Promise<void> {

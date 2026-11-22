@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { Message, Snowflake } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
 import { ModmailUtil } from '../../util/ModmailUtil.js';
@@ -16,6 +16,10 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 			return;
 		}
 
+		await ModmailUtil.queue( thread.user, () => this.handle( origin, thread.user ) );
+	};
+
+	private async handle( origin: Message, userId: Snowflake ): Promise<void> {
 		if ( ModmailUtil.isComment( origin ) ) {
 			try {
 				await ModmailUtil.markComment( origin );
@@ -33,7 +37,7 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 		}
 
 		try {
-			const user = await origin.client.users.fetch( thread.user );
+			const user = await origin.client.users.fetch( userId );
 			const replyTo = await ModmailUtil.findCopy( origin.client, origin.reference?.messageId ?? '' );
 
 			const dm = await user.send( {
@@ -46,5 +50,5 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 			this.logger.error( e );
 			await ModmailUtil.markFailed( origin );
 		}
-	};
+	}
 }

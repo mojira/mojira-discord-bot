@@ -7,6 +7,8 @@ export class ModmailUtil {
 
 	private static readonly maxContentLength = 2000;
 
+	private static readonly queues = new Map<Snowflake, Promise<void>>();
+
 	/**
 	 * Creates the tables and indexes used by Modmail
 	 */
@@ -21,6 +23,23 @@ export class ModmailUtil {
 		BotConfig.database.exec( 'CREATE INDEX IF NOT EXISTS modmail_messages_thread_sender ON modmail_messages (thread, sender)' );
 		BotConfig.database.exec( 'CREATE INDEX IF NOT EXISTS modmail_messages_dm_message ON modmail_messages (dm_message)' );
 		BotConfig.database.exec( 'CREATE INDEX IF NOT EXISTS modmail_messages_thread_message ON modmail_messages (thread_message)' );
+	}
+
+	/**
+	 * Runs the tasks of a conversation one after another, so its messages stay in order
+	 */
+	public static async queue( user: Snowflake, task: () => Promise<void> ): Promise<void> {
+		const previous = this.queues.get( user ) ?? Promise.resolve();
+		const current = previous.catch( () => undefined ).then( task );
+		this.queues.set( user, current );
+
+		try {
+			await current;
+		} finally {
+			if ( this.queues.get( user ) === current ) {
+				this.queues.delete( user );
+			}
+		}
 	}
 
 	/**
