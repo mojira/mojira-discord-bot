@@ -54,6 +54,29 @@ export class ModmailUtil {
 	}
 
 	/**
+	 * Finds the user whose conversation takes place in a DM or thread
+	 */
+	public static findUser( channel: TextBasedChannel ): Snowflake | undefined {
+		if ( channel instanceof DMChannel ) {
+			return channel.recipientId;
+		}
+
+		const stored = BotConfig.database.prepare( 'SELECT user FROM modmail_threads WHERE thread = ?' ).get( channel.id ) as { user: string } | undefined;
+		return stored?.user;
+	}
+
+	public static isBanned( user: Snowflake ): boolean {
+		return BotConfig.database.prepare( 'SELECT 1 FROM modmail_bans WHERE user = ?' ).get( user ) !== undefined;
+	}
+
+	/**
+	 * Whether a message from the user's DMs is part of a conversation
+	 */
+	public static belongsTo( dmMessage: Snowflake, thread: Snowflake ): boolean {
+		return BotConfig.database.prepare( 'SELECT 1 FROM modmail_messages WHERE dm_message = ? AND thread = ?' ).get( dmMessage, thread ) !== undefined;
+	}
+
+	/**
 	 * All open conversations with their user and thread
 	 */
 	public static getThreads(): { user: Snowflake; thread: Snowflake }[] {
@@ -61,11 +84,14 @@ export class ModmailUtil {
 	}
 
 	/**
-	 * Finds the thread of a user's open conversation
+	 * Finds the user's latest conversation, the only one that can be open
 	 */
-	public static findThread( user: Snowflake ): Snowflake | undefined {
-		const stored = BotConfig.database.prepare( 'SELECT thread FROM modmail_threads WHERE user = ? AND status = \'open\'' ).get( user ) as { thread: Snowflake } | undefined;
-		return stored?.thread;
+	public static findLatestThread( user: Snowflake ): { thread: Snowflake; status: string } | undefined {
+		return BotConfig.database.prepare(
+			`SELECT thread, status FROM modmail_threads
+			WHERE user = ?
+			ORDER BY rowid DESC LIMIT 1`
+		).get( user ) as { thread: Snowflake; status: string } | undefined;
 	}
 
 	/**
@@ -93,24 +119,20 @@ export class ModmailUtil {
 	}
 
 	/**
-	 * Reopens a conversation unless the user has started a newer one, and returns whether it's open
+	 * Reopens a closed conversation unless the user has started a newer one, and returns whether it did
 	 */
 	public static async reopenThread( thread: Snowflake ): Promise<boolean> {
-		const stored = BotConfig.database.prepare(
-			`SELECT status, rowid = ( SELECT MAX(rowid) FROM modmail_threads WHERE user = t.user ) AS latest FROM modmail_threads t
-			WHERE thread = ?`
-		).get( thread ) as { status: string; latest: number } | undefined;
-
-		if ( stored?.status === 'open' ) return true;
-		if ( !stored?.latest ) return false;
-
-		BotConfig.database.prepare(
+		const reopened = BotConfig.database.prepare(
 			`UPDATE modmail_threads SET status = 'open'
-			WHERE thread = ?`
+			WHERE thread = ? AND status = 'closed'
+			AND rowid = ( SELECT MAX(rowid) FROM modmail_threads latest WHERE latest.user = modmail_threads.user )`
 		).run( thread );
 
-		await this.updateStartMessage( thread, true );
-		return true;
+		if ( reopened.changes > 0 ) {
+			await this.updateStartMessage( thread, true );
+		}
+
+		return reopened.changes > 0;
 	}
 
 	/**
@@ -204,18 +226,6 @@ export class ModmailUtil {
 		} catch ( err ) {
 			this.logger.error( err );
 		}
-	}
-
-	/**
-	 * Finds the user whose conversation takes place in a DM or thread
-	 */
-	private static findUser( channel: TextBasedChannel ): Snowflake | undefined {
-		if ( channel instanceof DMChannel ) {
-			return channel.recipientId;
-		}
-
-		const stored = BotConfig.database.prepare( 'SELECT user FROM modmail_threads WHERE thread = ?' ).get( channel.id ) as { user: string } | undefined;
-		return stored?.user;
 	}
 
 	/**

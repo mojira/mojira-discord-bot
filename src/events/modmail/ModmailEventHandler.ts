@@ -1,4 +1,4 @@
-import { ContainerBuilder, Message, MessageFlags, MessageType, SectionBuilder, TextChannel, TextDisplayBuilder, ThreadChannel, ThumbnailBuilder } from 'discord.js';
+import { ActionRowBuilder, AnyThreadChannel, ButtonBuilder, ButtonInteraction, ButtonStyle, Client, ContainerBuilder, Message, MessageFlags, MessageType, SectionBuilder, SendableChannels, Snowflake, TextChannel, TextDisplayBuilder, ThreadChannel, ThumbnailBuilder } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
@@ -13,9 +13,27 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 	private readonly maxPreviewLength = 200;
 	private readonly maxBacklogAge = 48 * 60 * 60 * 1000;
 
+	private readonly followUpId = 'modmail-follow-up';
+	private readonly newConversationId = 'modmail-new-conversation';
+
 	// This syntax is used to ensure that `this` refers to the `ModmailEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
 		await ModmailUtil.queue( origin.channel, () => this.handle( origin ) );
+	};
+
+	public onButton = async ( interaction: ButtonInteraction ): Promise<void> => {
+		if ( interaction.customId !== this.followUpId && interaction.customId !== this.newConversationId ) return;
+
+		try {
+			await interaction.deferUpdate();
+			await interaction.message.delete();
+		} catch ( e ) {
+			// Only the click that removed the prompt resolves it
+			this.logger.error( e );
+			return;
+		}
+
+		await ModmailUtil.queue( await interaction.user.createDM(), () => this.resolvePrompt( interaction ) );
 	};
 
 	private async handle( origin: Message ): Promise<void> {
@@ -23,8 +41,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 			return;
 		}
 
-		const banStatus = BotConfig.database.prepare( 'SELECT user FROM modmail_bans WHERE user = ?' ).get( origin.author.id );
-		if ( banStatus !== undefined ) {
+		if ( ModmailUtil.isBanned( origin.author.id ) ) {
 			try {
 				await origin.channel.send( 'We\'re sorry, but you have been banned from sending any further modmail messages.' );
 				await origin.react( '❌' );
@@ -45,25 +62,114 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 			return;
 		}
 
-		const openThread = ModmailUtil.findThread( origin.author.id );
-		if ( openThread === undefined ) {
+		const latest = ModmailUtil.findLatestThread( origin.author.id );
+		if ( latest === undefined ) {
 			await this.createThread( origin, modmailChannel );
 			return;
 		}
 
 		try {
-			await this.forward( origin, await origin.client.channels.fetch( openThread ) as ThreadChannel );
+			// Replies to the closed conversation are follow-ups without asking
+			if ( latest.status !== 'open' && !ModmailUtil.belongsTo( origin.reference?.messageId ?? '', latest.thread ) ) {
+				await this.prompt( origin.channel );
+				return;
+			}
+
+			const thread = await origin.client.channels.fetch( latest.thread ) as AnyThreadChannel;
+			if ( latest.status !== 'open' ) {
+				await this.reopen( thread );
+			}
+
+			await this.forward( origin, thread );
 		} catch ( e ) {
 			this.logger.error( e );
 			await ModmailUtil.markFailed( origin );
 		}
 	}
 
+	/**
+	 * Reopens a closed conversation and delivers the messages that its prompt held back
+	 */
+	public async reopen( thread: AnyThreadChannel, prompt?: Message ): Promise<void> {
+		const user = ModmailUtil.findUser( thread );
+		if ( user === undefined || !await ModmailUtil.reopenThread( thread.id ) ) {
+			return;
+		}
+
+		for ( const message of await this.takeHeld( thread.client, user, prompt ) ) {
+			try {
+				await this.forward( message, thread );
+			} catch ( e ) {
+				this.logger.error( e );
+				await ModmailUtil.markFailed( message );
+			}
+		}
+	}
+
+	/**
+	 * Lets the user decide whether their messages continue their closed conversation or start a new one
+	 */
+	private async prompt( channel: SendableChannels ): Promise<void> {
+		for ( const message of ( await channel.messages.fetch( { limit: 20 } ) ).values() ) {
+			if ( this.isPrompt( message ) ) {
+				await message.delete();
+			}
+		}
+
+		await channel.send( {
+			components: [ this.getPromptContainer() ],
+			flags: MessageFlags.IsComponentsV2,
+		} );
+	}
+
+	private async resolvePrompt( interaction: ButtonInteraction ): Promise<void> {
+		try {
+			const latest = ModmailUtil.findLatestThread( interaction.user.id );
+			if ( latest === undefined || ModmailUtil.isBanned( interaction.user.id ) ) {
+				return;
+			}
+
+			if ( interaction.customId === this.followUpId ) {
+				await this.reopen( await interaction.client.channels.fetch( latest.thread ) as AnyThreadChannel, interaction.message );
+				return;
+			}
+
+			const modmailChannel = await DiscordUtil.getChannel( BotConfig.modmailChannel );
+			const origin = ( await this.takeHeld( interaction.client, interaction.user.id, interaction.message ) ).pop();
+			if ( modmailChannel instanceof TextChannel && origin ) {
+				await this.createThread( origin, modmailChannel );
+			}
+		} catch ( e ) {
+			this.logger.error( e );
+		}
+	}
+
+	/**
+	 * Removes a pending prompt, unless it's already gone, and returns the messages it held back
+	 */
+	private async takeHeld( client: Client, user: Snowflake, prompt?: Message ): Promise<Message[]> {
+		if ( prompt === undefined ) {
+			const dm = await ( await client.users.fetch( user ) ).createDM();
+			prompt = ( await dm.messages.fetch( { limit: 20 } ) ).find( message => this.isPrompt( message ) );
+			if ( prompt === undefined ) {
+				return [];
+			}
+
+			await prompt.delete();
+		}
+
+		return this.getBacklog( prompt, user );
+	}
+
+	private isPrompt( message: Message ): boolean {
+		return message.author.id === message.client.user.id && message.resolveComponent( this.followUpId ) !== null;
+	}
+
 	private async createThread( origin: Message, modmailChannel: TextChannel ): Promise<void> {
 		let start: Message | undefined;
 		let thread: ThreadChannel | undefined;
 		try {
-			const backlog = await this.getBacklog( origin );
+			const backlog = await this.getBacklog( origin, origin.author.id );
 
 			start = await modmailChannel.send( {
 				components: [ this.getStartContainer( backlog[0] ?? origin ) ],
@@ -106,18 +212,18 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 	}
 
 	/**
-	 * Recent messages right before the origin that were never handled, e.g. because the bot was offline
+	 * A user's recent messages right before another message that weren't handled yet, e.g. because the bot was offline
 	 */
-	private async getBacklog( origin: Message ): Promise<Message[]> {
-		const messages = ( await origin.channel.messages.fetch( { before: origin.id, limit: 100 } ) )
+	private async getBacklog( before: Message, user: Snowflake ): Promise<Message[]> {
+		const messages = ( await before.channel.messages.fetch( { before: before.id, limit: 100 } ) )
 			.sort( ( a, b ) => b.createdTimestamp - a.createdTimestamp );
 
 		const backlog: Message[] = [];
 		for ( const message of messages.values() ) {
 			if (
-				message.author.id !== origin.author.id
+				message.author.id !== user
 				|| message.reactions.cache.some( reaction => reaction.me )
-				|| origin.createdTimestamp - message.createdTimestamp > this.maxBacklogAge
+				|| before.createdTimestamp - message.createdTimestamp > this.maxBacklogAge
 			) break;
 
 			if ( message.type === MessageType.Default || message.type === MessageType.Reply ) {
@@ -154,6 +260,19 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 				new SectionBuilder()
 					.addTextDisplayComponents( text )
 					.setThumbnailAccessory( new ThumbnailBuilder().setURL( origin.author.displayAvatarURL() ) )
+			);
+	}
+
+	private getPromptContainer(): ContainerBuilder {
+		return new ContainerBuilder()
+			.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent( '**Your previous conversation has been closed.** Do you want to reopen it because this message is a follow-up, or is it a different topic that should go into a new conversation?' )
+			)
+			.addActionRowComponents(
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					new ButtonBuilder().setCustomId( this.followUpId ).setLabel( 'Follow up' ).setStyle( ButtonStyle.Secondary ),
+					new ButtonBuilder().setCustomId( this.newConversationId ).setLabel( 'New Modmail' ).setStyle( ButtonStyle.Secondary )
+				)
 			);
 	}
 }

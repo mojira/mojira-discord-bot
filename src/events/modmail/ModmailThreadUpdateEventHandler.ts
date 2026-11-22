@@ -2,11 +2,14 @@ import { AnyThreadChannel } from 'discord.js';
 import log4js from 'log4js';
 import { ModmailUtil } from '../../util/ModmailUtil.js';
 import EventHandler from '../EventHandler.js';
+import ModmailEventHandler from './ModmailEventHandler.js';
 
 export default class ModmailThreadUpdateEventHandler implements EventHandler<'threadUpdate'> {
 	public readonly eventName = 'threadUpdate';
 
 	private logger = log4js.getLogger( 'ModmailThreadUpdateEventHandler' );
+
+	private readonly modmailEventHandler = new ModmailEventHandler();
 
 	// This syntax is used to ensure that `this` refers to the `ModmailThreadUpdateEventHandler` object
 	public onEvent = async ( oldThread: AnyThreadChannel, newThread: AnyThreadChannel ): Promise<void> => {
@@ -14,7 +17,7 @@ export default class ModmailThreadUpdateEventHandler implements EventHandler<'th
 
 		try {
 			await ModmailUtil.queue( newThread, async () => {
-				await ( newThread.archived ? ModmailUtil.closeThread( newThread.id ) : ModmailUtil.reopenThread( newThread.id ) );
+				await ( newThread.archived ? ModmailUtil.closeThread( newThread.id ) : this.modmailEventHandler.reopen( newThread ) );
 			} );
 		} catch ( e ) {
 			this.logger.error( e );

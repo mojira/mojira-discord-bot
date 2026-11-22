@@ -1,11 +1,15 @@
 import { Client, Interaction } from 'discord.js';
+import BotConfig from '../../BotConfig.js';
 import EventHandler from '../EventHandler.js';
+import ModmailEventHandler from '../modmail/ModmailEventHandler.js';
 import SlashCommand from '../../commands/commandHandlers/SlashCommand.js';
 
 export default class InteractionEventHandler implements EventHandler<'interactionCreate'> {
 	public readonly eventName = 'interactionCreate';
 
 	private readonly botUser: Client;
+
+	private readonly modmailEventHandler = new ModmailEventHandler();
 
 	constructor( botUser: Client ) {
 		this.botUser = botUser;
@@ -24,6 +28,9 @@ export default class InteractionEventHandler implements EventHandler<'interactio
 			} catch ( error ) {
 				SlashCommand.logger.error( error );
 			}
+		} else if ( interaction.isButton() && BotConfig.modmailEnabled ) {
+			// The button might belong to a modmail prompt
+			await this.modmailEventHandler.onButton( interaction );
 		}
 	};
 }

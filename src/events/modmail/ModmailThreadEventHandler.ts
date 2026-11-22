@@ -1,12 +1,15 @@
-import { Message, Snowflake } from 'discord.js';
+import { AnyThreadChannel, Message, Snowflake } from 'discord.js';
 import log4js from 'log4js';
 import { ModmailUtil } from '../../util/ModmailUtil.js';
 import EventHandler from '../EventHandler.js';
+import ModmailEventHandler from './ModmailEventHandler.js';
 
 export default class ModmailThreadEventHandler implements EventHandler<'messageCreate'> {
 	public readonly eventName = 'messageCreate';
 
 	private logger = log4js.getLogger( 'ModmailThreadEventHandler' );
+
+	private readonly modmailEventHandler = new ModmailEventHandler();
 
 	// This syntax is used to ensure that `this` refers to the `ModmailThreadEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
@@ -25,7 +28,8 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 		}
 
 		// Closed conversations can only be reopened if the user hasn't started a newer one since
-		if ( !await ModmailUtil.reopenThread( origin.channelId ) ) {
+		await this.modmailEventHandler.reopen( origin.channel as AnyThreadChannel );
+		if ( ModmailUtil.findLatestThread( userId )?.thread !== origin.channelId ) {
 			await this.comment( origin );
 			return;
 		}
