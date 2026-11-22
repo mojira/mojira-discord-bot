@@ -8,6 +8,22 @@ export class ModmailUtil {
 	private static readonly maxContentLength = 2000;
 
 	/**
+	 * Creates the tables and indexes used by Modmail
+	 */
+	public static initDatabase(): void {
+		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_bans (\'user\' varchar)' );
+		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_threads (\'user\' varchar, \'thread\' varchar)' );
+		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_messages (\'thread\' varchar, \'sender\' varchar, \'dm_message\' varchar, \'thread_message\' varchar)' );
+		// Remove duplicates that were created before the unique index existed
+		BotConfig.database.exec( 'DELETE FROM modmail_threads WHERE rowid NOT IN (SELECT MAX(rowid) FROM modmail_threads GROUP BY user)' );
+		BotConfig.database.exec( 'CREATE UNIQUE INDEX IF NOT EXISTS modmail_threads_user ON modmail_threads (user)' );
+		BotConfig.database.exec( 'CREATE INDEX IF NOT EXISTS modmail_threads_thread ON modmail_threads (thread)' );
+		BotConfig.database.exec( 'CREATE INDEX IF NOT EXISTS modmail_messages_thread_sender ON modmail_messages (thread, sender)' );
+		BotConfig.database.exec( 'CREATE INDEX IF NOT EXISTS modmail_messages_dm_message ON modmail_messages (dm_message)' );
+		BotConfig.database.exec( 'CREATE INDEX IF NOT EXISTS modmail_messages_thread_message ON modmail_messages (thread_message)' );
+	}
+
+	/**
 	 * Stores a delivered message and moves the success reaction to the bottom
 	 */
 	public static async markDelivered( origin: Message, thread: Snowflake, copy: Snowflake ): Promise<void> {
