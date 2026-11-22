@@ -101,7 +101,7 @@ export class ModmailUtil {
 	}
 
 	/**
-	 * Stores a delivered message and moves the success reaction to the bottom
+	 * Stores a delivered message and moves the success reaction to the end of its block
 	 */
 	public static async markDelivered( origin: Message, thread: Snowflake, copy: Snowflake ): Promise<void> {
 		const sender = origin.channel.isDMBased() ? 'user' : 'staff';
@@ -111,7 +111,7 @@ export class ModmailUtil {
 	}
 
 	/**
-	 * Stores a comment and moves the comment reaction to the bottom
+	 * Stores a comment and moves the comment reaction to the end of its block
 	 */
 	public static async markComment( origin: Message ): Promise<void> {
 		await this.mark( origin, origin.channel.id, 'comment', null, origin.id, '💭' );
@@ -191,11 +191,12 @@ export class ModmailUtil {
 	}
 
 	private static async mark( origin: Message, thread: Snowflake, sender: string, dmMessage: Snowflake | null, threadMessage: Snowflake, emoji: string ): Promise<void> {
+		// Staff messages and comments alternate in blocks, the user's messages form their own
 		const previous = BotConfig.database.prepare(
-			`SELECT CASE WHEN sender = 'user' THEN dm_message ELSE thread_message END AS message FROM modmail_messages
-			WHERE thread = ? AND sender = ?
+			`SELECT sender, CASE WHEN sender = 'user' THEN dm_message ELSE thread_message END AS message FROM modmail_messages
+			WHERE thread = ? AND ( sender = 'user' ) = ?
 			ORDER BY rowid DESC LIMIT 1`
-		).get( thread, sender ) as { message: string } | undefined;
+		).get( thread, sender === 'user' ? 1 : 0 ) as { sender: string; message: string } | undefined;
 
 		BotConfig.database.prepare(
 			`INSERT INTO modmail_messages (thread, sender, dm_message, thread_message)
@@ -203,7 +204,7 @@ export class ModmailUtil {
 		).run( [ thread, sender, dmMessage, threadMessage ] );
 
 		const tasks: Promise<unknown>[] = [ origin.react( emoji ) ];
-		if ( previous ) {
+		if ( previous?.sender === sender ) {
 			tasks.push( this.removeReaction( origin, previous.message, emoji ) );
 		}
 		await Promise.all( tasks );
