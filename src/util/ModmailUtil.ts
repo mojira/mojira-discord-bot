@@ -1,4 +1,4 @@
-import { BaseMessageOptions, Client, ComponentType, DMChannel, Message, MessageFlags, Routes, Snowflake, TextBasedChannel, ThreadChannel } from 'discord.js';
+import { BaseMessageOptions, Client, ComponentType, DMChannel, Message, MessageFlags, Routes, Snowflake, SnowflakeUtil, TextBasedChannel, ThreadChannel } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../BotConfig.js';
 import DiscordUtil from './DiscordUtil.js';
@@ -67,6 +67,19 @@ export class ModmailUtil {
 
 	public static isBanned( user: Snowflake ): boolean {
 		return BotConfig.database.prepare( 'SELECT 1 FROM modmail_bans WHERE user = ?' ).get( user ) !== undefined;
+	}
+
+	/**
+	 * When the last message of a conversation was sent
+	 */
+	public static getLastActivity( thread: Snowflake ): number {
+		const stored = BotConfig.database.prepare(
+			`SELECT thread_message FROM modmail_messages
+			WHERE thread = ?
+			ORDER BY rowid DESC LIMIT 1`
+		).get( thread ) as { thread_message: Snowflake } | undefined;
+
+		return SnowflakeUtil.timestampFrom( stored?.thread_message ?? thread );
 	}
 
 	/**

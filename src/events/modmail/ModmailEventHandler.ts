@@ -12,6 +12,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 
 	private readonly maxPreviewLength = 200;
 	private readonly maxBacklogAge = 48 * 60 * 60 * 1000;
+	private readonly maxFollowUpAge = 7 * 24 * 60 * 60 * 1000;
 
 	private readonly followUpId = 'modmail-follow-up';
 	private readonly newConversationId = 'modmail-new-conversation';
@@ -71,7 +72,14 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 		try {
 			// Replies to the closed conversation are follow-ups without asking
 			if ( latest.status !== 'open' && !ModmailUtil.belongsTo( origin.reference?.messageId ?? '', latest.thread ) ) {
-				await this.prompt( origin.channel );
+				// A week after its last message, a new conversation starts instead, unless the user is already deciding
+				const pending = await this.removePrompt( origin.channel );
+				if ( pending || origin.createdTimestamp - ModmailUtil.getLastActivity( latest.thread ) <= this.maxFollowUpAge ) {
+					await this.prompt( origin.channel );
+				} else {
+					await this.createThread( origin, modmailChannel );
+				}
+
 				return;
 			}
 
@@ -110,12 +118,6 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 	 * Lets the user decide whether their messages continue their closed conversation or start a new one
 	 */
 	private async prompt( channel: SendableChannels ): Promise<void> {
-		for ( const message of ( await channel.messages.fetch( { limit: 20 } ) ).values() ) {
-			if ( this.isPrompt( message ) ) {
-				await message.delete();
-			}
-		}
-
 		await channel.send( {
 			components: [ this.getPromptContainer() ],
 			flags: MessageFlags.IsComponentsV2,
@@ -148,21 +150,19 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 	 * Removes a pending prompt, unless it's already gone, and returns the messages it held back
 	 */
 	private async takeHeld( client: Client, user: Snowflake, prompt?: Message ): Promise<Message[]> {
-		if ( prompt === undefined ) {
-			const dm = await ( await client.users.fetch( user ) ).createDM();
-			prompt = ( await dm.messages.fetch( { limit: 20 } ) ).find( message => this.isPrompt( message ) );
-			if ( prompt === undefined ) {
-				return [];
-			}
-
-			await prompt.delete();
-		}
-
-		return this.getBacklog( prompt, user );
+		prompt ??= await this.removePrompt( await ( await client.users.fetch( user ) ).createDM() );
+		return prompt ? this.getBacklog( prompt, user ) : [];
 	}
 
-	private isPrompt( message: Message ): boolean {
-		return message.author.id === message.client.user.id && message.resolveComponent( this.followUpId ) !== null;
+	/**
+	 * Removes the pending prompt of a DM and returns it
+	 */
+	private async removePrompt( channel: SendableChannels ): Promise<Message | undefined> {
+		const prompt = ( await channel.messages.fetch( { limit: 20 } ) ).find( message =>
+			message.author.id === channel.client.user.id && message.resolveComponent( this.followUpId ) !== null );
+
+		await prompt?.delete();
+		return prompt;
 	}
 
 	private async createThread( origin: Message, modmailChannel: TextChannel ): Promise<void> {
