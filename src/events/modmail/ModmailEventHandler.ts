@@ -60,7 +60,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 			}
 
 			await this.removeAccentColor( modmailChannel, previousThread );
-			ModmailUtil.removeThread( previousThread );
+			ModmailUtil.closeThread( previousThread );
 		}
 
 		await this.createThread( origin, modmailChannel );

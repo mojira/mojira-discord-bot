@@ -16,9 +16,14 @@ export class ModmailUtil {
 		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_bans (\'user\' varchar)' );
 		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_threads (\'user\' varchar, \'thread\' varchar)' );
 		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_messages (\'thread\' varchar, \'sender\' varchar, \'dm_message\' varchar, \'thread_message\' varchar)' );
-		// Remove duplicates that were created before the unique index existed
-		BotConfig.database.exec( 'DELETE FROM modmail_threads WHERE rowid NOT IN (SELECT MAX(rowid) FROM modmail_threads GROUP BY user)' );
-		BotConfig.database.exec( 'CREATE UNIQUE INDEX IF NOT EXISTS modmail_threads_user ON modmail_threads (user)' );
+		const columns = BotConfig.database.pragma( 'table_info(modmail_threads)' ) as { name: string }[];
+		if ( !columns.some( column => column.name === 'status' ) ) {
+			BotConfig.database.exec( 'ALTER TABLE modmail_threads ADD COLUMN \'status\' varchar DEFAULT \'open\'' );
+		}
+		// Close duplicates that were created before the unique index existed
+		BotConfig.database.exec( 'UPDATE modmail_threads SET status = \'closed\' WHERE status = \'open\' AND rowid NOT IN (SELECT MAX(rowid) FROM modmail_threads WHERE status = \'open\' GROUP BY user)' );
+		BotConfig.database.exec( 'DROP INDEX IF EXISTS modmail_threads_user' );
+		BotConfig.database.exec( 'CREATE UNIQUE INDEX IF NOT EXISTS modmail_threads_open_user ON modmail_threads (user) WHERE status = \'open\'' );
 		BotConfig.database.exec( 'CREATE INDEX IF NOT EXISTS modmail_threads_thread ON modmail_threads (thread)' );
 		BotConfig.database.exec( 'CREATE INDEX IF NOT EXISTS modmail_messages_thread_sender ON modmail_messages (thread, sender)' );
 		BotConfig.database.exec( 'CREATE INDEX IF NOT EXISTS modmail_messages_dm_message ON modmail_messages (dm_message)' );
@@ -46,17 +51,17 @@ export class ModmailUtil {
 	}
 
 	/**
-	 * All conversations with their user and thread
+	 * All open conversations with their user and thread
 	 */
 	public static getThreads(): { user: Snowflake; thread: Snowflake }[] {
-		return BotConfig.database.prepare( 'SELECT user, thread FROM modmail_threads' ).all() as { user: Snowflake; thread: Snowflake }[];
+		return BotConfig.database.prepare( 'SELECT user, thread FROM modmail_threads WHERE status = \'open\'' ).all() as { user: Snowflake; thread: Snowflake }[];
 	}
 
 	/**
-	 * Finds the thread of a user's conversation
+	 * Finds the thread of a user's open conversation
 	 */
 	public static findThread( user: Snowflake ): Snowflake | undefined {
-		const stored = BotConfig.database.prepare( 'SELECT thread FROM modmail_threads WHERE user = ?' ).get( user ) as { thread: Snowflake } | undefined;
+		const stored = BotConfig.database.prepare( 'SELECT thread FROM modmail_threads WHERE user = ? AND status = \'open\'' ).get( user ) as { thread: Snowflake } | undefined;
 		return stored?.thread;
 	}
 
@@ -68,6 +73,16 @@ export class ModmailUtil {
 			`INSERT INTO modmail_threads (user, thread)
 			VALUES (?, ?)`
 		).run( [ user, thread ] );
+	}
+
+	/**
+	 * Closes a conversation, keeping its thread and messages
+	 */
+	public static closeThread( thread: Snowflake ): void {
+		BotConfig.database.prepare(
+			`UPDATE modmail_threads SET status = 'closed'
+			WHERE thread = ?`
+		).run( thread );
 	}
 
 	/**
@@ -144,7 +159,7 @@ export class ModmailUtil {
 	public static async findCopy( client: Client, messageId: Snowflake ): Promise<{ thread: Snowflake; channel: ThreadChannel | DMChannel; id: Snowflake } | undefined> {
 		const stored = BotConfig.database.prepare(
 			`SELECT t.user, m.thread, m.dm_message, m.thread_message FROM modmail_messages m
-			JOIN modmail_threads t ON t.thread = m.thread
+			JOIN modmail_threads t ON t.thread = m.thread AND t.status = 'open'
 			WHERE m.sender != 'comment' AND ( m.dm_message = ? OR m.thread_message = ? )`
 		).get( messageId, messageId ) as { user: string; thread: string; dm_message: string; thread_message: string } | undefined;
 
@@ -171,7 +186,7 @@ export class ModmailUtil {
 			return channel.recipientId;
 		}
 
-		const stored = BotConfig.database.prepare( 'SELECT user FROM modmail_threads WHERE thread = ?' ).get( channel.id ) as { user: string } | undefined;
+		const stored = BotConfig.database.prepare( 'SELECT user FROM modmail_threads WHERE thread = ? AND status = \'open\'' ).get( channel.id ) as { user: string } | undefined;
 		return stored?.user;
 	}
 
