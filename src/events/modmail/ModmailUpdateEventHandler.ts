@@ -16,15 +16,7 @@ export default class ModmailUpdateEventHandler {
 				return;
 			}
 
-			await copy.channel.messages.edit( copy.id, {
-				content: origin.content,
-				attachments: [],
-				files: origin.attachments.map( file => ( {
-					attachment: file.url,
-					name: file.name ?? undefined,
-				} ) ),
-				allowedMentions: { parse: [] },
-			} );
+			await copy.channel.messages.edit( copy.id, { ...ModmailUtil.getPayload( origin ), attachments: [] } );
 		} catch ( e ) {
 			this.logger.error( e );
 			await ModmailUtil.markFailed( origin );

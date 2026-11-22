@@ -123,16 +123,11 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 	}
 
 	private async forward( origin: Message, thread: ThreadChannel ): Promise<void> {
-		const replyTo = BotConfig.database.prepare( 'SELECT thread_message FROM modmail_messages WHERE dm_message = ?' ).get( origin.reference?.messageId ?? '' ) as { thread_message: string } | undefined;
+		const replyTo = await ModmailUtil.findCopy( origin.client, origin.reference?.messageId ?? '' );
 
 		const copy = await thread.send( {
-			content: origin.content,
-			files: origin.attachments.map( file => ( {
-				attachment: file.url,
-				name: file.name ?? undefined,
-			} ) ),
-			reply: replyTo && { messageReference: replyTo.thread_message, failIfNotExists: false },
-			allowedMentions: { parse: [] },
+			...ModmailUtil.getPayload( origin ),
+			reply: replyTo && { messageReference: replyTo.id, failIfNotExists: false },
 		} );
 
 		await ModmailUtil.markDelivered( origin, thread.id, copy.id );

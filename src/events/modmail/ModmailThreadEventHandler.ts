@@ -33,15 +33,11 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 
 		try {
 			const user = await origin.client.users.fetch( id.user );
-			const replyTo = BotConfig.database.prepare( 'SELECT dm_message FROM modmail_messages WHERE thread_message = ?' ).get( origin.reference?.messageId ?? '' ) as { dm_message: string } | undefined;
+			const replyTo = await ModmailUtil.findCopy( origin.client, origin.reference?.messageId ?? '' );
 
 			const dm = await user.send( {
-				content: origin.content,
-				files: origin.attachments.map( file => ( {
-					attachment: file.url,
-					name: file.name ?? undefined,
-				} ) ),
-				reply: replyTo && { messageReference: replyTo.dm_message, failIfNotExists: false },
+				...ModmailUtil.getPayload( origin ),
+				reply: replyTo && { messageReference: replyTo.id, failIfNotExists: false },
 			} );
 
 			await ModmailUtil.markDelivered( origin, origin.channel.id, dm.id );

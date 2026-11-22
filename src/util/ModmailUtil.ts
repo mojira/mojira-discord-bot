@@ -1,4 +1,4 @@
-import { Client, DMChannel, Message, MessageFlags, Routes, Snowflake, ThreadChannel } from 'discord.js';
+import { BaseMessageOptions, Client, DMChannel, Message, MessageFlags, Routes, Snowflake, ThreadChannel } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../BotConfig.js';
 
@@ -60,6 +60,20 @@ export class ModmailUtil {
 				`SELECT 1 FROM modmail_messages
 				WHERE thread_message = ? AND sender = 'comment'`
 			).get( message.reference?.messageId ?? '' ) !== undefined;
+	}
+
+	/**
+	 * The content of a message as it is sent to the other side
+	 */
+	public static getPayload( message: Message ): BaseMessageOptions {
+		return {
+			content: message.content,
+			files: message.attachments.map( file => ( {
+				attachment: file.url,
+				name: file.name ?? undefined,
+			} ) ),
+			allowedMentions: { parse: [] },
+		};
 	}
 
 	/**
