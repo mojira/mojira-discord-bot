@@ -28,6 +28,16 @@ export default class InteractionEventHandler implements EventHandler<'interactio
 			} catch ( error ) {
 				SlashCommand.logger.error( error );
 			}
+		} else if ( interaction.isAutocomplete() ) {
+			const command = this.botUser.commands.get( interaction.commandName );
+
+			if ( !command ) return;
+
+			try {
+				await command.autocomplete( interaction );
+			} catch ( error ) {
+				SlashCommand.logger.error( error );
+			}
 		} else if ( interaction.isButton() && BotConfig.modmailEnabled ) {
 			// The button might belong to a modmail prompt
 			await this.modmailEventHandler.onButton( interaction );

@@ -79,6 +79,13 @@ export class ModmailUtil {
 		return BotConfig.database.prepare( 'DELETE FROM modmail_bans WHERE user = ?' ).run( user ).changes > 0;
 	}
 
+	/**
+	 * All banned users, most recently banned first
+	 */
+	public static getBans(): Snowflake[] {
+		return BotConfig.database.prepare( 'SELECT user FROM modmail_bans ORDER BY rowid DESC' ).pluck().all() as Snowflake[];
+	}
+
 	public static isBanned( user: Snowflake ): boolean {
 		return BotConfig.database.prepare( 'SELECT 1 FROM modmail_bans WHERE user = ?' ).get( user ) !== undefined;
 	}

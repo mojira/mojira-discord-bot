@@ -2,7 +2,7 @@ import SlashCommand from './SlashCommand.js';
 import SlashCommandRegistry from './SlashCommandRegistry.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
-import { Client, Collection, RESTPostAPIApplicationCommandsJSONBody, ChatInputCommandInteraction, GuildMember, MessageFlagsBitField } from 'discord.js';
+import { AutocompleteInteraction, Client, Collection, RESTPostAPIApplicationCommandsJSONBody, ChatInputCommandInteraction, GuildMember, Interaction, MessageFlagsBitField } from 'discord.js';
 import { SlashCommandJsonData } from '../../types/discord.js';
 import { ChannelConfigUtil } from '../../util/ChannelConfigUtil.js';
 
@@ -15,6 +15,8 @@ export default class SlashCommandRegister {
 
 			client.commands = new Collection();
 
+			const getMember = async ( interaction: Interaction ) => interaction.member instanceof GuildMember ? interaction.member : await fetchedGuild.members.fetch( interaction.user );
+
 			for ( const [ commandName, command ] of Object.entries( SlashCommandRegistry ) ) {
 				const commandData = command.build();
 
@@ -25,9 +27,7 @@ export default class SlashCommandRegister {
 					async execute( interaction: ChatInputCommandInteraction ) {
 						SlashCommand.logger.info( `User ${ interaction.user.tag } ran command ${ command.asString( interaction ) }` );
 
-						const member = interaction.member instanceof GuildMember ? interaction.member : await fetchedGuild.members.fetch( interaction.user );
-
-						if ( command.checkPermission( member ) ) {
+						if ( command.checkPermission( await getMember( interaction ) ) ) {
 							if ( interaction.channel !== null && ChannelConfigUtil.commandsDisabled( interaction.channel ) ) {
 								await interaction.reply( { content: 'Commands are not allowed in this channel.', flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 							} else if ( !await command.run( interaction ) ) {
@@ -36,6 +36,10 @@ export default class SlashCommandRegister {
 						} else {
 							await interaction.reply( { content: 'You do not have permission to use this command.', flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 						}
+					},
+					async autocomplete( interaction: AutocompleteInteraction ) {
+						const choices = command.checkPermission( await getMember( interaction ) ) ? await command.autocomplete?.( interaction ) : undefined;
+						await interaction.respond( choices ?? [] );
 					},
 				};
 

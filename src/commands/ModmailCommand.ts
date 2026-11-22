@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, MessageFlagsBitField, SharedSlashCommand, SlashCommandBuilder } from 'discord.js';
+import { ApplicationCommandOptionChoiceData, AutocompleteInteraction, ChatInputCommandInteraction, MessageFlagsBitField, SharedSlashCommand, SlashCommandBuilder, userMention } from 'discord.js';
 import PermissionRegistry from '../permissions/PermissionRegistry.js';
 import { ModmailUtil } from '../util/ModmailUtil.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
@@ -20,10 +20,11 @@ export default class ModmailCommand extends SlashCommand {
 			.addSubcommand( subcommand =>
 				subcommand.setName( 'unban' )
 					.setDescription( 'Unban someone from sending ModMail messages.' )
-					.addUserOption( option =>
+					.addStringOption( option =>
 						option.setName( 'user' )
 							.setDescription( 'The user to unban.' )
 							.setRequired( true )
+							.setAutocomplete( true )
 					)
 			);
 	}
@@ -31,19 +32,20 @@ export default class ModmailCommand extends SlashCommand {
 	public readonly permissionLevel = PermissionRegistry.ADMIN_PERMISSION;
 
 	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
-		const user = interaction.options.getUser( 'user', true );
+		const ban = interaction.options.getSubcommand() === 'ban';
+		const user = ban ? interaction.options.getUser( 'user', true ).id : interaction.options.getString( 'user', true );
 
 		try {
-			if ( interaction.options.getSubcommand() === 'ban' ) {
-				if ( ModmailUtil.ban( user.id ) ) {
-					await interaction.reply( { content: `Banned ${ user } from sending ModMail messages.`, allowedMentions: { parse: [] } } );
+			if ( ban ) {
+				if ( ModmailUtil.ban( user ) ) {
+					await interaction.reply( { content: `Banned ${ userMention( user ) } from sending ModMail messages.`, allowedMentions: { parse: [] } } );
 				} else {
-					await interaction.reply( { content: `${ user } is already banned from sending ModMail messages.`, flags: [MessageFlagsBitField.Flags.Ephemeral] } );
+					await interaction.reply( { content: `${ userMention( user ) } is already banned from sending ModMail messages.`, flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 				}
-			} else if ( ModmailUtil.unban( user.id ) ) {
-				await interaction.reply( { content: `Unbanned ${ user } from sending ModMail messages.`, allowedMentions: { parse: [] } } );
+			} else if ( ModmailUtil.unban( user ) ) {
+				await interaction.reply( { content: `Unbanned ${ userMention( user ) } from sending ModMail messages.`, allowedMentions: { parse: [] } } );
 			} else {
-				await interaction.reply( { content: `${ user } isn't banned from sending ModMail messages.`, flags: [MessageFlagsBitField.Flags.Ephemeral] } );
+				await interaction.reply( { content: `${ userMention( user ) } isn't banned from sending ModMail messages.`, flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 			}
 		} catch ( e ) {
 			SlashCommand.logger.error( e );
@@ -51,5 +53,17 @@ export default class ModmailCommand extends SlashCommand {
 		}
 
 		return true;
+	}
+
+	public async autocomplete( interaction: AutocompleteInteraction ): Promise<ApplicationCommandOptionChoiceData[]> {
+		const search = interaction.options.getFocused().toLowerCase();
+		const choices = await Promise.all( ModmailUtil.getBans().map( async id => {
+			const user = await interaction.client.users.fetch( id ).catch( () => undefined );
+			return { name: user ? `@${ user.username } (${ id })` : id, value: id };
+		} ) );
+
+		return choices
+			.filter( choice => choice.name.toLowerCase().includes( search ) )
+			.slice( 0, 25 );
 	}
 }
