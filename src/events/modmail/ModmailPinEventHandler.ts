@@ -7,6 +7,14 @@ export default class ModmailPinEventHandler {
 
 	// This syntax is used to ensure that `this` refers to the `ModmailPinEventHandler` object
 	public onPin = async ( origin: Message ): Promise<void> => {
+		await ModmailUtil.queue( origin.channel, () => this.pin( origin ) );
+	};
+
+	public onUnpin = async ( origin: Message ): Promise<void> => {
+		await ModmailUtil.queue( origin.channel, () => this.unpin( origin ) );
+	};
+
+	private async pin( origin: Message ): Promise<void> {
 		try {
 			const synced = await this.sync( origin.client, origin.reference?.messageId ?? '', true );
 			if ( synced === undefined ) return;
@@ -21,15 +29,15 @@ export default class ModmailPinEventHandler {
 			this.logger.error( e );
 			await ModmailUtil.markFailed( origin );
 		}
-	};
+	}
 
-	public onUnpin = async ( origin: Message ): Promise<void> => {
+	private async unpin( origin: Message ): Promise<void> {
 		try {
 			await this.sync( origin.client, origin.id, false );
 		} catch ( e ) {
 			this.logger.error( e );
 		}
-	};
+	}
 
 	private async sync( client: Client, messageId: Snowflake, pinned: boolean ): Promise<{ thread: Snowflake; channel: ThreadChannel | DMChannel; copy: Message } | undefined> {
 		const found = await ModmailUtil.findCopy( client, messageId );

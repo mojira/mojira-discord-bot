@@ -15,7 +15,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 
 	// This syntax is used to ensure that `this` refers to the `ModmailEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
-		await ModmailUtil.queue( origin.author.id, () => this.handle( origin ) );
+		await ModmailUtil.queue( origin.channel, () => this.handle( origin ) );
 	};
 
 	private async handle( origin: Message ): Promise<void> {

@@ -1,6 +1,5 @@
 import { Message, Snowflake } from 'discord.js';
 import log4js from 'log4js';
-import BotConfig from '../../BotConfig.js';
 import { ModmailUtil } from '../../util/ModmailUtil.js';
 import EventHandler from '../EventHandler.js';
 
@@ -11,12 +10,7 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 
 	// This syntax is used to ensure that `this` refers to the `ModmailThreadEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
-		const thread = BotConfig.database.prepare( 'SELECT user FROM modmail_threads WHERE thread = ?' ).get( origin.channelId ) as { user: string } | undefined;
-		if ( thread === undefined ) {
-			return;
-		}
-
-		await ModmailUtil.queue( thread.user, () => this.handle( origin, thread.user ) );
+		await ModmailUtil.queue( origin.channel, user => this.handle( origin, user ) );
 	};
 
 	private async handle( origin: Message, userId: Snowflake ): Promise<void> {

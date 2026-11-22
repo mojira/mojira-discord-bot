@@ -7,6 +7,10 @@ export default class ModmailUpdateEventHandler {
 
 	// This syntax is used to ensure that `this` refers to the `ModmailUpdateEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
+		await ModmailUtil.queue( origin.channel, () => this.update( origin ) );
+	};
+
+	private async update( origin: Message ): Promise<void> {
 		try {
 			const copy = await ModmailUtil.findCopy( origin.client, origin.id );
 			if ( copy === undefined ) return;
@@ -21,5 +25,5 @@ export default class ModmailUpdateEventHandler {
 			this.logger.error( e );
 			await ModmailUtil.markFailed( origin );
 		}
-	};
+	}
 }

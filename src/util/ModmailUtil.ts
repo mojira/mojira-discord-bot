@@ -1,4 +1,4 @@
-import { BaseMessageOptions, Client, DMChannel, Message, MessageFlags, Routes, Snowflake, ThreadChannel } from 'discord.js';
+import { BaseMessageOptions, Client, DMChannel, Message, MessageFlags, Routes, Snowflake, TextBasedChannel, ThreadChannel } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../BotConfig.js';
 
@@ -28,9 +28,12 @@ export class ModmailUtil {
 	/**
 	 * Runs the tasks of a conversation one after another, so its messages stay in order
 	 */
-	public static async queue( user: Snowflake, task: () => Promise<void> ): Promise<void> {
+	public static async queue( channel: TextBasedChannel, task: ( user: Snowflake ) => Promise<void> ): Promise<void> {
+		const user = this.findUser( channel );
+		if ( user === undefined ) return;
+
 		const previous = this.queues.get( user ) ?? Promise.resolve();
-		const current = previous.catch( () => undefined ).then( task );
+		const current = previous.catch( () => undefined ).then( () => task( user ) );
 		this.queues.set( user, current );
 
 		try {
@@ -118,6 +121,18 @@ export class ModmailUtil {
 		} catch ( err ) {
 			this.logger.error( err );
 		}
+	}
+
+	/**
+	 * Finds the user whose conversation takes place in a DM or thread
+	 */
+	private static findUser( channel: TextBasedChannel ): Snowflake | undefined {
+		if ( channel instanceof DMChannel ) {
+			return channel.recipientId;
+		}
+
+		const stored = BotConfig.database.prepare( 'SELECT user FROM modmail_threads WHERE thread = ?' ).get( channel.id ) as { user: string } | undefined;
+		return stored?.user;
 	}
 
 	private static async mark( origin: Message, thread: Snowflake, sender: string, dmMessage: Snowflake | null, threadMessage: Snowflake, emoji: string ): Promise<void> {
