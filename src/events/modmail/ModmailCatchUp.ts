@@ -1,6 +1,7 @@
-import { Client, Collection, Message, MessageManager, MessageType, Snowflake } from 'discord.js';
+import { AnyThreadChannel, Client, Collection, Message, MessageManager, MessageType, Snowflake, TextChannel } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
+import DiscordUtil from '../../util/DiscordUtil.js';
 import { ModmailUtil } from '../../util/ModmailUtil.js';
 import ModmailEventHandler from './ModmailEventHandler.js';
 import ModmailPinEventHandler from './ModmailPinEventHandler.js';
@@ -14,19 +15,37 @@ export default class ModmailCatchUp {
 	private readonly modmailPinEventHandler = new ModmailPinEventHandler();
 
 	/**
-	 * Handles the modmail messages that were sent while the bot was offline
+	 * Handles the modmail messages and status changes from while the bot was offline
 	 */
 	public async run( client: Client ): Promise<void> {
-		for ( const { user, thread } of ModmailUtil.getThreads() ) {
+		const modmailChannel = await DiscordUtil.getChannel( BotConfig.modmailChannel );
+		if ( !( modmailChannel instanceof TextChannel ) ) return;
+
+		const previouslyOpen = ModmailUtil.getThreads();
+		const active = ( await modmailChannel.threads.fetchActive() ).threads;
+
+		for ( const { thread } of previouslyOpen ) {
+			if ( !active.has( thread ) ) {
+				await ModmailUtil.closeThread( thread );
+			}
+		}
+
+		for ( const thread of active.keys() ) {
+			await ModmailUtil.reopenThread( thread );
+		}
+
+		// Conversations that were closed meanwhile can still have missed messages from the user
+		const conversations = new Map( [ ...previouslyOpen, ...ModmailUtil.getThreads() ].map( ( { user, thread } ) => [ thread, user ] ) );
+		for ( const [ thread, user ] of conversations ) {
 			try {
-				await this.catchUp( client, user, thread );
+				await this.catchUp( client, user, thread, active.get( thread ) );
 			} catch ( e ) {
 				this.logger.error( e );
 			}
 		}
 	}
 
-	private async catchUp( client: Client, userId: Snowflake, threadId: Snowflake ): Promise<void> {
+	private async catchUp( client: Client, userId: Snowflake, threadId: Snowflake, thread: AnyThreadChannel | undefined ): Promise<void> {
 		const lastThreadMessage = BotConfig.database.prepare(
 			`SELECT thread_message AS message FROM modmail_messages
 			WHERE thread = ?
@@ -41,10 +60,9 @@ export default class ModmailCatchUp {
 
 		if ( lastThreadMessage === undefined || lastDmMessage === undefined ) return;
 
-		const thread = await client.channels.fetch( threadId );
-		if ( !thread?.isThread() ) return;
-
-		await this.handleMissed( thread.messages, thread.lastMessageId, lastThreadMessage.message, this.modmailThreadEventHandler.onEvent );
+		if ( thread ) {
+			await this.handleMissed( thread.messages, thread.lastMessageId, lastThreadMessage.message, this.modmailThreadEventHandler.onEvent );
+		}
 
 		const dm = await ( await client.users.fetch( userId ) ).createDM();
 		await this.handleMissed( dm.messages, dm.lastMessageId, lastDmMessage.message, this.modmailEventHandler.onEvent );

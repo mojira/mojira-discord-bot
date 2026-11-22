@@ -1,4 +1,4 @@
-import { ComponentType, ContainerBuilder, Message, MessageFlags, MessageType, SectionBuilder, TextChannel, TextDisplayBuilder, ThreadChannel, ThumbnailBuilder } from 'discord.js';
+import { ContainerBuilder, Message, MessageFlags, MessageType, SectionBuilder, TextChannel, TextDisplayBuilder, ThreadChannel, ThumbnailBuilder } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
@@ -45,25 +45,18 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 			return;
 		}
 
-		const previousThread = ModmailUtil.findThread( origin.author.id );
-		if ( previousThread ) {
-			const thread = await modmailChannel.threads.fetch( previousThread ).catch( () => null );
-			if ( thread && !thread.archived ) {
-				try {
-					await this.forward( origin, thread );
-				} catch ( e ) {
-					this.logger.error( e );
-					await ModmailUtil.markFailed( origin );
-				}
-
-				return;
-			}
-
-			await this.removeAccentColor( modmailChannel, previousThread );
-			ModmailUtil.closeThread( previousThread );
+		const openThread = ModmailUtil.findThread( origin.author.id );
+		if ( openThread === undefined ) {
+			await this.createThread( origin, modmailChannel );
+			return;
 		}
 
-		await this.createThread( origin, modmailChannel );
+		try {
+			await this.forward( origin, await origin.client.channels.fetch( openThread ) as ThreadChannel );
+		} catch ( e ) {
+			this.logger.error( e );
+			await ModmailUtil.markFailed( origin );
+		}
 	}
 
 	private async createThread( origin: Message, modmailChannel: TextChannel ): Promise<void> {
@@ -156,26 +149,11 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 		}
 
 		return new ContainerBuilder()
-			.setAccentColor( 0x2FCA74 )
+			.setAccentColor( ModmailUtil.accentColor )
 			.addSectionComponents(
 				new SectionBuilder()
 					.addTextDisplayComponents( text )
 					.setThumbnailAccessory( new ThumbnailBuilder().setURL( origin.author.displayAvatarURL() ) )
 			);
-	}
-
-	private async removeAccentColor( channel: TextChannel, messageId: string ): Promise<void> {
-		try {
-			const message = await channel.messages.fetch( messageId );
-			const container = message.components[0];
-			if ( container?.type !== ComponentType.Container ) return;
-
-			await message.edit( {
-				components: [ { ...container.toJSON(), accent_color: null } ],
-				flags: MessageFlags.IsComponentsV2,
-			} );
-		} catch ( e ) {
-			this.logger.error( e );
-		}
 	}
 }

@@ -8,6 +8,8 @@ import MessageDeleteEventHandler from './events/message/MessageDeleteEventHandle
 import MessageEventHandler from './events/message/MessageEventHandler.js';
 import MessageUpdateEventHandler from './events/message/MessageUpdateEventHandler.js';
 import ModmailCatchUp from './events/modmail/ModmailCatchUp.js';
+import ModmailThreadDeleteEventHandler from './events/modmail/ModmailThreadDeleteEventHandler.js';
+import ModmailThreadUpdateEventHandler from './events/modmail/ModmailThreadUpdateEventHandler.js';
 import ReactionAddEventHandler from './events/reaction/ReactionAddEventHandler.js';
 import ReactionRemoveEventHandler from './events/reaction/ReactionRemoveEventHandler.js';
 import RequestEventHandler from './events/request/RequestEventHandler.js';
@@ -230,6 +232,11 @@ export default class MojiraBot {
 			EventRegistry.add( new MessageUpdateEventHandler( this.botUser.id, internalChannels ) );
 			EventRegistry.add( new MessageDeleteEventHandler( this.botUser.id, internalChannels ) );
 			EventRegistry.add( new InteractionEventHandler( this.client ) );
+
+			if ( BotConfig.modmailEnabled ) {
+				EventRegistry.add( new ModmailThreadUpdateEventHandler() );
+				EventRegistry.add( new ModmailThreadDeleteEventHandler() );
+			}
 
 			// #region Schedule tasks.
 			// Filter feed tasks.

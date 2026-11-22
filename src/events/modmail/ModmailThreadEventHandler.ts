@@ -15,18 +15,18 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 
 	private async handle( origin: Message, userId: Snowflake ): Promise<void> {
 		if ( ModmailUtil.isComment( origin ) ) {
-			try {
-				await ModmailUtil.markComment( origin );
-			} catch ( e ) {
-				this.logger.error( e );
-				await ModmailUtil.markFailed( origin );
-			}
-
+			await this.comment( origin );
 			return;
 		}
 
 		if ( !ModmailUtil.canForward( origin ) ) {
 			await ModmailUtil.markFailed( origin );
+			return;
+		}
+
+		// Closed conversations can only be reopened if the user hasn't started a newer one since
+		if ( !await ModmailUtil.reopenThread( origin.channelId ) ) {
+			await this.comment( origin );
 			return;
 		}
 
@@ -40,6 +40,15 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 			} );
 
 			await ModmailUtil.markDelivered( origin, origin.channelId, dm.id );
+		} catch ( e ) {
+			this.logger.error( e );
+			await ModmailUtil.markFailed( origin );
+		}
+	}
+
+	private async comment( origin: Message ): Promise<void> {
+		try {
+			await ModmailUtil.markComment( origin );
 		} catch ( e ) {
 			this.logger.error( e );
 			await ModmailUtil.markFailed( origin );

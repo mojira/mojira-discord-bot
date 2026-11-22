@@ -1,8 +1,11 @@
-import { BaseMessageOptions, Client, DMChannel, Message, MessageFlags, Routes, Snowflake, TextBasedChannel, ThreadChannel } from 'discord.js';
+import { BaseMessageOptions, Client, ComponentType, DMChannel, Message, MessageFlags, Routes, Snowflake, TextBasedChannel, ThreadChannel } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../BotConfig.js';
+import DiscordUtil from './DiscordUtil.js';
 
 export class ModmailUtil {
+	public static readonly accentColor = 0x2FCA74;
+
 	private static logger = log4js.getLogger( 'ModmailUtil' );
 
 	private static readonly maxContentLength = 2000;
@@ -78,11 +81,36 @@ export class ModmailUtil {
 	/**
 	 * Closes a conversation, keeping its thread and messages
 	 */
-	public static closeThread( thread: Snowflake ): void {
-		BotConfig.database.prepare(
+	public static async closeThread( thread: Snowflake ): Promise<void> {
+		const closed = BotConfig.database.prepare(
 			`UPDATE modmail_threads SET status = 'closed'
+			WHERE thread = ? AND status = 'open'`
+		).run( thread );
+
+		if ( closed.changes > 0 ) {
+			await this.updateStartMessage( thread, false );
+		}
+	}
+
+	/**
+	 * Reopens a conversation unless the user has started a newer one, and returns whether it's open
+	 */
+	public static async reopenThread( thread: Snowflake ): Promise<boolean> {
+		const stored = BotConfig.database.prepare(
+			`SELECT status, rowid = ( SELECT MAX(rowid) FROM modmail_threads WHERE user = t.user ) AS latest FROM modmail_threads t
+			WHERE thread = ?`
+		).get( thread ) as { status: string; latest: number } | undefined;
+
+		if ( stored?.status === 'open' ) return true;
+		if ( !stored?.latest ) return false;
+
+		BotConfig.database.prepare(
+			`UPDATE modmail_threads SET status = 'open'
 			WHERE thread = ?`
 		).run( thread );
+
+		await this.updateStartMessage( thread, true );
+		return true;
 	}
 
 	/**
@@ -186,8 +214,29 @@ export class ModmailUtil {
 			return channel.recipientId;
 		}
 
-		const stored = BotConfig.database.prepare( 'SELECT user FROM modmail_threads WHERE thread = ? AND status = \'open\'' ).get( channel.id ) as { user: string } | undefined;
+		const stored = BotConfig.database.prepare( 'SELECT user FROM modmail_threads WHERE thread = ?' ).get( channel.id ) as { user: string } | undefined;
 		return stored?.user;
+	}
+
+	/**
+	 * Start messages of open conversations have a green accent color, closed ones have none
+	 */
+	private static async updateStartMessage( thread: Snowflake, open: boolean ): Promise<void> {
+		try {
+			const channel = await DiscordUtil.getChannel( BotConfig.modmailChannel );
+			if ( channel === undefined ) return;
+
+			const message = await channel.messages.fetch( thread );
+			const container = message.components[0];
+			if ( container?.type !== ComponentType.Container ) return;
+
+			await message.edit( {
+				components: [ { ...container.toJSON(), accent_color: open ? this.accentColor : null } ],
+				flags: MessageFlags.IsComponentsV2,
+			} );
+		} catch ( err ) {
+			this.logger.error( err );
+		}
 	}
 
 	private static async mark( origin: Message, thread: Snowflake, sender: string, dmMessage: Snowflake | null, threadMessage: Snowflake, emoji: string ): Promise<void> {
