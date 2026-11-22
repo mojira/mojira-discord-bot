@@ -19,12 +19,12 @@ export class ModmailUtil {
 		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_bans (\'user\' varchar)' );
 		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_threads (\'user\' varchar, \'thread\' varchar)' );
 		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_messages (\'thread\' varchar, \'sender\' varchar, \'dm_message\' varchar, \'thread_message\' varchar)' );
-		const columns = BotConfig.database.pragma( 'table_info(modmail_threads)' ) as { name: string }[];
-		if ( !columns.some( column => column.name === 'status' ) ) {
-			BotConfig.database.exec( 'ALTER TABLE modmail_threads ADD COLUMN \'status\' varchar DEFAULT \'open\'' );
-		}
-		// Close duplicates that were created before the unique index existed
+		this.addColumn( 'modmail_bans', 'notified', 'integer DEFAULT 0' );
+		this.addColumn( 'modmail_threads', 'status', 'varchar DEFAULT \'open\'' );
+		// Remove duplicate bans and close duplicate conversations that were created before the unique indexes existed
+		BotConfig.database.exec( 'DELETE FROM modmail_bans WHERE rowid NOT IN (SELECT MIN(rowid) FROM modmail_bans GROUP BY user)' );
 		BotConfig.database.exec( 'UPDATE modmail_threads SET status = \'closed\' WHERE status = \'open\' AND rowid NOT IN (SELECT MAX(rowid) FROM modmail_threads WHERE status = \'open\' GROUP BY user)' );
+		BotConfig.database.exec( 'CREATE UNIQUE INDEX IF NOT EXISTS modmail_bans_user ON modmail_bans (user)' );
 		BotConfig.database.exec( 'DROP INDEX IF EXISTS modmail_threads_user' );
 		BotConfig.database.exec( 'CREATE UNIQUE INDEX IF NOT EXISTS modmail_threads_open_user ON modmail_threads (user) WHERE status = \'open\'' );
 		BotConfig.database.exec( 'CREATE INDEX IF NOT EXISTS modmail_threads_thread ON modmail_threads (thread)' );
@@ -65,8 +65,29 @@ export class ModmailUtil {
 		return stored?.user;
 	}
 
+	/**
+	 * Bans a user and returns whether they weren't banned yet
+	 */
+	public static ban( user: Snowflake ): boolean {
+		return BotConfig.database.prepare( 'INSERT OR IGNORE INTO modmail_bans (user) VALUES (?)' ).run( user ).changes > 0;
+	}
+
+	/**
+	 * Unbans a user and returns whether they were banned
+	 */
+	public static unban( user: Snowflake ): boolean {
+		return BotConfig.database.prepare( 'DELETE FROM modmail_bans WHERE user = ?' ).run( user ).changes > 0;
+	}
+
 	public static isBanned( user: Snowflake ): boolean {
 		return BotConfig.database.prepare( 'SELECT 1 FROM modmail_bans WHERE user = ?' ).get( user ) !== undefined;
+	}
+
+	/**
+	 * Marks the ban notice as sent and returns whether it hadn't been sent yet
+	 */
+	public static markBanNotified( user: Snowflake ): boolean {
+		return BotConfig.database.prepare( 'UPDATE modmail_bans SET notified = 1 WHERE user = ? AND notified = 0' ).run( user ).changes > 0;
 	}
 
 	/**
@@ -259,6 +280,13 @@ export class ModmailUtil {
 			} );
 		} catch ( err ) {
 			this.logger.error( err );
+		}
+	}
+
+	private static addColumn( table: string, column: string, definition: string ): void {
+		const columns = BotConfig.database.pragma( `table_info(${ table })` ) as { name: string }[];
+		if ( !columns.some( existing => existing.name === column ) ) {
+			BotConfig.database.exec( `ALTER TABLE ${ table } ADD COLUMN '${ column }' ${ definition }` );
 		}
 	}
 

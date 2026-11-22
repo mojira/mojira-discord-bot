@@ -44,7 +44,13 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 
 		if ( ModmailUtil.isBanned( origin.author.id ) ) {
 			try {
-				await origin.channel.send( 'We\'re sorry, but you have been banned from sending any further modmail messages.' );
+				if ( ModmailUtil.markBanNotified( origin.author.id ) ) {
+					await origin.channel.send( {
+						components: [ this.getBanContainer() ],
+						flags: MessageFlags.IsComponentsV2,
+					} );
+				}
+
 				await origin.react( '❌' );
 			} catch ( e ) {
 				this.logger.error( e );
@@ -273,6 +279,13 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 					new ButtonBuilder().setCustomId( this.followUpId ).setLabel( 'Follow up' ).setStyle( ButtonStyle.Secondary ),
 					new ButtonBuilder().setCustomId( this.newConversationId ).setLabel( 'New Modmail' ).setStyle( ButtonStyle.Secondary )
 				)
+			);
+	}
+
+	private getBanContainer(): ContainerBuilder {
+		return new ContainerBuilder()
+			.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent( 'We\'re sorry, but you have been **banned** from sending any further ModMail messages.' )
 			);
 	}
 }
