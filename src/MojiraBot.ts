@@ -10,6 +10,7 @@ import MessageUpdateEventHandler from './events/message/MessageUpdateEventHandle
 import ModmailCatchUp from './events/modmail/ModmailCatchUp.js';
 import ModmailThreadDeleteEventHandler from './events/modmail/ModmailThreadDeleteEventHandler.js';
 import ModmailThreadUpdateEventHandler from './events/modmail/ModmailThreadUpdateEventHandler.js';
+import ModmailTypingEventHandler from './events/modmail/ModmailTypingEventHandler.js';
 import ReactionAddEventHandler from './events/reaction/ReactionAddEventHandler.js';
 import ReactionRemoveEventHandler from './events/reaction/ReactionRemoveEventHandler.js';
 import RequestEventHandler from './events/request/RequestEventHandler.js';
@@ -236,6 +237,7 @@ export default class MojiraBot {
 			if ( BotConfig.modmailEnabled ) {
 				EventRegistry.add( new ModmailThreadUpdateEventHandler() );
 				EventRegistry.add( new ModmailThreadDeleteEventHandler() );
+				EventRegistry.add( new ModmailTypingEventHandler() );
 			}
 
 			// #region Schedule tasks.
