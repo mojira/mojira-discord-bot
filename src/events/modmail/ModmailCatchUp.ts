@@ -1,6 +1,7 @@
 import { Client, Collection, Message, MessageManager, MessageType, Snowflake } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
+import { ModmailUtil } from '../../util/ModmailUtil.js';
 import ModmailEventHandler from './ModmailEventHandler.js';
 import ModmailPinEventHandler from './ModmailPinEventHandler.js';
 import ModmailThreadEventHandler from './ModmailThreadEventHandler.js';
@@ -16,9 +17,7 @@ export default class ModmailCatchUp {
 	 * Handles the modmail messages that were sent while the bot was offline
 	 */
 	public async run( client: Client ): Promise<void> {
-		const threads = BotConfig.database.prepare( 'SELECT user, thread FROM modmail_threads' ).all() as { user: string; thread: string }[];
-
-		for ( const { user, thread } of threads ) {
+		for ( const { user, thread } of ModmailUtil.getThreads() ) {
 			try {
 				await this.catchUp( client, user, thread );
 			} catch ( e ) {

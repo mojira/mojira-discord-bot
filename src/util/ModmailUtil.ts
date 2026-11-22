@@ -46,6 +46,46 @@ export class ModmailUtil {
 	}
 
 	/**
+	 * All conversations with their user and thread
+	 */
+	public static getThreads(): { user: Snowflake; thread: Snowflake }[] {
+		return BotConfig.database.prepare( 'SELECT user, thread FROM modmail_threads' ).all() as { user: Snowflake; thread: Snowflake }[];
+	}
+
+	/**
+	 * Finds the thread of a user's conversation
+	 */
+	public static findThread( user: Snowflake ): Snowflake | undefined {
+		const stored = BotConfig.database.prepare( 'SELECT thread FROM modmail_threads WHERE user = ?' ).get( user ) as { thread: Snowflake } | undefined;
+		return stored?.thread;
+	}
+
+	/**
+	 * Stores the thread of a new conversation
+	 */
+	public static addThread( user: Snowflake, thread: Snowflake ): void {
+		BotConfig.database.prepare(
+			`INSERT INTO modmail_threads (user, thread)
+			VALUES (?, ?)`
+		).run( [ user, thread ] );
+	}
+
+	/**
+	 * Removes a thread together with its stored messages
+	 */
+	public static removeThread( thread: Snowflake ): void {
+		BotConfig.database.prepare(
+			`DELETE FROM modmail_threads
+			WHERE thread = ?`
+		).run( thread );
+
+		BotConfig.database.prepare(
+			`DELETE FROM modmail_messages
+			WHERE thread = ?`
+		).run( thread );
+	}
+
+	/**
 	 * Stores a delivered message and moves the success reaction to the bottom
 	 */
 	public static async markDelivered( origin: Message, thread: Snowflake, copy: Snowflake ): Promise<void> {

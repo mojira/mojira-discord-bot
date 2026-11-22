@@ -1,4 +1,4 @@
-import { ComponentType, ContainerBuilder, Message, MessageFlags, MessageType, SectionBuilder, Snowflake, TextChannel, TextDisplayBuilder, ThreadChannel, ThumbnailBuilder } from 'discord.js';
+import { ComponentType, ContainerBuilder, Message, MessageFlags, MessageType, SectionBuilder, TextChannel, TextDisplayBuilder, ThreadChannel, ThumbnailBuilder } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
@@ -45,9 +45,9 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 			return;
 		}
 
-		const previousThread = BotConfig.database.prepare( 'SELECT thread FROM modmail_threads WHERE user = ?' ).get( origin.author.id ) as { thread: string } | undefined;
+		const previousThread = ModmailUtil.findThread( origin.author.id );
 		if ( previousThread ) {
-			const thread = await modmailChannel.threads.fetch( previousThread.thread ).catch( () => null );
+			const thread = await modmailChannel.threads.fetch( previousThread ).catch( () => null );
 			if ( thread && !thread.archived ) {
 				try {
 					await this.forward( origin, thread );
@@ -59,8 +59,8 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 				return;
 			}
 
-			await this.removeAccentColor( modmailChannel, previousThread.thread );
-			this.removeThread( origin.author.id, previousThread.thread );
+			await this.removeAccentColor( modmailChannel, previousThread );
+			ModmailUtil.removeThread( previousThread );
 		}
 
 		await this.createThread( origin, modmailChannel );
@@ -83,10 +83,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 				autoArchiveDuration: 1440,
 			} );
 
-			BotConfig.database.prepare(
-				`INSERT INTO modmail_threads (user, thread)
-				VALUES (?, ?)`
-			).run( [ origin.author.id, thread.id ] );
+			ModmailUtil.addThread( origin.author.id, thread.id );
 
 			for ( const message of backlog ) {
 				if ( ModmailUtil.canForward( message ) ) {
@@ -99,7 +96,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 			await this.forward( origin, thread );
 		} catch ( e ) {
 			this.logger.error( e );
-			await this.discardThread( origin, start, thread );
+			await this.discardThread( start, thread );
 			await ModmailUtil.markFailed( origin );
 		}
 	}
@@ -138,7 +135,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 		return backlog;
 	}
 
-	private async discardThread( origin: Message, start?: Message, thread?: ThreadChannel ): Promise<void> {
+	private async discardThread( start?: Message, thread?: ThreadChannel ): Promise<void> {
 		try {
 			await thread?.delete();
 			await start?.delete();
@@ -147,20 +144,8 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 		}
 
 		if ( thread ) {
-			this.removeThread( origin.author.id, thread.id );
+			ModmailUtil.removeThread( thread.id );
 		}
-	}
-
-	private removeThread( user: Snowflake, thread: Snowflake ): void {
-		BotConfig.database.prepare(
-			`DELETE FROM modmail_threads
-			WHERE user = ?`
-		).run( user );
-
-		BotConfig.database.prepare(
-			`DELETE FROM modmail_messages
-			WHERE thread = ?`
-		).run( thread );
 	}
 
 	private getStartContainer( origin: Message ): ContainerBuilder {
