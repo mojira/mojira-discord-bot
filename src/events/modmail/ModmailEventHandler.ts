@@ -35,90 +35,84 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 			return;
 		}
 
-		const modmailChannel = await DiscordUtil.getChannel( BotConfig.modmailChannel );
-
 		const banStatus = BotConfig.database.prepare( 'SELECT user FROM modmail_bans WHERE user = ?' ).get( origin.author.id );
-
-		const previousThread = BotConfig.database.prepare( 'SELECT thread FROM modmail_threads WHERE user = ?' ).get( origin.author.id ) as { thread: string };
-
-		if ( modmailChannel instanceof TextChannel && banStatus === undefined ) {
-			if ( !ModmailUtil.canForward( origin ) ) {
-				await ModmailUtil.markFailed( origin );
-				return;
-			}
-
-			if ( previousThread ) {
-				const thread = await modmailChannel.threads.fetch( previousThread.thread ).catch( () => null );
-				if ( thread && !thread.archived ) {
-					try {
-						await this.forward( origin, thread );
-						return;
-					} catch ( e ) {
-						this.logger.error( e );
-						await ModmailUtil.markFailed( origin );
-
-						return;
-					}
-				} else {
-					await this.removeAccentColor( modmailChannel, previousThread.thread );
-
-					BotConfig.database.prepare(
-						`DELETE FROM modmail_threads
-						WHERE user = ?`
-					).run( origin.author.id );
-
-					BotConfig.database.prepare(
-						`DELETE FROM modmail_messages
-						WHERE thread = ?`
-					).run( previousThread.thread );
-				}
-			}
-			let start: Message | undefined;
-			let newThread: ThreadChannel | undefined;
-			try {
-				const backlog = await this.getBacklog( origin );
-
-				start = await modmailChannel.send( {
-					components: [ this.getStartContainer( backlog[0] ?? origin ) ],
-					flags: MessageFlags.IsComponentsV2,
-					allowedMentions: { parse: [] },
-				} );
-
-				newThread = await start.startThread( {
-					name: origin.author.tag,
-					autoArchiveDuration: 1440,
-				} );
-
-				BotConfig.database.prepare(
-					`INSERT INTO modmail_threads (user, thread)
-					VALUES (?, ?)`
-				).run( [ origin.author.id, newThread.id ] );
-
-				for ( const message of backlog ) {
-					if ( ModmailUtil.canForward( message ) ) {
-						await this.forward( message, newThread );
-					} else {
-						await ModmailUtil.markFailed( message );
-					}
-				}
-
-				await this.forward( origin, newThread );
-			} catch ( e ) {
-				this.logger.error( e );
-				await this.discardThread( origin, start, newThread );
-				await ModmailUtil.markFailed( origin );
-
-				return;
-			}
-		} else if ( banStatus !== undefined ) {
+		if ( banStatus !== undefined ) {
 			try {
 				await origin.channel.send( 'We\'re sorry, but you have been banned from sending any further modmail messages.' );
 				await origin.react( '❌' );
 			} catch ( e ) {
 				this.logger.error( e );
+			}
+
+			return;
+		}
+
+		const modmailChannel = await DiscordUtil.getChannel( BotConfig.modmailChannel );
+		if ( !( modmailChannel instanceof TextChannel ) ) {
+			return;
+		}
+
+		if ( !ModmailUtil.canForward( origin ) ) {
+			await ModmailUtil.markFailed( origin );
+			return;
+		}
+
+		const previousThread = BotConfig.database.prepare( 'SELECT thread FROM modmail_threads WHERE user = ?' ).get( origin.author.id ) as { thread: string } | undefined;
+		if ( previousThread ) {
+			const thread = await modmailChannel.threads.fetch( previousThread.thread ).catch( () => null );
+			if ( thread && !thread.archived ) {
+				try {
+					await this.forward( origin, thread );
+				} catch ( e ) {
+					this.logger.error( e );
+					await ModmailUtil.markFailed( origin );
+				}
 
 				return;
 			}
+
+			await this.removeAccentColor( modmailChannel, previousThread.thread );
+			this.removeThread( origin.author.id, previousThread.thread );
+		}
+
+		await this.createThread( origin, modmailChannel );
+	}
+
+	private async createThread( origin: Message, modmailChannel: TextChannel ): Promise<void> {
+		let start: Message | undefined;
+		let thread: ThreadChannel | undefined;
+		try {
+			const backlog = await this.getBacklog( origin );
+
+			start = await modmailChannel.send( {
+				components: [ this.getStartContainer( backlog[0] ?? origin ) ],
+				flags: MessageFlags.IsComponentsV2,
+				allowedMentions: { parse: [] },
+			} );
+
+			thread = await start.startThread( {
+				name: origin.author.tag,
+				autoArchiveDuration: 1440,
+			} );
+
+			BotConfig.database.prepare(
+				`INSERT INTO modmail_threads (user, thread)
+				VALUES (?, ?)`
+			).run( [ origin.author.id, thread.id ] );
+
+			for ( const message of backlog ) {
+				if ( ModmailUtil.canForward( message ) ) {
+					await this.forward( message, thread );
+				} else {
+					await ModmailUtil.markFailed( message );
+				}
+			}
+
+			await this.forward( origin, thread );
+		} catch ( e ) {
+			this.logger.error( e );
+			await this.discardThread( origin, start, thread );
+			await ModmailUtil.markFailed( origin );
 		}
 	}
 
@@ -165,16 +159,20 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 		}
 
 		if ( thread ) {
-			BotConfig.database.prepare(
-				`DELETE FROM modmail_threads
-				WHERE user = ?`
-			).run( origin.author.id );
-
-			BotConfig.database.prepare(
-				`DELETE FROM modmail_messages
-				WHERE thread = ?`
-			).run( thread.id );
+			this.removeThread( origin.author.id, thread.id );
 		}
+	}
+
+	private removeThread( user: Snowflake, thread: Snowflake ): void {
+		BotConfig.database.prepare(
+			`DELETE FROM modmail_threads
+			WHERE user = ?`
+		).run( user );
+
+		BotConfig.database.prepare(
+			`DELETE FROM modmail_messages
+			WHERE thread = ?`
+		).run( thread );
 	}
 
 	private getStartContainer( origin: Message ): ContainerBuilder {
