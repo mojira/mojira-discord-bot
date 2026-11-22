@@ -1,4 +1,4 @@
-import { ActionRowBuilder, AnyThreadChannel, ButtonBuilder, ButtonInteraction, ButtonStyle, Client, ContainerBuilder, Message, MessageFlags, MessageType, SectionBuilder, SendableChannels, Snowflake, TextChannel, TextDisplayBuilder, ThreadChannel, ThumbnailBuilder } from 'discord.js';
+import { ActionRowBuilder, AnyThreadChannel, ButtonBuilder, ButtonInteraction, ButtonStyle, Client, ContainerBuilder, Message, MessageFlags, MessageType, SectionBuilder, SendableChannels, Snowflake, TextChannel, TextDisplayBuilder, ThreadChannel, ThumbnailBuilder, User } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../../BotConfig.js';
 import DiscordUtil from '../../util/DiscordUtil.js';
@@ -10,7 +10,6 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 
 	private logger = log4js.getLogger( 'ModmailEventHandler' );
 
-	private readonly maxPreviewLength = 200;
 	private readonly maxBacklogAge = 48 * 60 * 60 * 1000;
 	private readonly maxFollowUpAge = 7 * 24 * 60 * 60 * 1000;
 
@@ -171,38 +170,64 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 		return prompt;
 	}
 
+	/**
+	 * Starts a conversation from the staff side, whose first message is then written in its thread
+	 */
+	public async create( user: User ): Promise<ThreadChannel> {
+		const modmailChannel = await DiscordUtil.getChannel( BotConfig.modmailChannel );
+		if ( !( modmailChannel instanceof TextChannel ) ) {
+			throw new Error( 'The modmail channel isn\'t a text channel' );
+		}
+
+		return this.openThread( modmailChannel, user );
+	}
+
 	private async createThread( origin: Message, modmailChannel: TextChannel ): Promise<void> {
-		let start: Message | undefined;
-		let thread: ThreadChannel | undefined;
 		try {
 			const backlog = await this.getBacklog( origin, origin.author.id );
 
+			await this.openThread( modmailChannel, origin.author, async thread => {
+				for ( const message of backlog ) {
+					if ( ModmailUtil.canForward( message ) ) {
+						await this.forward( message, thread );
+					} else {
+						await ModmailUtil.markFailed( message );
+					}
+				}
+
+				await this.forward( origin, thread );
+			} );
+		} catch ( e ) {
+			this.logger.error( e );
+			await ModmailUtil.markFailed( origin );
+		}
+	}
+
+	/**
+	 * Posts the start message, opens the conversation's thread on it and fills it, or removes both again if that fails
+	 */
+	private async openThread( modmailChannel: TextChannel, user: User, fill?: ( thread: ThreadChannel ) => Promise<void> ): Promise<ThreadChannel> {
+		let start: Message | undefined;
+		let thread: ThreadChannel | undefined;
+		try {
 			start = await modmailChannel.send( {
-				components: [ this.getStartContainer( backlog[0] ?? origin ) ],
+				components: [ this.getStartContainer( user ) ],
 				flags: MessageFlags.IsComponentsV2,
 				allowedMentions: { parse: [] },
 			} );
 
 			thread = await start.startThread( {
-				name: origin.author.tag,
+				name: user.tag,
 				autoArchiveDuration: 1440,
 			} );
 
-			ModmailUtil.addThread( origin.author.id, thread.id );
+			ModmailUtil.addThread( user.id, thread.id );
 
-			for ( const message of backlog ) {
-				if ( ModmailUtil.canForward( message ) ) {
-					await this.forward( message, thread );
-				} else {
-					await ModmailUtil.markFailed( message );
-				}
-			}
-
-			await this.forward( origin, thread );
+			await fill?.( thread );
+			return thread;
 		} catch ( e ) {
-			this.logger.error( e );
 			await this.discardThread( start, thread );
-			await ModmailUtil.markFailed( origin );
+			throw e;
 		}
 	}
 
@@ -253,19 +278,19 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 		}
 	}
 
-	private getStartContainer( origin: Message ): ContainerBuilder {
-		const text = [ new TextDisplayBuilder().setContent( `### ${ origin.author }` ) ];
-		if ( origin.content ) {
-			const preview = origin.content.length > this.maxPreviewLength ? `${ origin.content.slice( 0, this.maxPreviewLength ) }…` : origin.content;
-			text.push( new TextDisplayBuilder().setContent( preview.replace( /(^|\n)/g, '$1> ' ) ) );
-		}
-
+	/**
+	 * The preview is replaced by the conversation's first delivered message
+	 */
+	private getStartContainer( user: User ): ContainerBuilder {
 		return new ContainerBuilder()
 			.setAccentColor( ModmailUtil.accentColor )
 			.addSectionComponents(
 				new SectionBuilder()
-					.addTextDisplayComponents( text )
-					.setThumbnailAccessory( new ThumbnailBuilder().setURL( origin.author.displayAvatarURL() ) )
+					.addTextDisplayComponents(
+						new TextDisplayBuilder().setContent( `### ${ user }` ),
+						new TextDisplayBuilder().setContent( '*No messages have been sent yet.*' )
+					)
+					.setThumbnailAccessory( new ThumbnailBuilder().setURL( user.displayAvatarURL() ) )
 			);
 	}
 

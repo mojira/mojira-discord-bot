@@ -1,4 +1,4 @@
-import { BaseMessageOptions, Client, ComponentType, DMChannel, Message, MessageFlags, Routes, Snowflake, SnowflakeUtil, TextBasedChannel, ThreadChannel } from 'discord.js';
+import { BaseMessageOptions, Client, ComponentType, ContainerBuilder, DMChannel, Message, MessageFlags, Routes, SectionBuilder, Snowflake, SnowflakeUtil, TextBasedChannel, TextDisplayBuilder, ThreadChannel } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../BotConfig.js';
 import DiscordUtil from './DiscordUtil.js';
@@ -9,6 +9,7 @@ export class ModmailUtil {
 	private static logger = log4js.getLogger( 'ModmailUtil' );
 
 	private static readonly maxContentLength = 2000;
+	private static readonly maxPreviewLength = 200;
 
 	private static readonly queues = new Map<Snowflake, Promise<void>>();
 
@@ -155,7 +156,7 @@ export class ModmailUtil {
 		).run( thread );
 
 		if ( closed.changes > 0 ) {
-			await this.updateStartMessage( thread, false );
+			await this.updateAccentColor( thread, false );
 		}
 	}
 
@@ -170,7 +171,7 @@ export class ModmailUtil {
 		).run( thread );
 
 		if ( reopened.changes > 0 ) {
-			await this.updateStartMessage( thread, true );
+			await this.updateAccentColor( thread, true );
 		}
 
 		return reopened.changes > 0;
@@ -192,13 +193,18 @@ export class ModmailUtil {
 	}
 
 	/**
-	 * Stores a delivered message and moves the success reaction to the end of its block
+	 * Stores a delivered message, moves the success reaction to the end of its block and previews the conversation's first message
 	 */
 	public static async markDelivered( origin: Message, thread: Snowflake, copy: Snowflake ): Promise<void> {
 		const sender = origin.channel.isDMBased() ? 'user' : 'staff';
 		const [ dmMessage, threadMessage ] = sender === 'user' ? [ origin.id, copy ] : [ copy, origin.id ];
+		const first = BotConfig.database.prepare( 'SELECT 1 FROM modmail_messages WHERE thread = ? AND sender != \'comment\'' ).get( thread ) === undefined;
 
 		await this.mark( origin, thread, sender, dmMessage, threadMessage, '📬' );
+
+		if ( first ) {
+			await this.updatePreview( thread, origin.content );
+		}
 	}
 
 	/**
@@ -272,7 +278,21 @@ export class ModmailUtil {
 	/**
 	 * Start messages of open conversations have a green accent color, closed ones have none
 	 */
-	private static async updateStartMessage( thread: Snowflake, open: boolean ): Promise<void> {
+	private static async updateAccentColor( thread: Snowflake, open: boolean ): Promise<void> {
+		await this.updateStartMessage( thread, container => open ? container.setAccentColor( this.accentColor ) : container.clearAccentColor() );
+	}
+
+	/**
+	 * Start messages quote the first delivered message of their conversation
+	 */
+	private static async updatePreview( thread: Snowflake, content: string ): Promise<void> {
+		const preview = content.length > this.maxPreviewLength ? `${ content.slice( 0, this.maxPreviewLength ) }…` : content;
+		await this.updateStartMessage( thread, container => ( container.components[0] as SectionBuilder ).spliceTextDisplayComponents(
+			1, 1, new TextDisplayBuilder().setContent( preview ? preview.replace( /(^|\n)/g, '$1> ' ) : '> *Attachment*' )
+		) );
+	}
+
+	private static async updateStartMessage( thread: Snowflake, update: ( container: ContainerBuilder ) => void ): Promise<void> {
 		try {
 			const channel = await DiscordUtil.getChannel( BotConfig.modmailChannel );
 			if ( channel === undefined ) return;
@@ -281,8 +301,11 @@ export class ModmailUtil {
 			const container = message.components[0];
 			if ( container?.type !== ComponentType.Container ) return;
 
+			const builder = new ContainerBuilder( container.toJSON() );
+			update( builder );
+
 			await message.edit( {
-				components: [ { ...container.toJSON(), accent_color: open ? this.accentColor : null } ],
+				components: [ builder ],
 				flags: MessageFlags.IsComponentsV2,
 			} );
 		} catch ( err ) {

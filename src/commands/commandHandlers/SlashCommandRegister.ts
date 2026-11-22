@@ -31,7 +31,8 @@ export default class SlashCommandRegister {
 							if ( interaction.channel !== null && ChannelConfigUtil.commandsDisabled( interaction.channel ) ) {
 								await interaction.reply( { content: 'Commands are not allowed in this channel.', flags: [MessageFlagsBitField.Flags.Ephemeral] } );
 							} else if ( !await command.run( interaction ) ) {
-								await interaction.reply( { content: 'An error occurred while running this command.', flags: [MessageFlagsBitField.Flags.Ephemeral] } );
+								const error = 'An error occurred while running this command.';
+								await ( interaction.deferred ? interaction.editReply( error ) : interaction.reply( { content: error, flags: [MessageFlagsBitField.Flags.Ephemeral] } ) );
 							}
 						} else {
 							await interaction.reply( { content: 'You do not have permission to use this command.', flags: [MessageFlagsBitField.Flags.Ephemeral] } );
