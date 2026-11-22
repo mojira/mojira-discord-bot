@@ -11,15 +11,16 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 
 	// This syntax is used to ensure that `this` refers to the `ModmailThreadEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
-		const id = BotConfig.database.prepare( 'SELECT user FROM modmail_threads WHERE thread = ?' ).get( origin.channel.id ) as { user: string } | undefined;
-
-		if ( !origin.channel.isThread() || id === undefined ) return;
+		const thread = BotConfig.database.prepare( 'SELECT user FROM modmail_threads WHERE thread = ?' ).get( origin.channelId ) as { user: string } | undefined;
+		if ( thread === undefined ) {
+			return;
+		}
 
 		if ( ModmailUtil.isComment( origin ) ) {
 			try {
 				await ModmailUtil.markComment( origin );
-			} catch ( err ) {
-				this.logger.error( err );
+			} catch ( e ) {
+				this.logger.error( e );
 				await ModmailUtil.markFailed( origin );
 			}
 
@@ -32,7 +33,7 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 		}
 
 		try {
-			const user = await origin.client.users.fetch( id.user );
+			const user = await origin.client.users.fetch( thread.user );
 			const replyTo = await ModmailUtil.findCopy( origin.client, origin.reference?.messageId ?? '' );
 
 			const dm = await user.send( {
@@ -40,13 +41,10 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 				reply: replyTo && { messageReference: replyTo.id, failIfNotExists: false },
 			} );
 
-			await ModmailUtil.markDelivered( origin, origin.channel.id, dm.id );
-		} catch ( err ) {
-			this.logger.error( err );
+			await ModmailUtil.markDelivered( origin, origin.channelId, dm.id );
+		} catch ( e ) {
+			this.logger.error( e );
 			await ModmailUtil.markFailed( origin );
-
-			return;
 		}
-		return;
 	};
 }
