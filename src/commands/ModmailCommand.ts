@@ -1,6 +1,5 @@
-import { ApplicationCommandOptionChoiceData, AutocompleteInteraction, BaseInteraction, channelMention, ChatInputCommandInteraction, ContainerBuilder, GuildMember, MessageFlags, SharedSlashCommand, SlashCommandBuilder, TextDisplayBuilder, userMention } from 'discord.js';
+import { ApplicationCommandOptionChoiceData, AutocompleteInteraction, BaseInteraction, channelMention, ChatInputCommandInteraction, ContainerBuilder, MessageFlags, PermissionFlagsBits, SharedSlashCommand, SlashCommandBuilder, TextDisplayBuilder, userMention } from 'discord.js';
 import ModmailEventHandler from '../events/modmail/ModmailEventHandler.js';
-import PermissionRegistry from '../permissions/PermissionRegistry.js';
 import { ModmailUtil } from '../util/ModmailUtil.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
@@ -11,6 +10,7 @@ export default class ModmailCommand extends SlashCommand {
 		return new SlashCommandBuilder()
 			.setName( 'modmail' )
 			.setDescription( 'Manage ModMail.' )
+			.setDefaultMemberPermissions( PermissionFlagsBits.ManageMessages )
 			.addSubcommand( subcommand =>
 				subcommand.setName( 'create' )
 					.setDescription( 'Start a new ModMail conversation with someone.' )
@@ -41,15 +41,13 @@ export default class ModmailCommand extends SlashCommand {
 			);
 	}
 
-	public readonly permissionLevel = PermissionRegistry.MODERATOR_PERMISSION;
-
 	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
 		const subcommand = interaction.options.getSubcommand();
 
 		try {
 			if ( subcommand === 'create' ) {
 				await this.create( interaction );
-			} else if ( !this.isAdmin( interaction ) ) {
+			} else if ( !this.canBan( interaction ) ) {
 				await interaction.reply( { content: 'You do not have permission to use this command.', flags: MessageFlags.Ephemeral } );
 			} else if ( subcommand === 'ban' ) {
 				await this.ban( interaction );
@@ -65,7 +63,7 @@ export default class ModmailCommand extends SlashCommand {
 	}
 
 	public async autocomplete( interaction: AutocompleteInteraction ): Promise<ApplicationCommandOptionChoiceData[]> {
-		if ( !this.isAdmin( interaction ) ) return [];
+		if ( !this.canBan( interaction ) ) return [];
 
 		const search = interaction.options.getFocused().toLowerCase();
 		const choices = await Promise.all( ModmailUtil.getBans().map( async id => {
@@ -126,7 +124,7 @@ export default class ModmailCommand extends SlashCommand {
 		return new ContainerBuilder().addTextDisplayComponents( new TextDisplayBuilder().setContent( content ) );
 	}
 
-	private isAdmin( interaction: BaseInteraction ): boolean {
-		return interaction.member instanceof GuildMember && PermissionRegistry.ADMIN_PERMISSION.checkPermission( interaction.member );
+	private canBan( interaction: BaseInteraction ): boolean {
+		return interaction.memberPermissions?.has( PermissionFlagsBits.BanMembers ) ?? false;
 	}
 }
