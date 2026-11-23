@@ -8,7 +8,6 @@ export class ModmailUtil {
 
 	private static logger = log4js.getLogger( 'ModmailUtil' );
 
-	private static readonly maxContentLength = 2000;
 	private static readonly maxPreviewLength = 200;
 
 	private static readonly queues = new Map<Snowflake, Promise<void>>();
@@ -219,7 +218,7 @@ export class ModmailUtil {
 	 */
 	public static canForward( message: Message ): boolean {
 		return ( message.content !== '' || message.attachments.size > 0 )
-			&& message.content.length <= this.maxContentLength
+			&& message.content.length <= 2000
 			&& message.stickers.size === 0
 			&& message.messageSnapshots.size === 0;
 	}

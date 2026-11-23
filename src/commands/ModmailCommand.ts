@@ -87,9 +87,10 @@ export default class ModmailCommand extends SlashCommand {
 			const content = latest?.status === 'open'
 				? `The user ${ user } already has an open conversation in ${ channelMention( latest.thread ) }.`
 				: `Send a message in ${ await this.modmailEventHandler.create( user ) } to begin the conversation with ${ user }.`;
+			const note = ModmailUtil.isBanned( user.id ) ? ' Note that this user is currently banned from sending ModMail messages.' : '';
 
 			await interaction.editReply( {
-				components: [ this.getContainer( content ) ],
+				components: [ this.getContainer( content + note ) ],
 				flags: MessageFlags.IsComponentsV2,
 			} );
 		} );
