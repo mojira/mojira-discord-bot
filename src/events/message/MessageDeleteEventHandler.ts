@@ -1,7 +1,7 @@
 import { Message, MessageType, PartialMessage, Snowflake } from 'discord.js';
 import BotConfig from '../../BotConfig.js';
-import DiscordUtil from '../../util/DiscordUtil.js';
 import EventHandler from '../EventHandler.js';
+import ModmailDeleteEventHandler from '../modmail/ModmailDeleteEventHandler.js';
 import RequestDeleteEventHandler from '../request/RequestDeleteEventHandler.js';
 
 export default class MessageDeleteEventHandler implements EventHandler<'messageDelete'> {
@@ -10,16 +10,24 @@ export default class MessageDeleteEventHandler implements EventHandler<'messageD
 	private readonly botUserId: string;
 
 	private readonly requestDeleteEventHandler: RequestDeleteEventHandler;
+	private readonly modmailDeleteEventHandler: ModmailDeleteEventHandler;
 
 	constructor( botUserId: string, internalChannels: Map<Snowflake, Snowflake> ) {
 		this.botUserId = botUserId;
 
 		this.requestDeleteEventHandler = new RequestDeleteEventHandler( internalChannels );
+		this.modmailDeleteEventHandler = new ModmailDeleteEventHandler();
 	}
 
 	// This syntax is used to ensure that `this` refers to the `MessageDeleteEventHandler` object
 	public onEvent = async ( message: Message | PartialMessage ): Promise<void> => {
-		message = await DiscordUtil.fetchMessage( message );
+		if ( BotConfig.modmailEnabled ) {
+			// The deleted message might be part of a modmail conversation
+			await this.modmailDeleteEventHandler.onEvent( message );
+		}
+
+		// Only cached messages can be handled further
+		if ( message.partial ) return;
 
 		if (
 			// Don't handle non-default messages

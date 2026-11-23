@@ -1,7 +1,15 @@
-import { BaseMessageOptions, Client, ComponentType, ContainerBuilder, DMChannel, Message, MessageFlags, Routes, SectionBuilder, Snowflake, SnowflakeUtil, TextBasedChannel, TextDisplayBuilder, ThreadChannel } from 'discord.js';
+import { BaseMessageOptions, Client, ComponentType, ContainerBuilder, DMChannel, Message, MessageFlags, PartialMessage, Routes, SectionBuilder, Snowflake, SnowflakeUtil, TextBasedChannel, TextDisplayBuilder, ThreadChannel } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../BotConfig.js';
 import DiscordUtil from './DiscordUtil.js';
+
+export interface StoredMessage {
+	id: number;
+	thread: Snowflake;
+	sender: string;
+	dmMessage: Snowflake | null;
+	threadMessage: Snowflake;
+}
 
 export class ModmailUtil {
 	public static readonly accentColor = 0x2FCA74;
@@ -275,6 +283,40 @@ export class ModmailUtil {
 	}
 
 	/**
+	 * Finds a stored message by the ID of its original
+	 */
+	public static findOriginal( messageId: Snowflake ): StoredMessage | undefined {
+		return BotConfig.database.prepare(
+			`SELECT rowid AS id, thread, sender, dm_message AS dmMessage, thread_message AS threadMessage FROM modmail_messages
+			WHERE ( sender = 'user' AND dm_message = ? ) OR ( sender != 'user' AND thread_message = ? )`
+		).get( messageId, messageId ) as StoredMessage | undefined;
+	}
+
+	/**
+	 * Forgets a deleted message and updates the reaction of the message before it
+	 */
+	public static async forget( origin: Message | PartialMessage, stored: StoredMessage ): Promise<void> {
+		const neighbour = ( condition: string ) => BotConfig.database.prepare(
+			`SELECT sender, CASE WHEN sender = 'user' THEN dm_message ELSE thread_message END AS message FROM modmail_messages
+			WHERE thread = ? AND ( sender = 'user' ) = ? AND ${ condition }`
+		).get( stored.thread, stored.sender === 'user' ? 1 : 0, stored.id ) as { sender: string; message: Snowflake } | undefined;
+
+		const previous = neighbour( 'rowid < ? ORDER BY rowid DESC LIMIT 1' );
+		const next = neighbour( 'rowid > ? ORDER BY rowid LIMIT 1' );
+
+		BotConfig.database.prepare( 'DELETE FROM modmail_messages WHERE rowid = ?' ).run( stored.id );
+
+		if ( previous === undefined ) return;
+
+		const emoji = previous.sender === 'comment' ? '💭' : '📬';
+		if ( previous.sender === stored.sender && next?.sender !== stored.sender ) {
+			await origin.client.rest.put( Routes.channelMessageOwnReaction( origin.channelId, previous.message, encodeURIComponent( emoji ) ) );
+		} else if ( previous.sender !== stored.sender && next?.sender === previous.sender ) {
+			await this.removeReaction( origin, previous.message, emoji );
+		}
+	}
+
+	/**
 	 * Start messages of open conversations have a green accent color, closed ones have none
 	 */
 	private static async updateAccentColor( thread: Snowflake, open: boolean ): Promise<void> {
@@ -339,7 +381,7 @@ export class ModmailUtil {
 		await Promise.all( tasks );
 	}
 
-	private static async removeReaction( origin: Message, messageId: Snowflake, emoji: string ): Promise<void> {
+	private static async removeReaction( origin: Message | PartialMessage, messageId: Snowflake, emoji: string ): Promise<void> {
 		try {
 			await origin.client.rest.delete( Routes.channelMessageOwnReaction( origin.channelId, messageId, encodeURIComponent( emoji ) ) );
 		} catch ( err ) {
