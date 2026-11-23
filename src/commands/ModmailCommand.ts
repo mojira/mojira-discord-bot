@@ -48,7 +48,7 @@ export default class ModmailCommand extends SlashCommand {
 			if ( subcommand === 'create' ) {
 				await this.create( interaction );
 			} else if ( !this.canBan( interaction ) ) {
-				await interaction.reply( { content: 'You do not have permission to use this command.', flags: MessageFlags.Ephemeral } );
+				await this.reply( interaction, 'You do not have permission to use this command.', true );
 			} else if ( subcommand === 'ban' ) {
 				await this.ban( interaction );
 			} else {
