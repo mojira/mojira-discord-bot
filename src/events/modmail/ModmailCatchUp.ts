@@ -25,13 +25,15 @@ export default class ModmailCatchUp {
 		const active = ( await modmailChannel.threads.fetchActive() ).threads;
 
 		for ( const { thread } of previouslyOpen ) {
-			if ( !active.has( thread ) ) {
+			if ( !active.has( thread ) && !await ModmailUtil.checkRemoved( client, thread ) ) {
 				await ModmailUtil.closeThread( thread );
 			}
 		}
 
 		for ( const thread of active.values() ) {
-			await this.modmailEventHandler.reopen( thread );
+			if ( !await ModmailUtil.checkRemoved( client, thread.id ) ) {
+				await this.modmailEventHandler.reopen( thread );
+			}
 		}
 
 		// Conversations that were closed meanwhile can still have missed messages from the user

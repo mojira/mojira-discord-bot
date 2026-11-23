@@ -27,9 +27,8 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 			return;
 		}
 
-		// Closed conversations can only be reopened if the user hasn't started a newer one since
 		await this.modmailEventHandler.reopen( origin.channel as AnyThreadChannel );
-		if ( ModmailUtil.findLatestThread( userId )?.thread !== origin.channelId ) {
+		if ( ModmailUtil.getStatus( origin.channelId ) !== 'open' ) {
 			await this.comment( origin );
 			return;
 		}

@@ -11,7 +11,9 @@ export default class ModmailThreadDeleteEventHandler implements EventHandler<'th
 	// This syntax is used to ensure that `this` refers to the `ModmailThreadDeleteEventHandler` object
 	public onEvent = async ( thread: AnyThreadChannel ): Promise<void> => {
 		try {
-			await ModmailUtil.queue( thread, () => ModmailUtil.closeThread( thread.id ) );
+			await ModmailUtil.queue( thread, async () => {
+				await ModmailUtil.checkRemoved( thread.client, thread.id );
+			} );
 		} catch ( e ) {
 			this.logger.error( e );
 		}

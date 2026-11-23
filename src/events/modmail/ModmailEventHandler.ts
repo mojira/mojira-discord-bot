@@ -75,6 +75,13 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 		}
 
 		try {
+			if ( latest.status !== 'open' && await ModmailUtil.checkRemoved( origin.client, latest.thread ) ) {
+				// The messages held back by a pending prompt go into the new conversation
+				await this.removePrompt( origin.channel );
+				await this.createThread( origin, modmailChannel );
+				return;
+			}
+
 			// Replies to the closed conversation are follow-ups without asking
 			if ( latest.status !== 'open' && !ModmailUtil.belongsTo( origin.reference?.messageId ?? '', latest.thread ) ) {
 				// A week after its last message, a new conversation starts instead, unless the user is already deciding
@@ -136,7 +143,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 				return;
 			}
 
-			if ( interaction.customId === this.followUpId ) {
+			if ( interaction.customId === this.followUpId && !await ModmailUtil.checkRemoved( interaction.client, latest.thread ) ) {
 				await this.reopen( await interaction.client.channels.fetch( latest.thread ) as AnyThreadChannel, interaction.message );
 				return;
 			}
@@ -274,7 +281,7 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 		}
 
 		if ( thread ) {
-			ModmailUtil.removeThread( thread.id );
+			ModmailUtil.forgetThread( thread.id );
 		}
 	}
 

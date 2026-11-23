@@ -1,9 +1,9 @@
-import { BaseMessageOptions, Client, ComponentType, ContainerBuilder, DMChannel, Message, MessageFlags, PartialMessage, Routes, SectionBuilder, Snowflake, SnowflakeUtil, TextBasedChannel, TextDisplayBuilder, ThreadChannel } from 'discord.js';
+import { BaseMessageOptions, Client, ComponentType, ContainerBuilder, DiscordAPIError, DMChannel, Message, MessageFlags, PartialMessage, RESTJSONErrorCodes, Routes, SectionBuilder, Snowflake, SnowflakeUtil, TextBasedChannel, TextDisplayBuilder, ThreadChannel } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig from '../BotConfig.js';
 import DiscordUtil from './DiscordUtil.js';
 
-type Status = 'open' | 'closed';
+type Status = 'open' | 'closed' | 'removed';
 type Sender = 'user' | 'staff' | 'comment';
 
 export interface StoredMessage {
@@ -47,7 +47,7 @@ export class ModmailUtil {
 	/**
 	 * Runs the tasks of a conversation one after another, so its messages stay in order
 	 */
-	public static async queue( channel: TextBasedChannel, task: ( user: Snowflake ) => Promise<void> ): Promise<void> {
+	public static async queue( channel: TextBasedChannel | Snowflake, task: ( user: Snowflake ) => Promise<void> ): Promise<void> {
 		const user = this.findUser( channel );
 		if ( user === undefined ) return;
 
@@ -67,12 +67,12 @@ export class ModmailUtil {
 	/**
 	 * Finds the user whose conversation takes place in a DM or thread
 	 */
-	public static findUser( channel: TextBasedChannel ): Snowflake | undefined {
+	public static findUser( channel: TextBasedChannel | Snowflake ): Snowflake | undefined {
 		if ( channel instanceof DMChannel ) {
 			return channel.recipientId;
 		}
 
-		const stored = BotConfig.database.prepare( 'SELECT user FROM modmail_threads WHERE thread = ?' ).get( channel.id ) as { user: string } | undefined;
+		const stored = BotConfig.database.prepare( 'SELECT user FROM modmail_threads WHERE thread = ?' ).get( typeof channel === 'string' ? channel : channel.id ) as { user: string } | undefined;
 		return stored?.user;
 	}
 
@@ -136,7 +136,7 @@ export class ModmailUtil {
 	}
 
 	/**
-	 * Finds the user's latest conversation, the only one that can be open
+	 * Finds the user's latest conversation, the only one that can be open or closed
 	 */
 	public static findLatestThread( user: Snowflake ): { thread: Snowflake; status: Status } | undefined {
 		return BotConfig.database.prepare(
@@ -146,10 +146,15 @@ export class ModmailUtil {
 		).get( user ) as { thread: Snowflake; status: Status } | undefined;
 	}
 
+	public static getStatus( thread: Snowflake ): Status | undefined {
+		return BotConfig.database.prepare( 'SELECT status FROM modmail_threads WHERE thread = ?' ).pluck().get( thread ) as Status | undefined;
+	}
+
 	/**
-	 * Stores the thread of a new conversation
+	 * Stores the thread of a new conversation, the user's closed one can't be reopened anymore
 	 */
 	public static addThread( user: Snowflake, thread: Snowflake ): void {
+		BotConfig.database.prepare( 'UPDATE modmail_threads SET status = \'removed\' WHERE user = ? AND status = \'closed\'' ).run( user );
 		BotConfig.database.prepare(
 			`INSERT INTO modmail_threads (user, thread)
 			VALUES (?, ?)`
@@ -171,13 +176,12 @@ export class ModmailUtil {
 	}
 
 	/**
-	 * Reopens a closed conversation unless the user has started a newer one, and returns whether it did
+	 * Reopens a closed conversation and returns whether it did
 	 */
 	public static async reopenThread( thread: Snowflake ): Promise<boolean> {
 		const reopened = BotConfig.database.prepare(
 			`UPDATE modmail_threads SET status = 'open'
-			WHERE thread = ? AND status = 'closed'
-			AND rowid = ( SELECT MAX(rowid) FROM modmail_threads latest WHERE latest.user = modmail_threads.user )`
+			WHERE thread = ? AND status = 'closed'`
 		).run( thread );
 
 		if ( reopened.changes > 0 ) {
@@ -188,9 +192,31 @@ export class ModmailUtil {
 	}
 
 	/**
-	 * Removes a thread together with its stored messages
+	 * Removes a conversation if its thread or start message was deleted and returns whether it's removed
 	 */
-	public static removeThread( thread: Snowflake ): void {
+	public static async checkRemoved( client: Client, thread: Snowflake ): Promise<boolean> {
+		const status = this.getStatus( thread );
+		if ( status === undefined ) return false;
+		if ( status === 'removed' ) return true;
+
+		const channel = await client.channels.fetch( thread ).catch( this.ignoreDeleted ) as ThreadChannel | null;
+		if ( channel !== null && await channel.fetchStarterMessage().catch( this.ignoreDeleted ) !== null ) return false;
+
+		BotConfig.database.prepare( 'UPDATE modmail_threads SET status = \'removed\' WHERE thread = ?' ).run( thread );
+
+		if ( channel === null ) {
+			if ( status === 'open' ) await this.updateAccentColor( thread, false );
+		} else if ( !channel.archived ) {
+			await channel.setArchived( true );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Forgets a thread together with its stored messages
+	 */
+	public static forgetThread( thread: Snowflake ): void {
 		BotConfig.database.prepare(
 			`DELETE FROM modmail_threads
 			WHERE thread = ?`
@@ -382,6 +408,14 @@ export class ModmailUtil {
 			tasks.push( this.removeReaction( origin, previous.message, emoji ) );
 		}
 		await Promise.all( tasks );
+	}
+
+	private static ignoreDeleted( error: unknown ): null {
+		if ( error instanceof DiscordAPIError && ( error.code === RESTJSONErrorCodes.UnknownChannel || error.code === RESTJSONErrorCodes.UnknownMessage ) ) {
+			return null;
+		}
+
+		throw error;
 	}
 
 	private static async removeReaction( origin: Message | PartialMessage, messageId: Snowflake, emoji: string ): Promise<void> {
