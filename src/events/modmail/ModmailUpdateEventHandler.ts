@@ -5,7 +5,6 @@ import { ModmailUtil } from '../../util/ModmailUtil.js';
 export default class ModmailUpdateEventHandler {
 	private logger = log4js.getLogger( 'ModmailUpdateEventHandler' );
 
-	// This syntax is used to ensure that `this` refers to the `ModmailUpdateEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
 		await ModmailUtil.queue( origin.channel, () => this.update( origin ) );
 	};

@@ -8,7 +8,6 @@ export default class ModmailThreadDeleteEventHandler implements EventHandler<'th
 
 	private logger = log4js.getLogger( 'ModmailThreadDeleteEventHandler' );
 
-	// This syntax is used to ensure that `this` refers to the `ModmailThreadDeleteEventHandler` object
 	public onEvent = async ( thread: AnyThreadChannel ): Promise<void> => {
 		try {
 			await ModmailUtil.queue( thread, async () => {

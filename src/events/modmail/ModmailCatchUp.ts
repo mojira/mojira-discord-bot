@@ -21,7 +21,7 @@ export default class ModmailCatchUp {
 		const modmailChannel = await DiscordUtil.getChannel( BotConfig.modmailChannel );
 		if ( !( modmailChannel instanceof TextChannel ) ) return;
 
-		const previouslyOpen = ModmailUtil.getThreads();
+		const previouslyOpen = ModmailUtil.getOpenThreads();
 		const active = ( await modmailChannel.threads.fetchActive() ).threads;
 
 		for ( const { thread } of previouslyOpen ) {
@@ -36,8 +36,8 @@ export default class ModmailCatchUp {
 			}
 		}
 
-		// Conversations that were closed meanwhile can still have missed messages from the user
-		const conversations = new Map( [ ...previouslyOpen, ...ModmailUtil.getThreads() ].map( ( { user, thread } ) => [ thread, user ] ) );
+		// Conversations that were closed or removed meanwhile can still have missed messages from the user
+		const conversations = new Map( [ ...previouslyOpen, ...ModmailUtil.getOpenThreads() ].map( ( { user, thread } ) => [ thread, user ] ) );
 		for ( const [ thread, user ] of conversations ) {
 			try {
 				await this.catchUp( client, user, thread, active.get( thread ) );
@@ -52,13 +52,13 @@ export default class ModmailCatchUp {
 			`SELECT thread_message AS message FROM modmail_messages
 			WHERE thread = ?
 			ORDER BY rowid DESC LIMIT 1`
-		).get( threadId ) as { message: string } | undefined;
+		).get( threadId ) as { message: Snowflake } | undefined;
 
 		const lastDmMessage = BotConfig.database.prepare(
 			`SELECT dm_message AS message FROM modmail_messages
 			WHERE thread = ? AND dm_message IS NOT NULL
 			ORDER BY rowid DESC LIMIT 1`
-		).get( threadId ) as { message: string } | undefined;
+		).get( threadId ) as { message: Snowflake } | undefined;
 
 		if ( lastThreadMessage === undefined || lastDmMessage === undefined ) return;
 

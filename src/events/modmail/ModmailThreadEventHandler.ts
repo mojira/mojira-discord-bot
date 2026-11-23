@@ -11,7 +11,6 @@ export default class ModmailThreadEventHandler implements EventHandler<'messageC
 
 	private readonly modmailEventHandler = new ModmailEventHandler();
 
-	// This syntax is used to ensure that `this` refers to the `ModmailThreadEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
 		await ModmailUtil.queue( origin.channel, user => this.handle( origin, user ) );
 	};

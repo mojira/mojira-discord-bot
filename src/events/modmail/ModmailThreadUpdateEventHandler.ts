@@ -11,7 +11,6 @@ export default class ModmailThreadUpdateEventHandler implements EventHandler<'th
 
 	private readonly modmailEventHandler = new ModmailEventHandler();
 
-	// This syntax is used to ensure that `this` refers to the `ModmailThreadUpdateEventHandler` object
 	public onEvent = async ( oldThread: AnyThreadChannel, newThread: AnyThreadChannel ): Promise<void> => {
 		if ( oldThread.archived === newThread.archived ) return;
 

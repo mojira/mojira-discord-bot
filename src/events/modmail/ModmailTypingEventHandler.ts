@@ -8,7 +8,6 @@ export default class ModmailTypingEventHandler implements EventHandler<'typingSt
 
 	private logger = log4js.getLogger( 'ModmailTypingEventHandler' );
 
-	// This syntax is used to ensure that `this` refers to the `ModmailTypingEventHandler` object
 	public onEvent = async ( typing: Typing ): Promise<void> => {
 		// Only the user's typing indicator is shown to staff, not the other way round
 		if ( !typing.channel.isDMBased() ) return;

@@ -24,7 +24,7 @@ export class ModmailUtil {
 	private static readonly queues = new Map<Snowflake, Promise<void>>();
 
 	/**
-	 * Creates the tables and indexes used by Modmail
+	 * Creates the modmail tables and indexes
 	 */
 	public static initDatabase(): void {
 		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_bans (\'user\' varchar)' );
@@ -32,9 +32,8 @@ export class ModmailUtil {
 		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_messages (\'thread\' varchar, \'sender\' varchar, \'dm_message\' varchar, \'thread_message\' varchar)' );
 		this.addColumn( 'modmail_bans', 'notified', 'integer DEFAULT 0' );
 		this.addColumn( 'modmail_threads', 'status', 'varchar DEFAULT \'open\'' );
-		// Remove duplicate bans and close duplicate conversations that were created before the unique indexes existed
+		// Remove duplicate bans that were created before the unique index existed
 		BotConfig.database.exec( 'DELETE FROM modmail_bans WHERE rowid NOT IN (SELECT MIN(rowid) FROM modmail_bans GROUP BY user)' );
-		BotConfig.database.exec( 'UPDATE modmail_threads SET status = \'closed\' WHERE status = \'open\' AND rowid NOT IN (SELECT MAX(rowid) FROM modmail_threads WHERE status = \'open\' GROUP BY user)' );
 		BotConfig.database.exec( 'CREATE UNIQUE INDEX IF NOT EXISTS modmail_bans_user ON modmail_bans (user)' );
 		BotConfig.database.exec( 'DROP INDEX IF EXISTS modmail_threads_user' );
 		BotConfig.database.exec( 'CREATE UNIQUE INDEX IF NOT EXISTS modmail_threads_open_user ON modmail_threads (user) WHERE status = \'open\'' );
@@ -72,8 +71,7 @@ export class ModmailUtil {
 			return channel.recipientId;
 		}
 
-		const stored = BotConfig.database.prepare( 'SELECT user FROM modmail_threads WHERE thread = ?' ).get( typeof channel === 'string' ? channel : channel.id ) as { user: string } | undefined;
-		return stored?.user;
+		return BotConfig.database.prepare( 'SELECT user FROM modmail_threads WHERE thread = ?' ).pluck().get( typeof channel === 'string' ? channel : channel.id ) as Snowflake | undefined;
 	}
 
 	/**
@@ -131,7 +129,7 @@ export class ModmailUtil {
 	/**
 	 * All open conversations with their user and thread
 	 */
-	public static getThreads(): { user: Snowflake; thread: Snowflake }[] {
+	public static getOpenThreads(): { user: Snowflake; thread: Snowflake }[] {
 		return BotConfig.database.prepare( 'SELECT user, thread FROM modmail_threads WHERE status = \'open\'' ).all() as { user: Snowflake; thread: Snowflake }[];
 	}
 
@@ -251,7 +249,7 @@ export class ModmailUtil {
 	}
 
 	/**
-	 * Messages that aren't supported by Modmail
+	 * Whether a message can be forwarded to the other side
 	 */
 	public static canForward( message: Message ): boolean {
 		return ( message.content !== '' || message.attachments.size > 0 )
@@ -294,7 +292,7 @@ export class ModmailUtil {
 			`SELECT t.user, m.thread, m.dm_message, m.thread_message FROM modmail_messages m
 			JOIN modmail_threads t ON t.thread = m.thread AND t.status = 'open'
 			WHERE m.sender != 'comment' AND ( m.dm_message = ? OR m.thread_message = ? )`
-		).get( messageId, messageId ) as { user: string; thread: string; dm_message: string; thread_message: string } | undefined;
+		).get( messageId, messageId ) as { user: Snowflake; thread: Snowflake; dm_message: Snowflake; thread_message: Snowflake } | undefined;
 
 		if ( stored === undefined ) return undefined;
 

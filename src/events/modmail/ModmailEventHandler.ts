@@ -16,7 +16,6 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 	private readonly followUpId = 'modmail-follow-up';
 	private readonly newConversationId = 'modmail-new-conversation';
 
-	// This syntax is used to ensure that `this` refers to the `ModmailEventHandler` object
 	public onEvent = async ( origin: Message ): Promise<void> => {
 		await ModmailUtil.queue( origin.channel, () => this.handle( origin ) );
 	};
@@ -75,24 +74,26 @@ export default class ModmailEventHandler implements EventHandler<'messageCreate'
 		}
 
 		try {
-			if ( latest.status !== 'open' && await ModmailUtil.checkRemoved( origin.client, latest.thread ) ) {
-				// The messages held back by a pending prompt go into the new conversation
-				await this.removePrompt( origin.channel );
-				await this.createThread( origin, modmailChannel );
-				return;
-			}
-
-			// Replies to the closed conversation are follow-ups without asking
-			if ( latest.status !== 'open' && !ModmailUtil.belongsTo( origin.reference?.messageId ?? '', latest.thread ) ) {
-				// A week after its last message, a new conversation starts instead, unless the user is already deciding
-				const pending = await this.removePrompt( origin.channel );
-				if ( pending || origin.createdTimestamp - ModmailUtil.getLastActivity( latest.thread ) <= this.maxFollowUpAge ) {
-					await this.prompt( origin.channel );
-				} else {
+			if ( latest.status !== 'open' ) {
+				if ( await ModmailUtil.checkRemoved( origin.client, latest.thread ) ) {
+					// The messages held back by a pending prompt go into the new conversation
+					await this.removePrompt( origin.channel );
 					await this.createThread( origin, modmailChannel );
+					return;
 				}
 
-				return;
+				// Replies to the closed conversation are follow-ups without asking
+				if ( !ModmailUtil.belongsTo( origin.reference?.messageId ?? '', latest.thread ) ) {
+					// A week after its last message, a new conversation starts instead, unless the user is already deciding
+					const pending = await this.removePrompt( origin.channel );
+					if ( pending || origin.createdTimestamp - ModmailUtil.getLastActivity( latest.thread ) <= this.maxFollowUpAge ) {
+						await this.prompt( origin.channel );
+					} else {
+						await this.createThread( origin, modmailChannel );
+					}
+
+					return;
+				}
 			}
 
 			const thread = await origin.client.channels.fetch( latest.thread ) as AnyThreadChannel;

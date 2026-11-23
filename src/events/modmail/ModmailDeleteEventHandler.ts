@@ -6,7 +6,6 @@ import { ModmailUtil, StoredMessage } from '../../util/ModmailUtil.js';
 export default class ModmailDeleteEventHandler {
 	private logger = log4js.getLogger( 'ModmailDeleteEventHandler' );
 
-	// This syntax is used to ensure that `this` refers to the `ModmailDeleteEventHandler` object
 	public onEvent = async ( origin: Message | PartialMessage ): Promise<void> => {
 		const stored = ModmailUtil.findOriginal( origin.id );
 

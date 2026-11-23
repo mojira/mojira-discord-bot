@@ -5,7 +5,6 @@ import { ModmailUtil } from '../../util/ModmailUtil.js';
 export default class ModmailPinEventHandler {
 	private logger = log4js.getLogger( 'ModmailPinEventHandler' );
 
-	// This syntax is used to ensure that `this` refers to the `ModmailPinEventHandler` object
 	public onPin = async ( origin: Message ): Promise<void> => {
 		await ModmailUtil.queue( origin.channel, () => this.pin( origin ) );
 	};
