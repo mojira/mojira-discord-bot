@@ -3,10 +3,13 @@ import log4js from 'log4js';
 import BotConfig from '../BotConfig.js';
 import DiscordUtil from './DiscordUtil.js';
 
+type Status = 'open' | 'closed';
+type Sender = 'user' | 'staff' | 'comment';
+
 export interface StoredMessage {
 	id: number;
 	thread: Snowflake;
-	sender: string;
+	sender: Sender;
 	dmMessage: Snowflake | null;
 	threadMessage: Snowflake;
 }
@@ -135,12 +138,12 @@ export class ModmailUtil {
 	/**
 	 * Finds the user's latest conversation, the only one that can be open
 	 */
-	public static findLatestThread( user: Snowflake ): { thread: Snowflake; status: string } | undefined {
+	public static findLatestThread( user: Snowflake ): { thread: Snowflake; status: Status } | undefined {
 		return BotConfig.database.prepare(
 			`SELECT thread, status FROM modmail_threads
 			WHERE user = ?
 			ORDER BY rowid DESC LIMIT 1`
-		).get( user ) as { thread: Snowflake; status: string } | undefined;
+		).get( user ) as { thread: Snowflake; status: Status } | undefined;
 	}
 
 	/**
@@ -299,7 +302,7 @@ export class ModmailUtil {
 		const neighbour = ( condition: string ) => BotConfig.database.prepare(
 			`SELECT sender, CASE WHEN sender = 'user' THEN dm_message ELSE thread_message END AS message FROM modmail_messages
 			WHERE thread = ? AND ( sender = 'user' ) = ? AND ${ condition }`
-		).get( stored.thread, stored.sender === 'user' ? 1 : 0, stored.id ) as { sender: string; message: Snowflake } | undefined;
+		).get( stored.thread, stored.sender === 'user' ? 1 : 0, stored.id ) as { sender: Sender; message: Snowflake } | undefined;
 
 		const previous = neighbour( 'rowid < ? ORDER BY rowid DESC LIMIT 1' );
 		const next = neighbour( 'rowid > ? ORDER BY rowid LIMIT 1' );
@@ -361,13 +364,13 @@ export class ModmailUtil {
 		}
 	}
 
-	private static async mark( origin: Message, thread: Snowflake, sender: string, dmMessage: Snowflake | null, threadMessage: Snowflake, emoji: string ): Promise<void> {
+	private static async mark( origin: Message, thread: Snowflake, sender: Sender, dmMessage: Snowflake | null, threadMessage: Snowflake, emoji: string ): Promise<void> {
 		// Staff messages and comments alternate in blocks, the user's messages form their own
 		const previous = BotConfig.database.prepare(
 			`SELECT sender, CASE WHEN sender = 'user' THEN dm_message ELSE thread_message END AS message FROM modmail_messages
 			WHERE thread = ? AND ( sender = 'user' ) = ?
 			ORDER BY rowid DESC LIMIT 1`
-		).get( thread, sender === 'user' ? 1 : 0 ) as { sender: string; message: string } | undefined;
+		).get( thread, sender === 'user' ? 1 : 0 ) as { sender: Sender; message: Snowflake } | undefined;
 
 		BotConfig.database.prepare(
 			`INSERT INTO modmail_messages (thread, sender, dm_message, thread_message)
