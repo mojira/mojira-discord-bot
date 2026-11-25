@@ -7,6 +7,10 @@ import EventRegistry from './events/EventRegistry.js';
 import MessageDeleteEventHandler from './events/message/MessageDeleteEventHandler.js';
 import MessageEventHandler from './events/message/MessageEventHandler.js';
 import MessageUpdateEventHandler from './events/message/MessageUpdateEventHandler.js';
+import ModmailCatchUp from './events/modmail/ModmailCatchUp.js';
+import ModmailThreadDeleteEventHandler from './events/modmail/ModmailThreadDeleteEventHandler.js';
+import ModmailThreadUpdateEventHandler from './events/modmail/ModmailThreadUpdateEventHandler.js';
+import ModmailTypingEventHandler from './events/modmail/ModmailTypingEventHandler.js';
 import ReactionAddEventHandler from './events/reaction/ReactionAddEventHandler.js';
 import ReactionRemoveEventHandler from './events/reaction/ReactionRemoveEventHandler.js';
 import RequestEventHandler from './events/request/RequestEventHandler.js';
@@ -16,6 +20,7 @@ import CachedFilterFeedTask from './tasks/CachedFilterFeedTask.js';
 import TaskScheduler from './tasks/TaskScheduler.js';
 import VersionFeedTask from './tasks/VersionFeedTask.js';
 import DiscordUtil from './util/DiscordUtil.js';
+import { ModmailUtil } from './util/ModmailUtil.js';
 import { RoleSelectionUtil } from './util/RoleSelectionUtil.js';
 import InteractionEventHandler from './events/interaction/InteractionEventHandler.js';
 
@@ -86,17 +91,7 @@ export default class MojiraBot {
 			const loginResult = await BotConfig.login( this.client );
 			if ( !loginResult || !this.client.user ) return;
 
-			BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_bans (\'user\' varchar)' );
-			BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_threads (\'user\' varchar, \'thread\' varchar)' );
-			BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS modmail_messages (\'thread\' varchar, \'sender\' varchar, \'dm_message\' varchar, \'thread_message\' varchar)' );
-
-			// Remove duplicates that were created before the unique index existed
-			BotConfig.database.exec( 'DELETE FROM modmail_threads WHERE rowid NOT IN (SELECT MAX(rowid) FROM modmail_threads GROUP BY user)' );
-			BotConfig.database.exec( 'CREATE UNIQUE INDEX IF NOT EXISTS modmail_threads_user ON modmail_threads (user)' );
-			BotConfig.database.exec( 'CREATE INDEX IF NOT EXISTS modmail_threads_thread ON modmail_threads (thread)' );
-			BotConfig.database.exec( 'CREATE INDEX IF NOT EXISTS modmail_messages_thread_sender ON modmail_messages (thread, sender)' );
-			BotConfig.database.exec( 'CREATE INDEX IF NOT EXISTS modmail_messages_dm_message ON modmail_messages (dm_message)' );
-			BotConfig.database.exec( 'CREATE INDEX IF NOT EXISTS modmail_messages_thread_message ON modmail_messages (thread_message)' );
+			ModmailUtil.initDatabase();
 
 			this.botUser = this.client.user;
 			this.running = true;
@@ -226,12 +221,24 @@ export default class MojiraBot {
 				this.logger.info( 'Fully caught up on requests.' );
 			}
 
+			if ( BotConfig.modmailEnabled ) {
+				this.logger.info( 'Catching up on modmail...' );
+				await new ModmailCatchUp().run( this.client );
+				this.logger.info( 'Fully caught up on modmail.' );
+			}
+
 			EventRegistry.add( new ReactionAddEventHandler( this.botUser.id, internalChannels, requestLimits ) );
 			EventRegistry.add( new ReactionRemoveEventHandler( this.botUser.id ) );
 			EventRegistry.add( new MessageEventHandler( this.botUser.id, internalChannels, requestLimits ) );
 			EventRegistry.add( new MessageUpdateEventHandler( this.botUser.id, internalChannels ) );
 			EventRegistry.add( new MessageDeleteEventHandler( this.botUser.id, internalChannels ) );
 			EventRegistry.add( new InteractionEventHandler( this.client ) );
+
+			if ( BotConfig.modmailEnabled ) {
+				EventRegistry.add( new ModmailThreadUpdateEventHandler() );
+				EventRegistry.add( new ModmailThreadDeleteEventHandler() );
+				EventRegistry.add( new ModmailTypingEventHandler() );
+			}
 
 			// #region Schedule tasks.
 			// Filter feed tasks.

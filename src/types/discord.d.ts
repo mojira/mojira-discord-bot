@@ -1,8 +1,9 @@
-import { ChatInputCommandInteraction, Collection, SharedSlashCommand } from 'discord.js';
+import { AutocompleteInteraction, ChatInputCommandInteraction, Collection, SharedSlashCommand } from 'discord.js';
 
 export interface SlashCommandJsonData {
 	data: SharedSlashCommand;
 	execute: ( interaction: ChatInputCommandInteraction ) => Promise<void>;
+	autocomplete: ( interaction: AutocompleteInteraction ) => Promise<void>;
 }
 
 declare module 'discord.js' {
