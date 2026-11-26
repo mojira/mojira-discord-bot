@@ -10,7 +10,7 @@ export class AccentColor {
 	private static readonly greySaturation = 0.08;
 
 	/**
-	 * Pastel version of centre of largest group of similar pixels in JPEG image, found by k-means clustering
+	 * Accent from centre of largest group of similar pixels in JPEG image, found by k-means clustering
 	 */
 	public static fromImage( image: Buffer ): number | undefined {
 		if ( image[0] !== 0xFF || image[1] !== 0xD8 ) return undefined;
@@ -43,13 +43,13 @@ export class AccentColor {
 			centers = centers.map( ( center, cluster ) => sizes[cluster] > 0 ? sums[cluster].map( sum => sum / sizes[cluster] ) : center );
 		}
 
-		return this.toPastel( centers[sizes.indexOf( Math.max( ...sizes ) )] );
+		return this.toAccent( centers[sizes.indexOf( Math.max( ...sizes ) )] );
 	}
 
 	/**
 	 * Color with same hue, fixed lightness and saturation within bounds, keeping greys grey
 	 */
-	private static toPastel( color: number[] ): number {
+	private static toAccent( color: number[] ): number {
 		const [ red, green, blue ] = color.map( channel => channel / 255 );
 		const max = Math.max( red, green, blue );
 		const min = Math.min( red, green, blue );

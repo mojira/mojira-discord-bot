@@ -165,6 +165,13 @@ export default class ReleaseFeedTask extends Task {
 	private async fetchTrackedPost( id: Snowflake ): Promise<Message | undefined> {
 		if ( Date.now() - SnowflakeUtil.timestampFrom( id ) > this.trackingWindow ) return undefined;
 
+		return this.fetchPost( id );
+	}
+
+	/**
+	 * Post's message, unless it's deleted
+	 */
+	private async fetchPost( id: Snowflake ): Promise<Message | undefined> {
 		return this.channel.messages.fetch( id ).catch( ( error: unknown ) => {
 			if ( error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownMessage ) return undefined;
 			throw error;
@@ -188,7 +195,7 @@ export default class ReleaseFeedTask extends Task {
 		const row = BotConfig.database.prepare( 'SELECT message, article FROM release_feed WHERE release = ?' ).get( parent ) as { message: Snowflake | null; article: string | null } | undefined;
 		if ( row?.article ) return { waiting: true };
 
-		const parentMessage = row?.message ? await this.fetchTrackedPost( row.message ) : undefined;
+		const parentMessage = row?.message ? await this.fetchPost( row.message ) : undefined;
 		if ( parentMessage === undefined ) return { waiting: false };
 
 		const accent = ( parentMessage.components[0].toJSON() as APIContainerComponent ).accent_color;

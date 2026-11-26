@@ -52,15 +52,13 @@ export class BedrockReleases {
 			};
 		}
 
-		const hotfix = /^Minecraft: Bedrock Edition (((\d+)\.(\d+))[\d./]*) Hotfix\b/.exec( article.title );
+		const hotfix = /^Minecraft: Bedrock Edition (([\d.]+?)(?:\/[\d./]+)?) Hotfix\b/.exec( article.title );
 		if ( hotfix ) {
-			// Release fixed by hotfix, like 26.60 for 26.63
-			const release = articles.find( candidate => this.getReleaseVersion( candidate.title ) === `${ hotfix[3] }.${ Math.floor( Number( hotfix[4] ) / 10 ) * 10 }` );
 			return {
 				...base,
 				heading: `Minecraft: Bedrock Edition ${ hotfix[1] } Hotfix`,
 				wiki: `https://minecraft.wiki/w/Bedrock_Edition_${ hotfix[2] }`,
-				parent: release && String( release.id ),
+				parent: this.getFixedRelease( hotfix[2], articles )?.id.toString(),
 			};
 		}
 
@@ -75,6 +73,14 @@ export class BedrockReleases {
 		}
 
 		return undefined;
+	}
+
+	/**
+	 * Release article fixed by hotfix version, like 26.60 for 26.63
+	 */
+	private getFixedRelease( version: string, articles: FeedbackArticle[] ): FeedbackArticle | undefined {
+		const [ major, minor ] = version.split( '.' ).map( Number );
+		return articles.find( article => this.getReleaseVersion( article.title ) === `${ major }.${ Math.floor( minor / 10 ) * 10 }` );
 	}
 
 	/**

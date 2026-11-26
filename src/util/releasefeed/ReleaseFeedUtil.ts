@@ -38,7 +38,7 @@ export class ReleaseFeedUtil {
 			// Paragraph ends at its closing tag or next heading, and blank lines inside it split it too
 			.flatMap( paragraph => this.decode( paragraph.replace( /<(?:\/p>|h\d)[\s\S]*/, '' ).replace( /<br\s*\/?>/g, '\n' ).replace( /<[^>]*>/g, '' ) ).split( /\n\s*\n/ ) )
 			.map( paragraph => paragraph.trim() )
-			.find( paragraph => paragraph !== '' && !/^(?:Posted|Published|Update)\b/.test( paragraph ) ) ?? '';
+			.find( paragraph => paragraph !== '' && !/^(?:Posted|Published|Update):/.test( paragraph ) ) ?? '';
 	}
 
 	/**
