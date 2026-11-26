@@ -1,3 +1,4 @@
+import { APIContainerComponent, APITextDisplayComponent, ComponentType, SeparatorBuilder, SeparatorSpacingSize, TextDisplayBuilder } from 'discord.js';
 import { ReleaseFeedUtil } from './ReleaseFeedUtil.js';
 
 interface Video {
@@ -8,28 +9,19 @@ interface Video {
 export type Videos = Record<string, Video[]>;
 
 export class SlicedlimeVideos {
-	private static readonly gameplay = 'Slicedlime\'s Gameplay Changes Video';
-	private static readonly technical = 'Slicedlime\'s Technical Changes Video';
 	private static readonly channels: Record<string, string> = {
-		[this.gameplay]: 'UCXoqL7S2DjbrJe5ewfmlDvw',
-		[this.technical]: 'UC2UyQpCGPw01q62SapQSuyw',
+		gameplay: 'UCXoqL7S2DjbrJe5ewfmlDvw',
+		technical: 'UC2UyQpCGPw01q62SapQSuyw',
 	};
 
 	/**
-	 * Labels of videos about version, with technical changes video only for snapshots and pre-releases
-	 */
-	public static getLabels( version: string ): string[] {
-		return /Snapshot|Pre-Release/i.test( version ) ? [ this.gameplay, this.technical ] : [ this.gameplay ];
-	}
-
-	/**
-	 * Latest videos of each channel by label
+	 * Latest videos of each channel by kind
 	 */
 	public static async getVideos(): Promise<Videos> {
 		const videos: Videos = {};
-		for ( const [ label, channel ] of Object.entries( this.channels ) ) {
+		for ( const [ kind, channel ] of Object.entries( this.channels ) ) {
 			const feed = await ReleaseFeedUtil.request( `https://www.youtube.com/feeds/videos.xml?channel_id=${ channel }` );
-			videos[label] = [ ...feed.matchAll( /<yt:videoId>([^<]+)<\/yt:videoId>[\s\S]*?<title>([^<]*)<\/title>/g ) ]
+			videos[kind] = [ ...feed.matchAll( /<yt:videoId>([^<]+)<\/yt:videoId>[\s\S]*?<title>([^<]*)<\/title>/g ) ]
 				.map( ( [ , id, title ] ) => ( { id, title: ReleaseFeedUtil.decode( title ) } ) );
 		}
 
@@ -37,25 +29,53 @@ export class SlicedlimeVideos {
 	}
 
 	/**
-	 * Post content with links of videos about version added to its waiting video lines
+	 * Container with video line listing linked and newly found videos about version, unless none were found
 	 */
-	public static link( content: string, version: string, videos: Videos ): string {
-		return content.split( '\n' ).map( line => {
-			const label = this.getWaitingLabel( line );
-			const video = label && videos[label].find( candidate => this.mentions( candidate.title, version ) );
-			return video ? `${ line } 🔗 <https://www.youtube.com/watch?v=${ video.id }>` : line;
-		} ).join( '\n' );
+	public static link( container: APIContainerComponent, version: string, videos: Videos ): APIContainerComponent | undefined {
+		const linked = this.getLinked( container );
+		const found = this.getKinds( version ).filter( kind => !linked.has( kind ) ).flatMap( kind => {
+			const video = videos[kind].find( candidate => this.mentions( candidate.title, version ) );
+			return video ? [ [ kind, `https://www.youtube.com/watch?v=${ video.id }` ] as const ] : [];
+		} );
+		if ( found.length === 0 ) return undefined;
+
+		const all = new Map( [ ...linked, ...found ] );
+		const links = this.getKinds( version ).filter( kind => all.has( kind ) ).map( kind => `[${ kind } changes](${ all.get( kind ) })` );
+		return {
+			...container,
+			components: [
+				...container.components.slice( 0, this.getButtonsIndex( container ) + 1 ),
+				new SeparatorBuilder().setSpacing( SeparatorSpacingSize.Large ).toJSON(),
+				new TextDisplayBuilder().setContent( `-# Watch slicedlime's video${ links.length > 1 ? 's' : '' } to get an overview over the ${ links.join( ' and ' ) }.` ).toJSON(),
+			],
+		};
 	}
 
 	/**
-	 * Whether post content still has video line without link
+	 * Whether container still misses video about version
 	 */
-	public static isWaiting( content: string ): boolean {
-		return content.split( '\n' ).some( line => this.getWaitingLabel( line ) !== undefined );
+	public static isWaiting( container: APIContainerComponent, version: string ): boolean {
+		return this.getLinked( container ).size < this.getKinds( version ).length;
 	}
 
-	private static getWaitingLabel( line: string ): string | undefined {
-		return Object.keys( this.channels ).find( label => line.endsWith( ` ${ label }` ) );
+	/**
+	 * Kinds of videos about version, with technical changes video only for snapshots and pre-releases
+	 */
+	private static getKinds( version: string ): string[] {
+		return /Snapshot|Pre-Release/i.test( version ) ? [ 'gameplay', 'technical' ] : [ 'gameplay' ];
+	}
+
+	/**
+	 * Video links in container's video line by kind
+	 */
+	private static getLinked( container: APIContainerComponent ): Map<string, string> {
+		const line = container.components.slice( this.getButtonsIndex( container ) + 1 )
+			.find( component => component.type === ComponentType.TextDisplay ) as APITextDisplayComponent | undefined;
+		return new Map( [ ...( line?.content ?? '' ).matchAll( /\[(\w+) changes\]\(([^)]+)\)/g ) ].map( ( [ , kind, url ] ) => [ kind, url ] ) );
+	}
+
+	private static getButtonsIndex( container: APIContainerComponent ): number {
+		return container.components.findIndex( component => component.type === ComponentType.ActionRow );
 	}
 
 	/**

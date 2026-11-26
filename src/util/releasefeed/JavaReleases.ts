@@ -1,7 +1,6 @@
 import { ReleaseFeedConfig } from '../../BotConfig.js';
 import { Post, Release } from './Release.js';
 import { ReleaseFeedUtil } from './ReleaseFeedUtil.js';
-import { SlicedlimeVideos } from './SlicedlimeVideos.js';
 
 interface JavaPatchNote {
 	title: string;
@@ -32,7 +31,7 @@ export class JavaReleases {
 	}
 
 	/**
-	 * Entry whose blog post covers first one, skipping hotfixes
+	 * Entry whose changelog covers first one, skipping hotfixes
 	 */
 	private getAnnouncedEntry( entries: JavaPatchNote[] ): JavaPatchNote {
 		const [ entry, previous ] = entries;
@@ -41,7 +40,7 @@ export class JavaReleases {
 	}
 
 	/**
-	 * Post for Java release with its intro, blog post, wiki page and video lines
+	 * Post for Java release with its intro, changelog and wiki page
 	 */
 	private async createPost( entry: JavaPatchNote, announced: JavaPatchNote ): Promise<Post> {
 		const { body } = JSON.parse( await ReleaseFeedUtil.request( `https://launchercontent.mojang.com/v2/${ entry.contentPath }` ) ) as { body: string };
@@ -49,11 +48,11 @@ export class JavaReleases {
 		const slug = announced.title.toLowerCase().replace( /[^a-z0-9]+/g, '-' ).replace( /^-|-$/g, '' );
 
 		return {
-			content: ReleaseFeedUtil.format( `Minecraft: Java Edition ${ version }`, ReleaseFeedUtil.getIntro( body ), [
-				ReleaseFeedUtil.link( this.config.mojangEmoji, 'Official Blog Post', `https://www.minecraft.net/article/${ slug }` ),
-				ReleaseFeedUtil.link( this.config.wikiEmoji, 'Minecraft Wiki', `https://minecraft.wiki/w/Java_Edition_${ version.replaceAll( ' ', '_' ) }` ),
-				...SlicedlimeVideos.getLabels( version ).map( label => `${ this.config.youtubeEmoji } ${ label }` ),
-			] ),
+			author: `${ this.config.emoji } Written By Java Team`,
+			heading: `Minecraft: Java Edition ${ version }`,
+			intro: ReleaseFeedUtil.getIntro( body ),
+			changelog: `https://www.minecraft.net/article/${ slug }`,
+			wiki: `https://minecraft.wiki/w/Java_Edition_${ version.replaceAll( ' ', '_' ) }`,
 			version: this.getVersion( announced ),
 		};
 	}

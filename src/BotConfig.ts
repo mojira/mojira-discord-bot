@@ -113,9 +113,7 @@ export interface VersionFeedConfig {
 export interface ReleaseFeedConfig {
 	channel: Snowflake;
 	interval: number;
-	mojangEmoji: string;
-	wikiEmoji: string;
-	youtubeEmoji: string;
+	emoji: string;
 	publish?: boolean;
 }
 

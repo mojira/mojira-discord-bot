@@ -1,9 +1,10 @@
-import { DiscordAPIError, RESTJSONErrorCodes, SendableChannels, Snowflake, SnowflakeUtil } from 'discord.js';
+import { APIContainerComponent, DiscordAPIError, MessageFlags, RESTJSONErrorCodes, SendableChannels, Snowflake, SnowflakeUtil } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig, { ReleaseFeedConfig } from '../BotConfig.js';
 import { NewsUtil } from '../util/NewsUtil.js';
 import { JavaReleases } from '../util/releasefeed/JavaReleases.js';
 import { Release } from '../util/releasefeed/Release.js';
+import { ReleaseFeedUtil } from '../util/releasefeed/ReleaseFeedUtil.js';
 import { SlicedlimeVideos, Videos } from '../util/releasefeed/SlicedlimeVideos.js';
 import Task from './Task.js';
 
@@ -66,7 +67,11 @@ export default class ReleaseFeedTask extends Task {
 
 			try {
 				const post = await release.createPost();
-				const message = await this.channel.send( { content: post.content, allowedMentions: { parse: [] } } );
+				const message = await this.channel.send( {
+					components: [ ReleaseFeedUtil.createContainer( post ) ],
+					flags: MessageFlags.IsComponentsV2,
+					allowedMentions: { parse: [] },
+				} );
 				BotConfig.database.prepare( 'UPDATE release_feed SET message = ?, version = ? WHERE release = ?' ).run( message.id, post.version ?? null, key );
 
 				if ( this.config.publish ) {
@@ -111,12 +116,13 @@ export default class ReleaseFeedTask extends Task {
 		} );
 		if ( message === undefined ) return false;
 
-		const content = SlicedlimeVideos.link( message.content, version, videos );
-		if ( content !== message.content ) {
-			await message.edit( { content, allowedMentions: { parse: [] } } );
+		const container = message.components[0].toJSON() as APIContainerComponent;
+		const linked = SlicedlimeVideos.link( container, version, videos );
+		if ( linked ) {
+			await message.edit( { components: [ linked ], allowedMentions: { parse: [] } } );
 		}
 
-		return SlicedlimeVideos.isWaiting( content );
+		return SlicedlimeVideos.isWaiting( linked ?? container, version );
 	}
 
 	public asString(): string {
