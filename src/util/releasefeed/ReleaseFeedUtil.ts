@@ -1,4 +1,6 @@
 import { APIContainerComponent, ButtonBuilder, ButtonStyle, ContainerBuilder, MediaGalleryBuilder, SeparatorBuilder } from 'discord.js';
+import { AccentColor } from './AccentColor.js';
+import { ArticleImage } from './ChangelogArticles.js';
 import { Post } from './Release.js';
 
 export class ReleaseFeedUtil {
@@ -66,13 +68,14 @@ export class ReleaseFeedUtil {
 	}
 
 	/**
-	 * Container with attached image above its content
+	 * Container with attached image above its content and accent taken from image
 	 */
-	public static addImage( container: APIContainerComponent, name: string ): APIContainerComponent {
+	public static addImage( container: APIContainerComponent, image: ArticleImage ): APIContainerComponent {
 		return {
 			...container,
+			accent_color: AccentColor.fromImage( image.data ) ?? container.accent_color,
 			components: [
-				new MediaGalleryBuilder().addItems( item => item.setURL( `attachment://${ name }` ) ).toJSON(),
+				new MediaGalleryBuilder().addItems( item => item.setURL( `attachment://${ image.name }` ) ).toJSON(),
 				new SeparatorBuilder().setDivider( false ).toJSON(),
 				...container.components,
 			],

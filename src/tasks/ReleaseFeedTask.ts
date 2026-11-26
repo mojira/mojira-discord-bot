@@ -132,7 +132,7 @@ export default class ReleaseFeedTask extends Task {
 		if ( image === undefined ) return true;
 
 		await message.edit( {
-			components: [ ReleaseFeedUtil.addImage( message.components[0].toJSON() as APIContainerComponent, image.name ) ],
+			components: [ ReleaseFeedUtil.addImage( message.components[0].toJSON() as APIContainerComponent, image ) ],
 			files: [ new AttachmentBuilder( image.data, { name: image.name } ) ],
 			allowedMentions: { parse: [] },
 		} );
