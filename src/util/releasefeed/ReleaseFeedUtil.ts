@@ -1,4 +1,4 @@
-import { ButtonBuilder, ButtonStyle, ContainerBuilder } from 'discord.js';
+import { APIContainerComponent, ButtonBuilder, ButtonStyle, ContainerBuilder, MediaGalleryBuilder, SeparatorBuilder } from 'discord.js';
 import { Post } from './Release.js';
 
 export class ReleaseFeedUtil {
@@ -11,12 +11,19 @@ export class ReleaseFeedUtil {
 	 * Response text of URL, failing on error status or timeout
 	 */
 	public static async request( url: string ): Promise<string> {
-		const response = await fetch( url, { headers: { 'User-Agent': 'MojiraBot' }, signal: AbortSignal.timeout( this.requestTimeout ) } );
+		return ( await this.get( url ) ).text();
+	}
+
+	/**
+	 * Response of URL, failing on error status or timeout
+	 */
+	public static async get( url: string ): Promise<Response> {
+		const response = await fetch( url, { headers: { 'User-Agent': 'Mojira' }, signal: AbortSignal.timeout( this.requestTimeout ) } );
 		if ( !response.ok ) {
 			throw new Error( `${ url } responded with ${ response.status }` );
 		}
 
-		return response.text();
+		return response;
 	}
 
 	/**
@@ -56,5 +63,19 @@ export class ReleaseFeedUtil {
 				new ButtonBuilder().setStyle( ButtonStyle.Link ).setLabel( 'Read Changelog' ).setURL( post.changelog ),
 				new ButtonBuilder().setStyle( ButtonStyle.Link ).setLabel( 'Visit Wiki' ).setURL( post.wiki ),
 			) );
+	}
+
+	/**
+	 * Container with attached image above its content
+	 */
+	public static addImage( container: APIContainerComponent, name: string ): APIContainerComponent {
+		return {
+			...container,
+			components: [
+				new MediaGalleryBuilder().addItems( item => item.setURL( `attachment://${ name }` ) ).toJSON(),
+				new SeparatorBuilder().setDivider( false ).toJSON(),
+				...container.components,
+			],
+		};
 	}
 }

@@ -11,4 +11,6 @@ export interface Post {
 	wiki: string;
 	// Java version whose videos are linked once they're out
 	version?: string;
+	// Changelog article whose hero image is added once it's out
+	article?: string;
 }

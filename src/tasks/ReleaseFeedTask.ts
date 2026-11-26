@@ -1,7 +1,8 @@
-import { APIContainerComponent, DiscordAPIError, MessageFlags, RESTJSONErrorCodes, SendableChannels, Snowflake, SnowflakeUtil } from 'discord.js';
+import { APIContainerComponent, AttachmentBuilder, DiscordAPIError, Message, MessageFlags, RESTJSONErrorCodes, SendableChannels, Snowflake, SnowflakeUtil } from 'discord.js';
 import log4js from 'log4js';
 import BotConfig, { ReleaseFeedConfig } from '../BotConfig.js';
 import { NewsUtil } from '../util/NewsUtil.js';
+import { Article, ChangelogArticles } from '../util/releasefeed/ChangelogArticles.js';
 import { JavaReleases } from '../util/releasefeed/JavaReleases.js';
 import { Release } from '../util/releasefeed/Release.js';
 import { ReleaseFeedUtil } from '../util/releasefeed/ReleaseFeedUtil.js';
@@ -11,7 +12,7 @@ import Task from './Task.js';
 export default class ReleaseFeedTask extends Task {
 	private static logger = log4js.getLogger( 'ReleaseFeedTask' );
 
-	private readonly maxVideoWait = 14 * 24 * 60 * 60 * 1000;
+	private readonly trackingWindow = 14 * 24 * 60 * 60 * 1000;
 
 	private readonly config: ReleaseFeedConfig;
 	private readonly channel: SendableChannels;
@@ -29,12 +30,12 @@ export default class ReleaseFeedTask extends Task {
 	 * Creates table of claimed and posted releases
 	 */
 	protected async init(): Promise<void> {
-		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS release_feed (\'release\' varchar, \'message\' varchar, \'version\' varchar)' );
+		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS release_feed (\'release\' varchar, \'message\' varchar, \'version\' varchar, \'article\' varchar)' );
 		BotConfig.database.exec( 'CREATE UNIQUE INDEX IF NOT EXISTS release_feed_release ON release_feed (release)' );
 	}
 
 	/**
-	 * Checks for new releases and videos
+	 * Checks for new releases, images and videos
 	 */
 	protected async run(): Promise<void> {
 		try {
@@ -44,7 +45,13 @@ export default class ReleaseFeedTask extends Task {
 		}
 
 		try {
-			await this.linkVideos();
+			await this.updateTrackedPosts( 'article', () => ChangelogArticles.getArticles(), ( message, slug, articles ) => this.addImage( message, slug, articles ) );
+		} catch ( error ) {
+			ReleaseFeedTask.logger.error( `[${ this.id }] Could not check images`, error );
+		}
+
+		try {
+			await this.updateTrackedPosts( 'version', () => SlicedlimeVideos.getVideos(), ( message, version, videos ) => this.linkVideos( message, version, videos ) );
 		} catch ( error ) {
 			ReleaseFeedTask.logger.error( `[${ this.id }] Could not check videos`, error );
 		}
@@ -72,7 +79,7 @@ export default class ReleaseFeedTask extends Task {
 					flags: MessageFlags.IsComponentsV2,
 					allowedMentions: { parse: [] },
 				} );
-				BotConfig.database.prepare( 'UPDATE release_feed SET message = ?, version = ? WHERE release = ?' ).run( message.id, post.version ?? null, key );
+				BotConfig.database.prepare( 'UPDATE release_feed SET message = ?, version = ?, article = ? WHERE release = ?' ).run( message.id, post.version ?? null, post.article ?? null, key );
 
 				if ( this.config.publish ) {
 					await NewsUtil.publishMessage( message );
@@ -86,36 +93,56 @@ export default class ReleaseFeedTask extends Task {
 	}
 
 	/**
-	 * Adds links to slicedlime's videos once they're out, for up to two weeks after post
+	 * Updates posts still waiting for column's content, which stops once update returns false or post is gone
 	 */
-	private async linkVideos(): Promise<void> {
-		const posts = BotConfig.database.prepare( 'SELECT message, version FROM release_feed WHERE version IS NOT NULL' ).all() as { message: Snowflake; version: string }[];
+	private async updateTrackedPosts<T>( column: 'version' | 'article', load: () => Promise<T>, update: ( message: Message, value: string, data: T ) => Promise<boolean> ): Promise<void> {
+		const posts = BotConfig.database.prepare( `SELECT message, ${ column } AS value FROM release_feed WHERE ${ column } IS NOT NULL` ).all() as { message: Snowflake; value: string }[];
 		if ( posts.length === 0 ) return;
 
-		const videos = await SlicedlimeVideos.getVideos();
+		const data = await load();
 		for ( const post of posts ) {
 			try {
-				if ( !await this.linkPostVideos( post.message, post.version, videos ) ) {
-					BotConfig.database.prepare( 'UPDATE release_feed SET version = NULL WHERE message = ?' ).run( post.message );
+				const message = await this.fetchTrackedPost( post.message );
+				if ( message === undefined || !await update( message, post.value, data ) ) {
+					BotConfig.database.prepare( `UPDATE release_feed SET ${ column } = NULL WHERE message = ?` ).run( post.message );
 				}
 			} catch ( error ) {
-				ReleaseFeedTask.logger.error( `[${ this.id }] Could not link videos of message ${ post.message }`, error );
+				ReleaseFeedTask.logger.error( `[${ this.id }] Could not update ${ column } of message ${ post.message }`, error );
 			}
 		}
 	}
 
 	/**
-	 * Links post's videos that are out, returning whether it still waits for any
+	 * Post's message, unless it's past tracking window or deleted
 	 */
-	private async linkPostVideos( id: Snowflake, version: string, videos: Videos ): Promise<boolean> {
-		if ( Date.now() - SnowflakeUtil.timestampFrom( id ) > this.maxVideoWait ) return false;
+	private async fetchTrackedPost( id: Snowflake ): Promise<Message | undefined> {
+		if ( Date.now() - SnowflakeUtil.timestampFrom( id ) > this.trackingWindow ) return undefined;
 
-		const message = await this.channel.messages.fetch( id ).catch( ( error: unknown ) => {
+		return this.channel.messages.fetch( id ).catch( ( error: unknown ) => {
 			if ( error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownMessage ) return undefined;
 			throw error;
 		} );
-		if ( message === undefined ) return false;
+	}
 
+	/**
+	 * Adds hero image of post's changelog article once it's out, returning whether post still waits for it
+	 */
+	private async addImage( message: Message, slug: string, articles: Article[] ): Promise<boolean> {
+		const image = await ChangelogArticles.getImage( articles, slug );
+		if ( image === undefined ) return true;
+
+		await message.edit( {
+			components: [ ReleaseFeedUtil.addImage( message.components[0].toJSON() as APIContainerComponent, image.name ) ],
+			files: [ new AttachmentBuilder( image.data, { name: image.name } ) ],
+			allowedMentions: { parse: [] },
+		} );
+		return false;
+	}
+
+	/**
+	 * Links slicedlime's videos about post's version that are out, returning whether post still waits for any
+	 */
+	private async linkVideos( message: Message, version: string, videos: Videos ): Promise<boolean> {
 		const container = message.components[0].toJSON() as APIContainerComponent;
 		const linked = SlicedlimeVideos.link( container, version, videos );
 		if ( linked ) {
