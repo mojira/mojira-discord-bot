@@ -1,4 +1,4 @@
-import { APIContainerComponent, APITextDisplayComponent, ComponentType, SeparatorBuilder, SeparatorSpacingSize, TextDisplayBuilder } from 'discord.js';
+import { APIComponentInContainer, APIContainerComponent, ComponentType, TextDisplayBuilder } from 'discord.js';
 import { ReleaseFeedUtil } from './ReleaseFeedUtil.js';
 
 interface Video {
@@ -41,14 +41,13 @@ export class SlicedlimeVideos {
 
 		const all = new Map( [ ...linked, ...found ] );
 		const links = this.getKinds( version ).filter( kind => all.has( kind ) ).map( kind => `[${ kind } changes](${ all.get( kind ) })` );
-		return {
-			...container,
-			components: [
-				...container.components.slice( 0, this.getButtonsIndex( container ) + 1 ),
-				new SeparatorBuilder().setSpacing( SeparatorSpacingSize.Large ).toJSON(),
-				new TextDisplayBuilder().setContent( `-# Watch slicedlime's video${ links.length > 1 ? 's' : '' } to get an overview over the ${ links.join( ' and ' ) }.` ).toJSON(),
-			],
-		};
+		const line = new TextDisplayBuilder().setContent( `-# Watch slicedlime's video${ links.length > 1 ? 's' : '' } to get an overview over the ${ links.join( ' and ' ) }.` ).toJSON();
+
+		// Replaces existing video line, or adds it right above buttons
+		const components = [ ...container.components ];
+		const index = components.findIndex( component => this.isVideoLine( component ) );
+		components.splice( index >= 0 ? index : components.findIndex( component => component.type === ComponentType.ActionRow ), index >= 0 ? 1 : 0, line );
+		return { ...container, components };
 	}
 
 	/**
@@ -69,13 +68,13 @@ export class SlicedlimeVideos {
 	 * Video links in container's video line by kind
 	 */
 	private static getLinked( container: APIContainerComponent ): Map<string, string> {
-		const line = container.components.slice( this.getButtonsIndex( container ) + 1 )
-			.find( component => component.type === ComponentType.TextDisplay ) as APITextDisplayComponent | undefined;
-		return new Map( [ ...( line?.content ?? '' ).matchAll( /\[(\w+) changes\]\(([^)]+)\)/g ) ].map( ( [ , kind, url ] ) => [ kind, url ] ) );
+		const line = container.components.find( component => this.isVideoLine( component ) );
+		const content = line?.type === ComponentType.TextDisplay ? line.content : '';
+		return new Map( [ ...content.matchAll( /\[(\w+) changes\]\(([^)]+)\)/g ) ].map( ( [ , kind, url ] ) => [ kind, url ] ) );
 	}
 
-	private static getButtonsIndex( container: APIContainerComponent ): number {
-		return container.components.findIndex( component => component.type === ComponentType.ActionRow );
+	private static isVideoLine( component: APIComponentInContainer ): boolean {
+		return component.type === ComponentType.TextDisplay && component.content.startsWith( '-# Watch slicedlime\'s video' );
 	}
 
 	/**
