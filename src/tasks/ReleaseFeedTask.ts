@@ -12,6 +12,8 @@ interface Release {
 interface JavaPatchNote {
 	title: string;
 	version: string;
+	type: string;
+	date: string;
 	contentPath: string;
 }
 
@@ -19,6 +21,7 @@ export default class ReleaseFeedTask extends Task {
 	private static logger = log4js.getLogger( 'ReleaseFeedTask' );
 
 	private readonly requestTimeout = 30 * 1000;
+	private readonly hotfixWindow = 6 * 60 * 60 * 1000;
 
 	private readonly entities: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: '\'', nbsp: ' ' };
 
@@ -86,16 +89,28 @@ export default class ReleaseFeedTask extends Task {
 	 */
 	private async getJavaReleases(): Promise<Release[]> {
 		const { entries } = JSON.parse( await this.request( 'https://launchercontent.mojang.com/v2/javaPatchNotes.json' ) ) as { entries: JavaPatchNote[] };
-		return entries.map( entry => ( { id: entry.version, createPost: () => this.createJavaPost( entry ) } ) );
+		return entries.map( ( entry, index ) => ( {
+			id: entry.version,
+			createPost: () => this.createJavaPost( entry, this.getAnnouncedEntry( entries.slice( index ) ) ),
+		} ) );
+	}
+
+	/**
+	 * Entry whose blog post covers first one, skipping hotfixes
+	 */
+	private getAnnouncedEntry( entries: JavaPatchNote[] ): JavaPatchNote {
+		const [ entry, previous ] = entries;
+		const hotfix = previous !== undefined && entry.type !== 'release' && Date.parse( entry.date ) - Date.parse( previous.date ) < this.hotfixWindow;
+		return hotfix ? this.getAnnouncedEntry( entries.slice( 1 ) ) : entry;
 	}
 
 	/**
 	 * Post for Java release with its intro, blog post and wiki page
 	 */
-	private async createJavaPost( entry: JavaPatchNote ): Promise<string> {
+	private async createJavaPost( entry: JavaPatchNote, announced: JavaPatchNote ): Promise<string> {
 		const { body } = JSON.parse( await this.request( `https://launchercontent.mojang.com/v2/${ entry.contentPath }` ) ) as { body: string };
 		const version = entry.title.replace( /^Minecraft(?:: Java Edition)? /, '' );
-		const slug = entry.title.toLowerCase().replace( /[^a-z0-9]+/g, '-' ).replace( /^-|-$/g, '' );
+		const slug = announced.title.toLowerCase().replace( /[^a-z0-9]+/g, '-' ).replace( /^-|-$/g, '' );
 
 		return this.format( `Minecraft: Java Edition ${ version }`, this.getIntro( body ), [
 			this.link( this.config.mojangEmoji, 'Official Blog Post', `https://www.minecraft.net/article/${ slug }` ),
