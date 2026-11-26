@@ -45,12 +45,12 @@ export class JavaReleases {
 	private async createPost( entry: JavaPatchNote, announced: JavaPatchNote ): Promise<Post> {
 		const { body } = JSON.parse( await ReleaseFeedUtil.request( `https://launchercontent.mojang.com/v2/${ entry.contentPath }` ) ) as { body: string };
 		const version = this.getVersion( entry );
-		const slug = announced.title.toLowerCase().replace( /[^a-z0-9]+/g, '-' ).replace( /^-|-$/g, '' );
+		const slug = ReleaseFeedUtil.slugify( announced.title );
 
 		return {
 			author: `${ this.config.emoji } Written By Java Team`,
 			heading: `Minecraft: Java Edition ${ version }`,
-			intro: ReleaseFeedUtil.getIntro( body ),
+			intro: ReleaseFeedUtil.getIntro( body, '<h1' ),
 			changelog: `https://www.minecraft.net/article/${ slug }`,
 			wiki: `https://minecraft.wiki/w/Java_Edition_${ version.replaceAll( ' ', '_' ) }`,
 			version: this.getVersion( announced ),

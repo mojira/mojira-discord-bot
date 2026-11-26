@@ -1,6 +1,7 @@
 import { ReleaseFeedUtil } from './ReleaseFeedUtil.js';
 
 export interface Article {
+	title: string;
 	url: string;
 	image: string;
 }
@@ -22,10 +23,11 @@ export class ChangelogArticles {
 	}
 
 	/**
-	 * Hero image of article with slug, unless article isn't out yet
+	 * Hero image of article with slug as address or title, unless article isn't out yet
 	 */
 	public static async getImage( articles: Article[], slug: string ): Promise<ArticleImage | undefined> {
-		const article = articles.find( candidate => candidate.url.endsWith( `/article/${ slug }` ) );
+		const article = articles.find( candidate =>
+			candidate.url.endsWith( `/article/${ slug }` ) || ReleaseFeedUtil.slugify( candidate.title.replace( / Changelog$/, '' ) ) === slug );
 		if ( article === undefined ) return undefined;
 
 		const response = await ReleaseFeedUtil.get( article.image );

@@ -29,15 +29,23 @@ export class ReleaseFeedUtil {
 	}
 
 	/**
-	 * First paragraph before first main heading as plain text
+	 * First paragraph before first given heading as plain text, skipping publishing and update dates
 	 */
-	public static getIntro( html: string ): string {
-		return html.split( '<h1' )[0]
+	public static getIntro( html: string, heading: string ): string {
+		return html.split( heading )[0]
 			.split( /<p(?:\s[^>]*)?>/ )
 			.slice( 1 )
-			// Paragraph ends at its closing tag or next heading
-			.map( paragraph => this.decode( paragraph.replace( /<(?:\/p>|h\d)[\s\S]*/, '' ).replace( /<[^>]*>/g, '' ) ).trim() )
-			.find( paragraph => paragraph !== '' ) ?? '';
+			// Paragraph ends at its closing tag or next heading, and blank lines inside it split it too
+			.flatMap( paragraph => this.decode( paragraph.replace( /<(?:\/p>|h\d)[\s\S]*/, '' ).replace( /<br\s*\/?>/g, '\n' ).replace( /<[^>]*>/g, '' ) ).split( /\n\s*\n/ ) )
+			.map( paragraph => paragraph.trim() )
+			.find( paragraph => paragraph !== '' && !/^(?:Posted|Published|Update)\b/.test( paragraph ) ) ?? '';
+	}
+
+	/**
+	 * Title in lowercase with words joined by hyphens, like minecraft.net article addresses
+	 */
+	public static slugify( title: string ): string {
+		return title.toLowerCase().replace( /[^a-z0-9]+/g, '-' ).replace( /^-|-$/g, '' );
 	}
 
 	/**

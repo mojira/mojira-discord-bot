@@ -1,3 +1,7 @@
+export interface ReleaseSource {
+	getReleases: () => Promise<Release[]>;
+}
+
 export interface Release {
 	id: string;
 	createPost: () => Promise<Post>;

@@ -2,9 +2,10 @@ import { APIContainerComponent, AttachmentBuilder, DiscordAPIError, Message, Mes
 import log4js from 'log4js';
 import BotConfig, { ReleaseFeedConfig } from '../BotConfig.js';
 import { NewsUtil } from '../util/NewsUtil.js';
+import { BedrockReleases } from '../util/releasefeed/BedrockReleases.js';
 import { Article, ChangelogArticles } from '../util/releasefeed/ChangelogArticles.js';
 import { JavaReleases } from '../util/releasefeed/JavaReleases.js';
-import { Release } from '../util/releasefeed/Release.js';
+import { Release, ReleaseSource } from '../util/releasefeed/Release.js';
 import { ReleaseFeedUtil } from '../util/releasefeed/ReleaseFeedUtil.js';
 import { SlicedlimeVideos, Videos } from '../util/releasefeed/SlicedlimeVideos.js';
 import Task from './Task.js';
@@ -16,14 +17,18 @@ export default class ReleaseFeedTask extends Task {
 
 	private readonly config: ReleaseFeedConfig;
 	private readonly channel: SendableChannels;
-	private readonly java: JavaReleases;
+	private readonly sources: Record<string, ReleaseSource>;
 
 	constructor( config: ReleaseFeedConfig, channel: SendableChannels ) {
 		super();
 
 		this.config = config;
 		this.channel = channel;
-		this.java = new JavaReleases( config );
+		this.sources = {
+			java: new JavaReleases( config ),
+			'bedrock-preview': new BedrockReleases( config, '360001185332' ),
+			bedrock: new BedrockReleases( config, '360001186971' ),
+		};
 	}
 
 	/**
@@ -38,10 +43,12 @@ export default class ReleaseFeedTask extends Task {
 	 * Checks for new releases, images and videos
 	 */
 	protected async run(): Promise<void> {
-		try {
-			await this.postReleases( 'java', await this.java.getReleases() );
-		} catch ( error ) {
-			ReleaseFeedTask.logger.error( `[${ this.id }] Could not check java releases`, error );
+		for ( const [ source, releases ] of Object.entries( this.sources ) ) {
+			try {
+				await this.postReleases( source, await releases.getReleases() );
+			} catch ( error ) {
+				ReleaseFeedTask.logger.error( `[${ this.id }] Could not check ${ source } releases`, error );
+			}
 		}
 
 		try {
