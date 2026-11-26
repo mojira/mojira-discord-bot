@@ -1,4 +1,4 @@
-import { Client, ClientUser, Collection, FetchMessagesOptions, GatewayIntentBits, Message, Partials, Snowflake, TextChannel } from 'discord.js';
+import { ActivityType, Client, ClientUser, Collection, FetchMessagesOptions, GatewayIntentBits, Message, Partials, Snowflake, TextChannel } from 'discord.js';
 import log4js from 'log4js';
 import { Version2Client as JiraClient } from 'jira.js';
 import BotConfig from './BotConfig.js';
@@ -271,9 +271,8 @@ export default class MojiraBot {
 			}
 			// #endregion
 
-			// TODO Change to custom status when discord.js#3552 is merged into current version of package
 			try {
-				this.botUser.setActivity( '/help' );
+				this.botUser.setActivity( '/help', { type: ActivityType.Custom } );
 			} catch ( error ) {
 				MojiraBot.logger.error( error );
 			}
