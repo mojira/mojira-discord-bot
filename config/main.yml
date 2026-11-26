@@ -147,7 +147,5 @@ versionFeeds:
 releaseFeed:
   channel: '647816988353363978'
   interval: 180
-  mojangEmoji: '<:mojang:1045743258199933109>'
-  wikiEmoji: '<:wiki:1155640566286127315>'
-  youtubeEmoji: '<:youtube:1288965938737184802>'
+  emoji: '<:villager:1575651056891727873>'
   publish: true
