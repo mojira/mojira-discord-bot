@@ -110,6 +110,14 @@ export interface VersionFeedConfig {
 	publish?: boolean;
 }
 
+export interface ReleaseFeedConfig {
+	channel: Snowflake;
+	interval: number;
+	mojangEmoji: string;
+	wikiEmoji: string;
+	publish?: boolean;
+}
+
 export default class BotConfig {
 	public static debug: boolean;
 	public static logDirectory: false | string;
@@ -142,6 +150,7 @@ export default class BotConfig {
 
 	public static filterFeeds: FilterFeedConfig[];
 	public static versionFeeds: VersionFeedConfig[];
+	public static releaseFeed?: ReleaseFeedConfig;
 
 	public static database: Sqlite3.Database;
 
@@ -178,6 +187,7 @@ export default class BotConfig {
 
 		this.filterFeeds = config.get( 'filterFeeds' );
 		this.versionFeeds = config.get( 'versionFeeds' );
+		this.releaseFeed = getOrDefault( 'releaseFeed', undefined );
 
 		this.database = new Sqlite3( './db.sqlite' );
 	}

@@ -17,6 +17,7 @@ import RequestEventHandler from './events/request/RequestEventHandler.js';
 import RequestResolveEventHandler from './events/request/RequestResolveEventHandler.js';
 import FilterFeedTask from './tasks/FilterFeedTask.js';
 import CachedFilterFeedTask from './tasks/CachedFilterFeedTask.js';
+import ReleaseFeedTask from './tasks/ReleaseFeedTask.js';
 import TaskScheduler from './tasks/TaskScheduler.js';
 import VersionFeedTask from './tasks/VersionFeedTask.js';
 import DiscordUtil from './util/DiscordUtil.js';
@@ -268,6 +269,17 @@ export default class MojiraBot {
 					new VersionFeedTask( config, channel ),
 					config.interval
 				);
+			}
+
+			// Release feed task.
+			if ( BotConfig.releaseFeed ) {
+				const channel = await DiscordUtil.getChannel( BotConfig.releaseFeed.channel );
+				if ( channel?.isSendable() ) {
+					TaskScheduler.addTask(
+						new ReleaseFeedTask( BotConfig.releaseFeed, channel ),
+						BotConfig.releaseFeed.interval * 1000
+					);
+				}
 			}
 			// #endregion
 
