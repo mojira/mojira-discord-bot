@@ -1,6 +1,7 @@
 import { ReleaseFeedConfig } from '../../BotConfig.js';
-import { Release } from './Release.js';
+import { Post, Release } from './Release.js';
 import { ReleaseFeedUtil } from './ReleaseFeedUtil.js';
+import { SlicedlimeVideos } from './SlicedlimeVideos.js';
 
 interface JavaPatchNote {
 	title: string;
@@ -40,16 +41,24 @@ export class JavaReleases {
 	}
 
 	/**
-	 * Post for Java release with its intro, blog post and wiki page
+	 * Post for Java release with its intro, blog post, wiki page and video lines
 	 */
-	private async createPost( entry: JavaPatchNote, announced: JavaPatchNote ): Promise<string> {
+	private async createPost( entry: JavaPatchNote, announced: JavaPatchNote ): Promise<Post> {
 		const { body } = JSON.parse( await ReleaseFeedUtil.request( `https://launchercontent.mojang.com/v2/${ entry.contentPath }` ) ) as { body: string };
-		const version = entry.title.replace( /^Minecraft(?:: Java Edition)? /, '' );
+		const version = this.getVersion( entry );
 		const slug = announced.title.toLowerCase().replace( /[^a-z0-9]+/g, '-' ).replace( /^-|-$/g, '' );
 
-		return ReleaseFeedUtil.format( `Minecraft: Java Edition ${ version }`, ReleaseFeedUtil.getIntro( body ), [
-			ReleaseFeedUtil.link( this.config.mojangEmoji, 'Official Blog Post', `https://www.minecraft.net/article/${ slug }` ),
-			ReleaseFeedUtil.link( this.config.wikiEmoji, 'Minecraft Wiki', `https://minecraft.wiki/w/Java_Edition_${ version.replaceAll( ' ', '_' ) }` ),
-		] );
+		return {
+			content: ReleaseFeedUtil.format( `Minecraft: Java Edition ${ version }`, ReleaseFeedUtil.getIntro( body ), [
+				ReleaseFeedUtil.link( this.config.mojangEmoji, 'Official Blog Post', `https://www.minecraft.net/article/${ slug }` ),
+				ReleaseFeedUtil.link( this.config.wikiEmoji, 'Minecraft Wiki', `https://minecraft.wiki/w/Java_Edition_${ version.replaceAll( ' ', '_' ) }` ),
+				...SlicedlimeVideos.getLabels( version ).map( label => `${ this.config.youtubeEmoji } ${ label }` ),
+			] ),
+			version: this.getVersion( announced ),
+		};
+	}
+
+	private getVersion( entry: JavaPatchNote ): string {
+		return entry.title.replace( /^Minecraft(?:: Java Edition)? /, '' );
 	}
 }

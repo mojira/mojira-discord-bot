@@ -149,4 +149,5 @@ releaseFeed:
   interval: 180
   mojangEmoji: '<:mojang:1045743258199933109>'
   wikiEmoji: '<:wiki:1155640566286127315>'
+  youtubeEmoji: '<:youtube:1288965938737184802>'
   publish: true

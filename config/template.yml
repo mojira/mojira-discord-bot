@@ -265,9 +265,10 @@ releaseFeed:
   # The interval of the check for new releases, in seconds.
   interval: <number>
 
-  # The emojis in front of the official post and wiki links.
+  # The emojis in front of the blog post, wiki and video links.
   mojangEmoji: <string>
   wikiEmoji: <string>
+  youtubeEmoji: <string>
 
   # Whether the bot should automatically publish release posts, if the channel is an announcement channel.
   # Optional; false by default.

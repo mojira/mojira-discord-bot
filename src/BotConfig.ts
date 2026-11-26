@@ -115,6 +115,7 @@ export interface ReleaseFeedConfig {
 	interval: number;
 	mojangEmoji: string;
 	wikiEmoji: string;
+	youtubeEmoji: string;
 	publish?: boolean;
 }
 
