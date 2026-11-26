@@ -30,7 +30,7 @@ export default class ReleaseFeedTask extends Task {
 	 * Creates table of claimed and posted releases
 	 */
 	protected async init(): Promise<void> {
-		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS release_feed (\'release\' varchar, \'message\' varchar, \'version\' varchar, \'article\' varchar)' );
+		BotConfig.database.exec( 'CREATE TABLE IF NOT EXISTS release_feed (\'release\' varchar, \'message\' varchar, \'version\' varchar, \'article\' varchar, \'parent\' varchar)' );
 		BotConfig.database.exec( 'CREATE UNIQUE INDEX IF NOT EXISTS release_feed_release ON release_feed (release)' );
 	}
 
@@ -48,6 +48,12 @@ export default class ReleaseFeedTask extends Task {
 			await this.updateTrackedPosts( 'article', () => ChangelogArticles.getArticles(), ( message, slug, articles ) => this.addImage( message, slug, articles ) );
 		} catch ( error ) {
 			ReleaseFeedTask.logger.error( `[${ this.id }] Could not check images`, error );
+		}
+
+		try {
+			await this.updateTrackedPosts( 'parent', async () => undefined, ( message, parent ) => this.copyAccent( message, parent ) );
+		} catch ( error ) {
+			ReleaseFeedTask.logger.error( `[${ this.id }] Could not check accents`, error );
 		}
 
 		try {
@@ -79,7 +85,8 @@ export default class ReleaseFeedTask extends Task {
 					flags: MessageFlags.IsComponentsV2,
 					allowedMentions: { parse: [] },
 				} );
-				BotConfig.database.prepare( 'UPDATE release_feed SET message = ?, version = ?, article = ? WHERE release = ?' ).run( message.id, post.version ?? null, post.article ?? null, key );
+				BotConfig.database.prepare( 'UPDATE release_feed SET message = ?, version = ?, article = ?, parent = ? WHERE release = ?' )
+					.run( message.id, post.version ?? null, post.article ?? null, post.parent ? `${ source }:${ post.parent }` : null, key );
 
 				if ( this.config.publish ) {
 					await NewsUtil.publishMessage( message );
@@ -95,7 +102,7 @@ export default class ReleaseFeedTask extends Task {
 	/**
 	 * Updates posts still waiting for column's content, which stops once update returns false or post is gone
 	 */
-	private async updateTrackedPosts<T>( column: 'version' | 'article', load: () => Promise<T>, update: ( message: Message, value: string, data: T ) => Promise<boolean> ): Promise<void> {
+	private async updateTrackedPosts<T>( column: 'version' | 'article' | 'parent', load: () => Promise<T>, update: ( message: Message, value: string, data: T ) => Promise<boolean> ): Promise<void> {
 		const posts = BotConfig.database.prepare( `SELECT message, ${ column } AS value FROM release_feed WHERE ${ column } IS NOT NULL` ).all() as { message: Snowflake; value: string }[];
 		if ( posts.length === 0 ) return;
 
@@ -136,6 +143,22 @@ export default class ReleaseFeedTask extends Task {
 			files: [ new AttachmentBuilder( image.data, { name: image.name } ) ],
 			allowedMentions: { parse: [] },
 		} );
+		return false;
+	}
+
+	/**
+	 * Copies accent of parent release's post once its image is added, returning whether post still waits for it
+	 */
+	private async copyAccent( message: Message, parent: string ): Promise<boolean> {
+		const row = BotConfig.database.prepare( 'SELECT message, article FROM release_feed WHERE release = ?' ).get( parent ) as { message: Snowflake | null; article: string | null } | undefined;
+		if ( row?.article ) return true;
+
+		const parentMessage = row?.message ? await this.fetchTrackedPost( row.message ) : undefined;
+		if ( parentMessage === undefined ) return false;
+
+		const container = message.components[0].toJSON() as APIContainerComponent;
+		const accent = ( parentMessage.components[0].toJSON() as APIContainerComponent ).accent_color;
+		await message.edit( { components: [ { ...container, accent_color: accent } ], allowedMentions: { parse: [] } } );
 		return false;
 	}
 

@@ -13,4 +13,6 @@ export interface Post {
 	version?: string;
 	// Changelog article whose hero image is added once it's out
 	article?: string;
+	// Release whose post's accent is copied once its image is added, for hotfixes sharing its article
+	parent?: string;
 }

@@ -54,7 +54,7 @@ export class JavaReleases {
 			changelog: `https://www.minecraft.net/article/${ slug }`,
 			wiki: `https://minecraft.wiki/w/Java_Edition_${ version.replaceAll( ' ', '_' ) }`,
 			version: this.getVersion( announced ),
-			article: slug,
+			...announced === entry ? { article: slug } : { parent: announced.version },
 		};
 	}
 
