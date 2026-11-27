@@ -135,7 +135,7 @@ export default class ReleaseFeedTask extends Task {
 				const message = await this.fetchTrackedPost( post.message );
 				const completion = message && await this.complete( column, message.components[0].toJSON() as APIContainerComponent, post.value, post.message );
 				if ( completion?.container ) {
-					await message?.edit( { components: [ completion.container ], files: completion.files ?? [], allowedMentions: { parse: [] } } );
+					await message?.edit( { components: [ completion.container ], files: completion.files, allowedMentions: { parse: [] } } );
 				}
 
 				if ( !completion?.waiting ) {
