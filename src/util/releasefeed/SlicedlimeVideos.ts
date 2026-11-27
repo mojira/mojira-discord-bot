@@ -41,7 +41,7 @@ export class SlicedlimeVideos {
 
 		const all = new Map( [ ...linked, ...found ] );
 		const links = this.getKinds( version ).filter( kind => all.has( kind ) ).map( kind => `[${ kind } changes](${ all.get( kind ) })` );
-		const line = new TextDisplayBuilder().setContent( `-# Watch slicedlime's video${ links.length > 1 ? 's' : '' } to get an overview over the ${ links.join( ' and ' ) }.` ).toJSON();
+		const line = new TextDisplayBuilder().setContent( `-# Watch slicedlime's video${ links.length > 1 ? 's' : '' } to get an overview of the ${ links.join( ' and ' ) }.` ).toJSON();
 
 		// Replaces existing video line, or adds it right above buttons
 		const components = [ ...container.components ];
