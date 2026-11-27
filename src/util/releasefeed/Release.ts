@@ -15,7 +15,7 @@ export interface Post {
 	wiki: string;
 	// Java version whose videos are linked once they're out
 	version?: string;
-	// Changelog article whose hero image is added once it's out
+	// Changelog article slug or image address whose hero image is added once it's out
 	article?: string;
 	// Release whose post's accent is copied once its image is added, for hotfixes sharing its article
 	parent?: string;

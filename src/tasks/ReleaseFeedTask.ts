@@ -179,13 +179,18 @@ export default class ReleaseFeedTask extends Task {
 	}
 
 	/**
-	 * Adds changelog article's hero image if article is out
+	 * Adds changelog article's hero image if article is out, replacing guessed changelog link with article's address
 	 */
 	private async completeImage( container: APIContainerComponent, slug: string ): Promise<Completion> {
 		const image = await ChangelogArticles.getImage( slug, () => this.articles ??= ChangelogArticles.getArticles() );
 		if ( image === undefined ) return { waiting: true };
 
-		return { container: ReleaseFeedUtil.addImage( container, image ), files: [ new AttachmentBuilder( image.data, { name: image.name } ) ], waiting: false };
+		const withImage = ReleaseFeedUtil.addImage( container, image );
+		return {
+			container: image.article ? ReleaseFeedUtil.replaceLink( withImage, `https://www.minecraft.net/article/${ slug }`, image.article ) : withImage,
+			files: [ new AttachmentBuilder( image.data, { name: image.name } ) ],
+			waiting: false,
+		};
 	}
 
 	/**

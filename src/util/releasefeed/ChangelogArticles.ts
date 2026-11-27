@@ -9,6 +9,8 @@ export interface Article {
 export interface ArticleImage {
 	name: string;
 	data: Buffer;
+	// Address of changelog article the image was found in
+	article?: string;
 }
 
 export class ChangelogArticles {
@@ -23,19 +25,31 @@ export class ChangelogArticles {
 	}
 
 	/**
-	 * Hero image of article with slug, read from its page or else found in search by address or title, unless article isn't out yet
+	 * Image at address, or hero image of article with slug, read from its page or else found in search by address or title, unless article isn't out yet
 	 */
-	public static async getImage( slug: string, getArticles: () => Promise<Article[]> ): Promise<ArticleImage | undefined> {
-		const page = await ReleaseFeedUtil.find( `https://www.minecraft.net/article/${ slug }` );
+	public static async getImage( source: string, getArticles: () => Promise<Article[]> ): Promise<ArticleImage | undefined> {
+		const found = source.startsWith( 'https://' ) ? { url: source } : await this.findArticle( source, getArticles );
+		if ( found === undefined ) return undefined;
+
+		const response = await ReleaseFeedUtil.get( found.url );
+
+		// Attachment name with spaces and similar characters replaced, and extension added when missing
+		const file = ( found.url.split( '/' ).pop() as string ).replace( /[^\w.-]+/g, '_' );
+		const name = file.includes( '.' ) ? file : `${ file }.${ response.headers.get( 'content-type' )?.split( '/' )[1] ?? 'jpeg' }`;
+		return { name, data: Buffer.from( await response.arrayBuffer() ), article: 'article' in found ? found.article : undefined };
+	}
+
+	/**
+	 * Hero image and address of article with slug, read from its page or else found in search by address or title
+	 */
+	private static async findArticle( slug: string, getArticles: () => Promise<Article[]> ): Promise<{ url: string; article: string } | undefined> {
+		const address = `https://www.minecraft.net/article/${ slug }`;
+		const page = await ReleaseFeedUtil.find( address );
 		const banner = page && /<meta property="og:image" content="([^"]+)"/.exec( await page.text() )?.[1];
-		const url = banner ? ReleaseFeedUtil.decode( banner ) : ( await getArticles() ).find( candidate =>
-			candidate.url.endsWith( `/article/${ slug }` ) || ReleaseFeedUtil.slugify( candidate.title.replace( / Changelog$/, '' ) ) === slug )?.image;
-		if ( url === undefined ) return undefined;
+		if ( banner ) return { url: ReleaseFeedUtil.decode( banner ), article: address };
 
-		const response = await ReleaseFeedUtil.get( url );
-
-		// Attachment name with spaces and similar characters replaced
-		const name = ( url.split( '/' ).pop() as string ).replace( /[^\w.-]+/g, '_' );
-		return { name, data: Buffer.from( await response.arrayBuffer() ) };
+		const article = ( await getArticles() ).find( candidate =>
+			candidate.url.endsWith( `/article/${ slug }` ) || ReleaseFeedUtil.slugify( candidate.title.replace( / Changelog$/, '' ) ) === slug );
+		return article && { url: article.image, article: article.url };
 	}
 }

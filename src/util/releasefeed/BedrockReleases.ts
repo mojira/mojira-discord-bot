@@ -40,6 +40,7 @@ export class BedrockReleases {
 			intro: ReleaseFeedUtil.getIntro( article.body, '<h2' ),
 			changelog: `https://feedback.minecraft.net/hc/en-us/articles/${ article.id }`,
 		};
+		const headerImage = /<img\s[^>]*src="([^"]+)"/.exec( article.body.split( '<h2' )[0] )?.[1];
 
 		// Wiki page and changelog article use first version of ones like "26.60.22/23"
 		const preview = /^Minecraft Beta & Preview - (([\d.]+)[\d./]*)$/.exec( article.title );
@@ -48,7 +49,7 @@ export class BedrockReleases {
 				...base,
 				heading: `Minecraft: Bedrock Edition Beta & Preview ${ preview[1] }`,
 				wiki: `https://minecraft.wiki/w/Bedrock_Edition_Preview_${ preview[2] }`,
-				article: ReleaseFeedUtil.slugify( `Minecraft Preview ${ preview[2] }` ),
+				article: headerImage ? ReleaseFeedUtil.decode( headerImage ) : ReleaseFeedUtil.slugify( `Minecraft Preview ${ preview[2] }` ),
 			};
 		}
 
@@ -68,7 +69,7 @@ export class BedrockReleases {
 				...base,
 				heading: `Minecraft: Bedrock Edition ${ version }`,
 				wiki: `https://minecraft.wiki/w/Bedrock_Edition_${ version }`,
-				article: ReleaseFeedUtil.slugify( `Minecraft: Bedrock Edition ${ version }` ),
+				article: headerImage ? ReleaseFeedUtil.decode( headerImage ) : ReleaseFeedUtil.slugify( `Minecraft: Bedrock Edition ${ version }` ),
 			};
 		}
 

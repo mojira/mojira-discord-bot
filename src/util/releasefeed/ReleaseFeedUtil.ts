@@ -1,4 +1,4 @@
-import { APIContainerComponent, ButtonBuilder, ButtonStyle, ContainerBuilder, MediaGalleryBuilder, SeparatorBuilder } from 'discord.js';
+import { APIContainerComponent, ButtonBuilder, ButtonStyle, ComponentType, ContainerBuilder, MediaGalleryBuilder, SeparatorBuilder } from 'discord.js';
 import { AccentColor } from './AccentColor.js';
 import { ArticleImage } from './ChangelogArticles.js';
 import { Post } from './Release.js';
@@ -100,6 +100,19 @@ export class ReleaseFeedUtil {
 				new SeparatorBuilder().setDivider( false ).toJSON(),
 				...container.components,
 			],
+		};
+	}
+
+	/**
+	 * Container with link buttons pointing to one address pointing to another instead
+	 */
+	public static replaceLink( container: APIContainerComponent, from: string, to: string ): APIContainerComponent {
+		return {
+			...container,
+			components: container.components.map( component => component.type !== ComponentType.ActionRow ? component : {
+				...component,
+				components: component.components.map( button => 'url' in button && button.url === from ? { ...button, url: to } : button ),
+			} ),
 		};
 	}
 }
