@@ -182,7 +182,7 @@ export default class ReleaseFeedTask extends Task {
 	 * Adds changelog article's hero image if article is out
 	 */
 	private async completeImage( container: APIContainerComponent, slug: string ): Promise<Completion> {
-		const image = await ChangelogArticles.getImage( await ( this.articles ??= ChangelogArticles.getArticles() ), slug );
+		const image = await ChangelogArticles.getImage( slug, () => this.articles ??= ChangelogArticles.getArticles() );
 		if ( image === undefined ) return { waiting: true };
 
 		return { container: ReleaseFeedUtil.addImage( container, image ), files: [ new AttachmentBuilder( image.data, { name: image.name } ) ], waiting: false };

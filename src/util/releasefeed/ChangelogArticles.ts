@@ -23,17 +23,19 @@ export class ChangelogArticles {
 	}
 
 	/**
-	 * Hero image of article with slug as address or title, unless article isn't out yet
+	 * Hero image of article with slug, read from its page or else found in search by address or title, unless article isn't out yet
 	 */
-	public static async getImage( articles: Article[], slug: string ): Promise<ArticleImage | undefined> {
-		const article = articles.find( candidate =>
-			candidate.url.endsWith( `/article/${ slug }` ) || ReleaseFeedUtil.slugify( candidate.title.replace( / Changelog$/, '' ) ) === slug );
-		if ( article === undefined ) return undefined;
+	public static async getImage( slug: string, getArticles: () => Promise<Article[]> ): Promise<ArticleImage | undefined> {
+		const page = await ReleaseFeedUtil.find( `https://www.minecraft.net/article/${ slug }` );
+		const banner = page && /<meta property="og:image" content="([^"]+)"/.exec( await page.text() )?.[1];
+		const url = banner ? ReleaseFeedUtil.decode( banner ) : ( await getArticles() ).find( candidate =>
+			candidate.url.endsWith( `/article/${ slug }` ) || ReleaseFeedUtil.slugify( candidate.title.replace( / Changelog$/, '' ) ) === slug )?.image;
+		if ( url === undefined ) return undefined;
 
-		const response = await ReleaseFeedUtil.get( article.image );
+		const response = await ReleaseFeedUtil.get( url );
 
 		// Attachment name with spaces and similar characters replaced
-		const name = ( article.image.split( '/' ).pop() as string ).replace( /[^\w.-]+/g, '_' );
+		const name = ( url.split( '/' ).pop() as string ).replace( /[^\w.-]+/g, '_' );
 		return { name, data: Buffer.from( await response.arrayBuffer() ) };
 	}
 }

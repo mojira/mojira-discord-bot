@@ -20,7 +20,20 @@ export class ReleaseFeedUtil {
 	 * Response of URL, failing on error status or timeout
 	 */
 	public static async get( url: string ): Promise<Response> {
+		const response = await this.find( url );
+		if ( response === undefined ) {
+			throw new Error( `${ url } responded with 404` );
+		}
+
+		return response;
+	}
+
+	/**
+	 * Response of URL, unless it doesn't exist, failing on other error statuses or timeout
+	 */
+	public static async find( url: string ): Promise<Response | undefined> {
 		const response = await fetch( url, { headers: { 'User-Agent': 'Mojira' }, signal: AbortSignal.timeout( this.requestTimeout ) } );
+		if ( response.status === 404 ) return undefined;
 		if ( !response.ok ) {
 			throw new Error( `${ url } responded with ${ response.status }` );
 		}
