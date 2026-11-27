@@ -252,6 +252,22 @@ versionFeeds:
     # Whether the bot should automatically publish feed messages it posts, if the channel is an announcement channel.
     # Optional; false by default.
     publish: <boolean>
-  
+
   - <see above>
   - ...
+
+# A feed that posts new Minecraft releases.
+# Optional; disabled by default.
+releaseFeed:
+  # The ID of the channel in which the releases should be posted.
+  channel: <string>
+
+  # The interval of the check for new releases, in seconds.
+  interval: <number>
+
+  # The emoji in front of the "Written By" line.
+  emoji: <string>
+
+  # Whether the bot should automatically publish release posts, if the channel is an announcement channel.
+  # Optional; false by default.
+  publish: <boolean>
