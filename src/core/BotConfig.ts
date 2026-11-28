@@ -203,7 +203,6 @@ export default class BotConfig {
 	}
 
 	public static jiraLogin(): void {
-		// TODO: integrate newErrorHandling from Jira.js
 		MojiraBot.jira = new JiraClient( {
 			host: 'https://mojira.atlassian.net',
 			authentication: this.jiraPat === undefined || this.jiraUser === undefined ? undefined : {
