@@ -283,10 +283,6 @@ export default class VersionFeedTask extends Task {
 		return embed;
 	}
 
-	private static stringifyChanges( changes: JiraVersionChange[] ): string {
-		return `[${ changes.map( change => `${ change.type }:${ change.versionId }` ).join( ',' ) }]`;
-	}
-
 	public asString(): string {
 		return `VersionFeedTask[#${ this.id }]`;
 	}

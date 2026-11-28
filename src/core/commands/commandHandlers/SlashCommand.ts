@@ -1,7 +1,6 @@
 import { Permission, PermissionRegistry } from '../../Permissions.js';
 import log4js from 'log4js';
-import { ApplicationCommandOptionChoiceData, AutocompleteInteraction, ChatInputCommandInteraction, GuildMember } from 'discord.js';
-import { SharedSlashCommand } from '@discordjs/builders';
+import { ApplicationCommandOptionChoiceData, AutocompleteInteraction, ChatInputCommandInteraction, GuildMember, SharedSlashCommand } from 'discord.js';
 
 export default abstract class SlashCommand {
 	public static logger = log4js.getLogger( 'SlashCommandExecutor' );
