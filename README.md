@@ -9,7 +9,7 @@
 <br/>
 <p align="center">
   <a href="https://bugs.mojang.com/">
-    <img src="mojirabot-logo.png" alt="MojiraBot" width="80" height="80">
+    <img src="assets/mojirabot-logo.png" alt="MojiraBot" width="80" height="80">
   </a>
 
   <h3 align="center">MojiraBot</h3>
@@ -77,14 +77,14 @@ where `<deployment>` is the name of a deployment configuration (`main` or `beta`
 To deploy the bot, you need to run the following command:
 
 ```
-./start.sh <deployment>
+./scripts/start.sh <deployment>
 ```
 
 where `<deployment>` is the name of a deployment configuration (`main` or `beta`).
 
 Note that the bot is started in a detached screen, which means you won't see any output and the bot is running in the background.
 
-You can stop the bot with `./stop.sh <deployment>` or restart it with `./restart.sh <deployment>`.
+You can stop the bot with `./scripts/stop.sh <deployment>` or restart it with `./scripts/restart.sh <deployment>`.
 
 ### Minimal bot permissions
 For the bot to function properly, the minimal Discord permissions bitfield is `268790848`.
