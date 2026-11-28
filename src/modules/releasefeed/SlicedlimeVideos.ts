@@ -78,7 +78,7 @@ export class SlicedlimeVideos {
 	}
 
 	/**
-	 * Whether video title is about version, also when listed like "Snapshot 9 & 10"
+	 * Whether video title is about version, also when listed like "Snapshot(s) 9 & 10"
 	 */
 	private static mentions( title: string, version: string ): boolean {
 		const numbered = /^(.+) (\d+)$/.exec( version );
@@ -86,7 +86,7 @@ export class SlicedlimeVideos {
 			return new RegExp( `Minecraft ${ this.escape( version ) }(?!\\.?\\d| Snapshot| Pre-Release| Release Candidate)`, 'i' ).test( title );
 		}
 
-		const listed = new RegExp( `(?<![\\d.])${ this.escape( numbered[1] ) } (\\d+(?:(?:\\s*[&,]\\s*|\\s+and\\s+)\\d+)*)`, 'i' ).exec( title );
+		const listed = new RegExp( `(?<![\\d.])${ this.escape( numbered[1] ) }s? (\\d+(?:(?:\\s*[&,]\\s*|\\s+and\\s+)\\d+)*)`, 'i' ).exec( title );
 		return listed !== null && listed[1].split( /\D+/ ).includes( numbered[2] );
 	}
 
