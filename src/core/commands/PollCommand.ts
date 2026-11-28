@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, Message, EmbedBuilder, MessageFlagsBitField, SlashCommandBuilder, SharedSlashCommand } from 'discord.js';
 import Command from './commandHandlers/Command.js';
 import emojiRegex from 'emoji-regex';
-import PermissionRegistry from '../permissions/PermissionRegistry.js';
+import { PermissionRegistry } from '../Permissions.js';
 import { ReactionsUtil } from '../../util/ReactionsUtil.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 

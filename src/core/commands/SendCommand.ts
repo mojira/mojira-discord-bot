@@ -1,5 +1,5 @@
 import { EmbedBuilder, TextChannel, NewsChannel, ChatInputCommandInteraction, MessageFlagsBitField, SharedSlashCommand, SlashCommandBuilder } from 'discord.js';
-import PermissionRegistry from '../permissions/PermissionRegistry.js';
+import { PermissionRegistry } from '../Permissions.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class SendCommand extends SlashCommand {

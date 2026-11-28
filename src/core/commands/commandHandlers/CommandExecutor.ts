@@ -1,10 +1,12 @@
 import Command from './Command.js';
 import { Message } from 'discord.js';
-import DefaultCommandRegistry from './DefaultCommandRegistry.js';
+import MentionCommand from '../../../modules/mentions/MentionCommand.js';
 
 export default class CommandExecutor {
+	private static readonly commands: Command[] = [ new MentionCommand() ];
+
 	public static async checkCommands( message: Message ): Promise<boolean> {
-		for ( const command of Object.values( DefaultCommandRegistry ) ) {
+		for ( const command of this.commands ) {
 			if ( message.member && command.checkPermission( message.member ) ) {
 				const commandTestResult = command.test( message.content );
 

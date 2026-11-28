@@ -1,6 +1,5 @@
 import { Message, GuildMember } from 'discord.js';
-import Permission from '../../permissions/Permission.js';
-import PermissionRegistry from '../../permissions/PermissionRegistry.js';
+import { Permission, PermissionRegistry } from '../../Permissions.js';
 import log4js from 'log4js';
 
 /**

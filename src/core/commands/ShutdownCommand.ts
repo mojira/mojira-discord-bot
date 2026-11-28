@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, SharedSlashCommand, SlashCommandBuilder } from 'discord.js';
 import MojiraBot from '../MojiraBot.js';
-import PermissionRegistry from '../permissions/PermissionRegistry.js';
+import { PermissionRegistry } from '../Permissions.js';
 import SlashCommand from './commandHandlers/SlashCommand.js';
 
 export default class ShutdownCommand extends SlashCommand {
