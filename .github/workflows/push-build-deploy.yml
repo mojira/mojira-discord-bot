@@ -36,7 +36,7 @@ jobs:
           ${{ runner.os }}-node-
 
     - name: Install dependencies
-      run: npm install --no-audit
+      run: npm ci --no-audit
 
     - name: Compile to JavaScript
       run: npm run build
@@ -59,5 +59,7 @@ jobs:
         vps_known_hosts: ${{ secrets.VPS_KNOWN_HOSTS }}
         project_folder: discord-bot
         script: |
+          git checkout -- package-lock.json
+          git pull
           ./scripts/build.sh
           ./scripts/restart.sh main

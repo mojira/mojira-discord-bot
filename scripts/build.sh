@@ -3,7 +3,7 @@
 CI=true
 
 echo "Install dependencies"
-npm install --no-audit
+npm ci --no-audit
 
 echo "Compile to JavaScript"
 npm run build
