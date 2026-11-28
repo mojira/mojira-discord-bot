@@ -1,6 +1,6 @@
 import log4js from 'log4js';
-import BotConfig from './src/BotConfig.js';
-import MojiraBot from './src/MojiraBot.js';
+import BotConfig from './src/core/BotConfig.js';
+import MojiraBot from './src/core/MojiraBot.js';
 
 log4js.configure( {
 	appenders: {
