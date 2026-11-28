@@ -1,0 +1,65 @@
+import { EmbedBuilder, TextChannel, NewsChannel, ChatInputCommandInteraction, MessageFlagsBitField, SharedSlashCommand, SlashCommandBuilder } from 'discord.js';
+import { PermissionRegistry } from '../Permissions.js';
+import SlashCommand from './commandHandlers/SlashCommand.js';
+
+export default class SendCommand extends SlashCommand {
+	public build(): SharedSlashCommand {
+		return new SlashCommandBuilder()
+			.setName( 'send' )
+			.setDescription( 'Send a message to a channel as the bot.' )
+			.addChannelOption( option =>
+				option.setName( 'channel' )
+					.setDescription( 'The channel to send the message to.' )
+					.setRequired( true )
+			)
+			.addStringOption( option =>
+				option.setName( 'message-type' )
+					.setDescription( 'The type of message to send. Either text or embed.' )
+					.setRequired( true )
+					.addChoices(
+						{ name: 'text', value: 'text' },
+						{ name: 'embed', value: 'embed' }
+					)
+			)
+			.addStringOption( option =>
+				option.setName( 'message' )
+					.setDescription( 'The message to send.' )
+					.setRequired( true )
+			);
+	}
+
+	public readonly permissionLevel = PermissionRegistry.OWNER_PERMISSION;
+
+	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
+		const channel = interaction.options.getChannel( 'channel' );
+		const messageType = interaction.options.getString( 'message-type' );
+		const content = interaction.options.getString( 'message' );
+
+		if ( channel == null || messageType == null || content == null ) return false;
+
+		if ( channel instanceof TextChannel || channel instanceof NewsChannel ) {
+			if ( messageType === 'text' ) {
+				try {
+					await channel.send( content );
+					await interaction.reply( { content: 'Message sent.' } );
+				} catch {
+					return false;
+				}
+			} else if ( messageType === 'embed' ) {
+				try {
+					const embed = new EmbedBuilder();
+					embed.setDescription( content );
+					await channel.send( { embeds: [embed] } );
+					await interaction.reply( { content: 'Message sent.' } );
+				} catch {
+					return false;
+				}
+			}
+		} else {
+			await interaction.reply( { content: `**Error:** ${ channel.name } is not a valid channel. `, flags: [MessageFlagsBitField.Flags.Ephemeral] } );
+			return true;
+		}
+
+		return true;
+	}
+}

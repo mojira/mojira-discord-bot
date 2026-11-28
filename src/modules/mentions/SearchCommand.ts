@@ -1,0 +1,66 @@
+import { EmbedBuilder, escapeMarkdown, ChatInputCommandInteraction, MessageFlagsBitField, SharedSlashCommand, SlashCommandBuilder } from 'discord.js';
+import SlashCommand from '../../core/commands/commandHandlers/SlashCommand.js';
+import BotConfig from '../../core/BotConfig.js';
+import MojiraBot from '../../core/MojiraBot.js';
+import { ChannelConfigUtil } from '../../util/ChannelConfigUtil.js';
+
+export default class SearchCommand extends SlashCommand {
+	public build(): SharedSlashCommand {
+		return new SlashCommandBuilder()
+			.setName( 'search' )
+			.setDescription( 'Search for issues in Jira.' )
+			.addStringOption( option =>
+				option.setName( 'query' )
+					.setDescription( 'The query to search for.' )
+					.setRequired( true )
+			);
+	}
+
+	public async run( interaction: ChatInputCommandInteraction ): Promise<boolean> {
+		const plainArgs = interaction.options.getString( 'query' )?.replace( /"|<|>/g, '' );
+
+		if ( plainArgs == null ) return false;
+
+		try {
+			const embed = new EmbedBuilder();
+			const searchFilter = `(description ~ "${ plainArgs }" OR summary ~ "${ plainArgs }") AND project in (${ BotConfig.projects.join( ', ' ) })`;
+			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlEnhancedSearch( {
+				jql: searchFilter,
+				maxResults: BotConfig.maxSearchResults,
+				fields: [ 'key', 'summary' ],
+			} );
+
+			if ( !searchResults.issues ) {
+				embed.setTitle( `No results found for "${ escapeMarkdown( plainArgs ) }"` );
+				await interaction.reply( { embeds: [embed], flags: [MessageFlagsBitField.Flags.Ephemeral] } );
+				return true;
+			}
+
+			embed.setTitle( '**Results:**' );
+			embed.setFooter( { text: interaction.user.tag, iconURL: interaction.user.avatarURL() ?? undefined } );
+
+			for ( const issue of searchResults.issues ) {
+				embed.addFields( {
+					name: issue.key,
+					value: `[${ issue.fields.summary }](https://bugs.mojang.com/browse/${ issue.key })`,
+				} );
+			}
+
+			const escapedJql = encodeURIComponent( searchFilter ).replace( /\(/g, '%28' ).replace( /\)/g, '%29' );
+			embed.setDescription( `__[See all results](https://bugs.mojang.com/issues/?jql=${ escapedJql })__` );
+
+			if ( interaction.channel !== null && ChannelConfigUtil.publicSearch( interaction.channel ) ) {
+				await interaction.reply( { embeds: [embed] } );
+			} else {
+				await interaction.reply( { embeds: [embed], flags: [MessageFlagsBitField.Flags.Ephemeral] } );
+			}
+		} catch {
+			const embed = new EmbedBuilder();
+			embed.setTitle( `No results found for "${ escapeMarkdown( plainArgs ) }"` );
+			await interaction.reply( { embeds: [embed], flags: [MessageFlagsBitField.Flags.Ephemeral] } );
+			return false;
+		}
+
+		return true;
+	}
+}

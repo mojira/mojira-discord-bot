@@ -1,5 +1,5 @@
 import log4js from 'log4js';
-import MojiraBot from '../MojiraBot.js';
+import MojiraBot from '../core/MojiraBot.js';
 import { TextChannel, Message, Guild, GuildMember, MessageReaction, User, Snowflake, PartialMessage, TextBasedChannel, MessageReplyOptions, PartialMessageReaction, PartialUser } from 'discord.js';
 
 export default class DiscordUtil {
@@ -22,7 +22,7 @@ export default class DiscordUtil {
 		if ( message !== undefined && message.partial ) {
 			message = await message.fetch();
 		}
-		return message as Message;
+		return message;
 	}
 
 	public static async fetchReaction( reaction: MessageReaction | PartialMessageReaction ): Promise<MessageReaction> {
