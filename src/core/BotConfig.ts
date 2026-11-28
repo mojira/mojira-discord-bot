@@ -194,7 +194,7 @@ export default class BotConfig {
 	public static async login( client: Client ): Promise<boolean> {
 		try {
 			await client.login( this.token );
-			await SlashCommandRegister.registerCommands( client, this.token );
+			await SlashCommandRegister.registerCommands( client );
 		} catch ( err ) {
 			MojiraBot.logger.error( err );
 			return false;

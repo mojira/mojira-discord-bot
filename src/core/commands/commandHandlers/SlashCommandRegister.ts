@@ -1,33 +1,21 @@
 import SlashCommand from './SlashCommand.js';
 import SlashCommandRegistry from './SlashCommandRegistry.js';
-import { REST } from '@discordjs/rest';
-import { Routes } from 'discord-api-types/v9';
-import { Client, Collection, RESTPostAPIApplicationCommandsJSONBody } from 'discord.js';
+import { Client, Collection } from 'discord.js';
 
 export default class SlashCommandRegister {
-	public static async registerCommands( client: Client, token: string ) {
-		client.guilds.cache.forEach( async fetchedGuild => {
-			await fetchedGuild.fetch();
-
-			const commands: RESTPostAPIApplicationCommandsJSONBody[] = [];
-
-			client.commands = new Collection();
-
-			for ( const [ commandName, command ] of Object.entries( SlashCommandRegistry ) ) {
-				const commandData = command.build();
-
-				client.commands.set( commandData.name, command );
-				commands.push( commandData.toJSON() );
-				SlashCommand.logger.info( `Registered command ${ commandName } for guild '${ fetchedGuild.name }'` );
-			}
-
-			const rest = new REST( { version: '9' } ).setToken( token );
-
-			if ( client.user != null ) {
-				rest.put( Routes.applicationGuildCommands( client.user.id, fetchedGuild.id ), { body: commands } )
-					.then( () => SlashCommand.logger.info( `Successfully registered all slash commands for guild '${ fetchedGuild.name }'.` ) )
-					.catch( error => SlashCommand.logger.error( `An error occurred while registering slash commands for guild '${ fetchedGuild.name }'`, error ) );
-			}
+	/**
+	 * Maps and registers commands in every guild, updating changed ones only
+	 */
+	public static async registerCommands( client: Client ): Promise<void> {
+		client.commands = new Collection();
+		const commands = Object.values( SlashCommandRegistry ).map( command => {
+			const commandData = command.build();
+			client.commands.set( commandData.name, command );
+			return commandData.toJSON();
 		} );
+
+		await Promise.all( client.guilds.cache.map( guild => guild.commands.set( commands )
+			.then( () => SlashCommand.logger.info( `Successfully registered all slash commands for guild '${ guild.name }'.` ) )
+			.catch( error => SlashCommand.logger.error( `An error occurred while registering slash commands for guild '${ guild.name }'`, error ) ) ) );
 	}
 }
