@@ -42,17 +42,10 @@ export default class MojiraBot {
 			Partials.Channel,
 		],
 		intents: [
-			// TODO: We might not need all of these intents
 			GatewayIntentBits.Guilds,
-			GatewayIntentBits.GuildBans,
-			GatewayIntentBits.GuildEmojisAndStickers,
-			GatewayIntentBits.GuildIntegrations,
-			GatewayIntentBits.GuildWebhooks,
-			GatewayIntentBits.GuildInvites,
-			GatewayIntentBits.GuildVoiceStates,
+			GatewayIntentBits.GuildExpressions,
 			GatewayIntentBits.GuildMessages,
 			GatewayIntentBits.GuildMessageReactions,
-			GatewayIntentBits.GuildMessageTyping,
 			GatewayIntentBits.DirectMessages,
 			GatewayIntentBits.DirectMessageReactions,
 			GatewayIntentBits.DirectMessageTyping,
