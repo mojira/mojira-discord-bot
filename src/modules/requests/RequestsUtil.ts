@@ -24,8 +24,8 @@ export class RequestsUtil {
 			const messageUrl = matches[1];
 			const parts = messageUrl.split( '/' );
 
-			const channelId = parts[parts.length - 2] as Snowflake;
-			const messageId = parts[parts.length - 1] as Snowflake;
+			const channelId = parts[parts.length - 2];
+			const messageId = parts[parts.length - 1];
 
 			if ( channelId && messageId ) {
 				return { channelId, messageId };

@@ -285,7 +285,7 @@ export default class MojiraBot {
 			const homeChannel = await DiscordUtil.getChannel( BotConfig.homeChannel );
 
 			if ( homeChannel instanceof TextChannel ) {
-				await ( homeChannel as TextChannel ).send( 'Hey, I have been restarted!' );
+				await homeChannel.send( 'Hey, I have been restarted!' );
 			}
 		} catch ( err ) {
 			this.logger.error( `MojiraBot could not be started: ${ err }` );

@@ -22,7 +22,7 @@ export default class DiscordUtil {
 		if ( message !== undefined && message.partial ) {
 			message = await message.fetch();
 		}
-		return message as Message;
+		return message;
 	}
 
 	public static async fetchReaction( reaction: MessageReaction | PartialMessageReaction ): Promise<MessageReaction> {
